@@ -1,0 +1,38 @@
+@CHARSET "UTF-8";
+
+div#footer
+{
+	border-top: solid 3px; 
+	text-align: right;
+	margin-top: 20px;
+}
+
+#title
+{
+	background-color: rgb(100,100,200);
+}
+
+div#content
+{
+	/*font-style: italic;*/
+}
+
+table
+{
+	border-collapse: collapse;
+}
+
+td, th 
+{
+	border: 1px dotted rgb(100,100,100);
+	text-align: left;
+}
+
+.t1 
+{
+  font: 30pt italic;
+  text-align: center;
+  display: block;
+  background-image: url('./BarreConfo.jpg');
+  height: 146px;
+}

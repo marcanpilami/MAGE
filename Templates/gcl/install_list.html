@@ -1,0 +1,35 @@
+<HTML>
+	<head>
+		<title>Truc</title>
+	</head>
+	
+	<BODY>
+		<h1>Installations sur l'environnement {{envt_name}}</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Nom livraison</th>
+					<th>Date d'installation</th>
+					<th>Nombre de cibles</th>
+					<th>Composants modifiés/installés</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for install in install_list %}
+					<tr>
+						<td>{{install.installable_set_name}}</td>
+						<td>{{install.install_date}}</td>
+						<td>{{install.nb_modified_components}}</td>
+						<td>
+							{% for compo in install.target_components.all %}
+								{{compo.component}};
+							{%endfor%}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</BODY>
+
+
+</HTML>

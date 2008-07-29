@@ -1,0 +1,1 @@
+INSERT INTO ref_environment (id, name, buildDate, destructionDate, description) VALUES(1, 'ENVT1', DATE(), DATE(), 'envt de test 1');
