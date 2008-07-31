@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <?eclipse-pydev version="1.0"?>
 
 <pydev_project>
@@ -7,6 +7,6 @@
 <path>C:\Python25\Lib\site-packages\django</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/MAGE_PY</path>
+<path>/MAGE</path>
 </pydev_pathproperty>
 </pydev_project>

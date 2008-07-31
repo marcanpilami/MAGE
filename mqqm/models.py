@@ -13,8 +13,8 @@ class QueueManager(Composant):
     port = models.IntegerField(max_length=6)
     adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
     
-    class Admin():
-        pass
+    #class Admin():
+    #    pass
     
     def __unicode__(self):
         return "%s (MQSeries)" %(self.name)
