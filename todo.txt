@@ -1,0 +1,27 @@
+Graphes (Ref)
+	Utiliser pyDot/graphviz pour générer des graphes
+		-Un graphe général de tous les environnements
+		-Un graphe par environnement
+		-Option de filtre ? A définir
+	Doit faire figurer :
+		-Tous les composants
+		-Les connexions entre composants
+		-Les utilisations de composants (socles) (via clusters graphviz). 
+		 => Pb des composants avec plusieurs socles. Faire tests graphviz.
+	Pb : graphviz sous AIX => Doit être une option avec moult précautions, cf. pysql
+
+
+Référentiel
+	Problème de multiples types différents d'un même modèle, dans __init__ de Composant
+
+
+GCL
+	Où placer les sucharges de InstallableSet.installOn(envt) ? Il est nécéssaire d'y :
+		-selon le cas, créer les composants manquants SI livraison FULL uniquement et si infos disponibles
+		-apeller la fonction d'install
+	Que faire pour les installs initiales ?
+	Relation d'ordre des composants à reprendre de la version java.
+	Vues/templates des patchs.
+
+Refactoring : ne garder que l'anglais dans les noms d'objet.
+

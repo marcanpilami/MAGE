@@ -41,10 +41,14 @@ class Composant(models.Model):
         if self.type is None:
             self.type = MageModelType.objects.get(model=self.__class__.__name__.lower())
     
-    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements')
+    name = models.CharField(max_length=100, verbose_name='Nom ')
+    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ')
     type = models.ForeignKey(MageModelType, blank=True, null=True)
-    connectedTo = models.ManyToManyField("self", blank=True, null=True, verbose_name='Connecté aux composants', symmetrical=True, related_name='connected_components')
-    dependsOn = models.ManyToManyField("self", blank=True, null=True, verbose_name='Supporté par', symmetrical=False, related_name='relies_on')
+    connectedTo = models.ManyToManyField("self", blank=True, null=True, verbose_name='Connecté aux composants ', symmetrical=True, related_name='connected_components')
+    dependsOn = models.ManyToManyField("self", blank=True, null=True, verbose_name='Supporté par ', symmetrical=False, related_name='relies_on')
+    
+    description_view = None ## Exp 1
+    detail_template = None  ## Exp 2
     
     def isLeaf(self):
         return self.__class__.__name__.lower() == self.type.model

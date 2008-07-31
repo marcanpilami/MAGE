@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from MAGE.liv.models import *
 from MAGE.ref.models import *
 from MAGE.gcl.models import *
@@ -8,6 +10,5 @@ d = Delivery.objects.all()[0]
 #d.installOn(e)
 mq = QueueManager.objects.all()[0]
 print mq
-ver = getComponentVersion(mq)
-print ver
-Tag.snapshot('TAG1', 'ENVT1')
+print mq.version.version
+#Tag.snapshot('TAG1', 'ENVT1')

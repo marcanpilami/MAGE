@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 ###########################################################
 ## MQ Series
 ###########################################################
@@ -9,12 +10,14 @@ from MAGE.ref.models import Composant
 from django.contrib import admin
 
 class QueueManager(Composant):
-    name = models.CharField(max_length=40, verbose_name='Nom du QM') #, unique=True)
     port = models.IntegerField(max_length=6)
     adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
     
-    #class Admin():
-    #    pass
+    description_view = 'MAGE.mqqm.views.detail'
+    detail_template = 'mqqm/details.html'
+    
+    class Admin():
+        pass
     
     def __unicode__(self):
         return "%s (MQSeries)" %(self.name)

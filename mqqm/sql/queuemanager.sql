@@ -1,1 +1,1 @@
-INSERT INTO ref_magemodeltype(id, name, description, model) VALUES(3, 'Queue Manager', 'MQSeries Queue Manager', 'queuemanager');
+--INSERT INTO ref_magemodeltype(id, name, description, model) VALUES(3, 'Queue Manager', 'MQSeries Queue Manager', 'queuemanager');

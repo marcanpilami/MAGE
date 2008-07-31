@@ -19,14 +19,7 @@ class ComponentTypeVersion(models.Model):
 class ComponentTypeVersionAdmin(admin.ModelAdmin):
     list_display = ('version', 'component_type')    
 
-class ComponentVersion(models.Model):
-    version = models.ForeignKey(ComponentTypeVersion, core=True)
-    component = models.ForeignKey(Composant, core=True)
-    def _getVersion(self):
-        return self.version.version
-    component_version = property(_getVersion)
-    def __unicode__(self):
-        return u'%s version %s' %(self.component.__unicode__(), self.component_version)
+
     
 class InstallableSet(models.Model):
     name = models.CharField(max_length=40, verbose_name='Référence', unique=True)
@@ -41,7 +34,7 @@ class InstallableSet(models.Model):
     
     def installOn(self, envt):
         """Full installation of the patch on an environment. All components patched/installed by the installableset
-            must already be referenced, or this function will exit"""
+        must already be referenced, or this function will exit"""
         i = Installation(installed_set=self, target_envt=envt, install_date=date.today())
         for compver in self.acts_on.all():
             ## Type of component ty, patch to version ver
@@ -61,17 +54,53 @@ class InstallableSet(models.Model):
                 ## Retrieve version <-> component association
                 cv = ComponentVersion.objects.filter(version=ver, component = comp_to_patch)
                 if cv.all().count() == 0:
-                    cv = ComponentVersion(version = compver, component = comp_to_patch)
+                    cv = ComponentVersion(version = compver, component = comp_to_patch, installation = i)
                     cv.save()
                     
-                ## Register tis association in the installation
-                i.target_components.add(cv)
-            
-            i.save()
         
         
     def __cmp__(self):
         return 0
+
+
+
+class Installation(models.Model):
+    installed_set = models.ForeignKey(InstallableSet, verbose_name='Livraison appliquée ')
+    target_envt = models.ForeignKey(Environment, verbose_name='Environnement ' )
+    target_components = models.ManyToManyField(Composant, through='ComponentVersion', verbose_name='Résultats ')
+    install_date = models.DateField(verbose_name='Date d\'installation ')
+    ticket = models.IntegerField(max_length=6, verbose_name='Ticket lié ', blank=True, null=True)
+    def _getNbTargetComponents(self):
+        return self.target_components.count()
+    nb_modified_components = property(_getNbTargetComponents)
+    def _getInstallableSetName(self):
+        return self.installed_set.name
+    installable_set_name = property(_getInstallableSetName)
+    
+    def __unicode__(self):
+        return '%s sur %s le %s' %(self.installed_set.name, self.target_envt.name, self.install_date)
+
+
+class ChoiceInline(admin.StackedInline):
+    model = Composant
+    extra = 3
+    
+class InstallationAdmin(admin.ModelAdmin):    
+    list_display = ('installable_set_name', 'target_envt', 'install_date', 'nb_modified_components')
+    inline = ChoiceInline
+
+
+
+class ComponentVersion(models.Model):
+    version = models.ForeignKey(ComponentTypeVersion, core=True)
+    component = models.ForeignKey(Composant, core=True)
+    installation = models.ForeignKey(Installation, core=True)
+    def _getVersion(self):
+        return self.version.version
+    component_version = property(_getVersion)
+    def __unicode__(self):
+        return u'%s version %s' %(self.component.__unicode__(), self.component_version)
+
                 
     
 class Tag(models.Model):
@@ -101,43 +130,31 @@ class Tag(models.Model):
         t.save()
         return t
 
-class Installation(models.Model):
-    installed_set = models.ForeignKey(InstallableSet)
-    target_envt = models.ForeignKey(Environment, verbose_name='Environnement')
-    target_components = models.ManyToManyField(ComponentVersion, verbose_name='Résultats ')
-    install_date = models.DateField(verbose_name='Date d\'installation')
-    ticket = models.IntegerField(max_length=6, verbose_name='Ticket lié', blank=True, null=True)
-    def _getNbTargetComponents(self):
-        return self.target_components.count()
-    nb_modified_components = property(_getNbTargetComponents)
-    def _getInstallableSetName(self):
-        return self.installed_set.name
-    installable_set_name = property(_getInstallableSetName)
-    
-    def __unicode__(self):
-        return '%s sur %s le %s' %(self.installed_set.name, self.target_envt.name, self.install_date)
-    
-class InstallationAdmin(admin.ModelAdmin):    
-    list_display = ('installable_set_name', 'target_envt', 'install_date', 'nb_modified_components')
+
+
 
 
 class UndefinedVersion(Exception):
     def __init__(self, comp):
         self.comp = comp
     def __str__(self):
-        return 'Version non définie pour le composant %s' %(self.comp)
+        return 'Version non definie pour le composant %s' %(self.comp)
 
 
+"""Add a version property to component objects"""
 def getComponentVersion(comp):
     try:
-        #print 'recherche des installs concernant %s de pk %s' %(comp.__unicode__(), comp.pk)
-        latest_install = Installation.objects.filter(target_components=comp).latest('install_date')
-        #print 'Derniere install %s' %(latest_install.__unicode__())
-        return latest_install.target_components.get(component=comp).version
+        return comp.componentversion_set.latest('installation__install_date').version
     except:
         raise UndefinedVersion(comp)
-    
+def getComponentVersionText(comp):
+    try:
+        return getComponentVersion(comp).version
+    except UndefinedVersion:
+        return "inconnue"
+Composant.version = property(getComponentVersionText)    
 
 
+## Register into admin interface
 admin.site.register(Installation, InstallationAdmin)
 admin.site.register(ComponentTypeVersion, ComponentTypeVersionAdmin)

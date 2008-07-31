@@ -1,1 +1,1 @@
-INSERT INTO ref_magemodeltype(id, name, description, model) VALUES(4, 'Serveur', 'Serveur', 'server');
+--INSERT INTO ref_magemodeltype(id, name, description, model) VALUES(4, 'Serveur', 'Serveur', 'server');

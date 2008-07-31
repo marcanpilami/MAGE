@@ -36,3 +36,49 @@ td, th
   background-image: url('./BarreConfo.jpg');
   height: 146px;
 }
+
+.t2 
+{
+  font-size: 17pt;
+  font-style: italic;
+  margin-left: 4px;
+  margin-bottom: 1px;
+  display: block;
+}
+
+.t3 
+{
+  font: 12pt arial;
+  margin-bottom: 4px;
+  margin-left: 3px;
+}
+
+.t4 
+{
+  font-style: italic;
+}
+
+.bloc1 
+{
+  background-color: rgb(238,238,238);
+  border: 2px rgb(150,150,150);
+  margin-bottom: 10px;
+  padding-bottom: 1px;
+}
+
+.bloc2 
+{
+  background-color: rgb(230,230,230);
+  border: 1px solid rgb(180,180,255);
+  margin: 5px;
+  margin-bottom: 7px;
+  padding-bottom: 1px;
+}
+
+.bloc3 
+{
+  background-color: rgb(240,240,240);
+  border: 2px rgb(150,150,150);
+  margin: 5px;
+}
+
