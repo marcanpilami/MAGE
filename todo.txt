@@ -7,21 +7,22 @@ Graphes (Ref)
 		-Tous les composants
 		-Les connexions entre composants
 		-Les utilisations de composants (socles) (via clusters graphviz). 
-		 => Pb des composants avec plusieurs socles. Faire tests graphviz.
+		 => Pb des composants avec plusieurs socles. Faire tests graphviz. (filtre par type de socle ???)
 	Pb : graphviz sous AIX => Doit être une option avec moult précautions, cf. pysql
 
 
 Référentiel
-	Problème de multiples types différents d'un même modèle, dans __init__ de Composant
-
+	Longueur des varchars à uniformiser/rationaliser
+	Mettre dans le init de Composant l'ajout des CT manquants, pas dans un script SQL de l'application
+	
 
 GCL
-	Où placer les sucharges de InstallableSet.installOn(envt) ? Il est nécéssaire d'y :
-		-selon le cas, créer les composants manquants SI livraison FULL uniquement et si infos disponibles
-		-apeller la fonction d'install
-	Que faire pour les installs initiales ?
-	Relation d'ordre des composants à reprendre de la version java.
+	Relation d'ordre des IS à reprendre de la version java.
 	Vues/templates des patchs.
+	CTV doit-il devenir un intermédiaire ManyToMany ? (permetrait de naviguer directement entre IS et TC) => NON
+	Dépendances : ajouter une possibilité de dire ">= version" et non simplement "= version". (via intermédiaire ?)
+	Ajouter gestion des deps pour les installs
 
 Refactoring : ne garder que l'anglais dans les noms d'objet.
 
+Réorganiser les templates par applis (avec le loader de template alternatif) pour avoir des modules les plus autonomes possible.

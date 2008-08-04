@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{%block pagetitle%}Installations{%endblock%}
+{%block maintitle%}Liste des installations effectuées sur {{compo.name}}{%endblock%}
+{%block content%}
+	<div>Version actuelle : {{compo.version}}</div>
+	{%for install in install_list%}
+		<div>
+			Le <span>{{install.install_date|date:"l d F Y à G:i"}},</span>
+			<span> installation de {{install.installed_set.name}}. </span>
+			<span>Version résultante 
+				{% for cv in install.componentversion_set.all %}
+					{%ifequal cv.component.pk compo.pk%}
+						{{cv.version.version}}
+					{%endifequal%}
+				{%endfor%}</span>
+		</div>
+	
+	{%endfor%}
+
+
+{%endblock content%}
