@@ -50,6 +50,8 @@ class Composant(models.Model):
     description_view = None ## Exp 1
     detail_template = None  ## Exp 2
     
+    parents = {}
+    
     def isLeaf(self):
         return self.__class__.__name__.lower() == self.type.model
     
@@ -64,7 +66,7 @@ class Composant(models.Model):
         if not self.isLeaf():
             return self.leaf.__unicode__()
         else:
-            return u'Composant générique'
+            return '%s' %(self.name)
 
 
 admin.site.register(Environment, EnvironmentAdmin)

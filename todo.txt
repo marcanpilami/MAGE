@@ -14,7 +14,7 @@ Graphes (Ref)
 Référentiel
 	Longueur des varchars à uniformiser/rationaliser
 	Mettre dans le init de Composant l'ajout des CT manquants, pas dans un script SQL de l'application
-	
+	Empêcher des associatons stupides (deux serveurs par AS, un MQ sur IFPC...)
 
 GCL
 	Relation d'ordre des IS à reprendre de la version java.

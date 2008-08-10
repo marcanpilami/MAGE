@@ -6,6 +6,7 @@ from MAGE.gcl.models import *
 from MAGE.mqqm.models import *
 from MAGE.fif.models import *
 from MAGE.srv.models import *
+from MAGE.ora.models import *
 from datetime import date
 
 
@@ -16,7 +17,11 @@ c = MageModelType(name = 'MQSeries Queue Manager', description = '.', model = 'q
 c.save()
 c = MageModelType(name = 'Serveur', description = '.', model = 'server')
 c.save()
-
+MageModelType(name = 'Instance Oracle', description = '.', model = 'oracleinstance').save()
+MageModelType(name = u'Schéma Oracle', description = '.', model = 'oracleschema').save()
+MageModelType(name = 'MPD Oracle', description = '.', model = 'oraclempd').save()
+c5 = MageModelType(name = 'Package Oracle', description = '.', model = 'oraclepackage')
+c5.save()
 
 ## Some environments...
 e = Environment(name='ENVT1', buildDate=date.today(), destructionDate=date.today(), description='envt de test 1')
@@ -56,6 +61,22 @@ qm.dependsOn.add(s)
 qm.save()
 
 
+oi = OracleInstance(name='GCDEV', port=1521, listener='BIDON')
+oi.save()
+oi.dependsOn = [s]
+oi.save()
+os = OracleSchema(name='Schema Gold Events', login='dev1evt')
+os.save()
+os.dependsOn = [oi]
+op = OraclePackage(name='P1')
+op.save()
+op.dependsOn = [os]
+op.environments.add(e)
+op.save()
+OraclePackage(name='P2').save()
+OraclePackage(name='P3').save()
+OraclePackage(name='P4').save()
+
 ## Some deliveries...
 
 # Full delivery of a single IFPC folder
@@ -83,3 +104,18 @@ ctv3.save()
 l3.acts_on.add(ctv3)
 l3.save()
 
+# Full delivery of a single Oracle Package
+l4 = Delivery(release_notes='Install initiale package P1', name='P1_1_0', is_full=True)
+l4.save()
+ctv4 = ComponentTypeVersion(version='1.0', component_type=c5, component_name='P1')
+ctv4.save()
+l4.acts_on.add(ctv4)
+l4.save()
+
+# Delta delivery of a single Oracle Package
+l5 = Delivery(release_notes='Patch package P1', name='P1_1_1', is_full=False)
+l5.save()
+ctv5 = ComponentTypeVersion(version='1.1', component_type=c5, component_name='P1')
+ctv5.save()
+l5.acts_on.add(ctv5)
+l5.save()
