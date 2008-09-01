@@ -16,9 +16,9 @@ from MAGE.gcl.exceptions import *
 
 class ComponentTypeVersion(models.Model):
     """Référentiel GCL : contenu d'un IS (ou d'un tag)"""
-    version = models.CharField(max_length=40, core=True)
-    component_type = models.ForeignKey(MageModelType, core=True)
-    component_name = models.CharField(max_length=200, core=True, blank=True, null=True) 
+    version = models.CharField(max_length=40)
+    component_type = models.ForeignKey(MageModelType)
+    component_name = models.CharField(max_length=200, blank=True, null=True) 
     def __unicode__(self):
         return u'%s %s version %s' %(self.component_type, self.component_name, self.version)
 
@@ -70,9 +70,9 @@ class ComponentVersion(models.Model):
     The link (i.e. a ManyToMany intermediate) between [environment components] and [installations].
     Version is also directly referenced here as a helper, to avoid having to navigate through
     [Installation] -> [InstallableSet] -> [ComponentTypeVersion] to find it.""" 
-    version = models.ForeignKey(ComponentTypeVersion, core=True)
-    component = models.ForeignKey(Composant, core=True)
-    installation = models.ForeignKey(Installation, core=True)
+    version = models.ForeignKey(ComponentTypeVersion)
+    component = models.ForeignKey(Composant)
+    installation = models.ForeignKey(Installation)
     def _getVersion(self):
         return self.version.version
     component_version = property(_getVersion)
