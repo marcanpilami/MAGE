@@ -68,7 +68,7 @@ def main():
             print u"Le CTV n°%s n'existe pas." % compo_descr[0]
             exit(1)
 
-    ## Resolve IS
+    ## Resolve IS (by name or by ID)
     try:
         is_source = InstallableSet.objects.get(name=options.isid)
     except InstallableSet.DoesNotExist:
@@ -78,7 +78,7 @@ def main():
             print u"L'identifiant de la livraison à installer est incorrect, ou elle n'est pas référencée." 
             exit(1)
     
-    ## @todo: Check CTV in the IS
+    #TODO: Check CTV in the IS
     
     ## Resolve envt    
     try:
@@ -88,6 +88,7 @@ def main():
         exit(1)
     
     
+    ## Check the prerequisites for this IS on the given envt.
     if not arePrerequisitesVerified(options.envt, is_source) and not options.force:
         print u"Les prérequis ne sont pas vérifiés ! Précisez l'option -f pour passer outre."
         exit(1)
@@ -134,20 +135,25 @@ def main():
         compo = None   
         new_compos = [] 
         if rs.count() == 0:
+            ## No component could be found. Should it be created ?
             if not is_source.is_full:
                 print u"Le composant décrit par %s n'existe pas, et ne peut être créé par une livraison de type mise à jour." %(compo_descr)
                 exit (1)
             try:
-                compo = createAComponent(compo_descr) # TODO (in try/catch)
+                compo = createAComponent(compo_descr) #TODO: write the function
                 new_compos.append(compo)
             except:
                 cleanNewCompos()
                 print u"Impossible de créer le nouveau composant %s" % compo_descr
                 exit(1)
         else:
+            ## The component was found without ambiguities.
             compo = rs.all()[0]
+        
+        ## Update the list : replace the component description by the component itself.
         del compo_descr[1:]
         compo_descr.append(compo.leaf)
+    
     
     ## Check compatibility between IS/CTV and the envt
     for pair in compo_list:
@@ -157,11 +163,12 @@ def main():
             cleanNewCompos()
             exit(1)
     
-    ## Registration
+    ## If test run => exit
     if options.test:
         exit(0)
     print compo_list
     
+    ## Registration
     try:
         i = Installation(installed_set=is_source, target_envt=envt, install_date=strftime('%Y-%m-%d %H:%M'))
         i.save()
@@ -176,10 +183,12 @@ def main():
         raise
 
 
-## Global compat test
+
 def cleanNewCompos():
     for compo in new_compos:
         compo.delete()
+        
+## Global compat test
 def arePrerequisitesVerified(envt_name, is_tocheck):
     ok = True
     for prereq in is_tocheck.requirements.all():
@@ -194,6 +203,10 @@ def arePrerequisitesVerified(envt_name, is_tocheck):
                     %(compo, compo.version, prereq.version)
                 ok = False
     return ok
+
+
+def createAComponent(compo_descr):
+    return
 
 if __name__ == "__main__":
     main()
