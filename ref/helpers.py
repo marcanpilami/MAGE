@@ -7,6 +7,7 @@ from django.db.models.loading import get_apps, get_model
 from MAGE.ref.models import *
 
 #TODO: add a __ navigation option in the getCompo functions
+#TODO: use all args in getCompo
 
 class UnknownModel(Exception):
     def __init__(self, model_name):
@@ -22,9 +23,9 @@ class UnknownComponent(Exception):
 
 class TooManyComponents(Exception):
     def __init__(self, compo_descr):
-        self.compo_name=compo_name
+        self.compo_name=compo_descr
     def __str__(self):
-        return u'Plusieurs composants répondent à la description donnée' %(self.compo_descr)
+        return u'Plusieurs composants répondent à la description donnée %s' %(self.compo_descr)
 
 class UnknownParent(Exception):
     def __init__(self, parent_name, model_name):
@@ -83,7 +84,7 @@ def getComponent(compo_type, compo_descr, envt_name = None):
 
     ## Refine the selection with parents' names
     i = 1
-    while i < len(compo_descr) and rs.count() > 1:
+    while i < len(compo_descr): #and rs.count() > 1:
         field = familly_names[i][0]
         value = familly_names[i][1]
         parents = model.parents
@@ -112,6 +113,8 @@ def getComponent(compo_type, compo_descr, envt_name = None):
     ## We are at the end of our knowledge, we have failed if the compo is still unfound
     if rs.count() > 1:
         raise TooManyComponents(compo_descr)
+    if rs.count() == 0:
+        raise UnknownComponent(compo_descr)
     
     ## Return the one and only component
     return rs.all()[0]
