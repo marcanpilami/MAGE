@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib import admin
 
 from MAGE.ref.models import Composant
 from MAGE.ref.models import MageModelType
@@ -11,7 +11,7 @@ class OracleInstance(Composant):
     def _getServer(self):
         return self.dependsOn.get(type=MageModelType.objects.get(model='server')).leaf
     server = property(_getServer)
-
+    parents = {'server':'Server'}
 
 class OracleSchema(Composant):
     login = models.CharField(max_length=100)
@@ -35,3 +35,7 @@ class OraclePackage(Composant):
     schema = property(_getSchema) 
     parents = {'schema':'OracleSchema'}
 
+class OraclePackageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'schema') 
+admin.site.register(OraclePackage, OraclePackageAdmin)
+admin.site.register(OracleInstance)
