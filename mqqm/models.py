@@ -16,9 +16,6 @@ class QueueManager(Composant):
     description_view = 'MAGE.mqqm.views.detail'
     detail_template = 'mqqm/details.html'
     
-    class Admin():
-        pass
-    
     def __unicode__(self):
         return "%s (MQSeries)" %(self.name)
 
