@@ -5,10 +5,10 @@
 ###########################################################
 
 from django.db import models
-from MAGE.ref.models import Composant
+from MAGE.ref.models import Component
 from django.contrib import admin
 
-class Server(Composant):
+class Server(Component):
     OS_CHOICES = (
                   ('Windows 2003', 'Windows 2003'),
                   ('Windows 2008', 'Windows 2008'),
@@ -20,15 +20,15 @@ class Server(Composant):
     ip          = models.IPAddressField(verbose_name='IP ')
     
     def __unicode__(self):
-        return "Serveur (%s) %s " %(self.os, self.name)
+        return "Serveur (%s) %s " %(self.os, self.instance_name)
 
 
 
 class ServerAdmin(admin.ModelAdmin):
-    ordering = ('name',)
-    list_display = ('name', 'comment',)
+    ordering = ('instance_name',)
+    list_display = ('instance_name', 'comment',)
     fieldsets = [
         ('Informations génériques',  {'fields': ['connectedTo', 'dependsOn']}),
-        ('Spécifique Serveur',       {'fields': ['name', 'comment', 'ip', 'os']}),
+        ('Spécifique Serveur',       {'fields': ['instance_name', 'comment', 'ip', 'os']}),
     ]
 admin.site.register(Server, ServerAdmin)

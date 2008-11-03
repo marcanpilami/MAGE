@@ -8,7 +8,7 @@
     A component is identified by its name, then by the name of its ancestors.
     A non-existing component can be described, provided all its required_ancestors are given. It will then be created.
     
-    install.py -e ENVT -i (IS_ID|IS_NAME) -c "type_composant,name=value,[parent_name=value[,grand_parent_name=value2,...]]" [-c ...] [-f]
+    install.py -e ENVT -i (IS_ID|IS_NAME) -c "composant_class_name,name=value,[parent_name=value[,grand_parent_name=value2,...]]" [-c ...] [-f]
     
     @author: mag
 """ 
@@ -19,12 +19,13 @@
 from django.core.management import setup_environ
 import settings
 setup_environ(settings)
-
+from django.db import transaction
 
 ## Python import
 from time import strftime
 from optparse import OptionParser
 from sys import exit
+import sys
 
 ## MAGE imports
 import MAGE.ref.helpers
@@ -32,6 +33,7 @@ from MAGE.liv.models import *
 from MAGE.gcl.models import *
 from MAGE.ref.models import *
 from MAGE.gcl.helpers import arePrerequisitesVerified
+from MAGE.gcl.exceptions import MissingComponentException, FailedDependenciesCheckException
 
 
 def parseOptions():
@@ -40,7 +42,8 @@ def parseOptions():
     parser.add_option("-e", "--envt", type="string", dest="envt", 
                       help=u"environnement sur lequel installer")
     parser.add_option("-c", "--component", type="string", dest="components", action="append", 
-                      help=u"description du composant à mettre à jour à l'aide du patch ou de la sauvegarde désigné")
+                      help=u"description du composant à mettre à jour à l'aide du patch ou de la sauvegarde désigné :\n \
+nom_modele_composant,name=(nom d'instance ou de classe)[pere=...]")
     parser.add_option("-i", "--installset", type="string", dest="isid", 
                       help=u"nom du patch ou de la sauvegarde à installer (ou bien son ID numérique)")
     parser.add_option("-t", "--test", action="store_true", dest="test", default=False, 
@@ -53,12 +56,9 @@ def parseOptions():
     return parser.parse_args()
 
 
-#Règle : les seuls print autorisés sont dans main. Le reste se fait via exceptions.
+@transaction.commit_manually
 def main():
     """Main function"""
-    
-    ## Helper vars
-    new_compos = []
     
     ## Parse arguments
     (options, args) = parseOptions()
@@ -76,8 +76,8 @@ def main():
     except InstallableSet.DoesNotExist:
         try:
             is_source = InstallableSet.objects.get(pk=options.isid)
-        except InstallableSet.DoesNotExist:
-            print u"L'identifiant de la livraison à installer est incorrect, ou elle n'est pas référencée." 
+        except (InstallableSet.DoesNotExist, ValueError):
+            print u"L'identifiant de la livraison à installer (\"%s\") est incorrect, ou elle n'est pas référencée." %options.isid
             exit(1)
     
     ## Resolve envt    
@@ -88,49 +88,53 @@ def main():
         exit(1)
     
     ## Check the prerequisites for this IS on the given envt.
-    if not arePrerequisitesVerified(options.envt, is_source) and not options.force:
-        print u"Les prérequis ne sont pas vérifiés ! Précisez l'option -f pour passer outre."
-        exit(1)
-    if not arePrerequisitesVerified(options.envt, is_source) and options.force:
-        print u"Les prérequis ne sont pas vérifiés ! L'option -f étant précisée, le script passe outre."
+    try:
+        arePrerequisitesVerified(options.envt, is_source)
+    except (MissingComponentException, FailedDependenciesCheckException), e:
+        if not options.force:
+            print u"Les prérequis ne sont pas vérifiés ! Précisez l'option -f pour passer outre."
+            print e
+            exit(1)
+        else:
+            print u"Les prérequis ne sont pas vérifiés ! L'option -f étant précisée, le script passe outre."
     
     ## Loop on components
     for compo_descr in compo_list:
-        compo_type_name = compo_descr[0]
-        compo_name = compo_descr[1].split('=')[1]
+        compo_model_name = compo_descr[0].split('=')[0]
+        compo_class_name = compo_descr[0].split('=')[1]
         
         ## Find a CTV in the patch corresponding to the compo name, compo type, IS.
         try:
-            ctv=ComponentTypeVersion.objects.get(component_type__model=compo_descr[0],component_name=compo_name,\
+            ctv=ComponentTypeVersion.objects.get(class_name=compo_class_name,
                                                  installableset=is_source)
         except ComponentTypeVersion.DoesNotExist:
-            print u'Les composants %s de type %s ne sont pas concernés par la livraison %s' %(compo_type_name, compo_name, is_source.name)
-            cleanNewCompos(new_compos)
+            print u'Les composants de type %s ne sont pas concernés par la livraison %s' %(compo_class_name, is_source.name)
+            transaction.rollback()
             exit(1)
-        compo_descr[0]=ctv
+        
         
         ## Find the component
         try:
-            compo = MAGE.ref.helpers.getComponent(compo_type_name, compo_descr[1:], envt.name)
-        except MAGE.ref.helpers.UnknownComponent:
-            ## No component could be found. Should it be created ?
+            compo = MAGE.ref.helpers.getComponent(compo_model_name, compo_descr[0:], envt.name)
+        except MAGE.ref.exceptions.UnknownComponent:
+            ## No component could be found. Should it be created ?         
             if not is_source.is_full and not options.force:
-                print u"Le composant décrit par %s n'existe pas, et ne peut être créé par une livraison \
-                de type mise à jour. Précisez l'option -f pour forcer la tentative de création." %(compo_descr)
+                print u"Le composant décrit par %s n'existe pas, et ne peut être référencé par une livraison \
+                de type mise à jour. Précisez l'option -f pour forcer la tentative de référencement." %(compo_descr)
                 exit (1)
             if not is_source.is_full and options.force:
-                print u"Le composant décrit par %s n'existe pas, et ne dvrait pas être créé par une livraison \
-                de type mise à jour. L'option -f ayant été précisée, sa création sera néanmoins tentée." %(compo_descr)
+                print u"Le composant décrit par %s n'existe pas, et ne devrait pas être référencé via une livraison \
+                de type mise à jour. L'option -f ayant été précisée, son référencement sera néanmoins tenté." %(compo_descr)
             
             ## Build new compo
             try:
-                compo = MAGE.ref.helpers.findOrCreateComponent(compo_type_name, compo_descr[1:], envt.name) # Raises exceptions
-                new_compos.append(compo)                                                                    # For rollback
+                compo = MAGE.ref.helpers.findOrCreateComponent(compo_model_name, compo_descr, envt.name) # Raises exceptions
             except:
-                cleanNewCompos(new_compos)
+                transaction.rollback()
                 raise
         
         ## Update the list : replace the component description by the component itself.
+        compo_descr[0]=ctv
         del compo_descr[1:]
         compo_descr.append(compo.leaf)
     ## compo_list is now a list of pairs [ [CTV, Component], ...]
@@ -138,6 +142,7 @@ def main():
     
     ## If test run => exit now
     if options.test:
+        print u'Mode simulation : réussite'
         exit(0)
     
     ## Registration itself
@@ -149,15 +154,13 @@ def main():
             cv.save()
         i.save()
     except:
-        cleanNewCompos(new_compos)
-        i.delete()
+        transaction.rollback()
         print u"Impossible d'enregistrer l'installation"
         raise
+    
+    transaction.commit()
+    print 'Fin de l\'enregistrement de l\'installation'
 
 
-def cleanNewCompos(new_compos):
-    for compo in new_compos:
-        compo.delete()
-        
 if __name__ == "__main__":
     main()

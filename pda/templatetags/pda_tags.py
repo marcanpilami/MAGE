@@ -2,7 +2,7 @@
 
 from django import template
 from django.template import Variable
-from MAGE.ref.models import Composant
+from MAGE.ref.models import Component
 import MAGE
 register = template.Library()
 
@@ -11,7 +11,7 @@ register = template.Library()
 ##############################################################################
 @register.simple_tag
 def component_detail(comp_pk):
-    c = Composant.objects.get(pk=comp_pk).leaf 
+    c = Component.objects.get(pk=comp_pk).leaf 
     try:
         mod = c.description_view[:c.description_view.rfind('.')]
         exec ("import " + mod)
@@ -41,7 +41,7 @@ class ComponentNode(template.Node):
     
     def render(self, context):
         comp = self.component.resolve(context).leaf
-        if not isinstance(comp, Composant):
+        if not isinstance(comp, Component):
             context['template_to_render'] = None
             context['comp'] = None
             return ""

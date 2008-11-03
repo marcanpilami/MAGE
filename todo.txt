@@ -1,28 +1,39 @@
-Graphes (Ref)
-	Utiliser pyDot/graphviz pour générer des graphes
-		-Un graphe général de tous les environnements
-		-Un graphe par environnement
-		-Option de filtre ? A définir
-	Doit faire figurer :
-		-Tous les composants
-		-Les connexions entre composants
-		-Les utilisations de composants (socles) (via clusters graphviz). 
-		 => Pb des composants avec plusieurs socles. Faire tests graphviz. (filtre par type de socle ???)
-	Pb : graphviz sous AIX => Doit être une option avec moult précautions, cf. pysql
-
-
+Graphes
+	Vérifications : doit être une option avec moult précautions, cf. pysql
+	Mettre des liens dans les graphes ?
+	Compos multi envt => bandes de couleur, compo lui même blanc
+	Liens avec la page d'accueil :
+		-Un graphe par composant, avec tous ses sous composants (et un rang de parents ?)
+	Graphe pour les patchs ! => INTERET DOUTEUX
+	Faire une class mère DrawingContext avec les fonctions de base (nodeExists, toFile, toScreen, addNode, getNode, ...)
+	
 Référentiel
 	Longueur des varchars à uniformiser/rationaliser
-	Mettre dans le init de Composant l'ajout des CT manquants, pas dans un script SQL de l'application
-	Empêcher des associatons stupides (deux serveurs par AS, un MQ sur IFPC...)
+	Empêcher des associations stupides (deux serveurs par AS, un MQ sur IFPC...) 
+		=> validation de modèle, non dispo en DjangoV1
+	Scripts de sortie des données sur sortie standard pour appel scripts dédiés (bash, ksh, ...). 
 
 GCL
-	Relation d'ordre des IS à reprendre de la version java.
-	Vues/templates des patchs.
-	CTV doit-il devenir un intermédiaire ManyToMany ? (permetrait de naviguer directement entre IS et TC) => NON
-	Dépendances : ajouter une possibilité de dire ">= version" et non simplement "= version". (via intermédiaire ?)
-	Ajouter gestion des deps pour les installs
+	Fonctionaliser le install.py, pour permettre une utilisation facile depuis Python, et pas seulement le shell...
+	Comparaison de IS à partir de la comparaison de CTV (si dep > concerné, alors ...)
+	Faire un formulaire pour les listes de CTV (par modèle, par classe de composant) 
+		(+ faire un tri sur classe avant de trier par ctv)
+	Dépendances : 
+		faire fonction "comment aller de version A à version Z" (liste => vue + template)
+	Ajout champs "retour arrière possible" dans les liv ?
+	Fonction "où par rapport au tag X"
+	
+Sauvegardes
+	Rajouter une prévisualisation (Ajax) de la sauvegarde lors des suppressions
+	Proposer de descendre dans les abonnés lors des sauvegardes ? (ie. la sauvegarde d'un schéma sauve aussi tous les packages, etc)
+	Paramètrage : ce qu'il faut sauvegarder (dans le cas d'une full) (ou propriété dans le modèle ? Arg !) 
+	
+Appli générale :
+	Gestion des options
+	Mettre les urls dans des fichiers par application
+	Contrôle d'accès (appli interne Django !)
+	
+Interface avec système gestion tickets ?
 
-Refactoring : ne garder que l'anglais dans les noms d'objet.
-
-Réorganiser les templates par applis (avec le loader de template alternatif) pour avoir des modules les plus autonomes possible.
+Optim : supprimer les classe d'admin du référentiel, car cela force un import de toutes les applications !
+De plus, pose pb d'imports circulaires...  (une app avec des classes d'admin ne doit pas être importée...)

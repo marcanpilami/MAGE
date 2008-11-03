@@ -5,50 +5,10 @@ from django.db.models.loading import get_apps, get_model
 
 ## MAGE imports
 from MAGE.ref.models import *
+from MAGE.ref.exceptions import *
 
 #TODO: add a __ navigation option in the getCompo functions
-#TODO: use all args in getCompo
 
-class UnknownModel(Exception):
-    def __init__(self, model_name):
-        self.model_name=model_name
-    def __str__(self):
-        return u'Le type de composant %s est introuvable' %(self.model_name)
-
-class UnknownComponent(Exception):
-    def __init__(self, compo_name):
-        self.compo_name=compo_name
-    def __str__(self):
-        return u'Le composant %s est introuvable' %(self.compo_name)
-
-class TooManyComponents(Exception):
-    def __init__(self, compo_descr):
-        self.compo_name=compo_descr
-    def __str__(self):
-        return u'Plusieurs composants répondent à la description donnée %s' %(self.compo_descr)
-
-class UnknownParent(Exception):
-    def __init__(self, parent_name, model_name):
-        self.parent_name=parent_name
-        self.model_name=model_name
-    def __str__(self):
-        return u'Les composants de type %s n\'ont pas de parent de nom %s' %(self.model_name, self.parent_name)
-
-class TooComplexToBuild(Exception):
-    def __init__(self, compo_name, model_name):
-        self.compo_name=compo_name
-        self.model_name=model_name
-    def __str__(self):
-        return u'Impossible de construire automatiquement le composant %s de type %s \
-(composant ayant plusieurs champs ou plusieurs parents)' %(self.compo_name, self.model_name)
-
-class MissingConnectedToComponent(Exception):
-    def __init__(self,parents, compo_type):
-        self.parents = parents
-        self.compo_type=compo_type 
-    def __str__(self):
-        return u'Il est nécéssaire de préciser les parents suivants pour un composant \
-de type %s : %s' %(self.compo_type, self.parents) 
         
 def getComponent(compo_type, compo_descr, envt_name = None):
     """Finds a component given its name and type, and optionaly its parents' names 
@@ -61,10 +21,11 @@ def getComponent(compo_type, compo_descr, envt_name = None):
     @raise UnknownComponent: if no component can be found with the given component description
     @raise TooManyComponents: if multiple components are returned using the given component description
     @raise UnknownParent: if a specified parent field doesn't exist""" 
-    if envt_name == None:
-        print u'Recherche d\'un composant %s sans envt.' %(compo_descr)
-    else:
-        print u'Recherche d\'un composant %s dans l\'envt : %s.' %(compo_descr, envt_name) 
+#    if envt_name == None:
+#        print u'Recherche d\'un composant %s sans envt.' %(compo_descr)
+#    else:
+#        print u'Recherche d\'un composant %s dans l\'envt : %s.' %(compo_descr, envt_name) 
+    
     ## Parse arguments
     familly_names=[couple.split('=') for couple in compo_descr]
     
@@ -72,9 +33,9 @@ def getComponent(compo_type, compo_descr, envt_name = None):
     model = getModel(compo_type)
 
     ## First selection : environment, type and compo name
-    #print u'type__model=%s, name=%s' %(compo_type.lower(), familly_names[0][1])
-    rs = Composant.objects.filter(type__model=compo_type.lower(), name=familly_names[0][1])
-    #print rs.count()
+    rs = Component.objects.filter(model__model=compo_type.lower(), class_name=familly_names[0][1]) | \
+                Component.objects.filter(model__model=compo_type.lower(), instance_name=familly_names[0][1])
+    
     if envt_name != None:
         rs = rs.filter(environments__name=envt_name)
     if rs.count() == 0:
@@ -89,26 +50,25 @@ def getComponent(compo_type, compo_descr, envt_name = None):
         value = familly_names[i][1]
         parents = model.parents
         
-        ## Check parent field exists
-        try:
-            parentModel = parents[field] # string
-        except:
-            raise UnknownParent(field, model.__name__)
-        
         ## Django query construction
         d = {}
+        d2 = {}
         papa = ""
         for p in range(0,i):
             papa = papa + "dependsOn__"
-        #d[papa + 'type'] = MageModelType.objects.get(model=parentModel.lower()) # Django bug (#8046) ??? name alone should be enough
-        d[papa +'name'] = value
+        #d[papa + 'model'] = MageModelType.objects.get(model=parentModel.lower()) # Django bug (#8046) ??? name alone should be enough
+        d[papa +'class_name'] = value
+        d2[papa +'instance_name'] = value
         
         ## Query
-        rs = rs.filter(**d)
+        rs = rs.filter(**d) | rs.filter(**d2)
         
         ## Iteration
         i=i+1
-        model = getModel(model.parents[field])
+        try:
+            model = getModel(model.parents[field])
+        except KeyError:
+            raise UnknownParent(compo_type, field)
  
     ## We are at the end of our knowledge, we have failed if the compo is still unfound
     if rs.count() > 1:
@@ -130,21 +90,22 @@ def findOrCreateComponent(compo_type, compo_descr, envt_name = None):
 
 def __createASimpleComponent(compo_type, compo_descr, envt_name = None):
     """Creates a new component. 
-        Only for components without fields (but the base Composant fields) and 0 to 1 parents.
+        Only for components without fields (but the base Component fields) and 0 to 1 parents.
+        Will NOT recursively create the parents of the component
         
         @param compo_descr: an ordered list [name=value, parent_field_name=value, grandparent_field_name=value, ...]
         @param compo_type: as a string, lowercase
         @param envt_name: the environment name
         @return: the new component instance, raises an exception if an error occurs
     """
-    print u'Création d\'un composant : %s' %compo_descr
+    #print u'Création d\'un composant : %s' %compo_descr
     #####################################
     ## New compo itself
     familly_names=[couple.split('=') for couple in compo_descr]
     model = getModel(compo_type)
     
     ## Create a new model instance
-    a = model(name=familly_names[0][1])
+    a = model(class_name=familly_names[0][1])
     try:
         a.save()
     except :
@@ -174,12 +135,12 @@ def __createASimpleComponent(compo_type, compo_descr, envt_name = None):
         a.delete()
         raise MissingConnectedToComponent(parents, compo_type)
     
-    ## Get or create parent component (without envt - wevcould be looking for a server, or anything not envt related)
+    ## Get (don't create !) parent component (without envt - we could be looking for a server, or anything not envt related)
     try:
-        papa = findOrCreateComponent(parents[familly_names[1][0]], compo_descr[1:]) 
-    except:
+        papa = getComponent(parents[familly_names[1][0]], compo_descr[1:]) 
+    except UnknownComponent:
         a.delete()
-        raise
+        raise TooComplexToBuild(familly_names[0][1], compo_type)
     
     a.dependsOn = [papa]
     a.save()

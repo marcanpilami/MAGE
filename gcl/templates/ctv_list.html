@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{%block pagetitle%}CTV{%endblock%}
+{%block maintitle%}Liste des versions connues{%endblock%}
+{%block content%}
+	<table>
+		<thead>
+			<tr>
+				<th>Modèle</th>
+				<th>Classe de modèle</th>
+				<th>Version</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for ctv in list1 %}
+				<tr>
+					<td>{{ctv.model}}</td>
+					<td>{{ctv.class_name}}</td>
+					<td>{{ctv.version}}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<br>
+	<br>
+	<table>
+		<thead>
+			<tr>
+				<th>Modèle</th>
+				<th>Classe de modèle</th>
+				<th>Version</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for ctv in list2 %}
+				<tr>
+					<td>{{ctv.model}}</td>
+					<td>{{ctv.class_name}}</td>
+					<td>{{ctv.version}}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{%endblock content%}

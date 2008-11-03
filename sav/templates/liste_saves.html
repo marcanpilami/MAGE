@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load sav_tags %}
+
+{%block pagetitle%}Sauvegardes{%endblock%}
+{%block maintitle%}Liste des sauvegardes{%endblock%}
+{%block content%}
+	<div><span clas='t4'>Note : les composants non versionnés ne peuvent en aucun cas faire l'objet d'une installation.</span></div><br/>
+	<table>
+		<thead>
+			<tr class='title_table'>
+				<th>N°</th>
+				<th class='table_title_cell'>Date de sauvegarde</th>
+				<th class='table_title_cell'>Composant sauvegardé</th>
+				<th class='table_title_cell'>En version</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% regroup sav_list|dictsort:"from_envt.name" by from_envt.name as sorted_list %}
+			{% for group in sorted_list %}
+				<tr class='groupe_table_1'><td colspan='4'>{{group.grouper}}</td></tr>
+				{%for sv in group.list|dictsort:"pk"%}
+					<tr class='groupe_table_2'>
+						<td>{{sv.pk}}</td>
+						<td>{{ sv.set_date|date:"d M Y H:i" }}</td>
+						<td>.</td><td>.</td>
+					</tr>
+					{% for compo in sv.unversioned_components.all %}
+						<tr>
+							<td>.</td><td>.</td>
+							<td>{{compo}}</td>
+							<td>{% component_saved_version compo.pk sv.pk %}</td>
+						</tr>
+					{%endfor%}
+				{%endfor%}
+			{%endfor%}
+		</tbody>
+	</table>
+{%endblock content%}

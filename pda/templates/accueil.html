@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load pda_tags %}
+
+{% block pagetitle %}GE{% endblock %}
+{% block maintitle %}Portail Gestion des Environnements{% endblock %}
+{%block scripts%}
+	<script src="/mediamage/js/prototype.js" type="text/javascript"></script>
+	<script src="/mediamage/js/scriptaculous.js" type="text/javascript"></script>
+{%endblock scripts%}
+
+{% block content %}
+	<script type="text/javascript">
+		// <![CDATA[
+		// Accordeon fonction
+		function acc(elt)
+		{
+			var cur_elt = $(elt); 
+			if (cur_elt.getStyle('display') == 'none')
+			{
+				// Hide all other envts
+				var envt_divs=$$('div.envt_content')
+				for (var i in envt_divs)
+				{
+					if(! envt_divs.hasOwnProperty(i))
+						continue	// Prototype bug... a function appears at the end of the list !
+					if (envt_divs[i].getStyle('display') != 'none')
+						Effect.BlindUp(envt_divs[i], {duration: 0.6});
+				}
+				// Show new envt
+				Effect.BlindDown(cur_elt, {duration: 0.6});
+			}
+			else
+				// The active envt was selected => hide it.
+				Effect.BlindUp(cur_elt, {duration: 0.6});
+		}
+
+		function displayPic(envt_id)
+		{
+			img = $("GRAPH_ENVT_" + envt_id);
+			if (img.src != "")		
+			{
+				// The image is already here, we just have to toggle it on or off.
+				if (img.getStyle('display') == 'none')
+					Effect.BlindDown(img);				// User wants to display the picture
+				else
+					Effect.BlindUp(img);					// User wants to hide the graph
+			}
+			else
+			{
+				// It's the first time the link is clicked, the graph has to be fetched.
+				base_url = "{% url gph.views.envt_pic 123456789 %}";
+				url = base_url.replace("123456789", envt_id);
+				img.src = url;
+				Effect.BlindDown(img);
+			}
+		}
+		// ]]>
+	</script>
+	
+	{% for envt in envts %}
+		<div class='bloc1' id='ENVT_{{envt.pk}}'>
+			<span class='t2' onclick="acc($('CONTENT_ENVT_{{envt.pk}}'));">{{envt.name}} ({{envt.description}})</span>
+			<div class='envt_content' id='CONTENT_ENVT_{{envt.pk}}'>
+				{% for comp in envt.component_set.all %}				
+					{% more comp %}
+					{% if template_to_render %}
+						<div class='bloc2' id='COMP_{{comp.pk}}'>					
+							{% if comp.instance_name %}
+								<div class='t3'>{{comp.instance_name}}  ({{ comp.class_name }})</div>
+							{% endif %}						
+							{% if not comp.instance_name %}						
+								<div class='t3'>{{comp.class_name}} ({{ comp.model.name }})</div>
+							{% endif %}					
+							{% include template_to_render %}
+							<span class="t4">Version : {{comp.version}}</span>
+							<div>
+								{%for socle in comp.dependsOn.all%}
+									<span class='t4'>Dépend de : {{socle}}</span>
+								{%endfor%}
+							</div>
+						</div>
+					{% endif %}
+				{% endfor %}
+				<div class='options_envt' align="left">
+					<span class='clickabletext' onclick="displayPic({{envt.pk}})">Afficher le graphe</span>
+				</div>
+				<img class='GRAPH_ENVT' id='GRAPH_ENVT_{{envt.pk}}' align="middle"/>
+			</div>
+		</div>
+	{%endfor%}
+	
+	<script type="text/javascript" language="javascript">
+		// <![CDATA[
+		$$('img.GRAPH_ENVT').invoke('hide');
+		$$('div.envt_content').invoke('hide');
+		// ]]>
+	</script>
+	<div>
+		<span class='t2'>Schéma global</span>
+		<img src="{%url gph.views.full_pic %}" width="100%" align="middle">
+	</div>
+{%endblock content%}

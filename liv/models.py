@@ -2,7 +2,7 @@
 
 from django.db import models
 from MAGE.gcl.models import InstallableSet
-from MAGE.ref.models import Composant
+from MAGE.ref.models import Component
 from django.contrib import admin
 
 
@@ -22,7 +22,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Identification',  {'fields': ['name', 'ticket']}),
         ('Concerne',        {'fields': ['acts_on']}),
-        ('Dépendances',     {'fields': ['requirements', 'is_full']}),
+        ('Dépendances',     {'fields': ['is_full']}),
         ('Divers',          {'fields': ['release_notes']}),
     ]
 admin.site.register(Delivery, DeliveryAdmin)

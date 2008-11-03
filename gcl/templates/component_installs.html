@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {%block pagetitle%}Installations{%endblock%}
-{%block maintitle%}Liste des installations effectuées sur {{compo.name}}{%endblock%}
+{%block maintitle%}Liste des installations effectuées sur {{compo}}{%endblock%}
 {%block content%}
 	<div>Version actuelle : {{compo.version}}</div>
 	{%for install in install_list%}

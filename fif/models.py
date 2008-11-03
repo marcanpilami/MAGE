@@ -4,16 +4,24 @@
 ## Informatica folder
 ###########################################################
 
+#TODO: the IFPC components are not defined yet, those are just here for referential engine debug purposes
+
 from django.db import models
 from MAGE.ref.models import *
 from django.contrib import admin
 
-class IFPCFolder(Composant):
-    #name = models.CharField(max_length=100)
-    #if_project = models.ForeignKey(IFPC_Project)  ## No : should be a dependsOn relationship
-    detail_template = 'mqqm/details.html'
+class IFPCFolder(Component):
+    def _getProject(self):
+        return self.dependsOn.get(model__model='oracleschema').leaf
+    ifpc_project = property(_getProject) 
+    
+    detail_template = 'fif_folder_details.html'
+    parents = {'ifpc_project':'IFPCProject'}
     
     def __unicode__(self):
-        return u'%s' %(self.name) 
+        return u'%s' %(self.class_name) 
 
 admin.site.register(IFPCFolder)
+
+class IFPCProject(Component):
+    pass

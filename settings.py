@@ -10,11 +10,12 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'          # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'C:\SQLite\django.db'# Or path to database file if using sqlite3.
+DATABASE_NAME = 'django.db'          # Or path to database file if using sqlite3.
 DATABASE_USER = 'django'             # Not used with sqlite3.
 DATABASE_PASSWORD = 'django'         # Not used with sqlite3.
 DATABASE_HOST = 'localhost'          # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = '1521'               # Set to empty string for default. Not used with sqlite3.
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -45,7 +46,7 @@ MEDIA_URL = '/mediamage/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/adminmedia/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'yq^xb+4=42u6zp-!o(m#tcmtc@x4+8ahxv@olm0godm9&1*6lf'
@@ -70,7 +71,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "C:/Users/user1/WebDjango/MAGE/MAGE/Templates"
+    "global-templates"
 )
 
 INSTALLED_APPS = (
@@ -80,8 +81,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'MAGE.ref',
-    'MAGE.mqqm',
+    'MAGE.gph',
     'MAGE.srv',
+    'MAGE.mqqm',
     'MAGE.gcl',
     'MAGE.liv',
     'MAGE.sav',

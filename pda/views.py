@@ -1,9 +1,54 @@
-# Create your views here.
+# coding: utf-8
 
+## Django imports
+from django.shortcuts import render_to_response
+from django.core.urlresolvers import reverse
+
+## MAGE imports
 from MAGE.ref.models import *
 
-from django.shortcuts import render_to_response
 
 def page_de_garde(request):
+    """Page présentant le détail de tous les environnements"""
     envts = Environment.objects.all()
-    return render_to_response('pda/accueil.html', {'envts':envts})
+    return render_to_response('accueil.html', {'envts':envts})
+
+
+class InternalPage():
+    def __init__(self):
+        self.url = ""
+        self.name = ""
+        self.doc = ""
+        self.appli = ""
+
+def liste_pages(request):
+    """Liste des pages web (ie. vues Django ne prenant pas de paramètres)"""
+    from django.conf import settings
+    urlconf = settings.ROOT_URLCONF
+    urlconf_module = __import__(urlconf, {}, {}, [''])
+    pages = []
+    
+    for regobj in urlconf_module.urlpatterns:
+        ## Django pages exceptions 
+        if regobj.callback.__name__ == 'root' or regobj.callback.__name__ == 'serve':
+            continue
+        
+        ## Already in the list ?
+        if [pa.name for pa in pages].__contains__(regobj.callback.__name__):
+            continue
+        
+        ## Test args number
+        try:
+            url = reverse(regobj.callback)
+        except:
+            continue
+         
+        ## It's a page to display => to the list !
+        ip = InternalPage()
+        ip.name = regobj.name or regobj.callback.__name__
+        ip.doc = regobj.callback.__doc__ or u'Pas de description disponible'
+        ip.url = url
+        ip.appli = regobj.callback.__module__.split(".")[1]
+        pages.append(ip)
+    
+    return render_to_response('liste_pages.html', {'pages':pages})

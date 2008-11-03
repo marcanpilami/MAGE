@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{%block pagetitle%}Tags{%endblock%}
+{%block maintitle%}Liste des tags et de leur contenu{%endblock%}
+
+{%block content%}
+	<table>
+		<thead>
+			<tr>
+				<th class='table_title_cell'>Nom du tag</th>
+				<th class='table_title_cell'>Date</th>
+				<th class='table_title_cell'>Composant</th>
+				<th class='table_title_cell'>Version</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for tag in tag_list %}
+				<tr class='groupe_table_1'>
+					<td>{{tag.name}}</td>
+					<td>{{tag.snapshot_date|date:"d M Y H:i"}}</td>
+					<td>.</td><td>.</td>
+				</tr>	
+				{% for ctv in tag.versions.all %}
+					<tr>	<td>.</td><td>.</td>
+						<td>{{ctv}}</td>
+						<td>{{ctv.version}}</td>
+					</tr>
+				{%endfor%}
+			{% endfor %}
+		</tbody>
+	</table>
+{%endblock%}

@@ -4,30 +4,89 @@
 ## GCL
 ###########################################################
 
-from django.db import models
-from MAGE.ref.models import Composant
-from MAGE.ref.models import MageModelType
-from MAGE.ref.models import Environment
-from django.contrib import admin
+## Python imports
 from datetime import date
 from time import strftime
+
+## Django imports
+from django.db import models
+from django.contrib import admin
+
+## MAGE imports
+from MAGE.ref.models import Component
+from MAGE.ref.models import MageModelType
+from MAGE.ref.models import Environment
 from MAGE.gcl.exceptions import *
 
 
 class ComponentTypeVersion(models.Model):
     """Référentiel GCL : contenu d'un IS (ou d'un tag)"""
     version = models.CharField(max_length=40)
-    component_type = models.ForeignKey(MageModelType)
-    component_name = models.CharField(max_length=200, blank=True, null=True) 
+    model = models.ForeignKey(MageModelType)
+    class_name = models.CharField(max_length=200, blank=True, null=True) 
     def __unicode__(self):
-        return u'%s %s version %s' %(self.component_type, self.component_name, self.version)
-
-class ComponentTypeVersionAdmin(admin.ModelAdmin):
-    """Admin : for manual referencing of patchs and saves 
-    @todo: should it remain editable in the admin ?"""
-    list_display = ('version', 'component_type')    
-
+        return u'%s %s version %s' %(self.model, self.class_name, self.version)
     
+    def compare(ctv1, ctv2):
+        """
+            Order relation between CTV objects
+            
+            The relation is deduced from the IS (as they can be seen as links between the CTV).
+            This function will not detect inconsistencies in IS dependencies (such as loops),
+            as it will return the first result it will find. (This is, among others, to prevent infinite 
+            loops and fasten things.)
+            
+            It is possible to compare CTV of different model classes, since IS can draw relationships 
+            between different classes.
+            
+            @return: 1 if the ctv1 should be installed AFTER the ctv2 (ctv1 > ctv2)
+                     0 if it doesn't matter ("equality")
+                    -1 if the ctv1 should be installed BEFORE the ctv2 (ctv1 < ctv2)
+            
+            @note: do NOT overload __cmp__ or eq with this function as they are already used by Django internals.
+        """
+        try: return ctv1.__compareWith(ctv2)
+        except UnrelatedCTV: return 0
+    
+    def __compareWith(ctv1, ctv2, __reverseCall = False):
+        """ The function actually doing the comparison. Here, equality (0) has a strict meaning. """
+        ## Initial checks
+        if not isinstance(ctv1, ComponentTypeVersion) or not isinstance(ctv2, ComponentTypeVersion):
+            raise Exception("La fonction ctvOrder ne peut gerer que des objets CTV")
+        if (ctv1.class_name == ctv2.class_name) and (ctv1.model.model == ctv2.model.model) and (ctv1.version == ctv2.version):
+            return 0
+        
+        ## Loop on all the InstallableSets that install ctv1
+        for ist in ctv1.installableset_set.all():
+            ## Loop on all the requirements of the installable set
+            for dep in ist.dependency_set.all():#filter(type_version__class_name = ctv1.class_name):              
+                ## Terminaison condition: we have found ctv2
+                if dep.type_version == ctv2:
+                    if dep.operator == '>=' or dep.operator == '==': return 1
+                    else: return 0
+                
+                ## Recursion
+                try:
+                    tmp = dep.type_version.__compareWith(ctv2)
+                except UnrelatedCTV:
+                    continue ## Nothing can be deduced from this result.
+                
+                ## Analysis of the recursion result
+                if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
+                    return 1    ## Transitivity on >
+                if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
+                    return -1   ## Transitivity on <
+                
+                ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
+                
+            ## If here : no relationship has given fruit. Let's try the reverse relationhip analysis.
+            if not __reverseCall:
+                return -ctv2.__compareWith(ctv1, True)
+            
+        ## If here : there is really nothing to say between ctv1 and ctv2, so they are equal (their order doesn't matter)
+        raise UnrelatedCTV(ctv1, ctv2)   
+
+
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
@@ -35,22 +94,34 @@ class InstallableSet(models.Model):
     set_date = models.DateTimeField(verbose_name='Date de réception', auto_now_add=True)
     acts_on = models.ManyToManyField(ComponentTypeVersion, verbose_name='Composants installés')
     ticket = models.IntegerField(max_length=6, verbose_name='Ticket lié', null=True ,blank=True)
-    requirements = models.ManyToManyField(ComponentTypeVersion, verbose_name='Version de composants requises', related_name='requires', blank=True)
+    requirements = models.ManyToManyField(ComponentTypeVersion, verbose_name='Version de composants requises',
+                                          related_name='required_by_is', blank=True, through='Dependency')
+    
     is_full = models.BooleanField(verbose_name='Livraison annule et remplace (ou livraison initiale)', default='true')
+    #data_loss = models.BooleanField(verbose_name=u'Entraine des pertes de données', default='false')
     
     def __unicode__(self):
         return u'%s' %(self.name)
-        
-    def __cmp__(self):
-        return 0
+    
 
+class Dependency(models.Model):
+    OPERATOR_CHOICES = (('>=', '>='),
+                        ('<=', '<='),
+                        ('==', '=='))
+    installable_set = models.ForeignKey(InstallableSet)
+    type_version = models.ForeignKey(ComponentTypeVersion)
+    operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES)
+    
+    def __unicode__(self):
+        return u'dépendance de [%s] envers [%s en version %s]' %(self.installable_set, self.type_version.class_name,
+                                                                 self.type_version.version)
 
 class Installation(models.Model):
     """Every time an [IS] is used on an environmnent (or a set of [Components] inside an [Environmnent]),
     an [Installation] objet is created to register it"""    
     installed_set = models.ForeignKey(InstallableSet, verbose_name='Livraison appliquée ')
     target_envt = models.ForeignKey(Environment, verbose_name='Environnement ' )
-    target_components = models.ManyToManyField(Composant, through='ComponentVersion', verbose_name='Résultats ')
+    target_components = models.ManyToManyField(Component, through='ComponentVersion', verbose_name='Résultats ')
     install_date = models.DateTimeField(verbose_name='Date d\'installation ')
     ticket = models.IntegerField(max_length=6, verbose_name='Ticket lié ', blank=True, null=True)
     
@@ -71,7 +142,7 @@ class ComponentVersion(models.Model):
     Version is also directly referenced here as a helper, to avoid having to navigate through
     [Installation] -> [InstallableSet] -> [ComponentTypeVersion] to find it.""" 
     version = models.ForeignKey(ComponentTypeVersion)
-    component = models.ForeignKey(Composant)
+    component = models.ForeignKey(Component)
     installation = models.ForeignKey(Installation)
     def _getVersion(self):
         return self.version.version
@@ -86,55 +157,35 @@ class Tag(models.Model):
     versions = models.ManyToManyField(ComponentTypeVersion, verbose_name='Version des composants')
     from_envt = models.ForeignKey(Environment)
     snapshot_date = models.DateTimeField(verbose_name='Date de prise de la photo', auto_now_add=True)
-    
-    @staticmethod
-    def snapshot(tag_name, envt_name):
-        e = Environment.objects.get(name=envt_name)
-        types_to_save = Composant.objects.filter(environments=e).values('type').distinct()
-        t = Tag(name=tag_name, from_envt = e)
-        t.save()
-        
-        for type_id in types_to_save:
-            ## Take the first component of that type; only one entry per type in a tag
-            comp_type = MageModelType.objects.get(pk=type_id['type'])
-            c = Composant.objects.filter(environments=e, type=comp_type)[0]
-            try:
-                v = getComponentVersion(c)
-            except UndefinedVersion:
-                ## Version is undefined: this component type won't be referenced in the tag.
-                ##   (we assume the user wants to reference the versions he knows of)
-                continue
-            t.versions.add(v)   
-        t.save()
-        return t
 
 
 
 
 
 #######################################################################################
-## Update Composant class with GCL objects
+## Update Component class with GCL objects
 #######################################################################################
 
 ## Add a version property to component objects   
-def getComponentVersion(comp):
+def getCV(comp):
+    """@return: the latest installed CV on the Component"""
     try:
-        return comp.componentversion_set.latest('installation__install_date').version
+        return comp.componentversion_set.latest('pk') #installation__install_date').version
     except:
         raise UndefinedVersion(comp)
+def getComponentVersion(comp):
+    """@return: the latest installed CTV on the Component"""
+    return getCV(comp).version
 def getComponentVersionText(comp):
     try:
         return getComponentVersion(comp).version
     except UndefinedVersion:
         return "inconnue"
-Composant.version = property(getComponentVersionText)    
+Component.version = property(getComponentVersionText)  
+Component.latest_ctv = property(getComponentVersion)  
+Component.latest_cv = property(getCV)  
+Component.parents = {}
 
 
-## Add a update base function
-def update(comp):
-    raise ComponentCannotBeUpgraded(comp)
-Composant.update=update
 
-
-## Register into the admin interface (debug only)
-admin.site.register(ComponentTypeVersion, ComponentTypeVersionAdmin)
+admin.site.register(Tag)

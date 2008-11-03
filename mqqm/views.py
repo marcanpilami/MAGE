@@ -15,4 +15,4 @@ def detail(qm):
         qmo = QueueManager.objects.get(pk=qm)
     else:
         raise Exception()    
-    return render_to_string('mqqm/details.html', {'comp':qmo})
+    return render_to_string('details.html', {'comp':qmo})
