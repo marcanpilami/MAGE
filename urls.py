@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Uncomment this for admin:
+    # Admin
     url(r'admin/(.*)', admin.site.root, name='admin-site'),
     
     # GCL
@@ -26,9 +26,9 @@ urlpatterns = patterns('',
     (r'ref/graph$',                                                                     'MAGE.gph.views.view_carto'),
     (r'gph/envt/(?P<envt_id>\d*)/*$',                                                   'MAGE.gph.views.envt_pic'),
     
-    # Default : main public page
+    # Default : main public pages
     (r'listepages$',    'MAGE.pda.views.liste_pages'),
-    (r'pa$',           'MAGE.pda.views.page_de_garde'),
+    (r'pa$',            'MAGE.pda.views.page_de_garde'),
     (r'/$',             'MAGE.pda.views.page_de_garde'),
     
     # This is for dev only ! static content should be served by the webserver itself (IIS will superseed this anyway)
