@@ -14,7 +14,7 @@ def page_de_garde(request):
     return render_to_response('accueil.html', {'envts':envts})
 
 
-class InternalPage():
+class InternalPage:
     def __init__(self):
         self.url = ""
         self.name = ""

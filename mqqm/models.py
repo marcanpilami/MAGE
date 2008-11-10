@@ -21,7 +21,7 @@ class QueueManager(Component):
     
     detail_template = 'mqqm_pda_details.html'
 
-class QueueManagerGraphOptions():
+class QueueManagerGraphOptions:
     shape='box'
 registerGraphOption(QueueManager, QueueManagerGraphOptions)
 

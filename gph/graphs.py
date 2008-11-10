@@ -20,7 +20,7 @@ from pydot import *
 ## Draw context
 ####################################################################################    
 
-class DrawingContext():
+class DrawingContext:
     def __init__(self):
         """default init"""
         self.envt_colours = {}
