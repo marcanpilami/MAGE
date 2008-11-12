@@ -22,7 +22,7 @@ class QueueManager(Component):
     port = models.IntegerField(max_length=6)
     adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
     
-    class Meta():
+    class Meta:
         verbose_name = u'Gestionnaire de files'
         verbose_name_plural = u'Gestionnaires de files'
         
@@ -43,7 +43,7 @@ class QueueManagerParams(Component):
     def __unicode__(self):
         return "Params %s sur %s" %(self.class_name, self.qm.instance_name)
     
-    class Meta():
+    class Meta:
         verbose_name = u'Paramétrage MQ Series'
         verbose_name_plural = u'Paramétrages MQ Series'
     

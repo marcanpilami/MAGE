@@ -19,7 +19,7 @@ class OracleInstance(Component):
     server = property(_getServer)
     parents = {'server':'Server'}
     
-    class Meta():
+    class Meta:
         verbose_name = u'Instance de base de données'
         verbose_name_plural = u'Instances de base de données'
 
@@ -50,7 +50,7 @@ class OracleSchema(Component):
     parents = {'instance':'OracleInstance'}
     detail_template = 'ora_schema_details.html'
     
-    class Meta():
+    class Meta:
         verbose_name = u'Schéma'
 
 class OracleSchemaAdmin(admin.ModelAdmin):
@@ -71,7 +71,7 @@ class OracleMPD(Component):
         return self.dependsOn.get(model__model='oracleschema').leaf
     schema = property(_getSchema) 
     
-    class Meta():
+    class Meta:
         verbose_name = u'Modèle Physique de Données'
         verbose_name_plural = u'Modèles Physique de Données'
 
@@ -89,7 +89,7 @@ class OraclePackage(Component):
     def __unicode__(self):
         return u'Package %s sur %s' %(self.class_name, self.schema.instance_name)
     
-    class Meta():
+    class Meta:
         verbose_name = u'Package PL/SQL'
         verbose_name_plural = u'Packages PL/SQL'
 
