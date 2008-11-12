@@ -24,11 +24,19 @@ class InternalPage:
 def liste_pages(request):
     """Liste des pages web (ie. vues Django ne prenant pas de paramètres)"""
     from django.conf import settings
+    from django.core.urlresolvers import RegexURLResolver
     urlconf = settings.ROOT_URLCONF
     urlconf_module = __import__(urlconf, {}, {}, [''])
     pages = []
     
-    for regobj in urlconf_module.urlpatterns:
+    patterns = urlconf_module.urlpatterns
+    
+    for regobj in patterns:
+        ## Recursive exploration of included urlconf
+        if isinstance(regobj, RegexURLResolver):
+            patterns += regobj.url_patterns
+            continue
+        
         ## Django pages exceptions 
         if regobj.callback.__name__ == 'root' or regobj.callback.__name__ == 'serve':
             continue

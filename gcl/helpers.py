@@ -167,7 +167,10 @@ def goToTagThroughDeliveries(envt, tag):
             is_tmp_list = goToVersionThroughDeliveries(None, target_ctv)
         
         for compo in compos_to_upgrade:
-            init_ctv = compo.latest_ctv
+            try:
+                init_ctv = compo.latest_ctv
+            except UndefinedVersion:
+                init_ctv = None
             is_tmp_list = goToVersionThroughDeliveries(init_ctv, target_ctv)
             
         for i_set in is_tmp_list:

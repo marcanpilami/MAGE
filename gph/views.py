@@ -97,7 +97,7 @@ def view_carto(request):
             ad = reverse('MAGE.gph.views.filter_pic', 
                          args=(str(form.cleaned_data['parentRecursion']),
                                str(form.cleaned_data['partnerRecursion']),
-                               str(form.cleaned_data['collapseThr']))) + '/?environments__pk__in=' 
+                               str(form.cleaned_data['collapseThr']))) + '?environments__pk__in=' 
             for env in form.cleaned_data['envts']: ad += env + ','
             ad = ad[:-1] + ';model__pk__in='
             for pk in form.cleaned_data['models']: ad += pk + ","

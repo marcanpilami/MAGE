@@ -158,7 +158,8 @@ class Tag(models.Model):
     from_envt = models.ForeignKey(Environment)
     snapshot_date = models.DateTimeField(verbose_name='Date de prise de la photo', auto_now_add=True)
 
-
+    def __unicode__(self):
+        return u'Tag n°%s - %s (concerne %s composants)' %(self.pk, self.name, self.versions.count())
 
 
 

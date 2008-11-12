@@ -8,10 +8,8 @@ Graphes
 	Faire une class mère DrawingContext avec les fonctions de base (nodeExists, toFile, toScreen, addNode, getNode, ...)
 	
 Référentiel
-	Longueur des varchars à uniformiser/rationaliser
 	Empêcher des associations stupides (deux serveurs par AS, un MQ sur IFPC...) 
 		=> validation de modèle, non dispo en DjangoV1
-	Scripts de sortie des données sur sortie standard pour appel scripts dédiés (bash, ksh, ...). 
 
 GCL
 	Fonctionaliser le install.py, pour permettre une utilisation facile depuis Python, et pas seulement le shell...
@@ -30,8 +28,8 @@ Sauvegardes
 	
 Appli générale :
 	Gestion des options
-	Mettre les urls dans des fichiers par application
 	Contrôle d'accès (appli interne Django !)
+	le déploiement actuel IIS pèche au niveau statique (même pool d'application)
 	
 Interface avec système gestion tickets ?
 

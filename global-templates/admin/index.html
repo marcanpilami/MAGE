@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n admin_list adminmedia %}
 
 {% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css{% endblock %}
 
@@ -16,7 +16,7 @@
     {% for app in app_list %}
         <div class="module">
         <table summary="{% blocktrans with app.name as name %}Models available in the {{ name }} application.{% endblocktrans %}">
-        <caption>{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}</caption>
+        {%comment%}<caption>{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}</caption>{%endcomment%}
         {% for model in app.models %}
             <tr>
             {% if model.perms.change %}
@@ -63,6 +63,10 @@
             {% endfor %}
             </ul>
             {% endif %}
+    </div>
+    <div class="module">
+    	<h2>Recherche (à venir)</h2>
+         {%comment%}{% block search %}{% search_form %}{% endblock %}{%endcomment%}
     </div>
 </div>
 {% endblock %}

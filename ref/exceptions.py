@@ -8,10 +8,14 @@ class UnknownModel(Exception):
         return u'Le type de composant %s est introuvable' %(self.model_name)
 
 class UnknownComponent(Exception):
-    def __init__(self, compo_name):
-        self.compo_name=compo_name
+    def __init__(self, compo_name, envt = None):
+        self.compo_name = compo_name
+        self.envt = envt
     def __str__(self):
-        return u'Le composant %s est introuvable' %(self.compo_name)
+        if self.envt:
+            return u'Le composant %s est introuvable dans l\'environnement %s' %(self.compo_name, self.envt)
+        else:
+            return u'Le composant %s est introuvable' %(self.compo_name)
 
 class TooManyComponents(Exception):
     def __init__(self, compo_descr):

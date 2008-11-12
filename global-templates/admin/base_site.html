@@ -1,10 +1,10 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
 
-{% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
-
+{% block title %}{{ title }} | Console d'administration MAGE{% endblock %}
+{% block extrastyle %} <link media="all" type="text/css" href="/mediamage/pres/mage1.css" rel="stylesheet"/> {%endblock%}
 {% block branding %}
-<h1 id="site-name">{% trans 'Django administration' %}</h1>
+Console d'administration MAGE
 {% endblock %}
 
 {% block nav-global %}{% endblock %}

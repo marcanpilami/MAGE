@@ -24,10 +24,10 @@ class MageModelTypeAdmin(admin.ModelAdmin):
 
 
 class Environment(models.Model):
-    name = models.CharField(max_length=30, verbose_name='Nom')
+    name = models.CharField(max_length=100, verbose_name='Nom')
     buildDate = models.DateField(verbose_name='Date de création')
     destructionDate = models.DateField(verbose_name='Date de suppression')
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=500)
     
     def __unicode__(self):
         return "Environnement %s" %(self.name)
