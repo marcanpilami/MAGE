@@ -30,7 +30,7 @@ class Environment(models.Model):
     description = models.CharField(max_length=500)
     
     def __unicode__(self):
-        return "Environnement %s" %(self.name)
+        return "%s" %(self.name)
 
 class EnvironmentAdmin(admin.ModelAdmin):
     fields = ['name', 'description', 'buildDate', 'destructionDate']
