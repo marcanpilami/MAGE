@@ -48,6 +48,10 @@ MEDIA_URL = '/mediamage/'
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/adminmedia/'
 
+LOGIN_REDIRECT_URL = 'accounts/profile/'
+LOGIN_URL = 'accounts/login/'
+LOGOUT_URL = 'accounts/logout/'
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'yq^xb+4=42u6zp-!o(m#tcmtc@x4+8ahxv@olm0godm9&1*6lf'
 
@@ -57,6 +61,8 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.load_template_source',
 #     'django.template.loaders.eggs.load_template_source',
 )
+
+TEMPLATE_CONTEXT_PROCESSORS = ('django.core.context_processors.auth',)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -81,6 +87,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'MAGE.ref',
+    'MAGE.prm',
     'MAGE.gph',
     'MAGE.srv',
     'MAGE.mqqm',
@@ -90,4 +97,5 @@ INSTALLED_APPS = (
     'MAGE.pda',
     'MAGE.fif',
     'MAGE.ora',
+    #'MAGE.tkm',
 )

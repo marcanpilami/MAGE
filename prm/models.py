@@ -23,7 +23,7 @@ from django.contrib.contenttypes.models import ContentType
 ##########################################################################
 
 class ParamNotFound(Exception):
-    def __init__(self, **kwargs):
+    def __init__(self, kwargs):
         self.query = kwargs
     def __str__(self):
         return 'Parametre mal specifie : %s' %self.query
@@ -70,7 +70,6 @@ class MageParam(models.Model):
 class MageParamAdmin(admin.ModelAdmin):
     list_display = ['app', 'key', 'value', 'model', 'axis1', 'description',]
     search_fields = ['app', 'key', 'value', 'axis1', ]
-    #filter_vertical = True
     list_filter = ['app', ]#'model',]
 
 admin.site.register(MageParam, MageParamAdmin)
@@ -89,16 +88,16 @@ def getParam(key, **others):
         @return: the parameter value as a string (unicode).
         @raise ParamNotFound: if the param cannot be found, or if multiple params were found. 
     """
-    app = sys._getframe(1).f_globals['__name__'].split('.')[1]
-    try: 
-        if others['app']: app = others['app']
-    except KeyError: pass
+    if others and others.has_key('app'): app = others['app']
+    else: app = sys._getframe(1).f_globals['__name__'].split('.')[1]
     filter = others or {}
     filter['app'] = app  
+    filter['key'] = key
+    
     try:
         return MageParam.objects.get(**filter).value
     except (MageParam.DoesNotExist, MageParam.MultipleObjectsReturned):
-        raise ParamNotFound(**filter)
+        raise ParamNotFound(filter)
 
 
 def setParam(key, value, **others):
@@ -109,15 +108,17 @@ def setParam(key, value, **others):
         @raise DjangoExceptions: many Django model exceptions may be raised in this function
         @raise DuplicateParam:  in case of unicity constraint violation
     """
-    app = sys._getframe(1).f_globals['__name__'].split('.')[1]
-    try: 
-        if others['app']: app = others['app']
-    except KeyError: pass
+    if others and others.has_key('app'): app = others['app']
+    else: app = sys._getframe(1).f_globals['__name__'].split('.')[1]
+    args = others or {}
+    args['key'] = key
+    args['app'] = app
+    args['value'] = value
     
     try:
-        prm = getParam(key, **others) # Compulsory, as constraints on nullable fields may not be implemented in the db.
+        prm = getParam(**args) # Compulsory, as constraints on nullable fields may not be implemented in the db.
     except ParamNotFound:   
-        p = MageParam(key = key, value = value, app = app, **others)
+        p = MageParam(**args)
         p.save()
         return
     raise DuplicateParam(prm)
