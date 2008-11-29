@@ -29,9 +29,16 @@ IF EXIST django.db del django.db
 rem Installation de la base
 echo.
 echo Installation de la base
-python manage.py syncdb
+python manage.py syncdb --noinput
 IF %ERRORLEVEL% NEQ 0 goto errSync
 echo ***Base install‚e
+
+
+rem Création super user
+python manage.py loaddata default_super_user.json
+IF %ERRORLEVEL% NEQ 0 goto errSU
+echo ***Super utilisateur créé
+
 
 rem Objets de test
 echo.
@@ -56,6 +63,10 @@ GOTO END
 
 :errSync
 echo Erreur lors de la cr‚ation de la base - v‚rifiez le mod‡le
+GOTO END
+
+:errSU
+echo Erreur création super utilisateur - la base est néanmoins installée
 GOTO END
 
 :errPop
