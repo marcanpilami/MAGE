@@ -29,7 +29,6 @@ Appli générale :
 	fonction + tag isApplicationPresent (packaging)
 	Contrôle d'accès (appli interne Django !)
 	le déploiement actuel IIS pèche au niveau statique (même pool d'application)
-		=> Hooks dans le syncdb ???
 	
 Interface avec système gestion tickets ?
 

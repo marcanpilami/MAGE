@@ -3,7 +3,6 @@
 
 ## MAGE imports
 from MAGE.ref.models import Component
-from MAGE.gph.register import registerGraphOption
 
 ## Dango imports
 from django.db import models
@@ -27,9 +26,6 @@ class QueueManager(Component):
         verbose_name_plural = u'Gestionnaires de files'
         
     detail_template = 'mqqm_pda_details.html'
-
-class QueueManagerGraphOptions:
-    shape='box'
 
 
 
@@ -69,5 +65,3 @@ class QueueManagerAdmin(admin.ModelAdmin):
 #########################    
 admin.site.register(QueueManager, QueueManagerAdmin)
 admin.site.register(QueueManagerParams, QueueManagerParamsAdmin)
-
-registerGraphOption(QueueManager, QueueManagerGraphOptions)

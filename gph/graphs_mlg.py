@@ -5,59 +5,39 @@ import unicodedata
 
 ## MAGE imports
 from MAGE.ref.models import Component
-from register import getGraphOptions
+from MAGE.prm.models import getMyParams
+from helpers import MageDC
 
 ## PYDOT imports
 from pydot import *
 
-
-## Hypothesis: -graph options cannot be changed by the end user
-##             -no model named 'default'
-
-  
   
 ####################################################################################
-## Draw context
+## Drawing context
 ####################################################################################    
 
-class DrawingContext:
+class DrawingContext(MageDC):
     def __init__(self):
-        """default init"""
-        self.envt_colours = {}
-        self.cur_colour = 0
+        MageDC.__init__(self)
+        
+        ## Settings
         self.collapsed_nodes = {}
-        self.graph = Dot(overlap="false", graph_type='digraph', splines="true")
         self.parentRecursionLevel = 0
         self.patnersRecursionLevel = 0
-        self.components = None
         self.collapse_threshold = 3             ## if nbBrothers >= this, collapse!
-    
-    #################################
-    ## Rendering functions
-    def render(self):
-        for compo in self.components:
-            drawNode(compo, self)
-        return self.graph.create(format='png', prog='dot')
-    
-    def writeFile(self, filepath):
-        for compo in self.components:
-            drawNode(compo, self)
-        return self.graph.write(path=filepath, format='png', prog='dot')
-    
-    #################################
-    ## Envt colour handling
-    colours = ['bisque1', 'darkorange', 'gold1', 'mediumseagreen', 'skyblue', 'orchid', 'gray']
-    def getEnvtColor(self,envt_name):
-        try:
-            return self.envt_colours[envt_name]
-        except:
-            pass
-        self.envt_colours[envt_name] = self.colours[self.cur_colour]
-        if self.cur_colour == self.colours.__len__() - 1:
-            self.cur_colour = 0
-        else:
-            self.cur_colour += 1
-        return self.envt_colours[envt_name]
+        
+        ## Components to draw
+        self.components = None
+        
+        ## Presentation
+        tmp = getMyParams()  ## We cache the params
+        self.draw_compo_default = {}
+        self.draw_compo_data = {}
+        for param in tmp.filter(axis1 = 'presentation default'):
+            self.draw_compo_default[param.key] = param.value 
+        for param in tmp.filter(model__pk__isnull = False):
+            if not self.draw_compo_data.has_key(param.model.model): self.draw_compo_data[param.model.model] = {}
+            self.draw_compo_data[param.model.model][param.key] = param.value
     
     #################################
     ## Recursion
@@ -66,7 +46,26 @@ class DrawingContext:
             return self.parent_node_recursion_level[component]
         else:
             return 0
-
+    
+    #################################
+    ## Node aspect
+    def getPresParam(self, key, component):
+        model = component.model.model
+        if self.draw_compo_data.has_key(model) and self.draw_compo_data[model].has_key(key):
+            return self.draw_compo_data[model][key]
+        return self.draw_compo_default[key]
+    
+    def build_label(self, component):
+        res = '<'
+        if component.class_name != component.model.name:
+            res += component.model.name + "<br/>" + component.class_name 
+        else:
+            res += component.model.name
+        if component.instance_name and component.class_name != component.instance_name:
+            res += "<br/>" + component.instance_name
+        res += ">"
+        return self.encode(res)
+    
 
 
 ####################################################################################
@@ -77,10 +76,13 @@ def getGraph(django_filters = {}, filename = None, context = None):
     """
         draws a map of all components and of their interactions
     """
-    if context is None: dc = DrawingContext()
-    else: dc = context
-    dc.components = Component.objects.filter(**django_filters)
-    #dc.graph.set_simplify(True) #BUG: in pydot?
+    dc = context or DrawingContext()
+    dc.components = Component.objects.select_related().filter(**django_filters)
+    #dc.set_simplify(True) #BUG: in pydot?
+    
+    for compo in dc.components:
+        drawNode(compo, dc)
+    
     if filename is None:
         return dc.render()
     else:
@@ -96,14 +98,11 @@ def drawNode(component, context):
     """
         The dotGraph object will be updated to contain the component
         @warning: the context object given in argument is modified by the function !
-    """
-    ## Retrieve draw options
-    options = getGraphOptions(component.leaf.__class__)
-    
+    """   
     ## Retrieve (or create) the graph node for the current component
     alreadyExist = __nodeExists(component, context)
     curNode = __getNode(component, context)
-    if not alreadyExist: context.graph.add_node(curNode) 
+    if not alreadyExist: context.add_node(curNode) 
     else: return curNode
     
     ## connectedTo
@@ -113,7 +112,7 @@ def drawNode(component, context):
             linkedNode = drawNode(linkedCompo, context) # recursion
             e = Edge(curNode, linkedNode)
             e.set_arrowhead('none')
-            context.graph.add_edge(e)
+            context.add_edge(e)
     
     ## dependsOn
     for daddy in component.dependsOn.all():  
@@ -122,7 +121,7 @@ def drawNode(component, context):
             linkedNode = drawNode(daddy, context) # recursion
             e = Edge(curNode, linkedNode)
             e.set_style('dotted')
-            context.graph.add_edge(e)
+            context.add_edge(e)
     
     return curNode
 
@@ -169,7 +168,7 @@ def __nodeExists(component, context):
 
 def __getNode(component, context, createIfAbsent = True):
     ## The node may already exist in the graph. Since all operations on it are done at creation, we can return it at once.
-    n = context.graph.get_node(name=component.pk.__str__())  
+    n = context.get_node(name=component.pk.__str__())  
     if n != None and type(n) == Node: ## get_node returns [] if not found.
         return n
     else:
@@ -204,18 +203,15 @@ def __getNode(component, context, createIfAbsent = True):
     
 
 def __createNode(component, context):
-    ## Retrieve draw options
-    options = getGraphOptions(component.leaf.__class__)
-    
     ## Build node
     curNode = Node(component.pk)
-    curNode.set_label(options['label'](component))
-    curNode.set_shape(options['shape'])
+    curNode.set_label(context.build_label(component))
+    curNode.set_shape(context.getPresParam('node_shape', component))
     
     ## Node color (by environmnents)
     if component.environments.all().__len__() > 0:
-        curNode.set_fillcolor(context.getEnvtColor(component.environments.all()[0].name))          
-        curNode.set_style('filled')
+        curNode.set_fillcolor(context.getObjectColour(component.environments.all()[0].name))          
+        curNode.set_style(context.getPresParam('node_style', component))
     
     ## Return the node
     return curNode

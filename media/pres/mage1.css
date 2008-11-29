@@ -18,6 +18,17 @@ a:visited {
     color: #0000FF;
 }
 
+.errorlist 
+{
+	/*border: solid 3px red;*/
+	color: red;
+	font-style: italic;
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+
 
 /******************************************************************
 ** 	Specific block styles
@@ -50,6 +61,7 @@ table
 {
 	border-collapse: collapse;
 }
+
 
 td, th 
 {

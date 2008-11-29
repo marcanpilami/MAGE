@@ -11,34 +11,30 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 # MAGE imports
-from graphs import getGraph, DrawingContext
+from graphs_mlg import getGraph, DrawingContext
 from MAGE.ref.models import Environment, MageModelType, Component
 
 def full_pic(request):
     """Carte de l'ensemble des composants référencés"""
-    # Create png with GraphWiz  
-    png = getGraph()
-    
-    # Return the picture
-    return HttpResponse(png, mimetype="image/png")
+    return HttpResponse(getGraph(), mimetype="image/png")
+
 
 def filter_pic(request, nbParents, nbPartners, collapseThr): 
     dico = request.GET
     filter = {}
 
+    # Extract model filter from the url
     for fi in dico.keys():
         filter[unicodedata.normalize('NFKD', fi).encode('ascii','ignore')] = [int(i) for i in dico[fi].split(',')]
     
-    # Create png with GraphWiz  
+    # Init the drawing context
     dc = DrawingContext()
     dc.parentRecursionLevel = int(nbParents)
     dc.patnersRecursionLevel = int(nbPartners)
-    dc.components = Component.objects.filter(**filter)
     dc.collapse_threshold = int(collapseThr)
-    png = dc.render()
     
     # Return the picture
-    return HttpResponse(png, mimetype="image/png")
+    return HttpResponse(getGraph(filter, context = dc), mimetype="image/png")
 
 
 def envt_pic(request, envt_id):
@@ -108,3 +104,15 @@ def view_carto(request):
         form = CartoForm() # An unbound form
 
     return render_to_response('view_carto.html',  {'form': form,})
+
+
+
+#from MAGE.tkm.models import Workflow
+#from MAGE.gph.graphs_tkm import drawWorkflow
+#
+#def view_workflow(request, wkf):
+#    try:
+#        wk = Workflow.objects.get(pk = int(wkf))
+#    except:
+#        wk = Workflow.objects.get(name = wkf) #may raise exceptions
+#    return HttpResponse(drawWorkflow(wk), mimetype="image/png")
