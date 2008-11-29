@@ -1,0 +1,30 @@
+[
+	{
+		"pk": null, 
+		"model": "prm.mageparam", 
+		"fields": 
+		{
+			"default_value": "", 
+			"axis1": "", 
+			"app": "gph", 
+			"value": "SSSS", 
+			"key": "AAA", 
+			"model": 33
+		}
+	},
+	
+	{
+		"pk": null, 
+		"model": "prm.mageparam", 
+		"fields": 
+		{
+			"default_value": "", 
+			"axis1": "marsu", 
+			"app": "ora", 
+			"value": "VALUE2", 
+			"key": "POUET", 
+			"model": null
+		}
+	}
+	
+]
