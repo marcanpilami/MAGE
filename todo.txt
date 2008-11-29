@@ -1,5 +1,5 @@
 Graphes
-	Vérifications : doit être une option avec moult précautions, cf. pysql
+	Vérifications : doit être une option avec moultes précautions, cf. pysql
 	Mettre des liens dans les graphes ?
 	Compos multi envt => bandes de couleur, compo lui même blanc
 	Liens avec la page d'accueil :
@@ -18,18 +18,18 @@ GCL
 		(+ faire un tri sur classe avant de trier par ctv)
 	Dépendances : 
 		faire fonction "comment aller de version A à version Z" (liste => vue + template)
-	Ajout champs "retour arrière possible" dans les liv ?
 	Fonction "où par rapport au tag X"
 	
 Sauvegardes
 	Rajouter une prévisualisation (Ajax) de la sauvegarde lors des suppressions
 	Proposer de descendre dans les abonnés lors des sauvegardes ? (ie. la sauvegarde d'un schéma sauve aussi tous les packages, etc)
-	Paramètrage : ce qu'il faut sauvegarder (dans le cas d'une full) (ou propriété dans le modèle ? Arg !) 
+	Paramètrage : ecrire fonction composant par composant 
 	
 Appli générale :
-	Gestion des options
+	fonction + tag isApplicationPresent (packaging)
 	Contrôle d'accès (appli interne Django !)
 	le déploiement actuel IIS pèche au niveau statique (même pool d'application)
+		=> Hooks dans le syncdb ???
 	
 Interface avec système gestion tickets ?
 
