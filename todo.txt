@@ -5,7 +5,6 @@ Graphes
 	Liens avec la page d'accueil :
 		-Un graphe par composant, avec tous ses sous composants (et un rang de parents ?)
 	Graphe pour les patchs ! => INTERET DOUTEUX
-	Faire une class mère DrawingContext avec les fonctions de base (nodeExists, toFile, toScreen, addNode, getNode, ...)
 	
 Référentiel
 	Empêcher des associations stupides (deux serveurs par AS, un MQ sur IFPC...) 

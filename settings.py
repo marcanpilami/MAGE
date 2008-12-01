@@ -17,6 +17,10 @@ DATABASE_HOST = 'localhost'          # Set to empty string for localhost. Not us
 DATABASE_PORT = '1521'               # Set to empty string for default. Not used with sqlite3.
 
 
+EMAIL_HOST='10.0.0.1'
+EMAIL_PORT=25
+
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -86,16 +90,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    
     'MAGE.ref',
     'MAGE.prm',
     'MAGE.gph',
-    'MAGE.srv',
-    'MAGE.mqqm',
+    'MAGE.tkm',
+    'MAGE.pda',
     'MAGE.gcl',
     'MAGE.liv',
     'MAGE.sav',
-    'MAGE.pda',
-    'MAGE.fif',
-    'MAGE.ora',
-    #'MAGE.tkm',
+    
+    'MAGE.srv',
+    'MAGE.mqqm',
+   # 'MAGE.fif',
+    'MAGE.ora'
 )
