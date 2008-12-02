@@ -60,7 +60,7 @@ class MageParam(models.Model):
     def __unicode__(self):
         return u'[%s] %s : %s' %(self.app, self.key, self.value)
     
-    class Meta():
+    class Meta:
         verbose_name = u'paramètre'
         verbose_name_plural = u'paramètres'
         ordering = ['app', 'key',]
