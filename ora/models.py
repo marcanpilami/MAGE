@@ -30,6 +30,7 @@ class OracleInstanceAdmin(admin.ModelAdmin):
     search_fields = ('instance_name',)
     fieldsets = [
         ('Informations génériques',  {'fields': ['instance_name', 'dependsOn']}),
+        ('Informations Oracle',  {'fields': ['port', 'listener']}),
     ]
 
 
