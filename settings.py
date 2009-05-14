@@ -94,7 +94,7 @@ INSTALLED_APPS = (
     'MAGE.ref',
     'MAGE.prm',
     'MAGE.gph',
- #   'MAGE.tkm',
+    #'MAGE.tkm',
     'MAGE.pda',
     'MAGE.gcl',
     'MAGE.liv',

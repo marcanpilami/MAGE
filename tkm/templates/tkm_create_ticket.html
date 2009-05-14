@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block pagetitle %}GE{% endblock %}
+{% block maintitle %}{%if ticket%}Edition ticket n°{{ticket.id}}{%else%}Nouveau ticket{%endif%}{% endblock %}
+{% block other_css %}<link media="all" type="text/css" href="/mediamage/pres/forms.css" rel="stylesheet"/>{% endblock %}
+{% block content %}
+	{% if message %}<h2>Vous avez un message : {{message}}</h2>{% endif %}
+	<form method="POST"> 
+		{% regroup ticket_forms|dictsort:"prez.group" by prez.group as sorted_list %}
+		{% for group in sorted_list %}
+			<div class='bloc2'>
+				<table>
+					<div class='t3'>{{group.grouper}}</div>
+					<tr>
+					{% for field_form in group.list|dictsort:"prez.position" %}
+						{% for f in field_form %}
+							{%if f.errors %}<td class='form_field'>{{ f.errors }}</td> {%endif%}
+							<td class='form_field_title' title='{{field_form.prez.field.description}}'>{{f.label}}</td>
+							<td class='form_field' title='{{field_form.prez.field.description}}'>{{f}}</td>
+						{% endfor %}
+						{% if field_form.prez.cr %}</tr><tr>{% endif %}
+					{% endfor %}
+					</tr>
+				</table>
+			</div>
+		{% endfor %}
+		<input type="submit" value="{%if ticket%}Mettre à jour le ticket{%else%}Créer le ticket{%endif%}">
+	</form>
+{%endblock content%}

@@ -12,6 +12,9 @@ urlpatterns = patterns('',
     # Admin
     url(r'admin/(.*)', admin.site.root, name='admin-site'),
     
+    # Auth
+    (r'accounts/login/$', 'django.contrib.auth.views.login'),
+
     # Ref
     (r'ref/csv/(.*)', 'MAGE.ref.views.marsu'),
     
