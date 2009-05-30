@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 ## Django imports
-from django.db.models.loading import get_apps, get_model
 from django.contrib.contenttypes.models import ContentType
 
 ## MAGE imports
@@ -149,14 +148,16 @@ def __createASimpleComponent(compo_type, compo_descr, envt_name = None):
     ## Return the new component
     return a
 
+def getModelDescriptor(model_name):
+    """Helper function to find a model ContentType object by its name (case insensitive)"""
+    try:
+        return ContentType.objects.get(model=model_name.lower())
+    except ContentType.DoesNotExist:
+        raise UnknownModel(model_name)
 
 def getModel(model_name):
     """Helper function to find a model by its name (case insensitive)"""
-    for app in [tmp.__name__.split('.')[-2] for tmp in get_apps()]:
-        res=get_model(app, model_name)
-        if res != None:
-            return res
-    raise UnknownModel(model_name)
+    return getModelDescriptor(model_name).model_class()
 
 
 
