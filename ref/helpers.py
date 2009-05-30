@@ -41,35 +41,32 @@ def getComponent(compo_type, compo_descr, envt_name = None):
     if rs.count() == 0:
         raise UnknownComponent(compo_descr)
     if rs.count == 1:
-        return rs.all()[0]
-
+        return rs.all()[0] 
+    
     ## Refine the selection with parents' names
     i = 1
-    while i < len(compo_descr): #and rs.count() > 1:
+    res = [ i for i in rs.all() ]
+    while i < len(compo_descr):
         field = familly_names[i][0]
         value = familly_names[i][1]
         parents = model.parents
+        try:
+            parent_model = getModel(model.parents[field])
+        except KeyError:
+            raise UnknownParent(compo_type, field)
         
-        ## Django query construction
-        d = {}
-        d2 = {}
-        papa = ""
-        for p in range(0,i):
-            papa = papa + "dependsOn__"
-        #d[papa + 'model'] = MageModelType.objects.get(model=parentModel.lower()) # Django bug (#8046) ??? name alone should be enough
-        d[papa +'class_name'] = value
-        d2[papa +'instance_name'] = value
-        
-        ## Query
-        rs = rs.filter(**d) | rs.filter(**d2)
+        tmp=[]
+        for compo in res:
+            tmp += [ i for i in (parent_model.objects.filter(dependsOn__class_name = value) | 
+                   parent_model.objects.filter(dependsOn__instance_name = value)).all() ]
+        res = []
+        res = [ i for i in tmp if i not in res ]
+            
         
         ## Iteration
         i=i+1
-        try:
-            model = getModel(model.parents[field])
-        except KeyError:
-            raise UnknownParent(compo_type, field)
- 
+        model = parent_model
+        
     ## We are at the end of our knowledge, we have failed if the compo is still unfound
     if rs.count() > 1:
         raise TooManyComponents(compo_descr)

@@ -11,18 +11,20 @@ from MAGE.ref.helpers import *
 from MAGE.gcl.helpers import *
 from MAGE.gcl.models import *
 
-#e = Environment.objects.get(name='ENVT1')
-#l=['name=P1','schema=Schema Gold Events','instance=GCDEV','server=MACHIN']
-#
-### test getCompo : should work
-#print u"TEST GET 1"
-#compo = getComponent('oraclepackage', l, 'ENVT1')
-#print compo
-#
-#print u"\nTEST GET 2"
-#print getComponent('oracleschema', ['name=Schema Gold Events', 'instance=GCDEV', 'server=MACHIN'])
-#
-### test createASimpleComponent(compo_type, compo_descr, envt_name = None):
+
+## test getCompo : should work
+print u"TEST GET 1"
+compo = getComponent('oraclepackage', ['name=P1',], 'DEV1')
+print compo
+
+print u"\nTEST GET 2"
+print getComponent('oracleschema', ['name=Schema Gold Events', 'instance_oracle=GCDEV', 'base_server=XGCT1'], 'DEV1')
+
+print u"\nTEST GET 3"
+print getComponent('oraclepackage', ['name=P2', 'parent_schema=dev1evt', 'instance_oracle=GCDEV', 'base_server=XGCT1'])
+
+
+## test createASimpleComponent(compo_type, compo_descr, envt_name = None):
 #print u"\n\nTEST CREATE 1"
 #findOrCreateComponent('oraclepackage', l)
 #
