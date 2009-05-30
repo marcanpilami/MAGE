@@ -19,9 +19,9 @@ class UnknownComponent(Exception):
 
 class TooManyComponents(Exception):
     def __init__(self, compo_descr):
-        self.compo_name=compo_descr
+        self.compo_descr=compo_descr
     def __str__(self):
-        return u'Plusieurs composants répondent à la description donnée %s' %(self.compo_descr)
+        return u'Plusieurs composants repondent a la description donnee %s' %(self.compo_descr)
 
 class UnknownParent(Exception):
     def __init__(self, parent_name, model_name):
