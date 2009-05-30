@@ -12,7 +12,8 @@ from django.core.urlresolvers import reverse
 
 # MAGE imports
 from graphs_mlg import getGraph, DrawingContext
-from MAGE.ref.models import Environment, MageModelType, Component
+from MAGE.ref.models import Environment, Component
+from MAGE.ref.helpers import list_component_models
 
 def full_pic(request):
     """Carte de l'ensemble des composants référencés"""
@@ -42,12 +43,11 @@ def envt_pic(request, envt_id):
     dc = DrawingContext()
     dc.parentRecursionLevel = 0
     dc.patnersRecursionLevel = 5
-    dc.components = Component.objects.filter(environments__pk=envt_id)
     dc.collapse_threshold = 5
-    png = dc.render()
+    filter = {'environments__pk':envt_id}
     
     # Return the picture
-    return HttpResponse(png, mimetype="image/png")
+    return HttpResponse(getGraph(filter, context = dc), mimetype="image/png")
 
 class CartoForm(forms.Form):
     envts = forms.MultipleChoiceField(
@@ -57,9 +57,9 @@ class CartoForm(forms.Form):
                     label = u'Environnements à afficher')
     
     models = forms.MultipleChoiceField(
-                    choices = [(m.pk, m.name) for m in MageModelType.objects.all()], 
+                    choices = [(m.pk, m.model_class()._meta.verbose_name) for m in list_component_models()], 
                     widget = forms.widgets.CheckboxSelectMultiple,
-                    initial = [m.pk for m in MageModelType.objects.all()],
+                    initial = [m.pk for m in list_component_models()],
                     label = u'Composants à afficher')
     
     parentRecursion = forms.IntegerField(

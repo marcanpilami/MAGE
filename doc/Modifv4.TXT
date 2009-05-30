@@ -1,0 +1,4 @@
+Modification modèle central
+
+Django v1.1
+

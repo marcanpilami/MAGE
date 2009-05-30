@@ -11,22 +11,27 @@ from time import strftime
 ## Django imports
 from django.db import models
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
 
 ## MAGE imports
 from MAGE.ref.models import Component
-from MAGE.ref.models import MageModelType
 from MAGE.ref.models import Environment
+from MAGE.ref.helpers import component_models_generator
 from MAGE.gcl.exceptions import *
 
 
 class ComponentTypeVersion(models.Model):
     """Référentiel GCL : contenu d'un IS (ou d'un tag)"""
     version = models.CharField(max_length=40)
-    model = models.ForeignKey(MageModelType)
+    model = models.ForeignKey(ContentType)
     class_name = models.CharField(max_length=200, blank=True, null=True) 
     def __unicode__(self):
-        return u'%s %s version %s' %(self.model, self.class_name, self.version)
+        return u'%s %s version %s' %(self.model.model_class()._meta.verbose_name, self.class_name, self.version)
     
+    class Meta:
+        verbose_name = u"Description mise à jour composant (CTV)"
+        verbose_name_plural = u"Descriptions mise à jour composant (CTV)"
+        
     def compare(ctv1, ctv2):
         """
             Order relation between CTV objects
@@ -36,7 +41,7 @@ class ComponentTypeVersion(models.Model):
             as it will return the first result it will find. (This is, among others, to prevent infinite 
             loops and fasten things.)
             
-            It is possible to compare CTV of different model classes, since IS can draw relationships 
+            It is possible to compare CTV of different model classes, since an IS can draw relationships 
             between different classes.
             
             @return: 1 if the ctv1 should be installed AFTER the ctv2 (ctv1 > ctv2)
@@ -53,7 +58,7 @@ class ComponentTypeVersion(models.Model):
         ## Initial checks
         if not isinstance(ctv1, ComponentTypeVersion) or not isinstance(ctv2, ComponentTypeVersion):
             raise Exception("La fonction ctvOrder ne peut gerer que des objets CTV")
-        if (ctv1.class_name == ctv2.class_name) and (ctv1.model.model == ctv2.model.model) and (ctv1.version == ctv2.version):
+        if (ctv1.class_name == ctv2.class_name) and (ctv1.model == ctv2.model) and (ctv1.version == ctv2.version):
             return 0
         
         ## Loop on all the InstallableSets that install ctv1
@@ -83,9 +88,15 @@ class ComponentTypeVersion(models.Model):
             if not __reverseCall:
                 return -ctv2.__compareWith(ctv1, True)
             
-        ## If here : there is really nothing to say between ctv1 and ctv2, so they are equal (their order doesn't matter)
+        ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
         raise UnrelatedCTV(ctv1, ctv2)   
 
+
+class CTVAdmin(admin.ModelAdmin):
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name=='model':
+            kwargs['queryset'] = ContentType.objects.filter(pk__in=(i.pk for i in component_models_generator()))
+        return super(CTVAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
@@ -120,7 +131,7 @@ class Installation(models.Model):
     """Every time an [IS] is used on an environmnent (or a set of [Components] inside an [Environmnent]),
     an [Installation] objet is created to register it"""    
     installed_set = models.ForeignKey(InstallableSet, verbose_name='Livraison appliquée ')
-    target_envt = models.ForeignKey(Environment, verbose_name='Environnement ' )
+    #target_envt = models.ForeignKey(Environment, verbose_name='Environnement ' )
     target_components = models.ManyToManyField(Component, through='ComponentVersion', verbose_name='Résultats ')
     install_date = models.DateTimeField(verbose_name='Date d\'installation ')
     ticket = models.IntegerField(max_length=6, verbose_name='Ticket lié ', blank=True, null=True)
@@ -189,4 +200,5 @@ Component.parents = {}
 
 
 
-admin.site.register(Tag)
+#admin.site.register(Tag)
+admin.site.register(ComponentTypeVersion, CTVAdmin)

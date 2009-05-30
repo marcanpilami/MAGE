@@ -2,6 +2,7 @@
 
 ## Django imports
 from django.db.models.loading import get_apps, get_model
+from django.contrib.contenttypes.models import ContentType
 
 ## MAGE imports
 from MAGE.ref.models import *
@@ -156,3 +157,23 @@ def getModel(model_name):
         if res != None:
             return res
     raise UnknownModel(model_name)
+
+
+
+#########################################################
+## ContentType filtering functions
+#########################################################
+
+def list_component_models():
+    """Returns a list of all instanciable component models present in MAGE"""
+    res = []
+    for model in ContentType.objects.all():
+        if issubclass(model.model_class(), Component) and model.model_class() != Component:
+            res += [model]
+    return res 
+
+def component_models_generator():
+    """Generator of all instanciable component models present in MAGE"""
+    for model in ContentType.objects.all():
+        if issubclass(model.model_class(), Component) and model.model_class() != Component:
+            yield model

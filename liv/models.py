@@ -16,6 +16,10 @@ class Delivery(InstallableSet):
     
     def __unicode__(self):
         return u'Livraison %s' %(self.name)
+    
+    class Meta:
+        verbose_name = "Livraison"
+        verbose_name_plural = "Livraisons"
 
 
 class DeliveryAdmin(admin.ModelAdmin):

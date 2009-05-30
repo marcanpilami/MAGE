@@ -6,7 +6,7 @@
 from django.db import transaction
 
 ## MAGE imports
-from MAGE.ref.models import Component, Environment, MageModelType
+from MAGE.ref.models import Component, Environment
 from MAGE.gcl.models import ComponentTypeVersion, InstallableSet, Tag, getComponentVersion
 from MAGE.gcl.exceptions import *
 from exceptions import MissingComponentException, FailedDependenciesCheckException, UndefinedVersion
