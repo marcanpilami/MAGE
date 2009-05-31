@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    Software Configuration Management (SCM - GCL in French) models.
+    This is a part of the MAGE core.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ###########################################################
 ## GCL
 ###########################################################

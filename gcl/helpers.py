@@ -1,5 +1,18 @@
 # coding: utf-8
 
+"""
+    Software Configuration Management (SCM - GCL in French) helper functions :
+        - Build a tag from the current configuration of an environment (snapshot)
+        - Check that an IS is compatible with an environment
+        - Retrieve the deliveries necessaary to bring an environment to a configuration level 
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
+#TODO: check this with the new core model in mind. 
+
 ## Python imports
 
 ## Django imports

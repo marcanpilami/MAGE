@@ -1,5 +1,12 @@
 # coding: utf-8
 
+"""
+    MAGE backup sample module views file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
 
 ## Python imports
 from datetime import date

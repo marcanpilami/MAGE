@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+    MAGE referential module exceptions.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
 
 class UnknownModel(Exception):
     def __init__(self, model_name):

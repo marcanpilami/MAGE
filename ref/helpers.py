@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 
+""" 
+    This file contains helpers for accessing the referential in scripts or other
+    Django applications :
+        - Find a component with a hierachical description
+        - Create a (simple) component
+        - Retrieve a model class or a model ContentType
+        - List all component models
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Django imports
 from django.contrib.contenttypes.models import ContentType
 

@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    MAGE referential module views.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 
 ## Django imports

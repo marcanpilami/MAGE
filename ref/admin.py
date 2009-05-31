@@ -4,6 +4,7 @@
     Admin base class for all components
 
     @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
     @license: GNU GVL v3
 """
 

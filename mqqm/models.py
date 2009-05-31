@@ -1,5 +1,12 @@
 # coding: utf-8
 
+"""
+    MQSeries sample module models file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
 
 ## MAGE imports
 from MAGE.ref.models import Component

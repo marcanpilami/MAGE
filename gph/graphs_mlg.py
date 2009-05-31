@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    Graph module main file.
+    This is a part of the MAGE core.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 import unicodedata
 

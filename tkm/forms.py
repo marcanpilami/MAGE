@@ -1,5 +1,15 @@
 # coding: utf-8
 
+"""
+    Minimalist Ticket Manager forms building helpers. 
+    
+    @warning: This is not done, and should no be used. (and is of little interest)
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Django imports
 from django.forms import ModelForm, Form
 from django import forms

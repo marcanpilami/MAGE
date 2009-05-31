@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    Software Configuration Management (SCM - GCL in French) URL file.
+    This is a part of the MAGE core.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',

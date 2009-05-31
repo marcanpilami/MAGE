@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    MQSeries sample module initialisation file.
+    It creates parameters controling the rendering of MQ objects in the gph module.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 
 ## Django imports

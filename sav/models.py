@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    MAGE backup sample module models and helper functions file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ###########################################################
 ## Sauvegardes
 ###########################################################

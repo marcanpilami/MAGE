@@ -6,6 +6,7 @@
     This file contains every referential class.
     
     @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
     @license: GNU GVL v3
 """
 

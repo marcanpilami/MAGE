@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    Library for the gph module. These functions are not part of the API and 
+    shouldn't be used outside of the gph module.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 import unicodedata
 

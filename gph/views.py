@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    Graph module view file. This is the core of the module.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 # Python imports
 import os
 import unicodedata

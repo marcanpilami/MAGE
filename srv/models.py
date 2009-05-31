@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    MAGE Unix server sample module models file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ###########################################################
 ## Server
 ###########################################################

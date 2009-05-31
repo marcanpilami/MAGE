@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    Delivery sample module model file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 from django.db import models
 from MAGE.gcl.models import InstallableSet
 from MAGE.ref.models import Component

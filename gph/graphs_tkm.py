@@ -1,5 +1,15 @@
 # coding: utf-8
 
+"""
+    Graph module file for the ticket manager.
+    THIS IS A STUB, the tkm module being on hold.
+    This is NOT a part of the MAGE core.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## MAGE imports
 from helpers import MageDC
 from MAGE.tkm.models import Workflow, State, Transition, Condition

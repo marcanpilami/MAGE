@@ -1,5 +1,17 @@
 # coding: utf-8
 
+"""
+    MAGE parameter module models and helpers file.
+    Usefull functions (part of the API) are :
+        - getParam
+        - setParam
+        - getMyParams
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ###############################################################################
 ##
 ## Minimalist parameters handling

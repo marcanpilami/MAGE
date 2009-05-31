@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    Informatica PowerCenter sample module models.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ###########################################################
 ## Informatica folder
 ###########################################################

@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+""" 
+    CSV referential access
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
+#TODO: rename this file...
+
 ## Django imports
 from django.db.models.loading import get_apps, get_model
 

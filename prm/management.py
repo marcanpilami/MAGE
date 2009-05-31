@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    MAGE parameter module initialisation file.
+    (purely for testing purposes, as the paremeters described here have no use) 
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 
 ## Django imports

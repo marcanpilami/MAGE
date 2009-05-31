@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+"""
+    MAGE referential module helper functions.
+    
+    @deprecated: Replaced by helpers.py file. Will be deleted in v4 final.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Django imports
 from django.db.models.loading import get_apps, get_model
 

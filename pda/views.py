@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    MAGE main page module
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Django imports
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse

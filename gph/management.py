@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    Graph module initialisation file.
+    It creates some parameters on initialisation.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Python imports
 
 ## Django imports

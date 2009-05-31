@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    Oracle database sample module models file.
+    
+    @author: Marc-Antoine Gouillart
+    @contact: marsu_pilami@msn.com
+    @license: GNU GVL v3
+"""
+
 ## Django imports
 from django.db import models
 from django.contrib import admin
