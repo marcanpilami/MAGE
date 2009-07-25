@@ -31,15 +31,16 @@ from MAGE.gcl.exceptions import *
 
 class ComponentTypeVersion(models.Model):
     """Référentiel GCL : contenu d'un IS (ou d'un tag)"""
-    version = models.CharField(max_length=40)
-    model = models.ForeignKey(ContentType)
-    class_name = models.CharField(max_length=200, blank=True, null=True) 
+    version = models.CharField(max_length = 100, verbose_name = u'code de la version')
+    model = models.ForeignKey(ContentType, verbose_name = u'modèle de composant')
+    class_name = models.CharField(max_length = 200, blank = True, null = True, verbose_name = u'classe de modèle')
+    previous_version = models.ForeignKey('ComponentTypeVersion', blank = True, null = True, related_name='next_version', verbose_name = u'version précédente')
     def __unicode__(self):
         return u'%s %s version %s' %(self.model.model_class()._meta.verbose_name, self.class_name, self.version)
     
     class Meta:
-        verbose_name = u"Description mise à jour composant (CTV)"
-        verbose_name_plural = u"Descriptions mise à jour composant (CTV)"
+        verbose_name = u"Version d'un composant (CTV)"
+        verbose_name_plural = u"Versions des composants (CTV)"
         
     def compare(ctv1, ctv2):
         """

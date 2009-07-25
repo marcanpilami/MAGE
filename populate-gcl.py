@@ -48,7 +48,8 @@ l2 = Delivery(release_notes='Mise a jour incrementielle folder IF @TRUC', name='
 l2.save()
 ctv2 = ComponentTypeVersion(version='1.1', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='@TRUC')
+                            class_name='@TRUC',
+                            previous_version = ctv1)
 ctv2.save()
 d2 = Dependency(installable_set = l2, type_version = ctv1, operator='==')
 d2.save()
@@ -61,7 +62,8 @@ l6 = Delivery(release_notes='Mise a jour incrementielle folder IF @TRUC', name='
 l6.save()
 ctv6 = ComponentTypeVersion(version='1.2', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='@TRUC')
+                            class_name='@TRUC',
+                            previous_version = ctv2)
 ctv6.save()
 d6 = Dependency(installable_set = l6, type_version = ctv2, operator='==')
 d6.save()
@@ -74,7 +76,8 @@ l7 = Delivery(release_notes='Mise a jour incrementielle folder IF @TRUC', name='
 l7.save()
 ctv7 = ComponentTypeVersion(version='1.3', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='@TRUC')
+                            class_name='@TRUC',
+                            previous_version = ctv6)
 ctv7.save()
 d7 = Dependency(installable_set = l7, type_version = ctv6, operator='==')
 d7.save()
@@ -102,7 +105,8 @@ l8 = Delivery(release_notes='Mise a jour incrementielle folder IF @TRUC', name='
 l8.save()
 ctv8 = ComponentTypeVersion(version='1.4', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='@TRUC')
+                            class_name='@TRUC',
+                            previous_version = ctv7)
 ctv8.save()
 d8 = Dependency(installable_set = l8, type_version = ctv7, operator='==')   ## == @TRUC 1.3
 d8_2 = Dependency(installable_set = l8, type_version = ctv3, operator='>=') ## >= @MACHIN 1.0
@@ -128,7 +132,8 @@ l10 = Delivery(release_notes='Mise a jour incrementielle folder IF PATAPOUF', na
 l10.save()
 ctv10 = ComponentTypeVersion(version='1.1', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='PATAPOUF')
+                            class_name='PATAPOUF',
+                            previous_version = ctv9)
 ctv10.save()
 d10 = Dependency(installable_set = l10, type_version = ctv9, operator='==') # applies on folders PATAPOUF v1.0 only
 d10.save()
@@ -141,7 +146,8 @@ l11 = Delivery(release_notes='Mise a jour incrementielle folder IF PATAPOUF', na
 l11.save()
 ctv11 = ComponentTypeVersion(version='1.2', 
                             model=ContentType.objects.get(model=u'ifpcfolder'), 
-                            class_name='PATAPOUF')
+                            class_name='PATAPOUF',
+                            previous_version = ctv10)
 ctv11.save()
 d11 = Dependency(installable_set = l11, type_version = ctv9, operator='>=') # applies on PATAPOUF folders >= v1.0
 d11.save()
