@@ -1,3 +1,5 @@
+#coding: UTF-8
+
 """
     MAGE - Module d'Assistance à la Gestion d'Environnement
     (Environment Management Module)
