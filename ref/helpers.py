@@ -20,48 +20,144 @@ from django.contrib.contenttypes.models import ContentType
 from MAGE.ref.models import *
 from MAGE.ref.exceptions import *
 
-#TODO: add a __ navigation option in the getCompo functions
 
+def filterSimplifiedMCL(ucl, envt = None, compo_type = None):
+    ## Compo type ?
+    if compo_type:
+        model=getModel(compo_type)
+    else:
+        model=Component
+    
+    if type(envt) == Environment: envt_name = envt.name
+    else: envt_name = envt
+    
+    ## First selection through name
+    if envt_name:
+        res = model.objects.filter(instance_name = ucl[0], environments__name=envt_name) | model.objects.filter(class_name = ucl[0], environments__name=envt_name)
+    else:
+        res = model.objects.filter(instance_name = ucl[0]) | model.objects.filter(class_name = ucl[0])
+    compos = [ (i,i) for i in res.all() ]
+    
+    ## Selection refinment through parents
+    for name in ucl[1:]:
+        tmp = []
+        for compo in compos:
+            tmp += [ (compo[0],i) for i in (compo[1].dependsOn.filter(instance_name = name) | compo[1].dependsOn.filter(class_name = name)).all() ]
+        compos = []
+        for i in tmp:
+            if i not in compos:
+                compos.append(i) 
+    
+    ## Return the list
+    return [ i[0] for i in compos ]
+
+def getSimplifiedMCL(mcl, envt_name = None, compo_type = None):
+    res = filterSimplifiedMCL(mcl, envt_name, compo_type)
+    if res.__len__() > 1:
+        raise TooManyComponents(mcl)
+    if res.__len__() == 0:
+        raise UnknownComponent(mcl)
+    return res[0]
+    
+
+def getMCL(mcl, envt = None, compo_type = None):
+    res = filterMCL(mcl, envt, compo_type)
+    if res.__len__() > 1:
+        raise TooManyComponents(mcl)
+    if res.__len__() == 0:
+        raise UnknownComponent(mcl)
+    return res[0]
+    
+def filterMCL(mcl, envt = None, compo_type = None):
+    """
+        MCL do-it-all function
+    """    
+    #####################################################
+    ## Simplified MCL string
+    #####################################################
+    if (type(mcl) == str or type(mcl) == unicode) and mcl.find('=') == -1:
+        model = None
+        envt_name = None
         
-def getComponent(compo_type, compo_descr, envt_name = None):
-    """Finds a component given its name and type, and optionaly its parents' names 
-    @param compo_descr: an ordered list [name=value, parent_field_name=value, grandparent_field_name=value, ...]
-    @param compo_type: as a string, lowercase
-    @param envt_name: the environment name
-    @return: the component instance if found. (raises an exception if not)
+        j = mcl.split('|')
+        names = j[0]
+        if j.__len__() >= 2:
+            firstfield=j[1]
+        else:
+            firstfield = None
+        if j.__len__() == 3:
+            model=j[2]
+        
+        # Firstfield may be an environment
+        if firstfield:
+            try:    
+                envt_name = Environment.objects.get(name=firstfield).name
+            except:
+                ## It is not. It should be a model name or a model.
+                model = firstfield 
+        
+        return filterSimplifiedMCL(names.split(','), envt_name, model)
+   
+   
+    #####################################################
+    ## Complete MCL string
+    #####################################################
+    if (type(mcl) == str or type(mcl) == unicode) and mcl.find('=') != -1:
+        envt_name = None
+        j=mcl.split('|')
+        duets = j[0].split(',')
+        
+        if j.__len__() == 2:
+            envt_name = j[1]
+        
+        return filterCompleteMCL(duets, envt_name)
     
-    @raise UnknownModel: if compo_type cannot be resolved
-    @raise UnknownComponent: if no component can be found with the given component description
-    @raise TooManyComponents: if multiple components are returned using the given component description
-    @raise UnknownParent: if a specified parent field doesn't exist""" 
-#    if envt_name == None:
-#        print u'Recherche d\'un composant %s sans envt.' %(compo_descr)
-#    else:
-#        print u'Recherche d\'un composant %s dans l\'envt : %s.' %(compo_descr, envt_name) 
     
+    #####################################################
+    ## Complete MCL array
+    #####################################################
+    if type(mcl) == list and type(mcl[0]) == tuple:
+        return filterCompleteMCL(mcl, envt)
+    
+    
+    #####################################################
+    ## Simplified MCL array
+    #####################################################
+    if type(mcl) == list and type(mcl[0]) == str:
+        return filterSimplifiedMCL(mcl, envt, compo_type)
+    
+    raise SyntaxError('parametres incorrects')
+
+
+
+def filterCompleteMCL(mcl, envt = None):   
     ## Parse arguments
-    familly_names=[couple.split('=') for couple in compo_descr]
+    if type(mcl[0]) == str:
+        familly_names = [(couple.split('=')[0].strip("'\" "), couple.split('=')[1].strip("'\" ")) for couple in mcl]
+    else:
+        familly_names = mcl
     
     ## Get the model (raises UnknownModel exception)
-    model = getModel(compo_type)
-
-    ## First selection : environment, type and compo name
-    rs = Component.objects.filter(model__model=compo_type.lower(), class_name=familly_names[0][1]) | \
-                Component.objects.filter(model__model=compo_type.lower(), instance_name=familly_names[0][1])
+    model = getModel(familly_names[0][0])
     
-    if envt_name != None:
+    ## get envt
+    if type(envt) == Environment: envt_name = envt.name
+    else: envt_name = envt
+    
+    ## First selection : environment, type and compo name
+    rs = model.objects.filter(class_name=familly_names[0][1]) | \
+                model.objects.filter(instance_name=familly_names[0][1])
+    
+    if envt_name:
         rs = rs.filter(environments__name=envt_name)
     if rs.count() == 0:
-        raise UnknownComponent(compo_descr)
-    if rs.count == 1:
-        return rs.all()[0] 
+        raise UnknownComponent(familly_names)
     
     ## Refine the selection with parents' names
-    i = 1
-    res = [ i for i in rs.all() ]
-    while i < len(compo_descr):
-        field = familly_names[i][0]
-        value = familly_names[i][1]
+    res = [ (i,i) for i in rs.all() ]
+    for duet in familly_names[1:]:
+        field = duet[0]
+        value = duet[1]
         parents = model.parents
         try:
             parent_model = getModel(model.parents[field])
@@ -70,24 +166,23 @@ def getComponent(compo_type, compo_descr, envt_name = None):
         
         tmp=[]
         for compo in res:
-            tmp += [ i for i in (parent_model.objects.filter(dependsOn__class_name = value) | 
-                   parent_model.objects.filter(dependsOn__instance_name = value)).all() ]
-        res = []
+            tmp += [ (compo[0],i) for i in (compo[1].dependsOn.filter(instance_name = value, model__model=model.parents[field].lower()) | 
+                                            compo[1].dependsOn.filter(class_name = value, model__model=model.parents[field].lower())).all() ]
         res = [ i for i in tmp if i not in res ]
             
-        
         ## Iteration
-        i=i+1
         model = parent_model
         
-    ## We are at the end of our knowledge, we have failed if the compo is still unfound
-    if rs.count() > 1:
-        raise TooManyComponents(compo_descr)
-    if rs.count() == 0:
-        raise UnknownComponent(compo_descr)
-    
-    ## Return the one and only component
-    return rs.all()[0]
+    return [ i[0] for i in res ]
+
+
+def getCompleteMCL(mcl, envt = None):
+    res = filterCompleteMCL(mcl, envt)
+    if res.__len__() > 1:
+        raise TooManyComponents(mcl)
+    if res.__len__() == 0:
+        raise UnknownComponent(mcl)
+    return res[0]
 
 
 def findOrCreateComponent(compo_type, compo_descr, envt_name = None):

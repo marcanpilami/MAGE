@@ -209,30 +209,52 @@ Script :program:`ask_ref.py`
 
 C'est un script de requête du référentiel servant à intégrer le référentiel
 de MAGE avec n'importe quel outil (principalement scripts de Gestion d'Environnement)
-sachant appeler un script shell et parser un csv. 
+sachant appeler un script shell et parser un csv.
+ 
+Code retour différent de 0 si composant introuvable, ou si erreur dans le 
+formatage des données.
 
 .. program:: ask_ref.py
 
 .. cmdoption:: -t
 
-	Afficher la liste des champs
+	Afficher la liste des champs.
+	Cette option est incompatible avec de multiples options -c.
 
 .. cmdoption:: -c <MCL>, --components <MCL>
+	
+	Description d'un (ou de plusieurs, cf option -u) composant(s). Il peut y avoir
+	plusieurs tags -c dans un même appel.
 
 .. cmdoption:: -s <character>, --separator <character>
 
-	Séparateur de colonne (défaut : espace)
+	Séparateur de colonne (défaut : point-virgule)
 	
 .. cmdoption:: -u, --unique
 
 	Sortira en erreur si plus d'un seul résultat ou pas de résultats.
-
-Exemple : ::
+	Cette option est incompatible avec de multiples options -c.
 	
-	shell> ask_ref.py "SCHEMA1,XGCT1" -e DEV1 -t -s ";"
-	NAME;INSTANCE_NAME;PASSWORD
-	SCHEMA1;XGCT1;SUPERMOTDEPASSE
 
+Exemples : ::
+	
+	shell> ask_ref.py -c "dev1evt,GCDEV,XGCT1" -t -s "|"
+	id|model|class_name|instance_name|component_ptr_id|password|
+	17|oracleschema|Schema Gold Events|dev1evt|17||
+	
+	shell> ask_ref.py -c "dev1evt,GCDEV,XGCT1|DEV1|oracleschema" -s "|"
+	17|oracleschema|Schema Gold Events|dev1evt|17||
+	
+	shell> ask_ref.py -c "Schema Gold Events|DEV1"
+	17;oracleschema;Schema Gold Events;dev1evt;17;;
+
+	shell> ask_ref.py -c "Schema Gold Events"
+	17;oracleschema;Schema Gold Events;dev1evt;17;;
+	18;oracleschema;Schema Gold Events;rec2evt;18;;
+	
+	shell> ask_ref.py -c "Schema Gold Events" -u
+	Option unique precisee et plus d'un resultat
+	
 	
 ******************
 Exemples API

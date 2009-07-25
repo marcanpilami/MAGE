@@ -12,16 +12,74 @@ from MAGE.gcl.helpers import *
 from MAGE.gcl.models import *
 
 
-## test getCompo : should work
-print u"TEST GET 1"
-compo = getComponent('oraclepackage', ['name=P1',], 'DEV1')
-print compo
+#############################################################
+## Simplified notation tests
+#############################################################
 
-print u"\nTEST GET 2"
-print getComponent('oracleschema', ['name=Schema Gold Events', 'instance_oracle=GCDEV', 'base_server=XGCT1'], 'DEV1')
+print u"\n01 (['P2','rec2evt','GCDEV','XGCT1']) - liste de str"
+res = getMCL(['P2','rec2evt','GCDEV','XGCT1'])
+print res
+print type(res)
+print type(res.leaf)
 
-print u"\nTEST GET 3"
-print getComponent('oraclepackage', ['name=P2', 'parent_schema=dev1evt', 'instance_oracle=GCDEV', 'base_server=XGCT1'])
+print u"\n02 (\"P2,rec2evt,GCDEV,XGCT1\") - chaîne de caractères"
+res = getMCL("P2,rec2evt,GCDEV,XGCT1")
+print res
+print type(res)
+print type(res.leaf)
+
+print u"\n03 (\"P2,rec2evt,GCDEV,XGCT1|OraclePackage\") - chaine de caractères avec model"
+res = getMCL("P2,rec2evt,GCDEV,XGCT1|OrAclePackAge")
+print res
+print type(res)
+print type(res.leaf)
+
+print u"\n04 (\"P2,rec2evt,GCDEV,XGCT1|DEV2|OraclePackage\") - chaine de caractères avec model et environnement"
+res = getMCL("P2,rec2evt,GCDEV,XGCT1|DEV2|OraclePackage")
+print res
+print type(res)
+print type(res.leaf)
+
+
+#############################################################
+## Exceptions
+#############################################################
+
+print u"\nTEST GET2 3 (P2 sur rec2evt sur GCTRT : Unknown compo)"
+try: print getMCL(['P2','rec2evt','GCTRT','XGCT1'])
+except UnknownComponent,e: print "Exception OK : " + e.__str__()
+
+print u"\nTEST GET2 4 (P2 : TooManyCompos)"
+try: print getMCL(['P2',])
+except TooManyComponents,e: print "Exception OK : " + e.__str__()
+
+
+#############################################################
+## Simplified notation tests
+#############################################################
+
+print u"\n02.01"
+try: res = getMCL("oracleschema=Schema Gold Events, instance_oracle=GCDEV, base_server=XGCT1")
+except TooManyComponents,e: print "Exception OK : " + e.__str__()
+
+print u"\n02.02"
+res = getMCL("oracleschema=dev1evt, instance_oracle=GCDEV, base_server=XGCT1")
+print res
+print type(res)
+
+print u"\n02.03"
+try: 
+    res = getMCL("'oracleschema=dev1evt', 'instance_oracle'='GCDEV', 'base_server=XGCT2'")
+    raise Exception ('test échoué')
+except UnknownComponent,e: print "Exception OK : " + e.__str__()
+
+
+print u"\n02.04 - getMCL([('oracleschema','dev1evt'), ('instance_oracle', 'GCDEV'), ('base_server', 'XGCT1')])"
+res = getMCL([('oracleschema','dev1evt'), ('instance_oracle', 'GCDEV'), ('base_server', 'XGCT1')])
+print res
+print type(res)
+
+
 
 
 ## test createASimpleComponent(compo_type, compo_descr, envt_name = None):
