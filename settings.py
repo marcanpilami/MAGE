@@ -98,7 +98,7 @@ INSTALLED_APPS = (
     'MAGE.pda',
     'MAGE.gcl',
     'MAGE.liv',
-    #'MAGE.sav',
+    'MAGE.sav',
     
     'MAGE.srv',
     'MAGE.mqqm',

@@ -3,7 +3,7 @@
 from django import template
 from django.template import Variable
 from MAGE.ref.models import Component
-from MAGE.sav.models import SaveSet
+from MAGE.sav.models import BackupSet
 
 register = template.Library()
 

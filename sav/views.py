@@ -18,18 +18,18 @@ from django import forms
 from django.core.urlresolvers import reverse
 
 ## MAGE imports
-from MAGE.sav.models import SaveSet
+from MAGE.sav.models import BackupSet
 
 
 def list_sav(request):
     """Liste des sauvegardes disponibles"""
-    sav_list = SaveSet.objects.all().filter(erased_on=None).order_by('from_envt.name').order_by('pk')
+    sav_list = BackupSet.objects.all().filter(erased_on=None).order_by('from_envt.name').order_by('pk')
     return render_to_response('liste_saves.html', {'sav_list' : sav_list})
 
 
 class DeleteSaveForm(forms.Form):
     save_to_kill = forms.ChoiceField(
-            choices = [(e.pk, e.__unicode__()) for e in SaveSet.objects.all().filter(erased_on=None)], 
+            choices = [(e.pk, e.__unicode__()) for e in BackupSet.objects.all().filter(erased_on=None)], 
             widget = forms.widgets.Select,                    
             label = u'Sauvegarde à marquer comme supprimée :')
 
@@ -41,7 +41,7 @@ def del_sav(request):
         if form.is_valid():                         # All validation rules pass
             # Process the data in form.cleaned_data
             id = form.cleaned_data['save_to_kill']
-            ss = SaveSet.objects.get(pk=id)
+            ss = BackupSet.objects.get(pk=id)
             ss.erased_on = date.today()
             ss.save()
             return HttpResponseRedirect(reverse('MAGE.sav.views.del_sav')) # Redirect after POST

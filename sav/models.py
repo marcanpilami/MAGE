@@ -27,70 +27,92 @@ from MAGE.ref.models import Component
 from MAGE.ref.models import Environment
 
 
-class SaveSet(InstallableSet):
-    """ The Save object itself. It is not named "Save" due to a Django limitation"""
-    unversioned_components = models.ManyToManyField(Component, verbose_name='Composants sauvegardés')
-    versioned_components = models.ManyToManyField(ComponentVersion, verbose_name='Composants sauvegardés avec version (inclus dans unversioned_components')
-    from_envt = models.ForeignKey(Environment)
+class GroupComponentAssociation(models.Model):
+    compo = models.ForeignKey(Component, verbose_name = u'composant à sauvegarder')
+    batch = models.ForeignKey('BackupGroup')
+    save_children = models.BooleanField(default = True, verbose_name = 'Sauvegarder récursivement les enfants')
+    
+    class Meta:
+        verbose_name = u'contenu du groupe de sauvegarde'
+        verbose_name_plural = u'contenu du groupe de sauvegarde'
+
+class BackupGroup(models.Model):
+    """ 
+        This is a set of objects that is saved.
+        It is a helper for save script (hey only have to know which batch they do save, not the componenents)
+        
+        It is not directly linked to environments, as saves can be server- or IS-wide, therefore
+        saving components from many environments.
+        
+        By default, saving a component saves all its children 
+    """
+    name = models.CharField(max_length = 50, verbose_name=u'Nom du batch')
+    components = models.ManyToManyField(Component, through = GroupComponentAssociation, verbose_name = u'composants sauvegardés')
+    
+    
+    class Meta:
+        verbose_name = u'groupe de composants de sauvegarde'
+        verbose_name_plural = u'groupes de composants de sauvegarde'
+    
+    @transaction.commit_on_success
+    def register_save(self):
+        bs = BackupSet(name='Sauvegarde du groupe ' + self.name + 'le ' + strftime('%y%m%d%H%M%S'))
+        bs.save()
+        
+        for compo in self.components.all():
+            add_compo_to_backupset(bs, compo)
+
+
+class BackupSet(InstallableSet):
+    """ The Backup object itself. """
+    comment = models.CharField(max_length = 100, verbose_name=u'commentaire')
     erased_on = models.DateField(verbose_name='Date de suppression des fichiers de la sauvegarde', blank=True, null=True)
     
+    class Meta:
+        verbose_name = 'sauvegarde'
+        
     def __unicode__(self):
-        return u'Sauvegarde n°%s de %s le %s (%s composants)' %(self.pk,
-                                                                self.from_envt.name, 
+        return u'Sauvegarde n°%s - le %s (%s composants)' %(    self.pk,
                                                                 self.set_date.strftime('%d/%m/%y %H:%M'), 
-                                                                self.unversioned_components.count())
+                                                                self.acts_on.count())
 
 @transaction.commit_on_success
 def save_full_environment(envt):
     """
-    Create a new SaveSet of a full environment (including every Component)
-    @param envt: the Environment object OR the environment name.
-    @return: the new Save object
+        Create a new BackupSet of a full environment (including every Component)
+        @param envt: the Environment object OR the environment name.
+        @return: the new BackupSet object
     """
     if not isinstance(envt, Environment):
         envt = Environment.objects.get(name=envt)
     
-    sav = SaveSet(from_envt=envt, name='Sauvegarde FULL de ' + envt.name + 'le ' + strftime('%y%m%d%H%M%S'), is_full=True)
+    sav = BackupSet(name='Sauvegarde FULL de ' + envt.name + ' le ' + strftime('%y%m%d%H%M%S'), is_full=True)
     sav.save()          # Create the PK !
     
     for compo in envt.component_set.all():
-        add_compo_to_save(sav, compo)
+        add_compo_to_backupset(sav, compo)
     
     sav.save()
     return sav
 
 
-def save_components(envt_name, compo_id_tuple):
+def add_compo_to_backupset(saveset, compo):
     """
-    Create a new SaveSet object containing the given Component objects.
-    @return: the new SaveSet object
-    """
-    #TODO: write the function
-    pass
-
-def add_compo_to_save(saveset, compo):
-    """
-    Add a component to an existing SaveSet
-    @param saveset: the SaveSet object (must already have a PK, i.e. having been saved at least once)
-    @param compo: the component object OR the component ID.
-    @return: nothing.
+        Add a component to an existing BackupSet
+        @param saveset: the BackupSet object (must already have a PK, i.e. having been saved at least once)
+        @param compo: the component object OR the component ID.
+        @return: nothing.
     """
     if not isinstance(compo, Component):
         compo = Component.objects.get(pk=compo)
     
-    ## Register the saved component
-    saveset.unversioned_components.add(compo)
-    saveset.save()
-    
-    ## try to register the versioned component and subsequently build the InstallableSet
     try:    
-        current_cv = compo.latest_cv
+        current_ctv = compo.latest_ctv
     except UndefinedVersion:
-        # No version is defined => this component type and version won't be registered as installable parts of the IS.
-        return
+        current_ctv = ComponentTypeVersion(version = 'UNKNOWN - created by backups', model = compo.model, class_name = compo.class_name)
+        current_ctv.save()
     
-    saveset.acts_on.add(current_cv.version)
-    saveset.versioned_components.add(current_cv)
+    saveset.acts_on.add(current_ctv)
     saveset.save()
     
     
