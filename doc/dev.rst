@@ -8,4 +8,6 @@ Documentation pour les développeurs
 	structure_interne
 	scripting
 	participer
+	api_tickets
+	api_vs
 	

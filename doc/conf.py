@@ -9,6 +9,8 @@ source_suffix = '.rst'
 source_encoding = 'utf-8'
 master_doc='intro'
 exlude_dirnames = ['.git',]
+extensions=['sphinx.ext.todo',]
+todo_include_todos = True
 
 ## Project data
 project = 'MAGE'
