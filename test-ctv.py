@@ -16,13 +16,14 @@ setup_environ(settings)
 from django.db import models
 models.get_apps()
 from django.db import transaction
+from django.contrib.contenttypes.models import ContentType
 
 ## Python imports
 from datetime import date
 
 ## MAGE imports
 from MAGE.gcl.models import InstallableSet, ComponentTypeVersion, Dependency
-from MAGE.ref.models import Environment, MageModelType
+from MAGE.ref.models import Environment
 
 
 
@@ -50,7 +51,7 @@ clearGarbage()
 @transaction.commit_manually
 def createTestObjects():
     print u'\nCréation des IS/CTV/Dep de test'
-    oraclemodel = MageModelType.objects.get(model='oraclepackage')
+    oraclemodel = ContentType.objects.get(model='oraclepackage')
     
     ## Full delivery of version A of folder MACHIN
     l1 = InstallableSet(name='TEST_CTV_IS_A', is_full=True)
@@ -122,6 +123,26 @@ def createTestObjects():
     d6_2 = Dependency(installable_set = l6, type_version = ctv_c, operator='<=')
     d6_2.save()
     
+    ## Version F, F needs nothing (FULL)
+    l7 = InstallableSet(name='TEST_CTV_IS_F', is_full=True)
+    l7.save()
+    ctv_f = ComponentTypeVersion(version = 'F', 
+                                model = oraclemodel, 
+                                class_name = 'MACHIN')
+    ctv_f.save()
+    l7.acts_on.add(ctv_f)
+    
+    ## Version G, G needs == F
+    l8 = InstallableSet(name='TEST_CTV_IS_G', is_full=False)
+    l8.save()
+    ctv_g = ComponentTypeVersion(version = 'G', 
+                                model = oraclemodel, 
+                                class_name = 'MACHIN')
+    ctv_g.save()
+    l8.acts_on.add(ctv_g)
+    d8 = Dependency(installable_set = l8, type_version = ctv_f, operator='==')
+    d8.save()
+    
     transaction.commit()
 
 createTestObjects()
@@ -131,6 +152,8 @@ ctv_b = ComponentTypeVersion.objects.get(version = 'B', class_name = 'MACHIN')
 ctv_c = ComponentTypeVersion.objects.get(version = 'C', class_name = 'MACHIN')
 ctv_d = ComponentTypeVersion.objects.get(version = 'D', class_name = 'MACHIN')
 ctv_e = ComponentTypeVersion.objects.get(version = 'E', class_name = 'MACHIN')
+ctv_f = ComponentTypeVersion.objects.get(version = 'F', class_name = 'MACHIN')
+ctv_g = ComponentTypeVersion.objects.get(version = 'G', class_name = 'MACHIN')
 ctv_alpha = ComponentTypeVersion.objects.get(version = 'ALPHA', class_name = 'MACHIN')
 
 
@@ -226,3 +249,6 @@ print ''
 print u'ALPHA <  ALPHA [FALSE] : %s' %(ctv_alpha.compare(ctv_alpha) == -1)
 print u'ALPHA >  ALPHA [FALSE] : %s' %(ctv_alpha.compare(ctv_alpha) ==  1)
 print u'ALPHA == ALPHA [TRUE]  : %s' %(ctv_alpha.compare(ctv_alpha) ==  0)
+
+print ''
+print ctv_f.compare(ctv_e)
