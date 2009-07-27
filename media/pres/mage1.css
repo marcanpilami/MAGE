@@ -13,10 +13,10 @@ BODY
 	font-family: arial;
 }
 
-a:visited {
-    /*text-decoration: underline;*/
+/*a, a:visited {
+    text-decoration: underline;
     color: #0000FF;
-}
+}*/
 
 .errorlist 
 {
@@ -65,7 +65,7 @@ table
 
 td, th 
 {
-	border: 1px dotted rgb(100,100,100);
+	border: 1px rgb(100,100,100);
 	text-align: left;
 }
 
