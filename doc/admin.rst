@@ -7,4 +7,5 @@ Administration et exploitation
 	requirements
 	install_iis
 	securite
+	ecrans_admin
 

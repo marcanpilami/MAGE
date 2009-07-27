@@ -1,12 +1,11 @@
 ###############################################
-Notation MCL & API recherche référentiel
+API recherche référentiel & Notation MCL
 ###############################################
 
 .. module:: MAGE.ref.helpers
 	:synopsis: API for finding components given minimal data
 .. moduleauthor:: Marc-Antoine Gouillart 
 
-.. warning:: L'API est encore en mouvement (notamment nom des fonctions)
 
 \ *Mage Component Locator* (MCL) est la très pédante dénomination de la
 notation permettant d'identifer facilement un composant de façon unique
@@ -200,7 +199,7 @@ Des exemples sont donnés à la fin du document.
 
 
 *********************
-API script
+API script shell
 *********************
 
 ----------------------------
@@ -254,6 +253,12 @@ Exemples : ::
 	
 	shell> ask_ref.py -c "Schema Gold Events" -u
 	Option unique precisee et plus d'un resultat
+	
+
+*********************
+API web (TODO)
+*********************
+	
 	
 	
 ******************

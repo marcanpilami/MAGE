@@ -1,13 +1,11 @@
-===================================
-Documentation pour les développeurs
-===================================
+===================================================================
+Documentation pour les développeurs (MAGE & scripts d'exploitation)
+===================================================================
 
 .. toctree::
 	
 	tutorial/dev
 	structure_interne
-	scripting
+	scripting_index
 	participer
-	api_tickets
-	api_vs
 	
