@@ -6,7 +6,6 @@ Graphes
 		-Un graphe par composant, avec tous ses sous composants (et un rang de parents ?)
 	
 Référentiel
-	Vérifier l'interrogation via web
 
 GCL
 	Fonctionaliser le install.py, pour permettre une utilisation facile depuis Python, et pas seulement le shell...

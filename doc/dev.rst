@@ -6,6 +6,7 @@ Documentation pour les développeurs (MAGE & scripts d'exploitation)
 	
 	tutorial/dev
 	structure_interne
+	params
 	scripting_index
 	participer
 	
