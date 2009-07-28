@@ -23,5 +23,5 @@ from MAGE.ref.introspect import get_components_csv
 #from MAGE.ref.helpers_light import getComponent
     
 def marsu(request, url_end):
-    return HttpResponse(get_components_csv([i.split(',') for i in url_end.split('/')]), mimetype="text/csv")
+    return HttpResponse(get_components_csv(url_end.split('/')), mimetype="text/csv")
 
