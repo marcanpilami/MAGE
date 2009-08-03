@@ -66,7 +66,10 @@ class CompoMeta(ModelBase):
         ## Add parent fields
         try:
             for field in modelclass.parents.iterkeys():
-                modelclass.add_to_class(field, property(fget = lambda self: self.__getattr__(field),))
+                modelclass.add_to_class(field, property(fget = lambda self: self.__getattr__(field)))
+                a=modelclass._meta.__getattribute__(field)
+                a.null = True
+                a.blank = True
         except AttributeError:
             pass
         
@@ -125,8 +128,12 @@ class Component(models.Model):
             Overload the get function so as to enable getting parent attributes 
             (if 'parents' fields is defined in the model class)
         """
-        try: return self.dependsOn.get(model__model=self.parents[item].lower()).leaf
-        except: pass
+        ## Parent field
+        try: 
+            return self.dependsOn.get(model__model=self.parents[item].lower()).leaf
+        except:
+            if  self.parents.has_key(item):
+                return None         ## The field is defined but not its value
         try: return super(Component, self).__getattr__(self, item)
         except: pass
         raise AttributeError(item)     
