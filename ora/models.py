@@ -55,9 +55,10 @@ class OracleSchema(Component):
     
     parents = {'instance_oracle':'OracleInstance'}
     detail_template = 'ora_schema_details.html'
+    key=('instance_name',)
     
     def __unicode__(self):
-        return u"%s (%s sur %s)" %(self.instance_name, self.instance_oracle, self.instance_oracle.base_server)
+        return u"%s (%s)" %(self.instance_name, self.instance_oracle)
     
     class Meta:
         verbose_name = u'schéma Oracle'
