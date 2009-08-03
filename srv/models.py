@@ -14,6 +14,7 @@
 
 from django.db import models
 from MAGE.ref.models import Component
+from MAGE.ref.admin import ComponentAdmin
 from django.contrib import admin
 
 class Server(Component):
@@ -34,6 +35,7 @@ class Server(Component):
     ip2         = models.IPAddressField(blank=True, null=True, verbose_name='IP2 ')
     ip3         = models.IPAddressField(blank=True, null=True, verbose_name='IP3 ')
     ip4         = models.IPAddressField(blank=True, null=True, verbose_name='IP4 ')
+    parents = {'papa':'Server',}
     
     def __unicode__(self):
         return "Serveur (%s) %s " %(self.os, self.instance_name)
@@ -41,12 +43,20 @@ class Server(Component):
     class Meta:
         verbose_name = u'Serveur'
         verbose_name_plural = u'Serveurs'
+        
+    def _isVM(self):
+        try:
+            self.papa
+        except:
+            return False
+        return True
+    isvm = property(_isVM)
+    _isVM.boolean = True
 
 
-
-class ServerAdmin(admin.ModelAdmin):
+class ServerAdmin(ComponentAdmin):
     ordering = ('instance_name',)
-    list_display = ('instance_name', 'comment',)
+    list_display = ('instance_name', 'comment','_isVM')
     fieldsets = [
         ('Informations génériques',  {'fields': ['connectedTo', 'dependsOn']}),
         ('Spécifique Serveur',       {'fields': ['instance_name', 'comment', 'ip1', 'ip2', 'ip3', 'ip4', 'os']}),
