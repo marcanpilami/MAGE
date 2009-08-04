@@ -14,8 +14,7 @@ import sys
 from django.db import transaction
 
 ## MAGE imports
-from MAGE.ref.introspect import get_components_csv
-from MAGE.ref.helpers import *
+from MAGE.ref.helpers import getMCL, getModel
 from MAGE.ref.models import Environment
 
 
@@ -30,6 +29,9 @@ def parseOptions():
                       help = u"Attributs de l'objet à créer/mettre à jour, sous la forme CLE=VALEUR")
     parser.add_option("-t", "--type", type = "string", dest = "type",
                       help = u"Type de composant (i.e. nom de modèle)")
+    parser.add_option("-k", "--keepparents", action = "store_true", dest = "keep_parents", default = False,
+                      help = u"Dans le cas d'une mise à jour, conserver les parents existants (i.e. seulement ajouter ceux précisez par les options '-l')")
+    
     return parser.parse_args()
 
 
@@ -43,7 +45,6 @@ def main():
         attr = {}
         for elt in options.attributes:
             attr[elt.split('=')[0]] = elt.split('=')[1]
-        print attr
         
         ## Check compo existence
         print u"Recherche d'un éventuel composant existant dans la base"
@@ -74,29 +75,36 @@ def main():
         
         ## Update links
         print u'Mise à jour des liens de parenté'
-        compo.dependsOn.clear()
+        if not options.keep_parents:
+            print u'\tSuppression des liens de parenté existant'
+            compo.dependsOn.clear()
         for mcl in options.parents:
             parent_compo = getMCL(mcl)
-            print u"\tLe composant est un enfant du composant %s" %parent_compo
-            compo.dependsOn.add(parent_compo)
+            if parent_compo not in compo.dependsOn.all():
+                print u"\tLe composant est désormais un enfant du composant %s" %parent_compo
+                compo.dependsOn.add(parent_compo)
         compo.save()
         
         ## Update environments
         print u'Mise à jour des environnements'
         compo.environments.clear()
+        print u"\tSuppression des liens d'appartenance à des environnements existant" 
         for envt_name in options.envts:
             envt = Environment.objects.get(name = envt_name)
-            print u"\tLe composant est membre de l'environnement %s" %envt
+            print u"\tLe composant est désormais membre de l'environnement %s" %envt
             compo.environments.add(envt)
         compo.save()
+        
     except Exception, e:
         print 'erreur - transaction annulée'
         print e      
         transaction.rollback()
         sys.exit(1)
-        
+    
+    ## Correct end of script    
     transaction.commit()
     print u"Fin OK - transaction validée."
+
 
 if __name__ == "__main__":
     main()
