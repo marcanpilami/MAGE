@@ -31,6 +31,8 @@ def parseOptions():
                       help = u"Type de composant (i.e. nom de modèle)")
     parser.add_option("-k", "--keepparents", action = "store_true", dest = "keep_parents", default = False,
                       help = u"Dans le cas d'une mise à jour, conserver les parents existants (i.e. seulement ajouter ceux précisez par les options '-l')")
+    parser.add_option("-c", "--component", type = "string", dest = "mcl",
+                      help = u"Description MCL du composant à mettre à jour. Si non précisé, le script utilisera l'éventuelle clé pour identifier le composa,t. Si pas de clé, un nouveau composant sera toujours créé.")
     
     return parser.parse_args()
 
@@ -48,18 +50,23 @@ def main():
         
         ## Check compo existence
         print u"Recherche d'un éventuel composant existant dans la base"
-        model_class = getModel(options.type)
-        key = model_class.key
-        key_req = {}
-        for key_member in key:
-            key_req[key_member] = attr[key_member]
-        
         compo = None
+        model_class = getModel(options.type)
         try:
-            compo = model_class.objects.get(**key_req)
+            compo = getMCL(options.mcl).leaf
+            print u'\tUn composant a été trouvé via la description MCL fournie'
         except:
-            print u"Composant pas trouvé. Sera donc créé."
-        
+            key = model_class.key
+            key_req = {}
+            for key_member in key:
+                key_req[key_member] = attr[key_member]
+            
+            try:
+                compo = model_class.objects.get(**key_req)
+                print u'\tUn composant a été trouvé grace à la clé du modèle'
+            except:
+                print u"Composant pas trouvé. Sera donc créé."
+            
         ## Update if necessary
         if compo:
             print u'Mise à jour du composant existant avec les attributs donnés'
