@@ -1,9 +1,0 @@
-<div>
-	<span class='t4'>Login : {{comp.instance_name}}</span><br/>
-	<span class='t4'>Liste des packages installés :</span><br/>
-	{% for pck in comp.subscribers.all %}
-		<ul class="liste1">
-			<li>{{pck.class_name}}</li>
-		</ul>
-	{% endfor %}
-</div>
