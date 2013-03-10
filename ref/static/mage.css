@@ -101,12 +101,12 @@ a.metSquare, a.frequentAction {
 	min-height: 100%;
 	height: auto !important;
 	height: 100%;
-	margin: 0 auto -30px; /* footer + title */
+	margin: 0 auto -35px; /* footer + title */
 	padding-left: 15px;
 }
 
 #pusher {
-	height: 30px;
+	height: 35px;
 }
 
 #footer {

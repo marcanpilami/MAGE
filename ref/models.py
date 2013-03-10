@@ -3,6 +3,7 @@
 from django.db import models
 from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
+from django.utils import six
 
 
 ################################################################################
@@ -86,24 +87,22 @@ class Environment(models.Model):
 ## Environment components (actual instances of technical items)
 ################################################################################    
 
+def getCustomLink(attrtype):
+    def _getCustomLink(self):
+        return self.dependsOn.get(model__model__iexact=attrtype).leaf
+
 class CompoMeta(ModelBase):
-    def __new__(cls, name, bases, attrs):
-        ## Get Django metaclass instance (= true model class)
-        modelclass = super(CompoMeta, cls).__new__(cls, name, bases, attrs)
+    def __init__(cls, name, bases, attrs):
+        ## Add parent fields        
+        if not attrs.has_key('parents'):
+            return
+        parents = attrs['parents'] #TODO: remove parents from the class, add it as a private field to Component # .__bases__[0]
+        for field in parents.iterkeys():
+            setattr(cls, field, property(fget=lambda self, model_type = parents[field]: self.__getcustomlink__(model_type)))
         
-        ## Add parent fields
-        try:
-            parents = modelclass.parents #TODO: remove parents from the class, add it as a private field to Component # .__bases__[0]
-            for field in parents.iterkeys():
-                modelclass.add_to_class(field, property(fget=lambda self: self.__getcustomattr__(field)))
-                a = modelclass._meta.__getattribute__(field)
-                a.null = True
-                a.blank = True
-        except AttributeError:
-            pass
-        
-        ## Return the class
-        return modelclass
+        ## Let Django do its magic
+        super(CompoMeta, cls).__init__(name, bases, attrs)
+    
     
 class ComponentInstance(models.Model):
     """Base model (class) for all components. (should never need to be instantiated)"""
@@ -130,20 +129,8 @@ class ComponentInstance(models.Model):
     leaf = property(_getLeafItem)
     
     ## Stuff to add the "parent" fields
-    def __getcustomattr__(self, item):
-        """
-            Overload the get function so as to enable getting parent attributes 
-            (if 'parents' fields is defined in the model class)
-        """
-        ## Parent field
-        if self.parents.has_key(item):
-            try: 
-                return self.dependsOn.get(model__model__iexact=self.parents[item]).leaf
-            except:
-                return None         ## The field is defined but not its value
-        
-        ## Standard field - call Django accessor (should never be called except in debug tests)
-        return super(ComponentInstance, self).__getattribute__(item)
+    def __getcustomlink__(self, field_model):
+        return self.dependsOn.get(model__model__iexact=field_model).leaf
         
     ## Set the "model" field at initialization
     def __setContentType(self):
