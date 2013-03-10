@@ -108,7 +108,7 @@ def drawNode(component, context):
     """   
     ## Retrieve (or create) the graph node for the current component
     alreadyExist = __nodeExists(component, context)
-    curNode = __getNode(component, context)
+    curNode = __getNode(component, context, createIfAbsent=True)
     if not alreadyExist: context.add_node(curNode) 
     else: return curNode
     
@@ -116,7 +116,7 @@ def drawNode(component, context):
     for linkedCompo in component.connectedTo.all():
         if isCompoToBeDrawn(linkedCompo, context):
             # Draw (possibly the node) and the edge
-            linkedNode = drawNode(linkedCompo, context) # recursion
+            linkedNode = drawNode(linkedCompo, context) # recursion. Creates node if not already drawn.
             e = Edge(curNode, linkedNode)
             e.set_arrowhead('none')
             e.set_color('white')
@@ -139,7 +139,7 @@ def isCompoToBeDrawn(component, context):
         Returns true if the component has already been drawn or if it is going to be
     """
     ## In the list of selected compo?
-    if context.components.filter(pk=component.pk).count() != 0: return True
+    if context.components.filter(pk=component.pk).exists(): return True
     
     ## Already drawn?
     if __nodeExists(component, context): return True
@@ -173,13 +173,13 @@ def __getRecLevelCT(component, context, prev=None):
     return rec_level + 1
 
 def __nodeExists(component, context):
-    return not __getNode(component, context, False) == None
+    return __getNode(component, context, False) is not None
 
 def __getNode(component, context, createIfAbsent=True):
     ## The node may already exist in the graph. Since all operations on it are done at creation, we can return it at once.
-    n = context.get_node(name=component.pk.__str__())  
-    if n != None and type(n) == Node: ## get_node returns [] if not found.
-        return n
+    n = context.get_node(name=str(component.pk))  
+    if (n is not None) and (len(n) > 0) and type(n[0]) == Node: ## get_node returns [] if not found.
+        return n[0]
     else:
         n = None
 
@@ -213,11 +213,11 @@ def __getNode(component, context, createIfAbsent=True):
 
 def __createNode(component, context):
     ## Build node
-    curNode = Node(component.pk)
+    curNode = Node(str(component.pk))
     curNode.set_label(context.build_label(component))
     curNode.set_shape(context.getPresParam('node_shape', component))
     
-    ## Node color (by environmnents)
+    ## Node color (by environments)
     if component.environments.count() > 0:
         curNode.set_fillcolor(context.getObjectColour(component.environments.all()[0].name))          
         curNode.set_style(context.getPresParam('node_style', component))
