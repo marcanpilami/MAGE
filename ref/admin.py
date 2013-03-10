@@ -8,7 +8,7 @@ admin.site.register(LogicalComponent)
 admin.site.register(SLA)
 
 class EnvironmentAdmin(admin.ModelAdmin):
-    fields = ['name', 'description', 'buildDate', 'destructionDate']
+    fields = ['name', 'description', 'destructionDate', ]
     list_display = ('name', 'description',)
     ordering = ('name',)
 

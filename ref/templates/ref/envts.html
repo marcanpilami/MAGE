@@ -1,0 +1,20 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Environnements{% endblock %}
+{% block maintitle %}Environnements{% endblock %}
+
+{% block content %}
+{% regroup envts by typology as type_list %}
+
+
+{% for type in type_list %}
+<div class='column'>
+	<div class='t2'>{{ type.grouper.name }}</div>
+	
+	{% for envt in type.list %}
+		{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
+		<a class='metSquare' style='background: {{ moderncolors }};' href="{% url 'ref:envt' envt.id %}">{{ envt.name }}<div class='metSquareLong'>{{envt.description}}</div></a>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% endblock content %}

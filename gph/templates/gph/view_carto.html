@@ -1,0 +1,25 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}GE{% endblock %}
+{% block maintitle %}Marsupilamographe{% endblock %}
+
+{% block content %}
+<table>
+	<tr>
+		<td>
+			<form action="{% url 'gph:main' %}" method="POST">
+				{{ form.as_p }}
+				<input type="submit" value="Mettre à jour">
+			</form>
+		</td>
+		<td>
+			<div>
+				{% if resultlink %}
+					<img src="{{ resultlink }}" title="Image résultat" width="100%">
+				{%else%}
+					<img src="{% url 'gph:full' %}" title="Image résultat" width="100%">
+				{% endif %}
+			</div>
+		</td>
+	</tr>
+</table>
+{% endblock content %}

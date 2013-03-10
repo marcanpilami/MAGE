@@ -1,0 +1,206 @@
+===================================
+== Introduction
+===================================
+
+Cette application sert à centraliser et à gérer le paramétrage interne des applications MAGE.
+
+
+===================================
+== Vocabulaire
+===================================
+
+Par paramétrage interne, on entend :
+	*valeur servant à modifier le comportement général d'une application
+	*valeur qui ne peut être modifiée que par un administrateur
+   
+On n'entend pas :
+	*une valeur volatile
+	*une valeur modifiant un comportement pour un utilisateur particulier
+	*des paramètres créés dynamiquement lors de l'utilisation de l'application.
+
+
+===================================
+== Structure d'un paramètre
+===================================
+
+Dans MAGE, les choix de modélisation d'un paramètre sont les suivants :
+
+Champs obligatoires :
+*key 	: c'est le nom court du paramètre.
+*value 	: la valeur associée
+*app 	: l'application utilisant (et non définissant) ce paramètre.
+		  Python permet souvent de déterminer ce champ automatiquement.
+
+Champs facultatifs :
+*description 	: texte court pouvant aider l'administrateur à régler le paramètre.
+*default_value 	: valeur par défaut du paramètre.
+*model 			: lien (FK) vers un modèle, si jamais le paramètre est instancié 
+				  par modèle au sein d'une application.
+*axis1 			: axe d'instanciation de paramètre supplémentaire.
+
+
+Le tuple (key, app, model, axis1) doit être unique.
+
+
+===================================
+== API
+===================================
+
+Cette application expose trois fonctions pour manipuler les paramètres.
+Le lecteur est renvoyé à la pyDoc pour les paramètres à utiliser.
+
+*getParam() renvoit la valeur du paramètre demandé. A noter que c'est une 
+ fonction gourmande (1 appel base). Il vaut donc mieux stocker temporairement
+ les valeurs des paramètres utilisés à plusieurs reprises plutôt que de refaire
+ appel à la fonction.
+
+ Si le paramètre n'est pas trouvé ou que plusieurs paramètres sont trouvés, une
+ exception ParamNotFound est lancée. 
+
+*getMyParams() renvoit un QuerySet sur l'ensemble des paramètres de l'application.
+ Cette fonction n'est à utiliser que dans les cas où il est intéressant de mettre
+ en cache tous les paramètres avant de les manipuler intensivement.
+ Cette fonction est ainsi la seule à exposer directement les objets paramètres,
+ mais ce n'est en aucun cas son but ni une manière dont elle devrait être utilisée.
+
+*setParam() permet de définir un nouveau paramètre.
+
+
+Dans ces fonctions, vous n'avez pas à vous soucier de spécifier l'application
+tant  que vous faites appel à ces fonctions à partir du package (ou d'un sous
+package) de votre application.
+Si vous précisez une application (app='chaine'), la détection automatique est 
+désactivée. Incidemment, la chaine que vous précisez n'a pas besoin d'exister
+dans la liste des applications.
+
+Le modèle du paramètre ne devrait jamais être directement utilisé. 
+Vous devez passer par l'API pour manipuler les paramètres.
+
+
+===================================
+== Utilisation (administrateur)
+===================================
+
+La modification de paramétrage est exclusivement gérée via l'interface d'administration.
+
+Les paramètres seront le plus souvent créés par le script d'installation des applications.
+Ces scripts utilisent l'API exposée ci-dessus. (cf. paragraphe suivant)
+Cependant, ils peuvent très bien être créés via l'intrface d'administration, à la différence 
+près que l'interface ne peut deviner à quelle application appartient le paramètre et qu'il 
+faudra donc le renseigner à la main.
+
+Il n'est jamais recommandé de supprimer un paramètre. Cependant, comme des cas d'utilisation
+peuvent apparaîtrent, la suppression est permise via l'interface d'administration seulement.
+(il est considéré qu'un paramètre créé programatiquement est toujours pérenne)
+
+
+
+===================================
+== Création de paramètres à l'installation d'une application
+===================================
+
+
+== Fixtures
+==================
+
+Une des deux solutions retenues par MAGE pour la création d'objets lors d'un 
+ajout  d'application est l'utilisation des "fixtures". Voir la doc générale de 
+création d'une application pour plus de détails.
+
+La méthode des "fixtures" est assez peu appropriée pour les raisons suivantes :
+	*initial_data.json est chargé à chaque syncdb, i.e. à chaque installation
+	 d'application... Donc les paramètres sont écrasés. Un paramètre ne
+	 pouvant changer n'est pas un paramètre, c'est une constante !
+	*on pourrait utiliser un autre fichier, non automatiquement chargé.
+	 Mais on ne peut alors se permettre de préciser la PK, ni de FK.
+	 Dans ce cas, il faut une commande supplémentaire à l'installation.
+
+Si vous voulez néanmoins l'utiliser, il faudra ainsi ajouter à votre fichier 
+<app>_init.json des ensembles du type :
+
+{
+	"pk": null, 
+	"model": "prm.mageparam", 
+	"fields": 
+	{
+		"default_value": "", 
+		"axis1": "", 
+		"app": "gph", 
+		"value": "valeur importante", 
+		"key": "param_important", 
+		"model": null
+	}
+}
+
+Comme toujours, il est recommandé de créer les paramètres à la main dans MAGE
+puis de les exporter en json via la commande manage.py dumpdata --indent=2 tant 
+pour éviter tant les erreurs que de s'ennuyer à écrire un fichier à la syntaxe 
+alambiquée.
+
+Attention : pensez bien à laisser le champ "pk" à "null". Sinon, vous risqueriez
+d'écraser des paramètres provenant d'autres applications !
+Cela a une autre conséquence : si vous jouez plusieurs fois le fichier, les paramètres
+seront dupliqués et non écrasés, ce qui entrainera une erreur (violation d'unicité).
+
+Enfin, cette syntaxe ne permet pas de définir le "model" de façon sûre. En effet,
+la valeur à donner est la PK du modèle telle que référencée dans l'application
+Django ContentTypes. Ce numéro est donc inconnu et variant. Il faut donc laisser
+ce champ à "null".
+
+
+== Hook syncdb
+==================
+
+C'est la méthode recommandée pour les paramètres.
+
+Votre application comportera un script management.py (nom obligatoire) à sa racine,
+qui par exemple contiendra :
+
+-------------------------------------------------------------------------------
+# coding: utf-8
+
+## Python imports
+
+## Django imports
+from django.db.models.signals import post_syncdb
+
+## MAGE imports
+import models
+from MAGE.prm.models import setParam, getMyParams
+
+def post_syncdb_handler(sender, **kwargs):
+    # Create parameters
+    if getMyParams().count() == 0:
+        setParam(key = u'MARSU1', value = u'VALEUR 1', 
+                 default_value = u'VALEUR DEFAUT 1', 
+                 description = u'Paramètre d\'essai 1')
+        setParam(key = u'MARSU2', value = u'VALEUR 2', 
+                 default_value = u'VALEUR DEFAUT 2')
+        setParam(key = u'MARSU3', value = u'VALEUR 2')
+    
+    # Do something else...
+
+## Listen to the syncdb signal
+post_syncdb.connect(post_syncdb_handler, sender=models)
+-------------------------------------------------------------------------------
+
+
+Notez que :
+	*Ce script est exécuté à chaque syncdb. D'où le test count()==0.
+	 Mais vous pouvez très bien décider de faire autrement (par exemple, créer
+	 un paramètre par nouveau modèle chargé, etc)
+	*On filtre sur notre application (sender=models). Même remarque : on peut
+	 désirer être appelé sur n'importe quelle application.
+	*Les applications sont chargées dans l'ordre spécifié dans settings.py
+	 Cela détermine les classes auquelles on a accès.
+
+Si vous faites une erreur dans ce script, vous bloquez le syncdb ! 
+Faites donc bien attention aux tests.
+
+
+===================================
+== Exemples
+===================================
+
+Cf. paragraphe "hook syncdb" pour un exemple de définition de paramètres.
+Pour un exemple d'utilisation, voir l'application du coeur "gph" (graphes)

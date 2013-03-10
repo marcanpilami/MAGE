@@ -3,8 +3,7 @@
 from django.db import models
 from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_init
-import sys
+
 
 ################################################################################
 ## Helpers
@@ -51,12 +50,16 @@ class ComponentImplementationClass(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.CharField(max_length=500)
     implements = models.ForeignKey(LogicalComponent)
-    sla = models.ForeignKey(SLA)
+    sla = models.ForeignKey(SLA, blank=True, null=True)
+    python_model_to_use = models.ForeignKey(ContentType)
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
     name = models.CharField(max_length=100, verbose_name='Nom')
-    sla = models.ForeignKey(SLA)
+    description = models.CharField(max_length=500, verbose_name='Nom')
+    short_name = models.CharField(max_length=10, verbose_name='Nom')
+    sla = models.ForeignKey(SLA, blank=True, null=True)
+    implementation_patterns = models.ManyToManyField(ComponentImplementationClass)
 
 
 ################################################################################
@@ -68,10 +71,10 @@ class Environment(models.Model):
         A set of components forms an environment
     """
     name = models.CharField(max_length=100, verbose_name='Nom')
-    buildDate = models.DateField(verbose_name=u'Date de création')
-    destructionDate = models.DateField(verbose_name=u'Date de suppression')
+    buildDate = models.DateField(verbose_name=u'Date de création', auto_now_add=True)
+    destructionDate = models.DateField(verbose_name=u'Date de suppression', null=True, blank=True)
     description = models.CharField(max_length=500)
-    handler = models.CharField(max_length=100, verbose_name='responsable')
+    manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
     project = models.ForeignKey(Project, null=True, blank=True)
     typology = models.ForeignKey(EnvironmentType)
     
@@ -108,10 +111,10 @@ class ComponentInstance(models.Model):
     
     ## Base data for all components
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'Nom de cette instance de composant ')
-    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'Solution d''implémentation retenue')
+    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'Solution d\'implémentation retenue')
     
     ## Environments
-    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ')
+    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ', related_name='component_instances')
     
     ## Connections
     connectedTo = models.ManyToManyField('self', symmetrical=True, blank=True, verbose_name=u'Connecté aux composants ')
@@ -156,6 +159,6 @@ class ComponentInstance(models.Model):
         if self.__class__ == ComponentInstance and not self.model is None:
             return self.leaf.__unicode__()
         if not self.name is None:
-            return '%s' %(self.name)
+            return '%s' % (self.name)
         else:
-            return '%s' %(self.name)
+            return '%s' % (self.name)

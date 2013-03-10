@@ -1,0 +1,116 @@
+@CHARSET "ISO-8859-1";
+
+/* Defaults */
+html {
+	height: 100%;
+}
+
+body {
+	font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
+		"Helvetica Neue", Arial, sans-serif;
+	font-weight: 400; /* standard weight */
+	/*background-color: rgb(53,27,224);*/
+	background-color: #1F0068;
+	color: white;
+	margin: 0;
+	height: 100%;
+	color: white;
+}
+
+#content {
+	margin-top: 10px;
+}
+
+/* Titles */
+.pageTitle {
+	display: inline-block;
+	font-size: 20pt;
+	font-weight: normal;
+	letter-spacing: 0.01em;
+	text-transform: uppercase;
+	padding: 0;
+	margin: 0;
+	font-size: 20pt;
+}
+
+.t2 {
+	font-size: 16pt;
+	letter-spacing: 0.02em;
+	font-weight: 300;
+	text-transform: uppercase;
+}
+
+/* Modern components */
+.column {
+	display: inline-block;
+	margin-right: 20px;
+	max-width: 350px;
+	vertical-align: top;
+}
+
+a.metSquare, a.frequentAction {
+	color: inherit;
+	text-decoration: inherit;
+}
+
+.metSquare {
+	display: inline-block;
+	width: 150px;
+	height: 150px;
+	/*border: solid medium black;*/
+	margin-right: 3px;
+	margin-top: 3px;
+	padding: 5px;
+	vertical-align: top;
+	position: relative;
+}
+
+.metSquareLong {
+	display: block;
+	font-style: italic;
+	font-size: 10pt;
+	vertical-align: bottom;
+	text-align: right;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin-bottom: 5px;
+	margin-right: 3px;
+}
+
+#frequentActionsButtons {
+	position: absolute;
+	right: 5px;
+	top: 6px;
+}
+
+.frequentAction {
+	display: inline-block;
+	padding: 3px;
+	border-radius: 50%;
+	height: 20px;
+	width: 20px;
+	border: solid 1px white;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+/* Footer */
+#beforeFooter {
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -30px; /* footer + title */
+	padding-left: 15px;
+}
+
+#pusher {
+	height: 30px;
+}
+
+#footer {
+	height: 30px;
+	border-top: solid white 1px;
+	padding-left: 5px;
+}
