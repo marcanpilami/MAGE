@@ -31,7 +31,7 @@ def welcome(request):
 
 
 def envts(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects.all(), 'colors': getParam('MODERN_COLORS').split(',')})
+    return render(request, 'ref/envts.html', {'envts': Environment.objects.all().order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def envt(request, envt_id):
     envt = Environment.objects.get(pk=envt_id)

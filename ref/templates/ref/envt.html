@@ -5,7 +5,7 @@
 {% block content %}
 {% regroup envt.component_instances.all by model_id as compotype_list %}
 
-<div style='width:auto;height:100%'>
+<div style='width:auto;'>
 	<div class='column'>
 		<div class='t2'>Généralités</div>
 		<div class=metSquare style='width: auto; height: auto; background: #AD103C'>
@@ -19,17 +19,18 @@
 		</div>
 	</div>
 	
-	
-	<div class='column' style='max-width:700px; min-width:300px'>
+	<div class='column' style='max-width:700px; min-width:300px; width=auto;'>
 		<div class='t2'>Composants</div>	
 		{% for compotype in compotype_list %}
 			{% for compo in compotype.list %}
 				{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
 				<div class=metSquare style='width: auto; height: auto; background: {{moderncolors}};'>
 					<table>
-						<tr><td>Type</td><td>{%if compo.instanciates %} {{compo.instanciates.name}} 
+						<tr><td colspan="2" style='font-style: italic;text-align: center;'>{%if compo.instanciates %} {{compo.instanciates.name}} 
 						{% else %} {{compo.model.model}} {% endif %} </td></tr>
+						{% if compo.name %}
 						<tr><td>Nom </td><td>{{compo.name}}</td></tr>
+						{% endif %}
 						{% if compo.leaf.detail_template %}
 							{% include compo.leaf.detail_template  with compo=compo.leaf %}
 						{% endif %}

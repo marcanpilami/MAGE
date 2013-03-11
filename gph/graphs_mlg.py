@@ -69,6 +69,8 @@ class DrawingContext(MageDC):
         res += component.model.name
         if not component.name is None:
             res += "<br/>" + component.name
+        elif component.instanciates is not None:
+            res += "<br/>" + component.instanciates.name
         res += ">"
         return self.encode(res)
     

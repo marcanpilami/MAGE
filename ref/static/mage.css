@@ -42,10 +42,9 @@ body {
 
 /* Modern components */
 .column {
-	display: inline-block;
-	margin-right: 20px;
-	max-width: 350px;
-	vertical-align: top;
+	display: table-cell;
+	padding-right: 20px;
+	max-width: 330px;
 }
 
 a.metSquare, a.frequentAction {
@@ -57,9 +56,10 @@ a.metSquare, a.frequentAction {
 	display: inline-block;
 	width: 150px;
 	height: 150px;
-	/*border: solid medium black;*/
-	margin-right: 3px;
-	margin-top: 3px;
+	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 0px;
 	padding: 5px;
 	vertical-align: top;
 	position: relative;
@@ -76,6 +76,17 @@ a.metSquare, a.frequentAction {
 	right: 0;
 	margin-bottom: 5px;
 	margin-right: 3px;
+}
+
+div.metSquare table {
+	border-collapse:collapse;
+}
+
+div.metSquare td {
+	font-size: 13px;
+	padding: 0px;
+	padding-bottom: 1px;
+	padding-right: 3px;
 }
 
 #frequentActionsButtons {

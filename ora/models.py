@@ -2,14 +2,14 @@
 
 from django.db import models
 
-## MAGE imports
+# # MAGE imports
 from ref.models import ComponentInstance
 from ref.register import MageBehaviour
 
 
 
 ######################################################
-## System (VM, LPAR, physical server, ...)
+# # System (VM, LPAR, physical server, ...)
 ######################################################
 
 class UnixServer(ComponentInstance):
@@ -18,7 +18,7 @@ class UnixServer(ComponentInstance):
 
 
 ######################################################
-## Oracle DB
+# # Oracle DB
 ######################################################
 
 class OracleInstance(ComponentInstance):
@@ -66,7 +66,7 @@ class OraclePackage(ComponentInstance):
 
 
 ######################################################
-## Websphere AS
+# # Websphere AS
 ######################################################
 
 class WasApplication(ComponentInstance):
@@ -88,6 +88,8 @@ class WasCluster(ComponentInstance):
     class Meta:
         verbose_name = u'cluster WAS'
         verbose_name_plural = u'clusters WAS'
+        
+    detail_template = 'ora/wascluster_schema_table.html'
 
 class WasCell(ComponentInstance):
     parents = {'manager_server': 'UnixServer'}
@@ -137,7 +139,7 @@ class GlassfishAS(ComponentInstance):
 
 
 ######################################################
-## Websphere MQ (MQ Series)
+# # Websphere MQ (MQ Series)
 ######################################################
 
 class MqQueueManager(ComponentInstance):
@@ -162,4 +164,20 @@ class MqQueueManagerParams(ComponentInstance):
     
     detail_template = 'ora/mqp_schema_table.html'
         
+    
+
+######################################################
+# # Programs (batchs, services...)
+######################################################
+
+class ApplicationBinary(ComponentInstance):
+    parents = {'server': 'UnixServer'}
+    root_directory = models.CharField(max_length=255, null=True)
+    
+    def __unicode__(self):
+        return "programme(s) sur %s" % (self.server.name)
+    
+    class Meta:
+        verbose_name = u'ensemble de programmes'
+        verbose_name_plural = u'ensembles de programmes'
     
