@@ -65,6 +65,19 @@ a.metSquare, a.frequentAction {
 	position: relative;
 }
 
+.metRect {
+	display: inline-block;
+	width: 250px;
+	height: 100px;
+	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 5px;
+	vertical-align: top;
+	position: relative;
+}
+
 .metSquareLong {
 	display: block;
 	font-style: italic;

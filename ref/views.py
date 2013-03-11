@@ -1,6 +1,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.contrib.contenttypes.models import ContentType
 
 from ref.csvi import get_components_csv
 from ref.models import ComponentInstance, Environment
@@ -36,3 +37,6 @@ def envts(request):
 def envt(request, envt_id):
     envt = Environment.objects.get(pk=envt_id)
     return render(request, 'ref/envt.html', {'envt': envt, })
+
+def model_types(request):
+    return render(request, 'ref/model_types.html', {'models' :  [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']})

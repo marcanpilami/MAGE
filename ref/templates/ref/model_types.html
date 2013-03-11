@@ -1,0 +1,25 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Types{% endblock %}
+{% block maintitle %}Types installés{% endblock %}
+
+{% block content %}
+{% regroup models by app_label as app_list %}
+
+
+{% for app in app_list %}
+	<div class='column' style='width:auto; max-width:1000000px; '>
+		<div class='t2'>Application {{ app.grouper }}</div>
+		{% for model in app.list|dictsort:"name" %}
+			<div class='metRect' style='background:#004A00;'>
+				{{ model.name }}
+				<div class='metSquareLong'>
+					Application {{model.app_label}}<br/>
+					Code {{model.model}}<br/>
+					Id {{model.id}}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endfor %}
+</div>
+{% endblock content %}
