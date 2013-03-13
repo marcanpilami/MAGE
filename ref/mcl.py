@@ -22,7 +22,7 @@ def __parseAttr(compo_list, attribute_def):
 def __parseLevel0(type_query, self_query):
     cl = ComponentInstance
     if type_query:
-        t = ContentType.objects.get(name=type_query.attribute_value)
+        t = ContentType.objects.get(model=type_query.attribute_value)
         cl = t.model_class()
     
     filters={}
@@ -34,10 +34,18 @@ def __parseLevel0(type_query, self_query):
 
     return cl.objects.filter(**filters)
 
+def __parseRelationChain(sub_query_chain, compo_list):
+    for compo  in compo_list:
+        pass
+    
+def __parseRelationChainCompo(sub_query_chain, compo):
+    for sub_query in sub_query_chain:
+        pass
+
 def get_components(mcl):
     res = []
     
-    ## 1 - cut the request
+    ## 1 - grammar
     
     # Key="value"
     attribute_name = Word(alphas + '_').setResultsName("attribute_name")   
@@ -75,11 +83,23 @@ def get_components(mcl):
     
     ## 1 : all components of given type (if type is given)
     
-    print results.mcl.self_query.attribute_def_list[0].attribute_name
-    print __parseLevel0(results.mcl.type_query, results.mcl.self_query)
+    #print results.mcl.self_query.attribute_def_list[0].attribute_name
+    #print results.mcl.type_query.attribute_value
+    res = __parseLevel0(results.mcl.type_query, results.mcl.self_query)
+    
+    for related_query in results.mcl.related_queries:
+        __parseRelationChain(results.msc., compo_list)
+    print res
+    
+    
+## Tests simples sans relations
+#get_components('(S,name="waPRDINT2")')
+#get_components('(T,"wascluster")')
+#get_components('(T,"wascluster")(S,name="wcluPRDUSR")')
+#get_components('')
+get_components('(P,name="wcluPRDUSR")')
+#get_components('(P,model="wascluster",name="wcluPRDUSR")')
 
-get_components('(S,name="waPRDINT2")')
-#get_components('(T,"compotype")')
 
 #get_components('(S,name_toto="as (name\',))""")')
 #get_components('(S,name="as name1",descr="toto toto")')
