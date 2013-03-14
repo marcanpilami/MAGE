@@ -3,7 +3,7 @@ Created on 11 mars 2013
 
 @author: Marc-Antoine
 '''
-from pyparsing import Optional, Word, Or , alphas, QuotedString , oneOf, OneOrMore, ZeroOrMore, delimitedList, Group
+from pyparsing import Suppress, Optional, Token, Word, Or ,  alphanums , QuotedString , oneOf, OneOrMore, ZeroOrMore, delimitedList, Group
 from django.contrib.contenttypes.models import ContentType
 from ref.models import ComponentInstance
 
@@ -25,7 +25,7 @@ def __parseLevel0(type_query, self_query):
         t = ContentType.objects.get(model=type_query.attribute_value)
         cl = t.model_class()
     
-    filters={}
+    filters = {}
     if self_query:
         for att in [ i for i in self_query.attribute_def_list ]:
             attrname = att.attribute_name
@@ -34,9 +34,31 @@ def __parseLevel0(type_query, self_query):
 
     return cl.objects.filter(**filters)
 
-def __parseRelationChain(sub_query_chain, compo_list):
-    for compo  in compo_list:
+def __parseRelationChain(links_query, compo_list):
+    for sub_query in links_query:  
+        for attr in sub_query.attribute_def_list:
+            print attr.attribute_name
+            print attr.attribute_value
+            print sub_query.type
+            
+            for compo in compo_list:
+                l_field = 'dependsOn'
+                if sub_query.type == 'C':
+                    l_field = 'connectedTo'
+
+def __tmp(compo_list, links_query_list):
+    for compo in compo_list:
         pass
+
+
+def __checkCompoInstance(compo, attribute_def_list): 
+    for attr in attribute_def_list:
+        try:
+            if not getattr(compo, attr.attribute_name) == attr.attribute_value:
+                return False
+        except:
+            return False
+    return True
     
 def __parseRelationChainCompo(sub_query_chain, compo):
     for sub_query in sub_query_chain:
@@ -48,7 +70,7 @@ def get_components(mcl):
     ## 1 - grammar
     
     # Key="value"
-    attribute_name = Word(alphas + '_').setResultsName("attribute_name")   
+    attribute_name = Word( alphanums  + '_').setResultsName("attribute_name")   
     attribute_value = QuotedString('"', escQuote='""').setResultsName("attribute_value")
     attribute_def = Group(attribute_name + '=' + attribute_value)('attribute_def')
     attribute_def_list = Group(delimitedList(attribute_def))("attribute_def_list")
@@ -60,13 +82,12 @@ def get_components(mcl):
     type_query = Group('(T,' + attribute_value + ')')("type_query")
     
     # Related components connexions - (P,name="marsu",description="houba"
-    subparent_query = Group('P,' + attribute_def_list + Optional(','))("subparent_query")
-    subconnected_query = Group('C,' + attribute_def_list + Optional(','))("subconnected_query")
-    sub_query = (subparent_query | subconnected_query)
-    links_query = Group('(' + delimitedList(sub_query, '|') + ')')("sub_queries")
-    related_queries = Group(ZeroOrMore(links_query))('related_queries')
+    rel_query_type = oneOf(['P', 'C'])('type')
+    sub_query = Group(rel_query_type + Suppress(',') + attribute_def_list)("sub_query")      
+    links_query = Group(Suppress('(') + delimitedList(sub_query, '|') + Suppress(')'))('links_query')
+    all_links_queries=Group(ZeroOrMore(links_query))('all_links_queries')
     
-    mcl_query = Group(Optional(type_query) + Optional(self_query) + related_queries)('mcl')
+    mcl_query = Group(Optional(type_query) + Optional(self_query) + all_links_queries)('mcl')
 
     
     results = mcl_query.parseString(mcl)
@@ -74,10 +95,7 @@ def get_components(mcl):
     print results.dump()
     print
     print
-    
-    if results.mcl.self_query:
-        for attr in results.mcl.self_query.attribute_def_list:
-            print attr.dump()
+        
    # print results.type_query.attribute_value
     #print results.self_query.attribute_def_list
     
@@ -87,8 +105,8 @@ def get_components(mcl):
     #print results.mcl.type_query.attribute_value
     res = __parseLevel0(results.mcl.type_query, results.mcl.self_query)
     
-    for related_query in results.mcl.related_queries:
-        __parseRelationChain(results.msc., compo_list)
+    for links_query in results.mcl['all_links_queries']:
+        __parseRelationChain(links_query, res)
     print res
     
     
@@ -97,7 +115,8 @@ def get_components(mcl):
 #get_components('(T,"wascluster")')
 #get_components('(T,"wascluster")(S,name="wcluPRDUSR")')
 #get_components('')
-get_components('(P,name="wcluPRDUSR")')
+#get_components('(P,name="wcluPRDUSR")')
+get_components('(P,name1="wcluPRDUSR"|C,name2="meuh")')
 #get_components('(P,model="wascluster",name="wcluPRDUSR")')
 
 
