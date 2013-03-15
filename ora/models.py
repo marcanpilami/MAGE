@@ -108,7 +108,7 @@ class WasNode(ComponentInstance):
     parents = {'server': 'UnixServer', 'was_cell': 'WasCell'}
     
     def __unicode__(self):
-        return u'Noeud WAS %s de la cellule %s sur le serveur %s' % (self.name, self.was_cell.name, self.server.name)
+        return u'Noeud WAS %s de la cellule %s' % (self.name, self.was_cell.name)
     
     class Meta:
         verbose_name = u'noeud WAS'
@@ -118,7 +118,7 @@ class WasAS(ComponentInstance):
     parents = {'was_node': 'WasNode', 'was_cluster': 'WasCluster', 'server':'UnixServer'}
     
     def __unicode__(self):
-        return u'JVM WAS %s du cluster %s sur le noeud %s (serveur %s)' % (self.name, self.was_cluster.name, self.was_node.name, self.was_node.server.name)
+        return u'AS WAS %s du cluster %s' % (self.name, self.was_cluster.name)
     
     class Meta:
         verbose_name = u'JVM WAS'

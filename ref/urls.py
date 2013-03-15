@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'envts$', views.envts, name='envts'),
     url(r'envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'types$', views.model_types, name='types'),
+    url(r'mcltester$', views.mcl_tester, name='mcltester'),
 )

@@ -1,0 +1,27 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Test MCL{% endblock %}
+{% block maintitle %}Tester une requête MCL{% endblock %}
+
+{% block content %}
+
+
+<form action="{% url 'ref:mcltester' %}" method="post">
+	{{ form.as_p }}
+	<input type="submit" value="Submit" />
+</form>
+
+<div style="column-width:200px;-moz-column-width:200px;-webkit-column-width:200px;height:70%;">
+{% if results %}
+	{% regroup results|dictsort:'model_id' by model as model_list %}
+	
+	{% for modeltype in model_list %}
+		<div class='t2'>{{ modeltype.grouper }}</div>
+		{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
+		{% for compo in modeltype.list %}	
+			<div class='metRectList' style='background: {{ moderncolors }};'>{{compo}} </div>
+		{% endfor %}
+	{% endfor %}
+{% endif %}
+</div>
+
+{% endblock content %}

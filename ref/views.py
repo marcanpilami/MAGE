@@ -1,12 +1,17 @@
+# coding: utf-8
 
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.contenttypes.models import ContentType
+from django import forms
+from django.core.urlresolvers import reverse
 
 from ref.csvi import get_components_csv
 from ref.models import ComponentInstance, Environment
+from ref.mcl import parser
 from ora.tests import utility_create_test_envt
 from prm.models import getMyParams, getParam
+from django.http.response import HttpResponseRedirect
 
 def csv(request, url_end):
     utility_create_test_envt(1)
@@ -40,3 +45,22 @@ def envt(request, envt_id):
 
 def model_types(request):
     return render(request, 'ref/model_types.html', {'models' :  [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']})
+
+
+class MclTesterForm(forms.Form):
+    mcl = forms.CharField(max_length=300, initial='()', label='Requête MCL', widget=forms.TextInput(
+                 attrs={'size':'200', 'class':'inputText'}))   
+
+
+def mcl_tester(request):
+    if request.method == 'POST': # If the form has been submitted...
+        form = MclTesterForm(request.POST) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            # Process the data in form.cleaned_data
+            # ...
+            res = parser.get_components(form.cleaned_data['mcl'])
+            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res} ) 
+    else:
+        form = MclTesterForm() # An unbound form
+
+    return render(request, 'ref/mcltester.html', {'form': form,})
