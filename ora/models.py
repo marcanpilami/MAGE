@@ -73,7 +73,7 @@ class WasApplication(ComponentInstance):
     parents = {'was_cluster':'WasCluster'}
     
     def __unicode__(self):
-        return u'Application Java sur cluster WAS %s' % (self.name, self.was_cluster.name)
+        return u'Application Java %s sur cluster WAS %s' % (self.name, self.was_cluster.name)
     
     class Meta:
         verbose_name = u'application déployée sur un WAS'
