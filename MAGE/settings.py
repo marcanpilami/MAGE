@@ -124,7 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'ref',
-    'ora',
+    'cpn',
     'gcl',
     'prm',
     'gph',

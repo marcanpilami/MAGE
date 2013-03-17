@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 from graphs_mlg import getGraph, DrawingContext
 from ref.models import Environment, Application
 from ref.helpers import list_component_models
-from ora.tests import utility_create_test_envt
+from cpn.tests import utility_create_test_envt
 
 def full_pic(request):
     """Carte de l'ensemble des composants référencés"""

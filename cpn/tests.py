@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from ref.models import ComponentInstance
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
-from ora.models import UnixServer, OracleInstance, OracleSchema, WasCell, \
+from cpn.models import UnixServer, OracleInstance, OracleSchema, WasCell, \
     GlassfishAS, MqQueueManagerParams, MqQueueManager, WasNode, WasCluster, \
     WasAS, WasApplication, ApplicationBinary
 

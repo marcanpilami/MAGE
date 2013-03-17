@@ -7,7 +7,7 @@ Created on 17 mars 2013
 
 from django.contrib import admin
 from ref.admin import ComponentInstanceAdmin
-from ora.models import OracleInstance, OracleSchema, OraclePackage, \
+from cpn.models import OracleInstance, OracleSchema, OraclePackage, \
     WasApplication, WasCluster, WasCell, WasNode, WasAS, MqQueueManagerParams, \
     MqQueueManager, ApplicationBinary
 

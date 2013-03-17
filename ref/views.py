@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from ref.csvi import get_components_csv
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
-from ora.tests import utility_create_test_envt
+from cpn.tests import utility_create_test_envt
 from prm.models import getMyParams, getParam
 from django.http.response import HttpResponseRedirect
 

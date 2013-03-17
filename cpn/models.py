@@ -4,7 +4,6 @@ from django.db import models
 
 # # MAGE imports
 from ref.models import ComponentInstance
-from ref.register import MageBehaviour
 
 
 
@@ -33,7 +32,7 @@ class OracleInstance(ComponentInstance):
 
 class OracleSchema(ComponentInstance):
     password = models.CharField(max_length=100, verbose_name=u'Mot de passe')
-    service_name_to_use = models.CharField(max_length=30, verbose_name=u'SERVICE_NAME', blank = True, null=True)
+    service_name_to_use = models.CharField(max_length=30, verbose_name=u'SERVICE_NAME', blank=True, null=True)
     
     def connectString(self):
         if self.service_name_to_use:
@@ -44,7 +43,7 @@ class OracleSchema(ComponentInstance):
     connectString.admin_order_field = 'name'
     
     parents = {'instance_oracle':'OracleInstance'}
-    detail_template = 'ora/ora_schema_table.html'
+    detail_template = 'cpn/ora_schema_table.html'
     key = ('instance_name',)
     
     def __unicode__(self):
@@ -82,8 +81,8 @@ class WasApplication(ComponentInstance):
 
 class WasCluster(ComponentInstance):
     parents = {'was_cell': 'WasCell'}
-    admin_user = models.CharField(max_length=50, verbose_name=u'utilisateur admin', blank = True, null=True)
-    admin_user_password = models.CharField(max_length=50, verbose_name=u'mot de passe', blank = True, null=True)
+    admin_user = models.CharField(max_length=50, verbose_name=u'utilisateur admin', blank=True, null=True)
+    admin_user_password = models.CharField(max_length=50, verbose_name=u'mot de passe', blank=True, null=True)
     
     def __unicode__(self):
         return u'Cluster WAS %s de la cellule %s' % (self.name, self.was_cell.name)
@@ -92,7 +91,7 @@ class WasCluster(ComponentInstance):
         verbose_name = u'cluster WAS'
         verbose_name_plural = u'clusters WAS'
         
-    detail_template = 'ora/wascluster_schema_table.html'
+    detail_template = 'cpn/wascluster_schema_table.html'
 
 class WasCell(ComponentInstance):
     parents = {'manager_server': 'UnixServer'}
@@ -127,7 +126,7 @@ class WasAS(ComponentInstance):
         verbose_name = u'JVM WAS'
         verbose_name_plural = u'JVMs WAS'
     
-    detail_template = 'ora/wasas_schema_table.html'
+    detail_template = 'cpn/wasas_schema_table.html'
         
 class GlassfishAS(ComponentInstance):
     parents = {'server': 'UnixServer'}
@@ -165,7 +164,7 @@ class MqQueueManagerParams(ComponentInstance):
         verbose_name = u'Paramétrage MQ Series'
         verbose_name_plural = u'Paramétrages MQ Series'
     
-    detail_template = 'ora/mqp_schema_table.html'
+    detail_template = 'cpn/mqp_schema_table.html'
         
     
 
