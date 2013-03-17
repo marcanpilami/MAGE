@@ -48,6 +48,7 @@ class TestHelper:
         self.cic_mqc_int_wmq = ComponentImplementationClass.objects.get(name='MQ Series integration app configuration')
         self.cic_mqc_usr_wmq = ComponentImplementationClass.objects.get(name='MQ Series user web app configuration')
         
+        self.ci_ora_1 = OracleSchema.objects.get(name='prd_int')
         
 
 def utility_create_test_min_envt(i):

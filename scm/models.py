@@ -4,6 +4,7 @@
 
 from django.db import models
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
+from exceptions import MageScmUndefinedVersionError
 
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
@@ -28,13 +29,12 @@ class LogicalComponentVersion(models.Model):
 
 class InstallationMethod(models.Model):
     script_to_run = models.CharField(max_length=254)
-    halts_service = models.BooleanField(default = True)
+    halts_service = models.BooleanField(default=True)
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass)
     
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
     how_to_install = models.ForeignKey(InstallationMethod)
-    version = models.ForeignKey(LogicalComponentVersion)
     belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
     # Add a property to access compatible envt types
     
@@ -74,9 +74,9 @@ class Installation(models.Model):
         return '%s sur %s le %s' % (self.installed_set.name, self.target_envt.name, self.install_date)
         
 class ComponentInstanceConfiguration(models.Model):
-    component_instance = models.ForeignKey(ComponentInstance)
+    component_instance = models.ForeignKey(ComponentInstance, related_name='configurations')
     result_of = models.ForeignKey(InstallableItem)
-    part_of_installation = models.ForeignKey(Installation, related_name = 'modified_components')
+    part_of_installation = models.ForeignKey(Installation, related_name='modified_components')
     created_on = models.DateTimeField()
     install_failure = models.BooleanField(default=False)
     
@@ -90,6 +90,28 @@ class Tag(models.Model):
     snapshot_date = models.DateTimeField(verbose_name=u'date de prise de la photo', auto_now_add=True)
 
     def __unicode__(self):
-        return u'Tag n°%s - %s (concerne %s composants)' %(self.pk, self.name, self.versions.count())
+        return u'Tag n°%s - %s (concerne %s composants)' % (self.pk, self.name, self.versions.count())
 
 
+
+#######################################################################################
+## Update Component class with GCL objects
+#######################################################################################
+
+## Add a version property to component objects   
+def getLatestCIC(comp):
+    """@return: the latest installed LogicalComponentVersion (LCV) on the Component"""
+    try:
+        return comp.configurations.latest('pk')
+    except:
+        raise MageScmUndefinedVersionError(comp)
+def getComponentVersion(comp):
+    """@return: the latest installed ICV on the Component"""
+    return getLatestCIC(comp).result_of.what_is_installed
+def getComponentVersionText(comp):
+    try:
+        return getComponentVersion(comp).version
+    except MageScmUndefinedVersionError:
+        return "inconnue"
+ComponentInstance.version = property(getComponentVersionText)  
+ComponentInstance.latest_cic = property(getLatestCIC)

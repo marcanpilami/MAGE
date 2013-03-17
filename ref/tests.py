@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from ora.tests import utility_create_test_envt
+from cpn.tests import utility_create_test_envt
 from ref.mcl import parser 
 from ref.models import ComponentInstance
 

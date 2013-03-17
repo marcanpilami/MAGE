@@ -125,7 +125,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'ref',
     'cpn',
-    'gcl',
+    'scm',
     'prm',
     'gph',
 )

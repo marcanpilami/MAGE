@@ -1,0 +1,16 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Installations sur {{envt.name}}{% endblock %}
+
+{% block content %}
+
+<div class='column'>
+	{% for install in installs %}		
+		{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}		
+		<div class='metRectList' style='background: {{ moderncolors }};' >{{ install.installed_set.name }}
+			<div class='metSquareLong'>{{ install.install_date }}</div>
+		</div>
+	
+	{% endfor %}
+</div>
+{% endblock content %}
