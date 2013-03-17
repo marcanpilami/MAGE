@@ -281,9 +281,9 @@ def utility_create_test_envt(i):
     
     
     #### PRODUCTION
-    os1 = OracleSchema(name='prd_int', instanciates=impl_1_1)
+    os1 = OracleSchema(name='prd_int', password='toto', instanciates=impl_1_1)
     os1.save()
-    os2 = OracleSchema(name='prd_user', instanciates=impl_2_1)
+    os2 = OracleSchema(name='prd_user', password='toto', instanciates=impl_2_1)
     os2.save()
     os1.environments.add(e1)
     os2.environments.add(e1)

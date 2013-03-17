@@ -33,11 +33,15 @@ class OracleInstance(ComponentInstance):
 
 class OracleSchema(ComponentInstance):
     password = models.CharField(max_length=100, verbose_name=u'Mot de passe')
+    service_name_to_use = models.CharField(max_length=30, verbose_name=u'SERVICE_NAME', blank = True, null=True)
     
     def connectString(self):
-        return '%s/%s@%s' % (self.name, self.password, self.instance_oracle.name)
+        if self.service_name_to_use:
+            return '%s/%s@%s' % (self.name, self.password, self.service_name_to_use)
+        else:
+            return '%s/%s@%s' % (self.name, self.password, self.instance_oracle.name)
     connectString.short_description = u"chaîne de connexion"
-    connectString.admin_order_field = 'instance_name'
+    connectString.admin_order_field = 'name'
     
     parents = {'instance_oracle':'OracleInstance'}
     detail_template = 'ora/ora_schema_table.html'
@@ -49,9 +53,6 @@ class OracleSchema(ComponentInstance):
     class Meta:
         verbose_name = u'schéma Oracle'
         verbose_name_plural = u'schémas Oracle'
-        
-class OracleSchemaMage(MageBehaviour):
-    pass
 
 class OraclePackage(ComponentInstance):
     parents = {'parent_schema':'OracleSchema'}
@@ -81,6 +82,8 @@ class WasApplication(ComponentInstance):
 
 class WasCluster(ComponentInstance):
     parents = {'was_cell': 'WasCell'}
+    admin_user = models.CharField(max_length=50, verbose_name=u'utilisateur admin', blank = True, null=True)
+    admin_user_password = models.CharField(max_length=50, verbose_name=u'mot de passe', blank = True, null=True)
     
     def __unicode__(self):
         return u'Cluster WAS %s de la cellule %s' % (self.name, self.was_cell.name)

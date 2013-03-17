@@ -53,6 +53,9 @@ class ComponentImplementationClass(models.Model):
     implements = models.ForeignKey(LogicalComponent)
     sla = models.ForeignKey(SLA, blank=True, null=True)
     python_model_to_use = models.ForeignKey(ContentType)
+    
+    def __unicode__(self):
+        return u'%s' %self.name
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
@@ -109,8 +112,8 @@ class ComponentInstance(models.Model):
     __metaclass__ = CompoMeta
     
     ## Base data for all components
-    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'Nom de cette instance de composant ')
-    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'Solution d\'implémentation retenue')
+    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'Nom ')
+    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ')
     
     ## Environments
     environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ', related_name='component_instances')
