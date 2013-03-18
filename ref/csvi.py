@@ -7,30 +7,33 @@ Created on 8 mars 2013
 from cStringIO import StringIO
 import csv
 
-def get_components_csv(component_instances = (), display_titles = False):
-    output = StringIO()
-    
-    if component_instances.count() == 0:
+def get_components_csv(component_instances = (), display_titles = False, outputFile = None):
+    if not outputFile:
+        output = StringIO()
+    else:
+        output = outputFile
+        
+    if len(component_instances) == 0:
         return ""
     
-    keys = []
+    keys = ()
     for compo in component_instances:
-        keys = list(set(compo.leaf.__dict__.keys()) | set(keys))              
+        compo.leaf.__dict__['component_type'] =compo.model.model
+        keys = list(set(compo.leaf.__dict__.keys()) | set(keys))   
     keys.remove('model_id');keys.remove('_state')
-    wr = csv.DictWriter(output, keys, quoting=csv.QUOTE_ALL, extrasaction='ignore')
-    wr.writeheader()
+    
+    wr = csv.DictWriter(output, fieldnames = keys, restval="", extrasaction='ignore', dialect='excel', delimiter=";")
+    if display_titles:
+        wr.writeheader()
     
     for compo in component_instances:
-        compo = compo.leaf
-        
-        #keys = compo.__dict__.keys()        
-        #keys.remove('id');keys.remove('class_name');keys.remove('instance_name');keys.remove('model_id')
-        #keys.sort()
-        
+        compo = compo.leaf        
         wr.writerow(compo.__dict__)
         
-    res = output.getvalue()
-    output.close()
-    return res
+    if not outputFile:
+        res = output.getvalue()
+        output.close()
+        return res
+    # else, no need to return anything - the CSV is written in the file
 
 

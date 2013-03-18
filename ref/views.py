@@ -14,7 +14,6 @@ from prm.models import getMyParams, getParam
 from django.http.response import HttpResponseRedirect
 
 def csv(request, url_end):
-    utility_create_test_envt(1)
     comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))
     return HttpResponse(get_components_csv(comps), mimetype="text/csv")
 
@@ -51,16 +50,29 @@ class MclTesterForm(forms.Form):
     mcl = forms.CharField(max_length=300, initial='()', label='Requête MCL', widget=forms.TextInput(
                  attrs={'size':'200', 'class':'inputText'}))   
 
-
 def mcl_tester(request):
+    base = request.build_absolute_uri('/')[:-1]
     if request.method == 'POST': # If the form has been submitted...
         form = MclTesterForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
-            # Process the data in form.cleaned_data
-            # ...
             res = parser.get_components(form.cleaned_data['mcl'])
-            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res} ) 
+            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res, 'base': base} ) 
     else:
         form = MclTesterForm() # An unbound form
 
-    return render(request, 'ref/mcltester.html', {'form': form,})
+    return render(request, 'ref/mcltester.html', {'form': form, 'base': base})
+
+
+def mcl_request(request, titles, mcl, format = None):
+    res = parser.get_components(mcl)
+    if titles == '1':
+        titles = True
+    else:
+        titles = False
+        
+    response = HttpResponse(content_type='text/csv')
+    get_components_csv(res, titles, response)
+    return response
+    
+    
+    
