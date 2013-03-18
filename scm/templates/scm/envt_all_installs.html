@@ -1,16 +1,55 @@
 {% extends "MAGE/base.html" %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
-{% block maintitle %}Installations sur {{envt.name}}{% endblock %}
+{% block maintitle %}Installations sur {{envt.name}} ces {{limit}} derniers jours{% endblock %}
 
 {% block content %}
 
-<div class='column'>
-	{% for install in installs %}		
-		{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}		
-		<div class='metRectList' style='background: {{ moderncolors }};' >{{ install.installed_set.name }}
-			<div class='metSquareLong'>{{ install.install_date }}</div>
-		</div>
+<table class='visibleTable'>
+	<thead>
+		<tr>
+			<td>Install</td>
+			<td>Date</td>
+			{% for lc in logical_components %}
+				<td>{{lc.name}}</td>
+			{% endfor %}			
+		</tr>
+		<tr style='background-color: #B01E00;'>
+			<td>Version actuelle</td>
+			<td></td>
+			{% for lc in logical_components %}
+				{% for key, value in versions.items %}
+					{% ifequal key.id lc.id %}
+						<td>{{value}}</td>
+					{% endifequal %}
+				{% endfor %}
+			{% endfor %}	
+		</tr>
+	</thead>
 	
-	{% endfor %}
-</div>
+	<tbody>
+		{% for install in installs %}
+			{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
+			<tr>
+				<td>
+					<div class='metRectList' style='background:{{ moderncolors }};margin:0;' >
+						{{ install.installed_set.name }} - {{install.pk }}
+					</div>
+				</td>
+				<td>
+					<div>{{ install.install_date }}</div>
+				</td>
+				{% for lc in logical_components %}
+					<td>
+					{% for ii in install.installed_set.set_content.all %}
+						{% ifequal ii.what_is_installed.logical_component_id lc.id %}
+							<div style='background-color: green; height: 100%;width:100%;display:inline-block;'> {{ ii.what_is_installed.version }}</div>
+						{% endifequal %}
+					{% endfor %}
+					</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
 {% endblock content %}

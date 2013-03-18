@@ -7,7 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase
 from scm.models import InstallableSet, InstallableItem, InstallationMethod,\
-    LogicalComponentVersion
+    LogicalComponentVersion, Delivery
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
 from cpn.models import UnixServer, OracleInstance, OracleSchema
@@ -26,13 +26,18 @@ def create_test_is():
     rdbms1_v2 = LogicalComponentVersion(version = 'v1.2', logical_component = ref.logical_rdbms_module1)
     rdbms1_v2.save()
     
+    rdbms2_v1 = LogicalComponentVersion(version = 'a', logical_component = ref.logical_rdbms_module2)
+    rdbms2_v1.save()
+    rdbms2_v2 = LogicalComponentVersion(version = 'b', logical_component = ref.logical_rdbms_module2)
+    rdbms2_v2.save()
+    
     # Installation methods (independent of IS)
     rdbms1_meth1 = InstallationMethod(script_to_run = 'none', halts_service = True)
     rdbms1_meth1.save()
-    rdbms1_meth1.method_compatible_with.add(ref.cic_rdbms_module1_oracle_mut)
+    rdbms1_meth1.method_compatible_with.add(ref.cic_rdbms_module1_oracle_mut, ref.cic_rdbms_module2_oracle_mut)
     
     # First IS
-    is1 = InstallableSet(name='SYSTEM1_23B2', description='Solves all issues. Ever.')
+    is1 = Delivery(name='SYSTEM1_23B2', description='Solves all issues. Ever.')
     is1.save()
  
     is1_ii1 = InstallableItem(what_is_installed = rdbms1_v1, how_to_install = rdbms1_meth1, belongs_to_set = is1)
@@ -41,11 +46,13 @@ def create_test_is():
     res.append(is1)
     
     # Second IS
-    is2 = InstallableSet(name='SYSTEM1_23B2.2', description='Solves all issues. Once again.')
+    is2 = Delivery(name='SYSTEM1_23B2.2', description='Solves all issues. Once again.')
     is2.save()
  
     is2_ii1 = InstallableItem(what_is_installed = rdbms1_v2, how_to_install = rdbms1_meth1, belongs_to_set = is2)
     is2_ii1.save()
+    is2_ii2 = InstallableItem(what_is_installed = rdbms2_v1, how_to_install = rdbms1_meth1, belongs_to_set = is2)
+    is2_ii2.save()
     
     res.append(is2)
     

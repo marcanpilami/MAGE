@@ -21,7 +21,11 @@ class InstallableSet(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
+class Delivery(InstallableSet):
+    pass
 
+class BackupSet(InstallableSet):
+    pass
     
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)

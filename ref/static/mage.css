@@ -40,6 +40,17 @@ body {
 	text-transform: uppercase;
 }
 
+/* tables */
+.visibleTable {
+	border-collapse:collapse;
+	border: 1px solid white;
+}
+
+.visibleTable td {
+	border: 1px solid white;
+}
+
+
 /* Modern components */
 .column {
 	display: table-cell;

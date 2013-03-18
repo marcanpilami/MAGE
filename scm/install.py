@@ -31,7 +31,7 @@ def install_iset(iset, targets, force_prereqs = False, install_date = datetime.n
             raise MageScmError('a given component\'s configuration cannot be managed as it has no implementation class')
         
         ## Is there a corresponding element in the IS? (same CIC (through IM))
-        ii_list = iset.set_content.filter(how_to_install__method_compatible_with=compo.instanciates).order_by('pk') # sort PK: gives patch order
+        ii_list = iset.set_content.filter(how_to_install__method_compatible_with=compo.instanciates).filter(what_is_installed__logical_component = compo.instanciates.implements).order_by('pk') # sort PK: gives patch order
         if ii_list.count() == 0:
             continue  
     

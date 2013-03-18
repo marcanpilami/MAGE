@@ -1,0 +1,22 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Livraisons disponibles à l'installation{% endblock %}
+
+{% block content %}
+
+{% for is in deliveries %}
+	<div class='metRectList' style='background-color: #AD103C;'>
+		{{ is.name }}<br/>
+		Registered the {{ is.set_date|date:"d/m/Y" }}
+	</div>
+	{% for ii in is.set_content.all %}
+		<div class='metRectList' style='background-color: #423173;'>
+			{{ ii.what_is_installed.logical_component.name }}<br/>
+			version : {{ ii.what_is_installed.version }}
+		</div>
+	{% endfor %}
+	
+	<br/>
+{% endfor %}
+
+{% endblock content %}

@@ -50,7 +50,7 @@ class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. Automatically created. """
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.CharField(max_length=500)
-    implements = models.ForeignKey(LogicalComponent)
+    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by')
     sla = models.ForeignKey(SLA, blank=True, null=True)
     python_model_to_use = models.ForeignKey(ContentType)
     
@@ -113,7 +113,7 @@ class ComponentInstance(models.Model):
     
     ## Base data for all components
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'Nom ')
-    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ')
+    instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
     
     ## Environments
     environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ', related_name='component_instances')
