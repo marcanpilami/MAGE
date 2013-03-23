@@ -11,7 +11,7 @@ from django.db import connection
 
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, \
-    LogicalComponent
+    LogicalComponent, NamingConvention, Application
 from scm.tests import create_test_is, SimpleTest
 
 from django.http.response import HttpResponseRedirect
@@ -60,6 +60,10 @@ def demo(request):
         et.delete()
     for lc in LogicalComponent.objects.all():
         lc.delete()
+    for nc in NamingConvention.objects.all():
+        nc.delete()
+    for ap in Application.objects.all():
+        ap.delete()
     is_list = create_test_is()
     
     ref = TestHelper()

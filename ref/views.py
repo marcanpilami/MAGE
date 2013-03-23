@@ -75,4 +75,5 @@ def mcl_request(request, titles, mcl, format = None):
     return response
     
     
-    
+def create_instance(request, instance_type, name):
+    pass    

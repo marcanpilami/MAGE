@@ -36,6 +36,9 @@ class Application(models.Model):
     description = models.CharField(max_length=500)
     project = models.ForeignKey(Project, null=True, blank=True)
     
+    def __unicode__(self):
+        return self.name
+    
     
 ################################################################################
 ## Constraints on environment instantiation
@@ -152,3 +155,30 @@ class ComponentInstance(models.Model):
             return '%s' % (self.name)
         else:
             return '%s' % (self.name)
+
+
+
+################################################################################
+## Naming norms
+################################################################################ 
+
+class NamingConvention(models.Model):
+    name = models.CharField(max_length = 20)
+    applications = models.ManyToManyField(Application, verbose_name=u'used in')
+    
+    def __unicode__(self):
+        return u'Norme %s' %self.name
+    
+    class Meta:
+        verbose_name = 'norme de nommage'
+        verbose_name_plural = 'normes de nommage'
+    
+class NamingConventionField(models.Model):
+    model = models.CharField(max_length = 254, verbose_name = u'composant technique')
+    field = models.CharField(max_length = 254, verbose_name = u'champ')
+    pattern = models.CharField(max_length = 1023, null = True, blank = True, verbose_name = u'norme de nommage') 
+    convention_set = models.ForeignKey(NamingConvention, related_name = 'fields') 
+    
+    class Meta:
+        verbose_name = u'norme de nommage d\'un champ de composant'
+        verbose_name_plural = u'normes de nommage des champs des composants'

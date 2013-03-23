@@ -3,6 +3,7 @@ Created on 6 mars 2013
 
 @author: Marc-Antoine
 '''
+from ref.naming import nc_create_naming_convention
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
@@ -300,6 +301,10 @@ def utility_create_test_envt(i):
     wasApp1.connectedTo.add(mqp5, os1)  # # PRD, INT
     wasApp2.connectedTo.add(mqp6, os2)  # # PRD, USR
     mqp5.connectedTo.add(mqp6)
+    
+    
+    #### Naming conventions
+    nc_create_naming_convention('main NC')
     
     return a1
 

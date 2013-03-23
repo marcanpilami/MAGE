@@ -7,6 +7,7 @@ from pyparsing import Suppress, Optional, Token, Word, Or , alphanums , QuotedSt
 from django.contrib.contenttypes.models import ContentType
 from ref.models import ComponentInstance
 
+#def create_component_instance(instance_type, instance_name, **):
 
 class MclEngine:
     def __init__(self):

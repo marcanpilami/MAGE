@@ -9,6 +9,7 @@ from django.test import TestCase
 from cpn.tests import utility_create_test_envt
 from ref.mcl import parser 
 from ref.models import ComponentInstance
+import naming
 
 class SimpleTest(TestCase):
     def test_mcl_without_relations(self):
@@ -65,4 +66,15 @@ class SimpleTest(TestCase):
         # One P, one C
         res = parser.get_components('(P,name="wcluPRDUSR")(C,name="prd_user")')
         self.assertEqual(1, len(res))
+        
+    def test_nc(self):
+        utility_create_test_envt(1)
+        
+        nc1 = naming.nc_create_naming_convention('genius convention')
+        nb = nc1.fields.count()
+        self.assertLess(10, nb)
+        
+        # A sync should not modify the convention
+        naming.nc_sync_naming_convention(nc1)
+        self.assertEqual(nb, nc1.fields.count())
         
