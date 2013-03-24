@@ -29,8 +29,8 @@ class OracleInstance(ComponentInstance):
     parents = {'server': {'model': 'OsServer', 'cardinality':1}}
     
     class Meta:
-        verbose_name = u'instance de base de données'
-        verbose_name_plural = u'instances de base de données'
+        verbose_name = u'instance Oracle'
+        verbose_name_plural = u'instances Oracle'
 
 class OracleSchema(ComponentInstance):
     password = models.CharField(max_length=100, verbose_name=u'Mot de passe')
@@ -59,7 +59,7 @@ class OraclePackage(ComponentInstance):
     parents = {'parent_schema': {'model': 'OracleSchema'}}
     
     def __unicode__(self):
-        return u'Package %s sur %s' % (self.name, self.parent_schema.name)
+        return u'%s' % (self.name,)
     
     class Meta:
         verbose_name = u'package PL/SQL'
@@ -75,7 +75,7 @@ class WasApplication(ComponentInstance):
     parents = {'was_cluster': {'model': 'WasCluster'}}
     
     def __unicode__(self):
-        return u'Application Java %s sur cluster WAS %s' % (self.name, self.was_cluster.name)
+        return u'Application Java %s' % (self.name,)
     
     class Meta:
         verbose_name = u'application déployée sur un WAS'
@@ -87,7 +87,7 @@ class WasCluster(ComponentInstance):
     admin_user_password = models.CharField(max_length=50, verbose_name=u'mot de passe', blank=True, null=True)
     
     def __unicode__(self):
-        return u'Cluster WAS %s de la cellule %s' % (self.name, self.was_cell.name)
+        return u'Cluster WAS %s' % (self.name,)
     
     class Meta:
         verbose_name = u'cluster WAS'
@@ -102,7 +102,7 @@ class WasCell(ComponentInstance):
     manager_password = models.CharField(max_length=50, default='password')
     
     def __unicode__(self):
-        return u'Cellule WAS %s - manager sur %s' % (self.name, self.manager_server)
+        return u'Cellule WAS %s' % (self.name,)
     
     class Meta:
         verbose_name = u'cellule WAS'
@@ -112,7 +112,7 @@ class WasNode(ComponentInstance):
     parents = {'server': {'model': 'OsServer'}, 'was_cell': {'model': 'WasCell'}}
     
     def __unicode__(self):
-        return u'Noeud WAS %s de la cellule %s' % (self.name, self.was_cell.name)
+        return u'Noeud WAS %s' % (self.name,)
     
     class Meta:
         verbose_name = u'noeud WAS'
@@ -122,7 +122,7 @@ class WasAS(ComponentInstance):
     parents = {'was_node': {'model': 'WasNode'}, 'was_cluster': {'model': 'WasCluster'}, 'server': {'model': 'OsServer'}}
     
     def __unicode__(self):
-        return u'AS WAS %s du cluster %s' % (self.name, self.was_cluster.name)
+        return u'AS WAS %s' % (self.name,)
     
     class Meta:
         verbose_name = u'JVM WAS'

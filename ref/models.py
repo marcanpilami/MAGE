@@ -5,6 +5,7 @@ from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
 from django.utils import six
 from MAGE.exceptions import MageError
+from django.core.exceptions import ValidationError
 
 
 ################################################################################
@@ -87,7 +88,7 @@ class Environment(models.Model):
     typology = models.ForeignKey(EnvironmentType)
     
     def __unicode__(self):
-        return "%s (%s)" % (self.name, self.description)  
+        return "%s" % (self.name,)  
     
 
 ################################################################################
@@ -116,7 +117,7 @@ class CompoMeta(ModelBase):
             field_card = parents[field_name]['cardinality']
             field_model = parents[field_name]['model']
             
-            getter = lambda slf, model_type=field_model, field_name=field_name: slf.__getcustomlink__(model_type, field_name)
+            getter = lambda slf, model_type = field_model, field_name = field_name: slf.__getcustomlink__(model_type, field_name)
             
             if field_card == 0 or field_card > 1:
                 prop = property(fget=getter)
@@ -124,7 +125,7 @@ class CompoMeta(ModelBase):
                 setattr(self, field_name + '_add', lambda slf, value, model_type=field_model, field_name=field_name: slf.__addtocustomlink__(value, model_type, field_name))
                 setattr(self, field_name + '_delete', lambda slf, value, field_name=field_name: slf.__deletefromcustomlink__(value, field_name))
             elif field_card == 1:
-                setter = lambda slf, value, model_type=field_model, field_name=field_name: slf.__setcustomlinkcard1__(value, field_name) 
+                setter = lambda slf, value, model_type = field_model, field_name = field_name: slf.__setcustomlinkcard1__(value, field_name) 
                 setattr(self, field_name, property(fget=getter, fset=setter))
                 
         ## Let Django do its magic
@@ -163,13 +164,16 @@ class ComponentInstance(models.Model):
         
         if f['cardinality'] == 1:
             if not self.__dict__.has_key(cache_field_name) or self.__dict__[cache_field_name] is None:
-                self.__dict__[cache_field_name] = self.dependsOn.get(statues_ci2do__rel_name=field_name).leaf
+                try:
+                    self.__dict__[cache_field_name] = self.dependsOn.get(statues_ci2do__rel_name=field_name).leaf
+                except ComponentInstance.DoesNotExist:
+                    self.__dict__[cache_field_name] = None
             return self.__dict__[cache_field_name]
         else:
             # Don't use self.dependsOn - we want the leaf objects directly from the query
-            ct = ContentType.objects.get(model__iexact = field_model)
+            ct = ContentType.objects.get(model__iexact=field_model)
             #return self.dependsOn.filter(statues_ci2do__rel_name=field_name)
-            return ct.get_all_objects_for_this_type(statues_ci2do__rel_name=field_name, subscribers__id = self.id)
+            return ct.get_all_objects_for_this_type(statues_ci2do__rel_name=field_name, subscribers__id=self.id)
     
     def __setcustomlinkcard1__(self, value, field_name):
         cache_field_name = '__cache_' + field_name
@@ -177,7 +181,7 @@ class ComponentInstance(models.Model):
         
         c = self.pedestals_ci2do.filter(rel_name=field_name)
         if len(c) == 0:
-            nc = CI2DO(pedestal = value, statue = self, rel_name = field_name)
+            nc = CI2DO(pedestal=value, statue=self, rel_name=field_name)
             nc.save()
         elif len(c) == 1:
             c[0].pedestal = value
@@ -186,16 +190,16 @@ class ComponentInstance(models.Model):
             raise MageError('a field with cardinality 1 has more than one value')
     
     def __addtocustomlink__(self, value, field_type, field_name):
-        f = self.dependsOn.filter(statues_ci2do__rel_name=field_name, id = value.id)
+        f = self.dependsOn.filter(statues_ci2do__rel_name=field_name, id=value.id)
         
         if len(f) > 0:
             raise MageError('a component cannot be twice parent of another')
         
-        nc = CI2DO(pedestal = value, statue = self, rel_name = field_name)
+        nc = CI2DO(pedestal=value, statue=self, rel_name=field_name)
         nc.save()
     
     def __deletefromcustomlink__(self, value, field_name):   
-        f = self.pedestals_ci2do.filter(rel_name=field_name, pedestal_id = value.id) 
+        f = self.pedestals_ci2do.filter(rel_name=field_name, pedestal_id=value.id) 
         for r in f:
             r.delete()
             
@@ -219,10 +223,25 @@ class ComponentInstance(models.Model):
 
 
 class CI2DO(models.Model):
-    statue = models.ForeignKey(ComponentInstance, related_name='pedestals_ci2do')
-    pedestal = models.ForeignKey(ComponentInstance, related_name='statues_ci2do')
-    rel_name = models.CharField(max_length=100)
+    statue = models.ForeignKey(ComponentInstance, related_name='pedestals_ci2do', verbose_name='child')
+    pedestal = models.ForeignKey(ComponentInstance, related_name='statues_ci2do', verbose_name='depends on')
+    rel_name = models.CharField(max_length=100, verbose_name='relation name')
     #rel_cardinality = models.IntegerField(default = 1)
+    
+    def clean(self):
+        fd = self.statue.parents[self.rel_name]
+        f_type = fd['model']
+        #f_card = fd.get('card') or 1
+        
+        if self.pedestal.model.model.lower() != f_type.lower():
+            raise ValidationError('link %s expects a %s instance - a %s was given' % (self.rel_name, self.statue.parents[self.rel_name]['model'], self.pedestal.model.model))
+        
+        super(CI2DO, self).clean()
+         
+        
+    class Meta:
+        verbose_name = 'link to base component'
+        verbose_name_plural = 'links to base components'
     
 
 ################################################################################
