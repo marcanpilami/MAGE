@@ -4,8 +4,9 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, NamingConvention, NamingConventionField
+    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO
 from ref.naming import nc_sync_naming_convention
+from django import forms
 
 
 
@@ -59,6 +60,13 @@ admin.site.register(NamingConvention, NamingConventionAdmin)
 ## Component instances
 ################################################################################
 
+class CI2DOFieldInline(admin.TabularInline):
+    model = CI2DO
+    extra = 3
+    can_delete = False
+    fields = ['pedestal', 'rel_name', ]
+    fk_name ='statue'
+    
 class CICFilter(SimpleListFilter):
     title = u'implémentation de'
     parameter_name = 'impl'
@@ -100,9 +108,10 @@ class ComponentInstanceAdmin(admin.ModelAdmin):
         if db_field.name == 'instanciates':
             kwargs['queryset'] = ComponentImplementationClass.objects.filter(python_model_to_use__model__iexact=model.__name__)
         return super(ComponentInstanceAdmin, self).formfield_for_dbfield(db_field, **kwargs)
-    
+
+
     ## Default values for the various admin options. Should usually be at least partially overloaded
-    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo']}), ]
+    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo',]}), ]
     fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'connectedTo']}), ]
     fieldsets = fieldsets_generic
     filter_horizontal = ('connectedTo', 'dependsOn', 'environments')
@@ -110,4 +119,5 @@ class ComponentInstanceAdmin(admin.ModelAdmin):
     search_fields = ('name', 'dependsOn__name',)
     list_filter = ['environments__name', CICFilter, ]
     list_display = ('name', 'instanciates')
+    inlines = [CI2DOFieldInline, ]
 
