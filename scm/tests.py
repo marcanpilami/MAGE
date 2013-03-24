@@ -10,7 +10,7 @@ from scm.models import InstallableSet, InstallableItem, InstallationMethod,\
     LogicalComponentVersion, Delivery
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
-from cpn.models import UnixServer, OracleInstance, OracleSchema
+from cpn.models import OsServer, OracleInstance, OracleSchema
 from cpn.tests import TestHelper, utility_create_test_envt 
 from install import install_iset_envt
 

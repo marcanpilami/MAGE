@@ -18,7 +18,7 @@ class OracleInstanceAdmin(ComponentInstanceAdmin):
 admin.site.register(OracleInstance, OracleInstanceAdmin)
 
 class OracleSchemaAdmin(ComponentInstanceAdmin):
-    list_display = ('name', 'instanciates', 'instance_oracle', 'connectString')
+    list_display = ('name', 'instanciates', 'oracle_instance', 'connectString')
     fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique schéma', {'fields': ['password', 'service_name_to_use', ]})]
 admin.site.register(OracleSchema, OracleSchemaAdmin)
 

@@ -17,9 +17,9 @@ from django.contrib.contenttypes.models import ContentType
 from ref.models import ComponentInstance
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
-from cpn.models import UnixServer, OracleInstance, OracleSchema, WasCell, \
+from cpn.models import  OracleInstance, OracleSchema, WasCell, \
     GlassfishAS, MqQueueManagerParams, MqQueueManager, WasNode, WasCluster, \
-    WasAS, WasApplication, ApplicationBinary
+    WasAS, WasApplication, ApplicationBinary, OsServer
 
 class TestHelper:
     def __init__(self):
@@ -51,29 +51,6 @@ class TestHelper:
         
         self.ci_ora_1 = OracleSchema.objects.get(name='prd_int')
         
-
-def utility_create_test_min_envt(i):
-    a1 = Application(name='application %s' % i)
-    a1.save()
-    
-    l1 = LogicalComponent(name='RDBMS container for module 1', application=a1)
-    l1.save()
-    
-    et1 = EnvironmentType(name='production', short_name='PRD')
-    et1.save()
- 
-    impl_1_1 = ComponentImplementationClass(name='Oracle schema for module 1', description='Oracle schema in a mutualized instance', implements=l1, python_model_to_use=ContentType.objects.get_for_model(OracleSchema))
-    impl_1_1.save()
-    
-    et1.implementation_patterns.add(impl_1_1)
-    
-    e1 = Environment(name='PRD1', typology=et1, description='production envt')
-    e1.save()
-   
-    us1 = UnixServer(name='server1')
-    us1.save()
-    
-    return a1
 
 def utility_create_test_envt(i):
     a1 = Application(name='application %s' % i)
@@ -141,144 +118,154 @@ def utility_create_test_envt(i):
     e6 = Environment(name='TEC3', typology=et3, description='staging environment used for request fulfillment - partial restoration, parameter test...')
     e6.save()
     
-    us1 = UnixServer(name='srv_server_dev')
+    us1 = OsServer(name='srv_server_dev', os='AIX', admin_account_login='root', admin_account_password='password')
     us1.save()
-    us2 = UnixServer(name='srv_tsts_oracle')
+    us2 = OsServer(name='srv_tsts_oracle', os='AIX', admin_account_login='root', admin_account_password='password')
     us2.save()
-    us3 = UnixServer(name='srv_tsts_was')
+    us3 = OsServer(name='srv_tsts_was', os='AIX', admin_account_login='root', admin_account_password='password')
     us3.save()
-    us4 = UnixServer(name='srv_prd_oracle')
+    us4 = OsServer(name='srv_prd_oracle', os='AIX', admin_account_login='root', admin_account_password='password')
     us4.save()
-    us5 = UnixServer(name='srv_prd_was_user')
+    us5 = OsServer(name='srv_prd_was_user', os='AIX', admin_account_login='root', admin_account_password='password')
     us5.save()
-    us6 = UnixServer(name='srv_prd_was_integration')
+    us6 = OsServer(name='srv_prd_was_integration', os='AIX', admin_account_login='root', admin_account_password='password')
     us6.save()
     
     oi1 = OracleInstance(name='ORAINST1')
     oi1.save()
-    oi1.dependsOn.add(us1)
+    oi1.server = us1
     oi2 = OracleInstance(name='ORAINST2')
     oi2.save()
-    oi2.dependsOn.add(us2)
+    oi2.server = us2
     oi3 = OracleInstance(name='ORAINST3')
     oi3.save()
-    oi3.dependsOn.add(us4)
+    oi3.server = us4
     
     mq1 = MqQueueManager(name="MQDEVALL", port=123)
     mq1.save()
-    mq1.dependsOn.add(us1)
+    mq1.server = us1
     mq2 = MqQueueManager(name='MQTSTALL', port=123)
     mq2.save()
-    mq2.dependsOn.add(us3)
+    mq2.server = us3
     mq3 = MqQueueManager(name='MQPRDINT', port=123)
     mq3.save()
-    mq3.dependsOn.add(us6)
+    mq3.server = us6
     mq4 = MqQueueManager(name='MQTSTUSR', port=123)
     mq4.save()
-    mq4.dependsOn.add(us5)
+    mq4.server = us5
     
     mqp1 = MqQueueManagerParams(instanciates=impl_5_1)
     mqp1.save()
-    mqp1.dependsOn.add(mq1)
+    mqp1.qm = mq1
     mqp1.environments.add(e2)
     mqp2 = MqQueueManagerParams(instanciates=impl_6_1)
     mqp2.save()
-    mqp2.dependsOn.add(mq1)
+    mqp2.qm = mq1
     mqp2.environments.add(e2)
     
     mqp3 = MqQueueManagerParams(instanciates=impl_5_1)
     mqp3.save()
-    mqp3.dependsOn.add(mq2)
+    mqp3.qm = mq2
     mqp3.environments.add(e5)
     mqp4 = MqQueueManagerParams(instanciates=impl_6_1)
     mqp4.save()
-    mqp4.dependsOn.add(mq2)
+    mqp4.qm = mq2
     mqp4.environments.add(e5)
     
     mqp5 = MqQueueManagerParams(instanciates=impl_5_1)  # PRD, INT
     mqp5.save()
-    mqp5.dependsOn.add(mq3)
+    mqp5.qm = mq3
     mqp5.environments.add(e1)
     mqp6 = MqQueueManagerParams(instanciates=impl_6_1)  # PRD, USR
     mqp6.save()
-    mqp6.dependsOn.add(mq4)
+    mqp6.qm = mq4
     mqp6.environments.add(e1)
     
     
     
     wasCell1 = WasCell(name='wcellDEV')
     wasCell1.save()
-    wasCell1.dependsOn.add(us1)
+    wasCell1.manager_server = us1
     wasCell2 = WasCell(name='wcellTST')
     wasCell2.save()
-    wasCell2.dependsOn.add(us3)
+    wasCell2.manager_server = us3
     wasCell3 = WasCell(name='wcellPRD')
     wasCell3.save()
-    wasCell3.dependsOn.add(us5)
+    wasCell3.manager_server = us5
     
     wasNode1 = WasNode(name='wnDEV')
     wasNode1.save()
-    wasNode1.dependsOn.add(us1, wasCell1)
+    wasNode1.server = us1
+    wasNode1.was_cell = wasCell1
     wasNode2 = WasNode(name='wnTST')
     wasNode2.save()
-    wasNode2.dependsOn.add(us3, wasCell2)
+    wasNode2.server = us3
+    wasNode2.was_cell = wasCell2
     wasNode3 = WasNode(name='wnPRDINT')
     wasNode3.save()
-    wasNode3.dependsOn.add(us5, wasCell3)
+    wasNode3.server = us5
+    wasNode3.was_cell = wasCell3
     wasNode4 = WasNode(name='wnPRDUSR')
     wasNode4.save()
-    wasNode4.dependsOn.add(us6, wasCell3)
+    wasNode4.server = us6
+    wasNode4.was_cell = wasCell3
     
     wasCluster1 = WasCluster(name='wcluDEV')
     wasCluster1.save()
-    wasCluster1.dependsOn.add(wasCell1)
+    wasCluster1.was_cell = wasCell1
     wasCluster1.environments.add(e2)
     wasCluster2 = WasCluster(name='wcluTST')
     wasCluster2.save()
-    wasCluster2.dependsOn.add(wasCell2)
+    wasCluster2.was_cell = wasCell2
     wasCluster2.environments.add(e5)
     wasCluster3 = WasCluster(name='wcluPRDINT')
     wasCluster3.save()
-    wasCluster3.dependsOn.add(wasCell3)
+    wasCluster3.was_cell = wasCell3
     wasCluster3.environments.add(e1)
     wasCluster4 = WasCluster(name='wcluPRDUSR')
     wasCluster4.save()
-    wasCluster4.dependsOn.add(wasCell3)
+    wasCluster4.was_cell = wasCell3
     wasCluster4.environments.add(e1)
         
     wasAs1 = WasAS(name='waDEV')
     wasAs1.save()
-    wasAs1.dependsOn.add(wasNode1, wasCluster1)
+    wasAs1.was_node = wasNode1
+    wasAs1.was_cluster = wasCluster1
     wasAs1.environments.add(e2)
     wasAs2 = WasAS(name='waTST')
     wasAs2.save()
-    wasAs2.dependsOn.add(wasNode2, wasCluster2)
+    wasAs2.was_node = wasNode2
+    wasAs2.was_cluster = wasCluster2
     wasAs2.environments.add(e5)
     wasAs3 = WasAS(name='waPRDINT1')
     wasAs3.save()
-    wasAs3.dependsOn.add(wasNode3, wasCluster3)
+    wasAs3.was_node = wasNode3
+    wasAs3.was_cluster = wasCluster3
     wasAs3.environments.add(e1)
     wasAs4 = WasAS(name='waPRDUSR1')
     wasAs4.save()
-    wasAs4.dependsOn.add(wasNode3, wasCluster4)
+    wasAs4.was_node = wasNode3
+    wasAs4.was_cluster = wasCluster4
     wasAs4.environments.add(e1)
     wasAs5 = WasAS(name='waPRDINT2')
     wasAs5.save()
-    wasAs5.dependsOn.add(wasNode4, wasCluster3)
+    wasAs5.was_node = wasNode4
+    wasAs5.was_cluster = wasCluster3
     wasAs5.environments.add(e1)
     wasAs6 = WasAS(name='waPRDUSR2')
     wasAs6.save()
-    wasAs6.dependsOn.add(wasNode4, wasCluster4)
+    wasAs6.was_node = wasNode4
+    wasAs6.was_cluster = wasCluster4
     wasAs6.environments.add(e1)
     
     wasApp1 = WasApplication(name='integration')
     wasApp1.save()
-    wasApp1.dependsOn.add(wasCluster3)
+    wasApp1.was_cluster = wasCluster3
     wasApp1.environments.add(e1)
     
     wasApp2 = WasApplication(name='user web UI')
     wasApp2.save()
-    wasApp2.dependsOn.add(wasCluster4)
+    wasApp2.was_cluster = wasCluster4
     wasApp2.environments.add(e1)
     
     
@@ -289,13 +276,13 @@ def utility_create_test_envt(i):
     os2.save()
     os1.environments.add(e1)
     os2.environments.add(e1)
-    os1.dependsOn.add(oi3)
-    os2.dependsOn.add(oi3)
+    os1.oracle_instance = oi3
+    os2.oracle_instance = oi3
 
     bin1 = ApplicationBinary(name='batchs', root_directory='/batch/PRD1', instanciates=impl_7_1)
     bin1.save()
     bin1.environments.add(e1)
-    bin1.dependsOn.add(us6)
+    bin1.server = us6
     bin1.connectedTo.add(os1)
         
     wasApp1.connectedTo.add(mqp5, os1)  # # PRD, INT
@@ -323,20 +310,20 @@ class SimpleTest(TestCase):
         Tests that it is possible to access the auto fields from an instance
         """
         i = OracleInstance(port=123, listener="LISTENER")
-        d = UnixServer(marsu='test')
+        d = OsServer(name = 'test', os='AIX', admin_account_login='root', admin_account_password='password')
         i.save()
         d.save()
         
-        i.dependsOn.add(d)
+        i.server = d
         i.save()
         
         self.assertEqual(i.port, 123)
-        self.assertNotEqual(i.base_server, None)
-        self.assertEqual(i.base_server.marsu, 'test')      
+        self.assertNotEqual(i.server, None)
+        self.assertEqual(i.server.name, 'test')      
         
         r = ComponentInstance.objects.get(pk=i.pk)
         self.assertNotEqual(r.leaf, None)
-        self.assertEqual(r.leaf.base_server.marsu, 'test') 
+        self.assertEqual(r.leaf.server.name, 'test') 
 
     def test_description(self):
         i = OracleInstance(name='SUPERINSTANCE', port=123, listener="LISTENER")

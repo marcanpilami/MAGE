@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
 from django.utils import six
+from MAGE.exceptions import MageError
 
 
 ################################################################################
@@ -58,7 +59,7 @@ class ComponentImplementationClass(models.Model):
     python_model_to_use = models.ForeignKey(ContentType)
     
     def __unicode__(self):
-        return u'%s' %self.name
+        return u'%s' % self.name
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
@@ -98,32 +99,53 @@ def getCustomLink(attrtype):
         return self.dependsOn.get(model__model__iexact=attrtype).leaf
 
 class CompoMeta(ModelBase):
-    def __init__(cls, name, bases, attrs):
-        ## Add parent fields        
+    def __init__(self, name, bases, attrs): # 'self' should conventionally be 'cls', but pyDev bugs otherwise.
+        ## Add parent fields  
+        
+        # Get the parents field      
         if not attrs.has_key('parents'):
             return
         parents = attrs['parents'] #TODO: remove parents from the class, add it as a private field to Component # .__bases__[0]
-        for field in parents.iterkeys():
-            setattr(cls, field, property(fget=lambda self, model_type = parents[field]: self.__getcustomlink__(model_type)))
         
+        for field_name in parents.iterkeys():
+            if not parents[field_name].has_key('cardinality'):
+                parents[field_name]['cardinality'] = 1
+            if not parents[field_name].has_key('compulsory'):
+                parents[field_name]['compulsory'] = False
+                
+            field_card = parents[field_name]['cardinality']
+            field_model = parents[field_name]['model']
+            
+            getter = lambda slf, model_type=field_model, field_name=field_name: slf.__getcustomlink__(model_type, field_name)
+            
+            if field_card == 0 or field_card > 1:
+                prop = property(fget=getter)
+                setattr(self, field_name, prop)
+                setattr(self, field_name + '_add', lambda slf, value, model_type=field_model, field_name=field_name: slf.__addtocustomlink__(value, model_type, field_name))
+                setattr(self, field_name + '_delete', lambda slf, value, field_name=field_name: slf.__deletefromcustomlink__(value, field_name))
+            elif field_card == 1:
+                setter = lambda slf, value, model_type=field_model, field_name=field_name: slf.__setcustomlinkcard1__(value, field_name) 
+                setattr(self, field_name, property(fget=getter, fset=setter))
+                
         ## Let Django do its magic
-        super(CompoMeta, cls).__init__(name, bases, attrs)
+        super(CompoMeta, self).__init__(name, bases, attrs)
     
+
     
 class ComponentInstance(models.Model):
     """Base model (class) for all components. (should never need to be instantiated)"""
     __metaclass__ = CompoMeta
     
     ## Base data for all components
-    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'Nom ')
+    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'nom ')
     instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
     
     ## Environments
-    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='Environnements ', related_name='component_instances')
+    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='environnements ', related_name='component_instances')
     
     ## Connections
-    connectedTo = models.ManyToManyField('self', symmetrical=True, blank=True, verbose_name=u'Connecté aux composants ')
-    dependsOn = models.ManyToManyField('self', blank=True, verbose_name=u'Supporté par ', symmetrical=False, related_name='subscribers')
+    connectedTo = models.ManyToManyField('self', symmetrical=True, blank=True, verbose_name=u'connecté aux composants ')
+    dependsOn = models.ManyToManyField('self', blank=True, verbose_name=u'supporté par ', symmetrical=False, related_name='subscribers', through='CI2DO')
     
     ## Polymorphism
     model = models.ForeignKey(ContentType)
@@ -135,9 +157,48 @@ class ComponentInstance(models.Model):
     leaf = property(_getLeafItem)
     
     ## Stuff to add the "parent" fields
-    def __getcustomlink__(self, field_model):
-        return self.dependsOn.get(model__model__iexact=field_model).leaf
+    def __getcustomlink__(self, field_model, field_name):
+        cache_field_name = '__cache_' + field_name
+        f = self.parents[field_name]
         
+        if f['cardinality'] == 1:
+            if not self.__dict__.has_key(cache_field_name) or self.__dict__[cache_field_name] is None:
+                self.__dict__[cache_field_name] = self.dependsOn.get(statues_ci2do__rel_name=field_name).leaf
+            return self.__dict__[cache_field_name]
+        else:
+            # Don't use self.dependsOn - we want the leaf objects directly from the query
+            ct = ContentType.objects.get(model__iexact = field_model)
+            #return self.dependsOn.filter(statues_ci2do__rel_name=field_name)
+            return ct.get_all_objects_for_this_type(statues_ci2do__rel_name=field_name, subscribers__id = self.id)
+    
+    def __setcustomlinkcard1__(self, value, field_name):
+        cache_field_name = '__cache_' + field_name
+        self.__dict__[cache_field_name] = None
+        
+        c = self.pedestals_ci2do.filter(rel_name=field_name)
+        if len(c) == 0:
+            nc = CI2DO(pedestal = value, statue = self, rel_name = field_name)
+            nc.save()
+        elif len(c) == 1:
+            c[0].pedestal = value
+            c[0].save()
+        else:
+            raise MageError('a field with cardinality 1 has more than one value')
+    
+    def __addtocustomlink__(self, value, field_type, field_name):
+        f = self.dependsOn.filter(statues_ci2do__rel_name=field_name, id = value.id)
+        
+        if len(f) > 0:
+            raise MageError('a component cannot be twice parent of another')
+        
+        nc = CI2DO(pedestal = value, statue = self, rel_name = field_name)
+        nc.save()
+    
+    def __deletefromcustomlink__(self, value, field_name):   
+        f = self.pedestals_ci2do.filter(rel_name=field_name, pedestal_id = value.id) 
+        for r in f:
+            r.delete()
+            
     ## Set the "model" field at initialization
     def __setContentType(self):
         if self.model_id is None:
@@ -157,28 +218,47 @@ class ComponentInstance(models.Model):
             return '%s' % (self.name)
 
 
+class CI2DO(models.Model):
+    statue = models.ForeignKey(ComponentInstance, related_name='pedestals_ci2do')
+    pedestal = models.ForeignKey(ComponentInstance, related_name='statues_ci2do')
+    rel_name = models.CharField(max_length=100)
+    #rel_cardinality = models.IntegerField(default = 1)
+    
 
 ################################################################################
 ## Naming norms
 ################################################################################ 
 
 class NamingConvention(models.Model):
-    name = models.CharField(max_length = 20)
+    name = models.CharField(max_length=20)
     applications = models.ManyToManyField(Application, verbose_name=u'used in')
     
     def __unicode__(self):
-        return u'Norme %s' %self.name
+        return u'Norme %s' % self.name
     
     class Meta:
         verbose_name = 'norme de nommage'
         verbose_name_plural = 'normes de nommage'
     
 class NamingConventionField(models.Model):
-    model = models.CharField(max_length = 254, verbose_name = u'composant technique')
-    field = models.CharField(max_length = 254, verbose_name = u'champ')
-    pattern = models.CharField(max_length = 1023, null = True, blank = True, verbose_name = u'norme de nommage') 
-    convention_set = models.ForeignKey(NamingConvention, related_name = 'fields') 
+    model = models.CharField(max_length=254, verbose_name=u'composant technique')
+    field = models.CharField(max_length=254, verbose_name=u'champ')
+    pattern = models.CharField(max_length=1023, null=True, blank=True, verbose_name=u'norme de nommage') 
+    convention_set = models.ForeignKey(NamingConvention, related_name='fields') 
     
     class Meta:
         verbose_name = u'norme de nommage d\'un champ de composant'
         verbose_name_plural = u'normes de nommage des champs des composants'
+
+
+
+################################################################################
+## Test components
+################################################################################
+
+class Test1(ComponentInstance):
+    raccoon = models.CharField(max_length=100, default='houba hop') 
+    
+class Test2(ComponentInstance):
+    parents = {'daddy': {'model': 'Test1', 'cardinality' :1, 'compulsory': False},
+               'daddies': {'model': 'Test1', 'cardinality' :3, 'compulsory': False}} 

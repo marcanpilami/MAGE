@@ -30,9 +30,6 @@ admin.site.register(Environment, EnvironmentAdmin)
 ################################################################################
 ## Naming conventions
 ################################################################################
-
-
-
     
 class NamingConventionFieldInline(admin.TabularInline):
     model = NamingConventionField
@@ -105,12 +102,12 @@ class ComponentInstanceAdmin(admin.ModelAdmin):
         return super(ComponentInstanceAdmin, self).formfield_for_dbfield(db_field, **kwargs)
     
     ## Default values for the various admin options. Should usually be at least partially overloaded
-    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'dependsOn', 'connectedTo']}), ]
-    fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'dependsOn', 'connectedTo']}), ]
+    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo']}), ]
+    fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'connectedTo']}), ]
     fieldsets = fieldsets_generic
     filter_horizontal = ('connectedTo', 'dependsOn', 'environments')
     ordering = ('name',)
     search_fields = ('name', 'dependsOn__name',)
-    list_filter = ['environments', CICFilter, ]
+    list_filter = ['environments__name', CICFilter, ]
     list_display = ('name', 'instanciates')
 

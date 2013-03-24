@@ -8,8 +8,10 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from cpn.tests import utility_create_test_envt
 from ref.mcl import parser 
-from ref.models import ComponentInstance
+from ref.models import ComponentInstance, Environment, Test1, EnvironmentType,\
+    Test2
 import naming
+from MAGE.exceptions import MageError
 
 class SimpleTest(TestCase):
     def test_mcl_without_relations(self):
@@ -77,4 +79,54 @@ class SimpleTest(TestCase):
         # A sync should not modify the convention
         naming.nc_sync_naming_convention(nc1)
         self.assertEqual(nb, nc1.fields.count())
+    
+    def test_base(self):
+        et1 = EnvironmentType(name='production', short_name='PRD')
+        et1.save()
+        
+        e = Environment(name = 'marsu', typology = et1)
+        e.save()
+        
+        t1_1 = Test1(name = 't1_1', raccoon = 'pouet')
+        t1_1.save()
+        t1_1.environments.add(e)
+        
+        t1_2 = Test1(name = 't1_2', raccoon = 'pouet')
+        t1_2.save()
+        t1_2.environments.add(e)
+        
+        t2_1 = Test2(name = 't2_1')
+        t2_1.save()
+        
+        t2_2 = Test2(name = 't2_2')
+        t2_2.save()
+        t2_2.daddies_add(t1_1)
+        t2_2.daddies_add(t1_2)
+        
+        t2_1.daddy = t1_1
+        
+        self.assertEqual(len(t2_1.dependsOn.all()), 1)
+        
+        # change the relation
+        t2_1.daddy = t1_2
+        self.assertEqual(len(t2_1.dependsOn.all()), 1)
+        self.assertEqual(t2_1.daddy, t1_2)
+        
+        ## M2M
+        with self.assertRaises(AttributeError):
+            t2_1.daddies = t1_2
+            
+        t2_1.daddies_add(t1_2)
+        self.assertEqual(t2_1.daddies.count(), 1)
+        t2_1.daddies_add(t1_1)
+        self.assertEqual(t2_1.daddies.count(), 2)
+        
+        with self.assertRaises(MageError):
+            t2_1.daddies_add(t1_1)
+        self.assertEqual(t2_1.daddies.count(), 2)
+        
+        t2_1.daddies_delete(t1_2)
+        self.assertEqual(t2_1.daddies.count(), 1)
+        
+        self.assertEqual(t2_1.daddies[0], t1_1)
         
