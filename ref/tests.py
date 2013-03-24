@@ -69,17 +69,6 @@ class SimpleTest(TestCase):
         res = parser.get_components('(P,name="wcluPRDUSR")(C,name="prd_user")')
         self.assertEqual(1, len(res))
         
-    def test_nc(self):
-        utility_create_test_envt(1)
-        
-        nc1 = naming.nc_create_naming_convention('genius convention')
-        nb = nc1.fields.count()
-        self.assertLess(10, nb)
-        
-        # A sync should not modify the convention
-        naming.nc_sync_naming_convention(nc1)
-        self.assertEqual(nb, nc1.fields.count())
-    
     def test_base(self):
         et1 = EnvironmentType(name='production', short_name='PRD')
         et1.save()
@@ -129,4 +118,19 @@ class SimpleTest(TestCase):
         self.assertEqual(t2_1.daddies.count(), 1)
         
         self.assertEqual(t2_1.daddies[0], t1_1)
+        
+        
+    def test_nc(self):
+        utility_create_test_envt(1)
+        
+        nc1 = naming.nc_create_naming_convention('genius convention')
+        nb = nc1.fields.count()
+        self.assertLess(10, nb)
+        
+        # A sync should not modify the convention
+        naming.nc_sync_naming_convention(nc1)
+        self.assertEqual(nb, nc1.fields.count())
+        
+        # Set a field
+        nc1.set_field('test2', 'name', 'marsu')
         

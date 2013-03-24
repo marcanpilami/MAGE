@@ -39,8 +39,8 @@ class NamingConventionFieldInline(admin.TabularInline):
     model = NamingConventionField
     extra = 0
     can_delete = False
-    fields = ['model', 'field', 'pattern', ]
-    readonly_fields = ['model', 'field', ]
+    fields = ['model', 'field', 'pattern_type', 'pattern', ]
+    readonly_fields = ['model', 'field', 'pattern_type']
     ordering = ['model', 'field']
     template = 'MAGE/admin/tabular_no_title.html'
 
