@@ -31,10 +31,16 @@ class Project(models.Model):
         and containing a description
     """
     name = models.CharField(max_length=100)
+    alternate_name_1 = models.CharField(max_length=100)
+    alternate_name_2 = models.CharField(max_length=100)
+    alternate_name_3 = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
 
 class Application(models.Model):
     name = models.CharField(max_length=100)
+    alternate_name_1 = models.CharField(max_length=100)
+    alternate_name_2 = models.CharField(max_length=100)
+    alternate_name_3 = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
     project = models.ForeignKey(Project, null=True, blank=True)
     
@@ -261,30 +267,37 @@ class NamingConvention(models.Model):
         verbose_name_plural = 'normes de nommage'
     
     def set_field(self, model_name, field_name, pattern):
-        rel = self.fields.get(model = model_name, field = field_name)
+        rel = self.fields.get(model=model_name, field=field_name)
         rel.pattern = pattern
         rel.save()
     
     # def value_field() # actually monkey patched from naming.py to avoid circular imports between mcl.py and models.py
         
-    def value_instance(self, instance, force = False):
-        pass        
+          
     
 class NamingConventionField(models.Model):
     model = models.CharField(max_length=254, verbose_name=u'composant technique')
     field = models.CharField(max_length=254, verbose_name=u'champ')
     pattern = models.CharField(max_length=1023, null=True, blank=True, verbose_name=u'norme de nommage') 
     convention_set = models.ForeignKey(NamingConvention, related_name='fields') 
-    pattern_type = models.CharField(max_length = 4, choices = (('MCL1', 'MCL query with only one result'), 
-                                                               ('MCL0', 'MCL query with 0 to * results'), 
+    pattern_type = models.CharField(max_length=4, choices=(('MCL1', 'MCL query with only one result'),
+                                                               ('MCL0', 'MCL query with 0 to * results'),
                                                                ('P', 'simple pattern'),
                                                                ('CIC', 'implementation class name'),))
     
     class Meta:
         verbose_name = u'norme de nommage d\'un champ de composant'
         verbose_name_plural = u'normes de nommage des champs des composants'
+        
+    def __unicode__(self):
+        return u'%s.%s = %s' %(self.model, self.field, self.pattern)
 
-
+class NamingConventionCounter(models.Model):
+    scope_type = models.CharField(max_length=50)
+    scope_param_1 = models.CharField(max_length=50, blank=True, null=True, default=None)
+    scope_param_2 = models.CharField(max_length=50, blank=True, null=True, default=None)
+    val = models.IntegerField(default=0)
+    
 
 ################################################################################
 ## Test components

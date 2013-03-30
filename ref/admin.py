@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter, widgets
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO
+    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO,\
+    NamingConventionCounter
 from ref.naming import nc_sync_naming_convention
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -57,6 +58,7 @@ class NamingConventionAdmin(admin.ModelAdmin):
 
 admin.site.register(NamingConvention, NamingConventionAdmin)
 
+admin.site.register(NamingConventionCounter)
 
 
 ################################################################################

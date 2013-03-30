@@ -121,8 +121,16 @@ class SimpleTest(TestCase):
         
         
     def test_nc(self):
-        utility_create_test_envt(1)
+        #utility_create_test_envt(1)
         
+        et1 = EnvironmentType(name='production', short_name='PRD')
+        et1.save()
+        e1 = Environment(name='PRD1', typology=et1, description='production envt')
+        e1.save()
+        e2 = Environment(name='PRD2', typology=et1, description='production envt 2')
+        e2.save()
+        
+    
         nc1 = naming.nc_create_naming_convention('genius convention')
         nb = nc1.fields.count()
         self.assertLess(10, nb)
@@ -132,5 +140,49 @@ class SimpleTest(TestCase):
         self.assertEqual(nb, nc1.fields.count())
         
         # Set a field
-        nc1.set_field('test2', 'name', 'marsu')
+        nc1.set_field('test2', 'name', 'TEST2_%E%')
+        nc1.set_field('test1', 'name', 'TEST1_%E%')
+        t1 = Test1()
+        t1.save()
+        t1.environments.add(e1)
         
+        t2 = Test2()
+        t2.save()
+        nc1.value_instance(t2)
+        t2.save()
+        
+        self.assertEqual('TEST2_NOENVIRONMENT', t2.name)
+        
+        # Without force, name should not change
+        t2.environments.add(e2)
+        nc1.value_instance(t2)
+        t2.save()
+        
+        # With force, it should
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_PRD2', t2.name)
+        
+        ## Counters/sequences: global
+        nc1.set_field('test2', 'name', 'TEST2_%cg%')
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_1', t2.name)
+        
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_2', t2.name)
+        
+        # other models in other envt should also use the same counter
+        nc1.set_field('test1', 'name', 'TEST1_%cg%')
+        nc1.value_instance(t1)
+        self.assertEqual('TEST1_3', t1.name)
+        
+        ## Counters: by environment
+        nc1.set_field('test2', 'name', 'TEST2_%ce%')
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_1', t2.name)
+        
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_2', t2.name)
+        
+        nc1.set_field('test1', 'name', 'TEST1_%ce%')
+        nc1.value_instance(t1, force = True)
+        self.assertEqual('TEST1_1', t1.name)
