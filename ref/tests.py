@@ -146,6 +146,10 @@ class SimpleTest(TestCase):
         t1.save()
         t1.environments.add(e1)
         
+        t3 = Test1()
+        t3.save()
+        t3.environments.add(e2)
+        
         t2 = Test2()
         t2.save()
         nc1.value_instance(t2)
@@ -186,3 +190,18 @@ class SimpleTest(TestCase):
         nc1.set_field('test1', 'name', 'TEST1_%ce%')
         nc1.value_instance(t1, force = True)
         self.assertEqual('TEST1_1', t1.name)
+        
+        ## Counters: by envt and model type
+        nc1.set_field('test2', 'name', 'TEST2_%cem%')
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_1', t2.name)
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_2', t2.name)
+        nc1.value_instance(t2, force = True)
+        self.assertEqual('TEST2_3', t2.name)
+        
+        nc1.set_field('test1', 'name', 'TEST1_%cem%')
+        nc1.value_instance(t3, force = True)
+        self.assertEqual('TEST1_1', t3.name)
+        nc1.value_instance(t3, force = True)
+        self.assertEqual('TEST1_2', t3.name)

@@ -1,0 +1,17 @@
+﻿MAGE - Module d'Assistance à la Gestion d'Environnement
+============================================================
+
+(in French - MAGE is not localized in other languages)
+
+MAGE est un framework permettant de facilement mettre en place un outillage de gestion d'environnements sur un projet informatique. Il est principalement destiné aux projets qui ont de multiples environnements.
+Ce framework couvre les aspects suivants :
+* Référentiel des environnements
+	* Description (machines, logins, ...)
+	* API d'interrogation web (simple GET) pour les scripts (qui par exemples iront chercher une chaine de connexion dans le référentiel)
+	* API de mise à jour/création web (de même, simple GET).
+	* Mise à jour/création via site web
+	* Publication sur un portail paramétrable
+* Gestion de configuration Logicelle (GCL)
+	* Référencement des livraisons et sauvegardes
+	* Référencement des installations
+	* Publication des versions actuelles et passées sur un portail
