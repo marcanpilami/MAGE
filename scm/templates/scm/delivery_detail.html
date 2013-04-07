@@ -1,0 +1,47 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Livraison {{delivery.name}}{% endblock %}
+
+{% block content %}
+
+<div style='background-color: #AD103C;'>
+	<table>
+		<tr><td>Enregistrée le</td><td> : {{ delivery.set_date|date:"d/m/Y" }}</td></tr>
+		<tr><td>Description courte</td><td> : {{delivery.description}}</td>	</tr>
+		<tr><td>Tickets corrigés</td><td> : {{delivery.tickets}}</td></tr>
+		<tr><td>Disponible</td><td> : {{delivery.available}}</td></tr>
+	</table>
+</div>
+
+{% for ii in delivery.set_content.all %}
+	<div class='metRectList' style='background-color: #423173; width: auto; height: auto;'>
+		<div class='t3'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
+		<div class='metRectList' style='background-color: #004D60;height: auto;'>
+			<div class='t3'>Cibles techniques potentielles</div>
+				{% for method in ii.how_to_install.all %}
+					Via la méthode d'installation {{ method.script_to_run }}
+					{% for cic in method.method_compatible_with.all %}
+						{% if cic.implements_id == ii.what_is_installed.logical_component_id %}
+							<div>{{ cic.name }}</div>
+						{%endif%}
+					{% endfor %}
+				
+				{% endfor %}
+		</div>
+		
+		{% for dep in ii.dependencies.all %}
+			<div class='metRectList' style='background-color: #D39D09;'>
+				Requiert version [{{dep.depends_on_version.logical_component.name}}] {{dep.operator}} [{{dep.depends_on_version.version}}]
+			</div>
+		{%endfor%}
+	</div>
+{% endfor %}
+
+<div class='metRectList' style='background-color: #423173; width: auto; height: auto;'>
+	<div class='t3'>Tester la compatibilité avec les environnements</div>
+	{% for envt in envts %}
+		<a class='metRectList' style='background-color: #D39D09;' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
+	{% endfor %}
+</div>
+
+{% endblock content %}

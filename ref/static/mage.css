@@ -40,6 +40,13 @@ body {
 	text-transform: uppercase;
 }
 
+.t3 {
+	font-size: 12pt;
+	letter-spacing: 0.02em;
+	font-weight: 300;
+	text-transform: uppercase;
+}
+
 /* tables */
 .visibleTable {
 	border-collapse:collapse;
@@ -58,7 +65,7 @@ body {
 	max-width: 330px;
 }
 
-a.metSquare, a.frequentAction {
+a.metSquare, a.frequentAction, a.metRectList {
 	color: inherit;
 	text-decoration: inherit;
 }

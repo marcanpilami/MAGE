@@ -1,0 +1,24 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Livraison {{delivery.name}} sur {{envt.name}}{% endblock %}
+
+{% block content %}
+
+{% if error %}
+	<div style='background-color: red;'>
+		{{error | linebreaks}}
+	</div>
+{% else %}
+	<div style='background-color: green;'>
+		L'environnement est prêt à accueillir la livraison
+	</div>
+
+
+	<a class='metRectList' style='background-color: #D24726; height:auto;'
+		href="{% url 'scm:delivery_apply_envt' delivery.id envt.id %}">
+		Cliquez ici pour enregistrer l'application de l'ensemble de cette livraison sur tous les composants éligibles de cet environnement.
+	</a>
+{% endif %}
+
+
+{% endblock content %}

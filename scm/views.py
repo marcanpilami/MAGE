@@ -2,7 +2,7 @@
 
 from django.http import HttpResponse
 from django.db import transaction
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.contenttypes.models import ContentType
 from django import forms
 from django.core.urlresolvers import reverse
@@ -21,6 +21,7 @@ from django.db.models.aggregates import Count
 from cpn.tests import TestHelper
 from scm.install import install_iset_envt
 from datetime import datetime, timedelta
+from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 
 def envts(request):
     envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -46,6 +47,27 @@ def delivery_list(request):
     deliveries = Delivery.objects.order_by('pk').select_related('set_content__what_is_installed__logical_component')
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries})
 
+def delivery(request, delivery_id):
+    delivery = Delivery.objects.get(pk=delivery_id)
+    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all()})
+
+def delivery_test(request, delivery_id, envt_id):
+    delivery = Delivery.objects.get(pk=delivery_id)
+    envt = Environment.objects.get(pk=envt_id)
+    try:
+        delivery.check_prerequisites(envt.name)
+        return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': None})
+    except MageScmFailedEnvironmentDependencyCheck, e:
+        return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': e})
+ 
+def delivery_apply_envt(request, delivery_id, envt_id):    
+    delivery = Delivery.objects.get(pk=delivery_id)
+    envt = Environment.objects.get(pk=envt_id)   
+    
+    install_iset_envt(delivery, envt)
+    return redirect('scm:envtinstallhist', envt_name = envt.name)
+
+    
 @transaction.commit_on_success
 def demo(request):
     for IS in InstallableSet.objects.all():
@@ -69,6 +91,9 @@ def demo(request):
     ref = TestHelper()
     install_iset_envt(is_list[0], ref.envt_prd1)
     install_iset_envt(is_list[1], ref.envt_prd1)
+    install_iset_envt(is_list[2], ref.envt_prd1)
+    install_iset_envt(is_list[3], ref.envt_prd1)
+    install_iset_envt(is_list[5], ref.envt_prd1)
     
     return HttpResponseRedirect(reverse('welcome'))
     
