@@ -122,21 +122,30 @@ class LogicalComponentVersion(models.Model):
 
 
 class InstallationMethod(models.Model):
-    script_to_run = models.CharField(max_length=254)
+    name = models.CharField(max_length=254)
     halts_service = models.BooleanField(default=True)
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass)
     available = models.BooleanField(default = True)
     
+    def __unicode__(self):
+        a=""
+        if not self.available:
+            a="OBSOLETE - "
+        return u'%s%s for %s' %(a, self.name, ",".join([ i.name for i in self.method_compatible_with.all()]))
+    
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
-    how_to_install = models.ManyToManyField(InstallationMethod)
+    how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='techniquement compatible avec')
     belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
-    is_full = models.BooleanField(verbose_name='annule et remplace (ou livraison initiale)', default=False)
+    is_full = models.BooleanField(verbose_name='initial/annule et remplace', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
     #TODO: Add a property to access compatible envt types
     
     def __unicode__(self):
-        return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
+        if self.id is not None:
+            return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
+        else:
+            return u'installable item'
     
     def dependsOn(self, lcv, operator='>='):
         if not self.dependencies.filter(depends_on_version_id=lcv.id, operator=operator).exists():

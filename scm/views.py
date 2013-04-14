@@ -8,7 +8,10 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.db import connection
+from django.forms import ModelForm
+from django.forms.models import inlineformset_factory
 
+import re
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, \
     LogicalComponent, NamingConvention, Application
@@ -16,12 +19,14 @@ from scm.tests import create_test_is, SimpleTest
 
 from django.http.response import HttpResponseRedirect
 from scm.models import ComponentInstanceConfiguration, InstallableSet, \
-    InstallableItem, Installation, Delivery
+    InstallableItem, Installation, Delivery, InstallationMethod, \
+    LogicalComponentVersion
 from django.db.models.aggregates import Count
 from cpn.tests import TestHelper
 from scm.install import install_iset_envt
 from datetime import datetime, timedelta
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
+from django.forms.models import modelformset_factory
 
 def envts(request):
     envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -65,7 +70,108 @@ def delivery_apply_envt(request, delivery_id, envt_id):
     envt = Environment.objects.get(pk=envt_id)   
     
     install_iset_envt(delivery, envt)
-    return redirect('scm:envtinstallhist', envt_name = envt.name)
+    return redirect('scm:envtinstallhist', envt_name=envt.name)
+
+
+class DeliveryForm(ModelForm):
+    def clean_ticket_list(self):
+        data = self.cleaned_data['ticket_list']
+        if len(data) == 0:
+            return data
+        p = re.compile('(\d+,?)+$')
+        if p.match(data) is None:
+            raise forms.ValidationError("This field must be a comma-separated list of integers")
+        return data
+    
+    class Meta:
+        model = Delivery
+        exclude = ['removed', ]
+
+class IIForm(ModelForm):
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True), label='Composant livré')
+    version = forms.CharField(label='Version livrée')
+    
+    def save(self, commit=True):
+        print self.__dict__
+        logicalcompo = self.cleaned_data['target']
+        version = self.cleaned_data['version']
+        v, created = LogicalComponentVersion.objects.get_or_create(logical_component=logicalcompo, version=version)
+        v.save()
+        self.instance.what_is_installed = v
+        o = super(IIForm, self).save(commit)
+        return o
+    
+    def clean_how_to_install(self):
+        data = self.cleaned_data['how_to_install']
+        if len(data) == 0:
+            raise forms.ValidationError("At least one technical target is required")
+        return data
+        
+    def clean(self):
+        cleaned_data = super(IIForm, self).clean()
+        
+        ## Check how_to_install consistency
+        if self.cleaned_data.has_key('target') and self.cleaned_data.has_key('how_to_install'):
+            logicalcompo = self.cleaned_data['target']
+            htis = self.cleaned_data['how_to_install']
+            for hti in htis:
+                if not logicalcompo in [i.implements for i in hti.method_compatible_with.all()]:
+                    raise forms.ValidationError("Inconsistent choice - that method is not compatible with this target")
+            
+        return cleaned_data
+   
+    class Meta:
+        model = InstallableItem
+        #exclude = ['what_is_installed',]
+        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)#'what_is_installed')
+
+class IIFormset(forms.models.BaseInlineFormSet):
+    
+    pass
+    
+#    def clean(self):
+#        if any(self.errors):
+#            # Don't bother validating the formset unless each form is valid on its own
+#            return
+#        
+#        for form in self.forms:
+#            p = form.cleaned_data
+#            if len(p.items()) == 0:
+#                continue
+#            logicalcompo = form.cleaned_data['target']
+#            version = form.cleaned_data['version']
+#            
+#            v, created = LogicalComponentVersion.objects.get_or_create(logical_component = logicalcompo, version = version)
+#            v.save()
+#            print form.data
+#            form.cleaned_data['what_is_installed'] = v
+#            print v
+
+
+def delivery_edit(request):
+    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, formset=IIFormset)
+    
+    if request.method == 'POST': # If the form has been submitted...
+        form = DeliveryForm(request.POST) # A form bound to the POST data
+        iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
+        
+        if form.is_valid() and iiformset.is_valid(): # All validation rules pass
+            instance = form.save()
+        
+            iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
+            if iiformset.is_valid():
+                iiformset.save()
+                
+                ## Done
+                return redirect('scm:delivery_detail', delivery_id=instance.id)
+    else:
+        form = DeliveryForm() # An unbound form
+        iiformset = InstallableItemFormSet(prefix='iis')
+
+    return render(request, 'scm/delivery_edit.html', {
+        'form': form,
+        'iisf' : iiformset,
+    })
 
     
 @transaction.commit_on_success
@@ -73,6 +179,8 @@ def demo(request):
     for IS in InstallableSet.objects.all():
         IS.delete()
     for ii in InstallableItem.objects.all():
+        ii.delete()
+    for ii in InstallationMethod.objects.all():
         ii.delete()
     for envt in Environment.objects.all():
         envt.delete()

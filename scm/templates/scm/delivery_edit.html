@@ -1,0 +1,32 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Bon de livraison{% endblock %}
+
+{% block content %}
+
+<form method='POST'>
+
+	<div id='main' class='metContainer metSection wideInputs' style='background:#423173;'>
+		<label class='t2' for='main'>Informations de base</label>
+		<table>
+			{{ form.as_table }}
+		</table>
+	</div>
+	
+	{{ iisf.management_form }}
+
+	
+	{% for form in iisf %}
+		<div class='metContainer metFreeRect' style='background:#423173;'>
+			<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
+			<table>
+			{{ form }}
+			</table>
+		</div>
+	{% endfor %}
+
+	<br/>
+	<input type="submit" value="Enregistrer" />
+</form>
+
+{% endblock content %}

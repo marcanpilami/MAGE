@@ -9,12 +9,10 @@ body {
 	font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
 		"Helvetica Neue", Arial, sans-serif;
 	font-weight: 400; /* standard weight */
-	/*background-color: rgb(53,27,224);*/
 	background-color: #1F0068;
 	color: white;
 	margin: 0;
 	height: 100%;
-	color: white;
 }
 
 #content {
@@ -47,9 +45,22 @@ body {
 	text-transform: uppercase;
 }
 
+/* Misc text */
+.helptext {
+	font-size: 8pt;
+	font-style: italic;
+}
+
+ul.errorlist {
+	color: red;
+	list-style-type: none;
+	padding:0px;
+	margin:0px;
+}
+
 /* tables */
 .visibleTable {
-	border-collapse:collapse;
+	border-collapse: collapse;
 	border: 1px solid white;
 }
 
@@ -57,17 +68,32 @@ body {
 	border: 1px solid white;
 }
 
-
-/* Modern components */
+/* Modern components containers */
 .column {
 	display: table-cell;
 	padding-right: 20px;
 	max-width: 330px;
 }
 
-a.metSquare, a.frequentAction, a.metRectList {
-	color: inherit;
-	text-decoration: inherit;
+.metContainer {
+	padding: 5px;
+	vertical-align: top;
+}
+
+.metSection {
+	display: block;
+	height: auto;
+	margin-bottom: 10px;
+}
+
+.metFreeRect {
+	display: inline-block;
+	margin-bottom: 6px;
+	margin-right: 2px;
+}
+
+.wideInputs {
+	
 }
 
 .metSquare {
@@ -122,8 +148,29 @@ a.metSquare, a.frequentAction, a.metRectList {
 	margin-right: 3px;
 }
 
+/* Tables within modern containers */
+div.metContainer table {
+	/*width: 100%;*/
+	border-collapse: collapse;
+}
+
+div.metContainer td {
+	font-size: 13px;
+	padding: 0px;
+	padding-bottom: 1px;
+	padding-right: 3px;
+}
+
+div.metContainer th {
+	font-weight: inherit;
+	text-align: right;
+	padding-right: 5px;
+	font-size: smaller;
+	vertical-align: top;
+}
+
 div.metSquare table {
-	border-collapse:collapse;
+	border-collapse: collapse;
 }
 
 div.metSquare td {
@@ -133,6 +180,22 @@ div.metSquare td {
 	padding-right: 3px;
 }
 
+/* Misc modern consequences */
+.wideInputs input {
+	width: 70em;
+}
+
+div.metContainer select {
+	margin-bottom: 0px;
+	font-size: 8pt;
+}
+
+a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
+	color: inherit;
+	text-decoration: inherit;
+}
+
+/* Toolbar */
 #frequentActionsButtons {
 	position: absolute;
 	right: 5px;
@@ -158,6 +221,7 @@ div.metSquare td {
 	height: 100%;
 	margin: 0 auto -35px; /* footer + title */
 	padding-left: 15px;
+	padding-right: 15px;
 }
 
 #pusher {

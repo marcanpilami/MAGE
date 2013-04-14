@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
@@ -43,9 +45,12 @@ def create_test_is():
     rdbms2_v6.save()
     
     # Installation methods (independent of IS)
-    rdbms1_meth1 = InstallationMethod(script_to_run='none', halts_service=True)
+    rdbms1_meth1 = InstallationMethod(name='Scripts SQL Oracle', halts_service=True)
     rdbms1_meth1.save()
     rdbms1_meth1.method_compatible_with.add(ref.cic_rdbms_module1_oracle_mut, ref.cic_rdbms_module2_oracle_mut)
+    rdbms1_meth2 = InstallationMethod(name='Scripts SQL Postgresql', halts_service=True)
+    rdbms1_meth2.save()
+    rdbms1_meth2.method_compatible_with.add(ref.cic_rdbms_module1_postgres_dedicated)
     
     # First IS
     is1 = Delivery(name='SYSTEM1_INIT', description='Initial delivery')

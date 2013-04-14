@@ -56,6 +56,10 @@ class LogicalComponent(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.CharField(max_length=500)
     application = models.ForeignKey(Application)
+    scm_trackable = models.BooleanField(default = True)
+    
+    def __unicode__(self):
+        return u'%s' %(self.name)
     
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. Automatically created. """
