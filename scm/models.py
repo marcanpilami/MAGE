@@ -124,7 +124,7 @@ class LogicalComponentVersion(models.Model):
 class InstallationMethod(models.Model):
     name = models.CharField(max_length=254)
     halts_service = models.BooleanField(default=True)
-    method_compatible_with = models.ManyToManyField(ComponentImplementationClass)
+    method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods')
     available = models.BooleanField(default = True)
     
     def __unicode__(self):

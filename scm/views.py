@@ -88,7 +88,7 @@ class DeliveryForm(ModelForm):
         exclude = ['removed', ]
 
 class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True), label='Composant livré')
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull = False).distinct(), label='Composant livré')
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):
@@ -150,6 +150,12 @@ class IIFormset(forms.models.BaseInlineFormSet):
 
 def delivery_edit(request):
     InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, formset=IIFormset)
+    lc_im = {}
+    for lc in LogicalComponent.objects.all():
+        r = []
+        for cic in lc.implemented_by.all():
+            r.extend([i.id for i in cic.installation_methods.all()])
+        lc_im[lc.id] = r
     
     if request.method == 'POST': # If the form has been submitted...
         form = DeliveryForm(request.POST) # A form bound to the POST data
@@ -171,6 +177,7 @@ def delivery_edit(request):
     return render(request, 'scm/delivery_edit.html', {
         'form': form,
         'iisf' : iiformset,
+        'lc_im' : lc_im,
     })
 
     

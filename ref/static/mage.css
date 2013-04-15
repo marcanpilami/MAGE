@@ -195,6 +195,11 @@ a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
 	text-decoration: inherit;
 }
 
+.metContainer select[multiple] {
+	width: 400px;
+	/*overflow-x: scroll;*/
+}
+
 /* Toolbar */
 #frequentActionsButtons {
 	position: absolute;

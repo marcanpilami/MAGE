@@ -1,10 +1,19 @@
 {% extends "MAGE/base.html" %}
+{% load staticfiles %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Bon de livraison{% endblock %}
 
-{% block content %}
+{% block scripts %}
+<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+<script type="text/javascript" src='{% static "delivery.js" %}'></script>
+<script type="text/javascript">
+	lc_im = {};
+	{% for key, values in lc_im.items %}lc_im[{{key}}] = {{values}};{% endfor %}
+</script>
+{% endblock %}
 
-<form method='POST'>
+{% block content %}
+<form id='mainForm' method='POST'>
 
 	<div id='main' class='metContainer metSection wideInputs' style='background:#423173;'>
 		<label class='t2' for='main'>Informations de base</label>
@@ -15,18 +24,30 @@
 	
 	{{ iisf.management_form }}
 
-	
-	{% for form in iisf %}
-		<div class='metContainer metFreeRect' style='background:#423173;'>
-			<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
-			<table>
-			{{ form }}
-			</table>
-		</div>
-	{% endfor %}
-
+	<div id='iisf'>
+		{% for form in iisf %}
+			<div class='metContainer metFreeRect' style='background:#423173;'>
+				<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
+				<table>
+				{{ form }}
+				</table>
+				<input class="deleteContent" type="button" value="Supprimer ce contenu" style='display: none'>
+			</div>
+		{% endfor %}
+	</div>
 	<br/>
+	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none'>
 	<input type="submit" value="Enregistrer" />
 </form>
+
+<div id='emptyformset' style='display: none;'>
+	<div class='metContainer metFreeRect'  style='background:#423173;'>
+		<label class='t3' for='main'>Nouveau contenu pour cette livraison</label>
+		<table>
+			{{ iisf.empty_form }}
+		</table>
+		<input class="deleteContent" type="button" value="Supprimer ce contenu">
+	</div>
+</div>
 
 {% endblock content %}
