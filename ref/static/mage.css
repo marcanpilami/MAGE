@@ -19,6 +19,10 @@ body {
 	margin-top: 10px;
 }
 
+.ifjs {
+	display: none;
+}
+
 /* Titles */
 .pageTitle {
 	display: inline-block;
@@ -56,6 +60,14 @@ ul.errorlist {
 	list-style-type: none;
 	padding:0px;
 	margin:0px;
+}
+
+.formerror {
+	background-color: red;	
+}
+
+.formerror select {
+	background-color: inherit;
 }
 
 /* tables */
@@ -185,7 +197,7 @@ div.metSquare td {
 	width: 70em;
 }
 
-div.metContainer select {
+div.metContainer select, span{
 	margin-bottom: 0px;
 	font-size: 8pt;
 }

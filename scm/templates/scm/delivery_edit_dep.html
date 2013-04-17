@@ -1,0 +1,50 @@
+{% extends "MAGE/base.html" %}
+{% load staticfiles %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Bon de livraison{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+<script type="text/javascript" src='{% static "delivery_dep.js" %}'></script>
+<script type="text/javascript" >
+versionfinder="{% url 'scm:getlcversions' 99999999 %}";
+</script>
+{% endblock %}
+
+{% block content %}
+<form id='mainForm' method='POST'>
+
+	{% for ii, fs in fss.items %}
+		{{ fs.management_form }}
+	
+		<div class='metContainer metFreeRect subform' id='fs{{ii.pk}}' style='background:#423173;'>
+			<span class='t3'>[{{ii.what_is_installed.logical_component}}] in version [{{ii.what_is_installed.version}}]</span>
+			{% for form in fs %}				
+				<div class='subformset'>
+					<span>Il faut vérifier</span>
+					<span class='ifjs'><span {% if form.target.errors %} class='formerror' {%endif %} ><span {% if form.instance.depends_on_version %} name='{{form.instance.depends_on_version.logical_component_id}}' {%endif%}>{{form.target}}</span></span>
+					<span {% if form.operator.errors %} class='formerror' {%endif %} >{{form.operator}} </span>
+					<span {% if form.depends_on_version.errors %} class='formerror' {%endif %} >{{ form.depends_on_version }}</span>
+					{{ form.id }} {{ form.DELETE }}
+				</div>
+			{% endfor %}
+			
+			<input type="button" value="Ajouter un contenu" class="add_content" style='display: none'>
+		</div>
+	{% endfor %}
+	<br/>
+	
+	<input type="submit" value="Enregistrer" />
+</form>
+
+<div id='emptyformset' style='display: none;'>
+	<div class='metContainer metFreeRect'  style='background:#423173;'>
+		<label class='t3' for='main'>Nouveau contenu pour cette livraison</label>
+		<table>
+			{{ fs.empty_form }}
+		</table>
+		<input class="deleteContent" type="button" value="Supprimer ce contenu">
+	</div>
+</div>
+
+{% endblock content %}

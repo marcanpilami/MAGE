@@ -49,7 +49,7 @@ class BackupSet(InstallableSet):
     
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
-    logical_component = models.ForeignKey(LogicalComponent)
+    logical_component = models.ForeignKey(LogicalComponent, related_name='versions')
     
     def __unicode__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
@@ -205,7 +205,7 @@ class ItemDependency(models.Model):
                         ('==', '=='))
     installable_item = models.ForeignKey(InstallableItem, related_name='dependencies')
     depends_on_version = models.ForeignKey(LogicalComponentVersion)
-    operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES)
+    operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES, default='==')
     
     def __unicode__(self):
         return u'dépendance de [%s] envers [%s en version %s %s]' % (self.installable_item.what_is_installed.logical_component.name, self.depends_on_version.logical_component.name,

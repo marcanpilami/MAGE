@@ -7,18 +7,21 @@ from django.db.models import Max
 from django.db.models.aggregates import Count
 from django import forms
 from django.forms import ModelForm
-from django.forms.models import inlineformset_factory
-from django.http.response import HttpResponseRedirect
+from django.forms.models import inlineformset_factory, modelformset_factory
+from django.http.response import HttpResponseRedirect, HttpResponse
 
 import re
 from datetime import datetime, timedelta
+import json
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, LogicalComponent, NamingConvention, Application
 from cpn.tests import TestHelper
-from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion
+from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion, \
+    ItemDependency
 from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
+from django.forms.formsets import formset_factory
 
 def envts(request):
     envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -150,9 +153,44 @@ def delivery_edit(request):
         'lc_im' : lc_im,
     })
 
+class IDForm(ModelForm):   
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='dépend de ', required=False)
+    class Meta:
+        model = ItemDependency
+        fields = ('target', 'depends_on_version', 'operator',)
 
-def delivery_dep_edit(request, iset):
-    pass
+def delivery_edit_dep(request, iset_id):
+    iset = InstallableSet.objects.get(pk=iset_id)
+    ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm)
+    fss = {}
+    
+    if request.method == 'POST': # If the form has been submitted...
+        # Bound formsets to POST data
+        valid = True
+        for ii in iset.set_content.all():
+            fss[ii] = ItemDependencyFormSet(request.POST, request.FILES, instance=ii, prefix='ii%s' % ii.pk)
+            valid = valid and fss[ii].is_valid()
+            
+        if valid:
+            for fs in fss.values():
+                fs.save()
+            return redirect('scm:delivery_detail', delivery_id=iset_id)
+    else:
+        for ii in iset.set_content.all():
+            fss[ii] = ItemDependencyFormSet(instance=ii, prefix='ii%s' % ii.pk)
+        
+    return render(request, 'scm/delivery_edit_dep.html', {
+        'fss' : fss,
+        'iset' : iset,
+    })
+
+def get_lc_versions(request, lc_id):
+    lc = LogicalComponent.objects.get(pk=lc_id)
+    res = []
+    for v in lc.versions.all():
+        res.append((v.id, v.version))
+    
+    return HttpResponse(json.dumps(res))
     
 @transaction.commit_on_success
 def demo(request):
