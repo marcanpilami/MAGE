@@ -1,32 +1,24 @@
 # coding: utf-8
 
-from django.http import HttpResponse
-from django.db import transaction
 from django.shortcuts import render, redirect
-from django.contrib.contenttypes.models import ContentType
-from django import forms
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.db.models import Max
-from django.db import connection
+from django.db.models.aggregates import Count
+from django import forms
 from django.forms import ModelForm
 from django.forms.models import inlineformset_factory
+from django.http.response import HttpResponseRedirect
 
 import re
-
-from ref.models import Environment, ComponentInstance, EnvironmentType, \
-    LogicalComponent, NamingConvention, Application
-from scm.tests import create_test_is, SimpleTest
-
-from django.http.response import HttpResponseRedirect
-from scm.models import ComponentInstanceConfiguration, InstallableSet, \
-    InstallableItem, Installation, Delivery, InstallationMethod, \
-    LogicalComponentVersion
-from django.db.models.aggregates import Count
-from cpn.tests import TestHelper
-from scm.install import install_iset_envt
 from datetime import datetime, timedelta
+
+from ref.models import Environment, ComponentInstance, EnvironmentType, LogicalComponent, NamingConvention, Application
+from cpn.tests import TestHelper
+from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion
+from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
-from django.forms.models import modelformset_factory
+from scm.tests import create_test_is
 
 def envts(request):
     envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -88,14 +80,14 @@ class DeliveryForm(ModelForm):
         exclude = ['removed', ]
 
 class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull = False).distinct(), label='Composant livré')
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='Composant livré')
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):
         print self.__dict__
         logicalcompo = self.cleaned_data['target']
         version = self.cleaned_data['version']
-        v, created = LogicalComponentVersion.objects.get_or_create(logical_component=logicalcompo, version=version)
+        v = LogicalComponentVersion.objects.get_or_create(logical_component=logicalcompo, version=version)[0]
         v.save()
         self.instance.what_is_installed = v
         o = super(IIForm, self).save(commit)
@@ -125,31 +117,9 @@ class IIForm(ModelForm):
         #exclude = ['what_is_installed',]
         fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)#'what_is_installed')
 
-class IIFormset(forms.models.BaseInlineFormSet):
-    
-    pass
-    
-#    def clean(self):
-#        if any(self.errors):
-#            # Don't bother validating the formset unless each form is valid on its own
-#            return
-#        
-#        for form in self.forms:
-#            p = form.cleaned_data
-#            if len(p.items()) == 0:
-#                continue
-#            logicalcompo = form.cleaned_data['target']
-#            version = form.cleaned_data['version']
-#            
-#            v, created = LogicalComponentVersion.objects.get_or_create(logical_component = logicalcompo, version = version)
-#            v.save()
-#            print form.data
-#            form.cleaned_data['what_is_installed'] = v
-#            print v
-
 
 def delivery_edit(request):
-    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, formset=IIFormset)
+    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm)
     lc_im = {}
     for lc in LogicalComponent.objects.all():
         r = []
@@ -180,6 +150,9 @@ def delivery_edit(request):
         'lc_im' : lc_im,
     })
 
+
+def delivery_dep_edit(request, iset):
+    pass
     
 @transaction.commit_on_success
 def demo(request):
