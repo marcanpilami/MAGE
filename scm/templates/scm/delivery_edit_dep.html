@@ -1,7 +1,7 @@
 {% extends "MAGE/base.html" %}
 {% load staticfiles %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
-{% block maintitle %}Bon de livraison{% endblock %}
+{% block maintitle %}Bon de livraison (2/2){% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
@@ -15,21 +15,34 @@ versionfinder="{% url 'scm:getlcversions' 99999999 %}";
 <form id='mainForm' method='POST'>
 
 	{% for ii, fs in fss.items %}
-		{{ fs.management_form }}
-	
 		<div class='metContainer metFreeRect subform' id='fs{{ii.pk}}' style='background:#423173;'>
-			<span class='t3'>[{{ii.what_is_installed.logical_component}}] in version [{{ii.what_is_installed.version}}]</span>
-			{% for form in fs %}				
+			{{ fs.management_form }}
+			<div class='addFS' style='display: none;'>
 				<div class='subformset'>
 					<span>Il faut vérifier</span>
-					<span class='ifjs'><span {% if form.target.errors %} class='formerror' {%endif %} ><span {% if form.instance.depends_on_version %} name='{{form.instance.depends_on_version.logical_component_id}}' {%endif%}>{{form.target}}</span></span>
-					<span {% if form.operator.errors %} class='formerror' {%endif %} >{{form.operator}} </span>
-					<span {% if form.depends_on_version.errors %} class='formerror' {%endif %} >{{ form.depends_on_version }}</span>
-					{{ form.id }} {{ form.DELETE }}
+					<span class='ifjs'><span>{{fs.empty_form.target}}</span>
+					<span>{{fs.empty_form.operator}} </span>
+					<span>{{ fs.empty_form.depends_on_version }}</span>
+					{{ fs.empty_form.id }} {{ fs.empty_form.DELETE }}
+					<input class="deleteContent" type="button" value="Supprimer" style='display: none'/>
 				</div>
-			{% endfor %}
+			</div>
 			
-			<input type="button" value="Ajouter un contenu" class="add_content" style='display: none'>
+			<span class='t3'>[{{ii.what_is_installed.logical_component}}] in version [{{ii.what_is_installed.version}}]</span>
+			<div class='iifss'>
+				{% for form in fs %}				
+					<div class='subformset'>
+						<span>Il faut vérifier</span>
+						<span class='ifjs'><span {% if form.target.errors %} class='formerror' {%endif %} ><span {% if form.instance.depends_on_version %} name='{{form.instance.depends_on_version.logical_component_id}}' {%endif%}>{{form.target}}</span></span>
+						<span {% if form.operator.errors %} class='formerror' {%endif %} >{{form.operator}} </span>
+						<span {% if form.depends_on_version.errors %} class='formerror' {%endif %} >{{ form.depends_on_version }}</span>
+						{{ form.id }} {{ form.DELETE }}
+						<input class="deleteContent" type="button" value="Supprimer" style='display: none'/>
+					</div>
+				{% endfor %}
+			</div>
+			
+			<input type="button" value="Ajouter une dépendance" class="add_content" style='display: none'>
 		</div>
 	{% endfor %}
 	<br/>

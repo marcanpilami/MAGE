@@ -121,8 +121,16 @@ class IIForm(ModelForm):
         fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)#'what_is_installed')
 
 
-def delivery_edit(request):
-    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm)
+def delivery_edit(request, iset_id=None):
+    ## Out model formset, linked to its parent
+    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, extra=1)
+    
+    ## Already bound?
+    instance = None
+    if iset_id is not None:
+        instance = InstallableSet.objects.get(pk=iset_id)
+    
+    ## Helper for javascript
     lc_im = {}
     for lc in LogicalComponent.objects.all():
         r = []
@@ -130,6 +138,7 @@ def delivery_edit(request):
             r.extend([i.id for i in cic.installation_methods.all()])
         lc_im[lc.id] = r
     
+    ## Bind form
     if request.method == 'POST': # If the form has been submitted...
         form = DeliveryForm(request.POST) # A form bound to the POST data
         iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
@@ -142,10 +151,10 @@ def delivery_edit(request):
                 iiformset.save()
                 
                 ## Done
-                return redirect('scm:delivery_detail', delivery_id=instance.id)
+                return redirect('scm:delivery_edit_dep', iset_id=instance.id)
     else:
-        form = DeliveryForm() # An unbound form
-        iiformset = InstallableItemFormSet(prefix='iis')
+        form = DeliveryForm(instance=instance) # An unbound form
+        iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
 
     return render(request, 'scm/delivery_edit.html', {
         'form': form,
@@ -161,7 +170,7 @@ class IDForm(ModelForm):
 
 def delivery_edit_dep(request, iset_id):
     iset = InstallableSet.objects.get(pk=iset_id)
-    ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm)
+    ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm, extra=1)
     fss = {}
     
     if request.method == 'POST': # If the form has been submitted...

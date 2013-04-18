@@ -2,9 +2,14 @@
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Livraison {{delivery.name}}{% endblock %}
 
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:delivery_edit_dep' delivery.id %}">D</a>
+<a class='frequentAction' href="{% url 'scm:delivery_edit' delivery.id %}">B</a>
+{%endblock%}
+
 {% block content %}
 
-<div style='background-color: #AD103C;'>
+<div class='metContainer metSection' style='background-color: #AD103C;'>
 	<table>
 		<tr><td>Enregistrée le</td><td> : {{ delivery.set_date|date:"d/m/Y" }}</td></tr>
 		<tr><td>Description courte</td><td> : {{delivery.description}}</td>	</tr>
@@ -14,7 +19,7 @@
 </div>
 
 {% for ii in delivery.set_content.all %}
-	<div class='metRectList' style='background-color: #423173; width: auto; height: auto;'>
+	<div class='metContainer metFreeRect' style='background-color: #423173;'>
 		<div class='t3'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
 		<div class='metRectList' style='background-color: #004D60;height: auto;'>
 			<div class='t3'>Cibles techniques potentielles</div>
@@ -37,7 +42,7 @@
 	</div>
 {% endfor %}
 
-<div class='metRectList' style='background-color: #423173; width: auto; height: auto;'>
+<div class='metContainer metFreeRect' style='background-color: #423173;'>
 	<div class='t3'>Tester la compatibilité avec les environnements</div>
 	{% for envt in envts %}
 		<a class='metRectList' style='background-color: #D39D09;' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>

@@ -16,10 +16,27 @@ $(document).ready(function()
 	$('.add_content').show();
 	$('.add_content').click(function()
 	{
-		var form_idx = $('#id_iis-TOTAL_FORMS').val();
-		$('#iisf').append($('#emptyformset').html().replace(/__prefix__/g, form_idx));
-		$('#id_iis-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+		var t = $(this);
+		var subform = t.parents('div.subform');
+		var to_copy_container = subform.find('div.addFS');
+		var form_idx = subform.find('input[id$=TOTAL_FORMS]').val();
+		
+		subform.find('div.iifss').append(to_copy_container.html().replace(/__prefix__/g, form_idx));
+		
+		subform.find('input[id$=TOTAL_FORMS]').val(parseInt(form_idx) + 1);
 	});
+	
+	// Remove a formset
+	$('.deleteContent:button').show();
+	$('div.iifss').on('click', '.deleteContent:button', function()
+	{
+		var fs = $(this).parents('div.subformset');
+		var deleteBox = fs.find('input:checkbox[id$=DELETE]');
+		deleteBox.attr('checked', true);
+		fs.hide();
+	});
+	$('input:checkbox[id$=DELETE]').hide();
+	
 });
 
 function load_lc_versions()

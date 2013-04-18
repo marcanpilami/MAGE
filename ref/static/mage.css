@@ -212,6 +212,13 @@ a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
 	/*overflow-x: scroll;*/
 }
 
+.metContainer input[type=button] {
+	border: none;
+	background: inherit;
+	text-transform: uppercase;
+	color: inherit;
+}
+
 /* Toolbar */
 #frequentActionsButtons {
 	position: absolute;
