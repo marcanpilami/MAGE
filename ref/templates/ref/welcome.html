@@ -2,6 +2,10 @@
 {% block pagetitle %}Accueil{% endblock %}
 {% block maintitle %}Accueil utilisateur{% endblock %}
 
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="/admin" title="Administration">A</a>
+{% endblock %}
+
 {% block content %}
 <div class='column'>
 	<div class='t2'>Les environnements</div>
@@ -12,6 +16,7 @@
 <div class='column'>
 	<div class='t2'>Gestion de version</div>
 	<a class='metSquare' style='background: #180052;' href="{% url 'scm:envts' %}">Versions actuelles et historiques des environnements</a>
+	<a class='metSquare' style='background: #D24726;' href="{% url 'scm:lc_installs_envts' %}">Parcours des versions entre environnements</a>
 	<a class='metSquare' style='background: #AD103C;' href="{% url 'scm:deliveries' %}">Liste des livraisons disponibles à l'installation</a>
 	<a class='metSquare' style='background: #7F6E94;' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
 </div>

@@ -1,0 +1,27 @@
+{% extends "MAGE/base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Progression des composants{% endblock %}
+
+{% block content %}
+<table class='visibleTable'>
+	<thead>
+		<tr>
+			<th></th>
+			{% for envt in envts %}<th>{{envt.name}}</th>{% endfor %}
+		</tr>
+	</thead>
+
+
+	{% for lc,version_list in res.items %}
+	<tr>
+		<td>{{lc.name}}</td>
+		{% for v in version_list %}
+			<td>{% if v %} {{v.version}} {% endif %}</td>
+		{% endfor %}
+	
+	</tr>
+	
+	{% endfor %}
+
+</table>
+{% endblock content %}

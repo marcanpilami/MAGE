@@ -7,21 +7,21 @@ from django.db.models import Max
 from django.db.models.aggregates import Count
 from django import forms
 from django.forms import ModelForm
-from django.forms.models import inlineformset_factory, modelformset_factory
+from django.forms.models import inlineformset_factory
 from django.http.response import HttpResponseRedirect, HttpResponse
 
 import re
 from datetime import datetime, timedelta
 import json
+from functools import cmp_to_key
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, LogicalComponent, NamingConvention, Application
 from cpn.tests import TestHelper
-from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion, \
-    ItemDependency
+from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion, ItemDependency
 from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
-from django.forms.formsets import formset_factory
+
 
 def envts(request):
     envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -47,9 +47,15 @@ def delivery_list(request):
     deliveries = Delivery.objects.order_by('pk').select_related('set_content__what_is_installed__logical_component')
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries})
 
-def delivery(request, delivery_id):
-    delivery = Delivery.objects.get(pk=delivery_id)
+def delivery(request, iset_id):
+    delivery = Delivery.objects.get(pk=iset_id)
     return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all()})
+
+def delivery_validate(request, iset_id):
+    delivery = Delivery.objects.get(pk=iset_id)
+    delivery.status = 1
+    delivery.save()
+    return redirect('scm:delivery_detail', iset_id=iset_id)
 
 def delivery_test(request, delivery_id, envt_id):
     delivery = Delivery.objects.get(pk=delivery_id)
@@ -67,6 +73,22 @@ def delivery_apply_envt(request, delivery_id, envt_id):
     install_iset_envt(delivery, envt)
     return redirect('scm:envtinstallhist', envt_name=envt.name)
 
+def lc_versions_per_environment(request):
+    Installation.objects.filter()
+    envts = Environment.objects.all().order_by('typology__chronological_order', 'name')
+    res = {}
+    for lc in LogicalComponent.objects.filter(scm_trackable=True):
+        lc_list = []
+        for envt in envts:
+            compo_instances = envt.component_instances.filter(instanciates__implements__id=lc.id)
+            versions = [i.version_object_safe for i in compo_instances]
+            if len(versions) > 0:
+                lc_list.append(max(versions, key=cmp_to_key(LogicalComponentVersion.compare)))
+            else:
+                lc_list.append(None)
+        res[lc] = lc_list
+    
+    return render(request, 'scm/lc_installs_envt.html', {'res': res, 'envts': envts})
 
 class DeliveryForm(ModelForm):
     def clean_ticket_list(self):
@@ -105,7 +127,7 @@ class IIForm(ModelForm):
     def clean(self):
         cleaned_data = super(IIForm, self).clean()
         
-        ## Check how_to_install consistency
+        # # Check how_to_install consistency
         if self.cleaned_data.has_key('target') and self.cleaned_data.has_key('how_to_install'):
             logicalcompo = self.cleaned_data['target']
             htis = self.cleaned_data['how_to_install']
@@ -117,20 +139,20 @@ class IIForm(ModelForm):
    
     class Meta:
         model = InstallableItem
-        #exclude = ['what_is_installed',]
-        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)#'what_is_installed')
+        # exclude = ['what_is_installed',]
+        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)  # 'what_is_installed')
 
 
 def delivery_edit(request, iset_id=None):
-    ## Out model formset, linked to its parent
+    # # Out model formset, linked to its parent
     InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, extra=1)
     
-    ## Already bound?
+    # # Already bound?
     instance = None
     if iset_id is not None:
         instance = InstallableSet.objects.get(pk=iset_id)
     
-    ## Helper for javascript
+    # # Helper for javascript
     lc_im = {}
     for lc in LogicalComponent.objects.all():
         r = []
@@ -138,22 +160,22 @@ def delivery_edit(request, iset_id=None):
             r.extend([i.id for i in cic.installation_methods.all()])
         lc_im[lc.id] = r
     
-    ## Bind form
-    if request.method == 'POST': # If the form has been submitted...
-        form = DeliveryForm(request.POST) # A form bound to the POST data
+    # # Bind form
+    if request.method == 'POST':  # If the form has been submitted...
+        form = DeliveryForm(request.POST)  # A form bound to the POST data
         iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
         
-        if form.is_valid() and iiformset.is_valid(): # All validation rules pass
+        if form.is_valid() and iiformset.is_valid():  # All validation rules pass
             instance = form.save()
         
             iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
             if iiformset.is_valid():
                 iiformset.save()
                 
-                ## Done
+                # # Done
                 return redirect('scm:delivery_edit_dep', iset_id=instance.id)
     else:
-        form = DeliveryForm(instance=instance) # An unbound form
+        form = DeliveryForm(instance=instance)  # An unbound form
         iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
 
     return render(request, 'scm/delivery_edit.html', {
@@ -173,7 +195,7 @@ def delivery_edit_dep(request, iset_id):
     ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm, extra=1)
     fss = {}
     
-    if request.method == 'POST': # If the form has been submitted...
+    if request.method == 'POST':  # If the form has been submitted...
         # Bound formsets to POST data
         valid = True
         for ii in iset.set_content.all():

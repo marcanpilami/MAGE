@@ -79,6 +79,7 @@ class EnvironmentType(models.Model):
     short_name = models.CharField(max_length=10, verbose_name='Nom')
     sla = models.ForeignKey(SLA, blank=True, null=True)
     implementation_patterns = models.ManyToManyField(ComponentImplementationClass)
+    chronological_order = models.IntegerField(default=1)
 
 
 ################################################################################

@@ -1,13 +1,10 @@
 # coding: utf-8
 
-## GCL
-
+# # GCL
 from django.db import models
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
 from exceptions import MageScmUndefinedVersionError
-from scm.exceptions import MageScmUnrelatedItemsError, MageScmMissingComponent, \
-    MageScmFailedInstanceDependencyCheck, \
-    MageScmFailedEnvironmentDependencyCheck
+from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
 from MAGE.exceptions import MageError
 
 class InstallableSet(models.Model):
@@ -17,6 +14,8 @@ class InstallableSet(models.Model):
     description = models.CharField(max_length=1000, verbose_name=u'résumé du contenu', unique=False, blank=True, null=True)
     set_date = models.DateTimeField(verbose_name=u'date de réception', auto_now_add=True)
     ticket_list = models.CharField(max_length=100, verbose_name='ticket(s) lié(s) séparés par une virgule', null=True , blank=True)
+    STATUS_CHOICES = ((1, 'VALIDATED'), (2, 'TESTED'), (3, 'HANDEDOFF'))
+    status = models.IntegerField(choices=STATUS_CHOICES, default=3)
     # Through related_name: set_content
     
     removed = models.DateTimeField(null=True, blank=True)
@@ -80,44 +79,44 @@ class LogicalComponentVersion(models.Model):
         """ The function actually doing the comparison. Here, equality (0) has a strict meaning. """
         lcv1 = self
         
-        ## Argument check
+        # # Argument check
         if not isinstance(lcv1, LogicalComponentVersion) or not isinstance(lcv2, LogicalComponentVersion):
             raise MageError("Arguments must be component version objects")
         
-        ## Easy equality
+        # # Easy equality
         if (lcv1.logical_component == lcv2.logical_component) and (lcv1.version == lcv2.version):
             return 0
         
-        ## Loop on all the InstallableSets that install ctv1
+        # # Loop on all the InstallableSets that install ctv1
         for ii in lcv1.installed_by.all():
-            ## Loop on all the requirements of the installable set
+            # # Loop on all the requirements of the installable set
             for dep in ii.dependencies.all():              
-                ## Terminaison condition: we have found ctv2
+                # # Terminaison condition: we have found ctv2
                 if dep.depends_on_version == lcv2:
                     if dep.operator == '>=' or dep.operator == '==': 
                         return 1
                     else:
                         return 0
                 
-                ## Recursion
+                # # Recursion
                 try:
                     tmp = dep.depends_on_version.__compareWith(lcv2)
                 except MageScmUnrelatedItemsError:
-                    continue ## Nothing can be deduced from this relation - go on to the others
+                    continue  # # Nothing can be deduced from this relation - go on to the others
                 
-                ## Analysis of the recursion result
+                # # Analysis of the recursion result
                 if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
-                    return 1    ## Transitivity on >
+                    return 1  # # Transitivity on >
                 if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
-                    return -1   ## Transitivity on <
+                    return -1  # # Transitivity on <
                 
-                ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
+                # # If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
                 
-            ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
+            # # If here : no relationship has given fruit. Let's try the reverse relationship analysis.
             if not __reverseCall:
                 return -lcv2.__compareWith(lcv1, True)
             
-        ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
+        # # If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
         raise MageScmUnrelatedItemsError(lcv1, lcv2)   
 
 
@@ -125,13 +124,13 @@ class InstallationMethod(models.Model):
     name = models.CharField(max_length=254)
     halts_service = models.BooleanField(default=True)
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods')
-    available = models.BooleanField(default = True)
+    available = models.BooleanField(default=True)
     
     def __unicode__(self):
-        a=""
+        a = ""
         if not self.available:
-            a="OBSOLETE - "
-        return u'%s%s for %s' %(a, self.name, ",".join([ i.name for i in self.method_compatible_with.all()]))
+            a = "OBSOLETE - "
+        return u'%s%s for %s' % (a, self.name, ",".join([ i.name for i in self.method_compatible_with.all()]))
     
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
@@ -139,7 +138,7 @@ class InstallableItem(models.Model):
     belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
     is_full = models.BooleanField(verbose_name='initial/annule et remplace', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
-    #TODO: Add a property to access compatible envt types
+    # TODO: Add a property to access compatible envt types
     
     def __unicode__(self):
         if self.id is not None:
@@ -153,7 +152,7 @@ class InstallableItem(models.Model):
             ide.save()
             
     def check_prerequisites(self, envt_name):
-        #print self
+        # print self
         if self.is_full:
             return True
 
@@ -163,24 +162,24 @@ class InstallableItem(models.Model):
             for i in self.how_to_install.all():
                 potential_cic.extend(i.method_compatible_with.all())
             rs = ComponentInstance.objects.filter(environments__name=envt_name,
-                                          instanciates__in= potential_cic,
+                                          instanciates__in=potential_cic,
                                           instanciates__implements=dep.depends_on_version.logical_component)
             if rs.count() == 0:
-                #raise MageScmMissingComponent(self, dep.depends_on_version.version, envt_name)
+                # raise MageScmMissingComponent(self, dep.depends_on_version.version, envt_name)
                 failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment'))
                 continue
             
             for compo in rs.all():
-                ## Retrieve current version
+                # # Retrieve current version
                 try:
                     ver = compo.latest_cic.result_of.what_is_installed
                 except MageScmUndefinedVersionError:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'No version is defined for this component - cannot check dependency!'))
                     continue
                 
-                ## Check current version against dependency
+                # # Check current version against dependency
                 compa = ver.compare(dep.depends_on_version)
-                #print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
+                # print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
                 if dep.operator == '==' and compa != 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
                     continue
@@ -253,10 +252,10 @@ class Tag(models.Model):
 
 
 #######################################################################################
-## Update Component class with GCL objects
+# # Update Component class with GCL objects
 #######################################################################################
 
-## Add a version property to component objects   
+# # Add a version property to component objects   
 def getLatestCIC(comp):
     """@return: the latest installed ComponentInstanceConguration (CIC) on the Component"""
     try:
@@ -271,5 +270,11 @@ def getComponentVersionText(comp):
         return getComponentVersion(comp).version
     except MageScmUndefinedVersionError:
         return "inconnue"
-ComponentInstance.version = property(getComponentVersionText)  
+def getComponentVersionObjectSafe(comp):
+    try:
+        return getComponentVersion(comp)
+    except MageScmUndefinedVersionError:
+        return None
+ComponentInstance.version = property(getComponentVersionText)
+ComponentInstance.version_object_safe = property(getComponentVersionObjectSafe)    
 ComponentInstance.latest_cic = property(getLatestCIC)
