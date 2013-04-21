@@ -1,4 +1,4 @@
-{% extends "MAGE/base.html" %}
+{% extends "base.html" %}
 {% block pagetitle %}Types{% endblock %}
 {% block maintitle %}Types installés{% endblock %}
 
@@ -12,7 +12,7 @@
 		{% for model in app.list|dictsort:"name" %}
 			<div class='metRect' style='background:#004A00;'>
 				{{ model.name }}
-				<div class='metSquareLong'>
+				<div class='metSquareLong annotation'>
 					Application {{model.app_label}}<br/>
 					Code {{model.model}}<br/>
 					Id {{model.id}}

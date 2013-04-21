@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{%block pagetitle%}Authentification{%endblock pagetitle%}
+
+
+{% block content %}
+
+<div class='metRibbonSplash metContainer'>
+	<div class='metRibbonSplashContent'>
+		<div style='display: inline-block;'>
+			<div class='t2'>Accès à une ressource protégée</div>		
+			{% if user.is_authenticated %}
+			    <div>
+			    	Vous êtes authentifié en tant que "{{ user.username }}" mais ce compte n'a pas les droits nécessaires pour accéder à la ressource demandée.<br/>
+			    	Veuillez utiliser un compte autorisé à réaliser l'opération, ou revenez à la page précédente.
+			     </div> 
+			{% else %}
+				<div>La ressource ne peut être utilisée par un utilisateur anonyme - veuillez vous identifier.</div>
+			{% endif %}
+			<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+				<table>
+					<tr>
+						<td>{{ form.username.label_tag }}</td>
+						<td>{{ form.username }}</td>
+					</tr>
+					<tr>
+						<td>{{ form.password.label_tag }}</td>
+						<td>{{ form.password }}</td>
+					</tr>
+				</table>
+				
+				<div class='right'>
+					<input type="submit" value="login" />
+					<button class='cancel' onclick="history.back();return false;">cancel</button>
+					<input type="hidden" name="next" value="{{ next }}" />
+				</div>
+				
+				{% if form.errors %}
+					<span class='errorlist'>Your username and password didn't match. Please try again.</span>
+				{% endif %}
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

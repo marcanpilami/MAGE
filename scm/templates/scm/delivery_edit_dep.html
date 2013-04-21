@@ -1,4 +1,4 @@
-{% extends "MAGE/base.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Bon de livraison (2/2){% endblock %}
@@ -47,7 +47,7 @@ versionfinder="{% url 'scm:getlcversions' 99999999 %}";
 	{% endfor %}
 	<br/>
 	
-	<input type="submit" value="Enregistrer" />
+	<input type="submit" value="Enregistrer" class="metButton" />
 </form>
 
 <div id='emptyformset' style='display: none;'>

@@ -55,29 +55,37 @@ body {
 	font-style: italic;
 }
 
-ul.errorlist {
+.errorlist {
 	color: red;
 	list-style-type: none;
-	padding:0px;
-	margin:0px;
+	padding: 0px;
+	margin: 0px;
 }
 
 .formerror {
-	background-color: red;	
+	background-color: red;
 }
 
 .formerror select {
 	background-color: inherit;
 }
 
+.annotation {
+	font-style: italic;
+	font-size: 10pt;
+	vertical-align: bottom;
+	text-align: right;
+}
+
 /* tables */
 .visibleTable {
 	border-collapse: collapse;
-	border: 1px solid white;
+	border: 1px solid #4617B4;
 }
 
 .visibleTable td {
-	border: 1px solid white;
+	border: 1px solid #4617B4;
+	padding:0px;
 }
 
 /* Modern components containers */
@@ -149,15 +157,30 @@ ul.errorlist {
 
 .metSquareLong {
 	display: block;
-	font-style: italic;
-	font-size: 10pt;
-	vertical-align: bottom;
-	text-align: right;
 	position: absolute;
 	bottom: 0;
 	right: 0;
 	margin-bottom: 5px;
 	margin-right: 3px;
+}
+
+div.metRibbonSplash {
+	display: block;
+	position: fixed;
+	left: 0px;
+	background-color: #006AC1;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	width: 100%;
+	top: 50%;
+	height: 20em;
+	margin-top: -11em;
+}
+
+div.metRibbonSplashContent {
+	padding-left: 200px;
+	padding-right: 200px;
+	height: 100%;
 }
 
 /* Tables within modern containers */
@@ -192,14 +215,28 @@ div.metSquare td {
 	padding-right: 3px;
 }
 
+div.metRibbonSplash table {
+	margin-left: 50px;
+	margin-top: 10px;
+}
+
+div.metRibbonSplash table input {
+	width: 100%; /* IE10 fix */
+}
+
 /* Misc modern consequences */
 .wideInputs input {
 	width: 70em;
 }
 
-div.metContainer select, span{
+div.metContainer select,span {
 	margin-bottom: 0px;
 	font-size: 8pt;
+}
+
+a {
+	color: inherit;
+	text-decoration: underline;
 }
 
 a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
@@ -212,11 +249,28 @@ a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
 	/*overflow-x: scroll;*/
 }
 
-.metContainer input[type=button] {
+.metContainer input[type=button],.metContainer input[type=submit], .metContainer button, .metButton{
 	border: none;
-	background: inherit;
+	background: none;
+	background-color: #16499A;
 	text-transform: uppercase;
-	color: inherit;
+	color: white;
+	padding: 5px;
+	font-weight: bold;
+}
+
+button.cancel {
+	background-color: #6E7E94;
+}
+
+.metRibbonSplash .right {
+	margin-left: -200px;
+	padding-right: 50px;
+	float: right;
+}
+
+.metRibbonSplashContent .right {
+	margin-top: 10px;
 }
 
 /* Toolbar */

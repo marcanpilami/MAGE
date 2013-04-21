@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': r'C:\Users\marc-antoine.gouilla\Documents\GitHub\MAGE\tmp\db.sqlite',                      # Or path to database file if using sqlite3.
+        'NAME': r'C:\Users\Marc-Antoine\Documents\GitHub\MAGE\tmp\db.sqlite', # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -96,6 +96,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
+    'ref.middleware.DisableCSRF',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -111,7 +112,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'C:/Users/marc-antoine.gouilla/Documents/GitHub/MAGE/MAGE/templates'
+    'C:/Users/Marc-Antoine/Documents/GitHub/MAGE/MAGE/templates/MAGE'
 )
 
 INSTALLED_APPS = (

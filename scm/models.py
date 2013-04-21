@@ -39,6 +39,10 @@ class InstallableSet(models.Model):
         else:
             raise MageScmFailedEnvironmentDependencyCheck(envt_name, self, failures)
     
+    class Meta:
+        permissions = (('validate_installableset', 'can change the status of the set'),
+                       ('install_installableset', 'can reference an installation'),)
+    
 
 class Delivery(InstallableSet):
     pass

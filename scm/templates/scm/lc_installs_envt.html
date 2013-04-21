@@ -1,4 +1,4 @@
-{% extends "MAGE/base.html" %}
+{% extends "base.html" %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Progression des composants{% endblock %}
 
@@ -7,7 +7,7 @@
 	<thead>
 		<tr>
 			<th></th>
-			{% for envt in envts %}<th>{{envt.name}}</th>{% endfor %}
+			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt.name %}">{{envt.name}}</a></th>{% endfor %}
 		</tr>
 	</thead>
 

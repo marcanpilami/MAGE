@@ -8,18 +8,19 @@ from ref.models import ComponentInstance
 
 
 ######################################################
-# # System (VM, LPAR, physical server, ...)
+## System (VM, LPAR, physical server, ...)
 ######################################################
 
 class OsServer(ComponentInstance):
     admin_account_login = models.CharField(max_length=100, verbose_name=u'compte d\'administration')
-    admin_account_password = models.CharField(max_length=100, verbose_name=u'mot de passe d\'administration', null = True, blank = True)
-    os = models.CharField(max_length = 10, choices = (('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
+    admin_account_password = models.CharField(max_length=100, verbose_name=u'mot de passe d\'administration', null=True, blank=True)
+    os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
 
+    restricted_fields = ('admin_account_password',)
 
 
 ######################################################
-# # Oracle DB
+## Oracle DB
 ######################################################
 
 class OracleInstance(ComponentInstance):

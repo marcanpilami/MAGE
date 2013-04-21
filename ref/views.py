@@ -4,18 +4,15 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.contenttypes.models import ContentType
 from django import forms
-from django.core.urlresolvers import reverse
 
 from ref.csvi import get_components_csv
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
-from cpn.tests import utility_create_test_envt
 from prm.models import getMyParams, getParam
-from django.http.response import HttpResponseRedirect
 
 def csv(request, url_end):
-    comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))
-    return HttpResponse(get_components_csv(comps), mimetype="text/csv")
+    comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))    
+    return HttpResponse(get_components_csv(comps, displayRestricted=(request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'))), mimetype="text/csv")
 
 def welcome(request):
     links = [ i for i in getMyParams() if i.axis1 == 'Technical team links']
@@ -56,14 +53,14 @@ def mcl_tester(request):
         form = MclTesterForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             res = parser.get_components(form.cleaned_data['mcl'])
-            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res, 'base': base} ) 
+            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res, 'base': base}) 
     else:
         form = MclTesterForm() # An unbound form
 
     return render(request, 'ref/mcltester.html', {'form': form, 'base': base})
 
 
-def mcl_request(request, titles, mcl, format = None):
+def mcl_request(request, titles, mcl, format=None):
     res = parser.get_components(mcl)
     if titles == '1':
         titles = True
@@ -71,7 +68,7 @@ def mcl_request(request, titles, mcl, format = None):
         titles = False
         
     response = HttpResponse(content_type='text/csv')
-    get_components_csv(res, titles, response)
+    get_components_csv(res, titles, response, displayRestricted=(request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance')))
     return response
     
     

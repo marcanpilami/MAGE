@@ -1,4 +1,4 @@
-{% extends "MAGE/base.html" %}
+{% extends "base.html" %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Installations sur {{envt.name}} ces {{limit}} derniers jours{% endblock %}
 
@@ -28,21 +28,20 @@
 	
 	<tbody>
 		{% for install in installs %}
-			{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
 			<tr>
 				<td>
-					<div class='metRectList' style='background:{{ moderncolors }};margin:0;' >
-						{{ install.installed_set.name }} - {{install.pk }}
+					<div class='metRectList' style='background:#004A00;margin:0;' >
+						<a href="{% url "scm:delivery_detail" install.pk %}"> {{ install.installed_set.name }}</a>
 					</div>
 				</td>
 				<td>
-					<div>{{ install.install_date }}</div>
+					<div>{{ install.install_date|date:"d/m H:i" }}</div>
 				</td>
 				{% for lc in logical_components %}
-					<td>
+					<td style='height:100%;'>
 					{% for ii in install.installed_set.set_content.all %}
 						{% ifequal ii.what_is_installed.logical_component_id lc.id %}
-							<div style='background-color: green; height: 100%;width:100%;display:inline-block;'> {{ ii.what_is_installed.version }}</div>
+							<div style='background-color: #004A00; height: 100%;width:100%;display:inline-block;'> {{ ii.what_is_installed.version }}</div>
 						{% endifequal %}
 					{% endfor %}
 					</td>

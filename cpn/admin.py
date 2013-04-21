@@ -5,7 +5,7 @@ Created on 17 mars 2013
 @author: Marc-Antoine
 '''
 
-from django.contrib import admin
+from ref import admin
 from ref.admin import ComponentInstanceAdmin
 from cpn.models import OracleInstance, OracleSchema, OraclePackage, \
     WasApplication, WasCluster, WasCell, WasNode, WasAS, MqQueueManagerParams, \

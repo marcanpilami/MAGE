@@ -1,34 +1,40 @@
 # coding: utf-8
 
-from django.contrib import admin
-from django.contrib.admin import SimpleListFilter, widgets
+from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
     ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO,\
     NamingConventionCounter
 from ref.naming import nc_sync_naming_convention
-from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import Select
+from django.contrib.admin.sites import AdminSite
+from django.contrib.auth.models import Group, User
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
 
+site = AdminSite()
+site.login_template = 'login.html'
+#site.logout_template = 'MAGE'
+site.register(Group, GroupAdmin)
+site.register(User, UserAdmin)
 
 
 ################################################################################
 ## No-frills admins
 ################################################################################
 
-admin.site.register(Project)
-admin.site.register(Application)
-admin.site.register(LogicalComponent)
-admin.site.register(SLA)
+site.register(Project)
+site.register(Application)
+site.register(LogicalComponent)
+site.register(SLA)
 
-class EnvironmentAdmin(admin.ModelAdmin):
+class EnvironmentAdmin(ModelAdmin):
     fields = ['name', 'description', 'destructionDate', ]
     list_display = ('name', 'description',)
     ordering = ('name',)
 
-admin.site.register(Environment, EnvironmentAdmin)
+site.register(Environment, EnvironmentAdmin)
 
 
 
@@ -36,16 +42,16 @@ admin.site.register(Environment, EnvironmentAdmin)
 ## Naming conventions
 ################################################################################
     
-class NamingConventionFieldInline(admin.TabularInline):
+class NamingConventionFieldInline(TabularInline):
     model = NamingConventionField
     extra = 0
     can_delete = False
     fields = ['model', 'field', 'pattern_type', 'pattern', ]
     readonly_fields = ['model', 'field', 'pattern_type']
     ordering = ['model', 'field']
-    template = 'MAGE/admin/tabular_no_title.html'
+    template = 'admin/tabular_no_title.html'
 
-class NamingConventionAdmin(admin.ModelAdmin):
+class NamingConventionAdmin(ModelAdmin):
     fields = ['name', 'applications']
     inlines = [NamingConventionFieldInline, ]
     actions = ['make_refresh_nc', ]
@@ -56,21 +62,22 @@ class NamingConventionAdmin(admin.ModelAdmin):
             self.message_user(request, "%s successfully refreshed." % nc.name)
     make_refresh_nc.short_description = u'actualiser les champs des modèles'
 
-admin.site.register(NamingConvention, NamingConventionAdmin)
+site.register(NamingConvention, NamingConventionAdmin)
 
-admin.site.register(NamingConventionCounter)
+site.register(NamingConventionCounter)
 
 
 ################################################################################
 ## Component instances
 ################################################################################
 
-class CI2DOFieldInline(admin.TabularInline):
+class CI2DOFieldInline(TabularInline):
     model = CI2DO
-    extra = 3
+    extra = 5
     can_delete = True
     fields = ['rel_name', 'pedestal',]
     fk_name = 'statue'
+    template = 'admin/tabular_no_title.html'
       
     def formfield_for_dbfield(self, db_field, **kwargs):
         statue_model_name = kwargs['request'].path.split('/')[3]
@@ -106,7 +113,7 @@ class CICFilter(SimpleListFilter):
         else:
             return queryset
 
-class ComponentInstanceAdmin(admin.ModelAdmin):
+class ComponentInstanceAdmin(ModelAdmin):
     """
         Base admin class for components. It filters 'dependsOn' fields so that the admin will 
         only display relevant components and not every single last one of them, and it provides
@@ -117,7 +124,7 @@ class ComponentInstanceAdmin(admin.ModelAdmin):
     """
     def formfield_for_dbfield(self, db_field, **kwargs):
         ## Find the model that this class admins
-        model = [ k for k, v in admin.site._registry.iteritems() if v == self][0]
+        model = [ k for k, v in site._registry.iteritems() if v == self][0]
 
         ## Superseed the fields as defined in the class
         if db_field.name == 'dependsOn' and hasattr(model, 'parents'):

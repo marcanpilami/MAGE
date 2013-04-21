@@ -9,6 +9,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.models import inlineformset_factory
 from django.http.response import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 
 import re
 from datetime import datetime, timedelta
@@ -49,8 +50,9 @@ def delivery_list(request):
 
 def delivery(request, iset_id):
     delivery = Delivery.objects.get(pk=iset_id)
-    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all()})
+    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all().order_by('typology__chronological_order', 'name')})
 
+@permission_required('scm.validate_installableset')
 def delivery_validate(request, iset_id):
     delivery = Delivery.objects.get(pk=iset_id)
     delivery.status = 1
@@ -66,6 +68,7 @@ def delivery_test(request, delivery_id, envt_id):
     except MageScmFailedEnvironmentDependencyCheck, e:
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': e})
  
+@permission_required('scm.install_installableset')
 def delivery_apply_envt(request, delivery_id, envt_id):    
     delivery = Delivery.objects.get(pk=delivery_id)
     envt = Environment.objects.get(pk=envt_id)   
@@ -102,7 +105,7 @@ class DeliveryForm(ModelForm):
     
     class Meta:
         model = Delivery
-        exclude = ['removed', ]
+        exclude = ['removed', 'status',]
 
 class IIForm(ModelForm):
     target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='Composant livré')
@@ -127,7 +130,7 @@ class IIForm(ModelForm):
     def clean(self):
         cleaned_data = super(IIForm, self).clean()
         
-        # # Check how_to_install consistency
+        ## Check how_to_install consistency
         if self.cleaned_data.has_key('target') and self.cleaned_data.has_key('how_to_install'):
             logicalcompo = self.cleaned_data['target']
             htis = self.cleaned_data['how_to_install']
@@ -143,16 +146,22 @@ class IIForm(ModelForm):
         fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)  # 'what_is_installed')
 
 
+
+@login_required
+@permission_required('scm.add_delivery')
 def delivery_edit(request, iset_id=None):
-    # # Out model formset, linked to its parent
+    ## Out model formset, linked to its parent
     InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, extra=1)
     
-    # # Already bound?
+    ## Already bound?
     instance = None
     if iset_id is not None:
         instance = InstallableSet.objects.get(pk=iset_id)
+        ## A dev can only modify an unvalidated delivery
+        if not request.user.has_perm('scm.modify_delivery') and instance.status != 3:
+            return redirect(reverse('login') + '?next=%s' % request.path)
     
-    # # Helper for javascript
+    ## Helper for javascript
     lc_im = {}
     for lc in LogicalComponent.objects.all():
         r = []
@@ -160,7 +169,7 @@ def delivery_edit(request, iset_id=None):
             r.extend([i.id for i in cic.installation_methods.all()])
         lc_im[lc.id] = r
     
-    # # Bind form
+    ## Bind form
     if request.method == 'POST':  # If the form has been submitted...
         form = DeliveryForm(request.POST)  # A form bound to the POST data
         iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
@@ -190,11 +199,18 @@ class IDForm(ModelForm):
         model = ItemDependency
         fields = ('target', 'depends_on_version', 'operator',)
 
+
+@login_required
+@permission_required('scm.add_delivery')
 def delivery_edit_dep(request, iset_id):
     iset = InstallableSet.objects.get(pk=iset_id)
     ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm, extra=1)
     fss = {}
     
+    ## A dev can only modify an unvalidated delivery
+    if not request.user.has_perm('scm.modify_delivery') and iset.status != 3:
+        return redirect(reverse('login') + '?next=%s' % request.path)
+
     if request.method == 'POST':  # If the form has been submitted...
         # Bound formsets to POST data
         valid = True
@@ -205,7 +221,7 @@ def delivery_edit_dep(request, iset_id):
         if valid:
             for fs in fss.values():
                 fs.save()
-            return redirect('scm:delivery_detail', delivery_id=iset_id)
+            return redirect('scm:delivery_detail', iset_id=iset_id)
     else:
         for ii in iset.set_content.all():
             fss[ii] = ItemDependencyFormSet(instance=ii, prefix='ii%s' % ii.pk)

@@ -232,6 +232,10 @@ class ComponentInstance(models.Model):
             return '%s' % (self.name)
         else:
             return '%s' % (self.name)
+    
+    restricted_fields = ('password',)
+    class Meta:
+        permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)
 
 
 class CI2DO(models.Model):

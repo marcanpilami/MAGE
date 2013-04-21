@@ -4,7 +4,7 @@ Created on 8 mars 2013
 @author: Marc-Antoine
 '''
 
-from django.contrib import admin
+from ref import admin
 from models import MageParam
 
 class MageParamAdmin(admin.ModelAdmin):

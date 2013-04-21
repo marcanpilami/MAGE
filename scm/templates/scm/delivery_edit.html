@@ -1,4 +1,4 @@
-{% extends "MAGE/base.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Bon de livraison (1/2){% endblock %}
@@ -36,8 +36,9 @@
 		{% endfor %}
 	</div>
 	<br/>
-	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none'>
-	<input type="submit" value="Enregistrer" />
+	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none' class='metButton'>
+	<input type="submit" value="Enregistrer" class='metButton'/>
+	<button class='metButton cancel' onclick="history.back();return false;">annuler</button>
 </form>
 
 <div id='emptyformset' style='display: none;'>
