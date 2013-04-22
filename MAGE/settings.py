@@ -1,4 +1,5 @@
-# Django settings for MAGE2 project.
+# Django settings for MAGE project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,17 +10,24 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+BASE_MAGE_PATH = os.path.expanduser('~/Documents/Github/MAGE')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': r'C:\Users\Marc-Antoine\Documents\GitHub\MAGE\tmp\db.sqlite', # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.path.join(BASE_MAGE_PATH, r'tmp\db.sqlite'),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '',  # Set to empty string for default.
     }
 }
+
+try:
+    from MAGE.local_settings import *
+except ImportError, e:
+    pass
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -95,7 +103,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'ref.middleware.DisableCSRF',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -112,7 +120,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'C:/Users/Marc-Antoine/Documents/GitHub/MAGE/MAGE/templates/MAGE'
+    os.path.join(BASE_MAGE_PATH, r'MAGE/templates/MAGE'),
 )
 
 INSTALLED_APPS = (

@@ -3,3 +3,4 @@ tmp/*
 .project
 .pydevproject
 *.pyc
+MAGE/local_settings.py
