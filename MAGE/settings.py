@@ -164,6 +164,7 @@ LOGGING = {
     }
 }
 
+LOGIN_URL='login' # named URL
 
 try:
     from MAGE.local_settings import *
