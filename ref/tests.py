@@ -119,8 +119,16 @@ class SimpleTest(TestCase):
         
         self.assertEqual(t2_1.daddies[0], t1_1)
         
+        ## Add a parameter
+        t2_1.extParams['houba'] = 'meuh'
+        self.assertEqual(len(t2_1.extParams), 1)
+        t2_1.extParams['houba2'] = 'meuh2'
+        self.assertEqual(len(t2_1.extParams), 2)
+        del t2_1.extParams['houba2']
+        self.assertEqual(len(t2_1.extParams), 1)
         
-    def test_nc(self):
+        
+    def Xtest_nc(self):
         #utility_create_test_envt(1)
         
         et1 = EnvironmentType(name='production', short_name='PRD')

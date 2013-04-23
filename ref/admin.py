@@ -4,7 +4,7 @@ from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
     ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO,\
-    NamingConventionCounter
+    NamingConventionCounter, ExtendedParameter
 from ref.naming import nc_sync_naming_convention
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import Select
@@ -71,6 +71,9 @@ site.register(NamingConventionCounter)
 ## Component instances
 ################################################################################
 
+class ExtendedParameterInline(TabularInline):
+    model = ExtendedParameter
+    
 class CI2DOFieldInline(TabularInline):
     model = CI2DO
     extra = 5
@@ -150,5 +153,5 @@ class ComponentInstanceAdmin(ModelAdmin):
     search_fields = ('name', 'dependsOn__name',)
     list_filter = ['environments', CICFilter, ]
     list_display = ('name', 'instanciates')
-    inlines = [CI2DOFieldInline, ]
+    inlines = [CI2DOFieldInline, ExtendedParameterInline, ]
 

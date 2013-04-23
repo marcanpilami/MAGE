@@ -14,9 +14,19 @@ from ref.models import ComponentInstance
 class OsServer(ComponentInstance):
     admin_account_login = models.CharField(max_length=100, verbose_name=u'compte d\'administration')
     admin_account_password = models.CharField(max_length=100, verbose_name=u'mot de passe d\'administration', null=True, blank=True)
-    os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
+    os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008R2', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
 
     restricted_fields = ('admin_account_password',)
+
+
+class OsAccount(ComponentInstance):
+    login = models.CharField(max_length=100, verbose_name=u'login')
+    password = models.CharField(max_length=100, verbose_name=u'mot de passe', null=True, blank=True)
+    public_key = models.CharField(max_length=2048, null=True, blank=True)
+    private_key = models.CharField(max_length=2048, null=True, blank=True)
+    
+    restricted_fields = ('password', 'private_key',)
+    parents = {'server': {'model': 'OsServer', 'cardinality': 1}}
 
 
 ######################################################
@@ -26,6 +36,7 @@ class OsServer(ComponentInstance):
 class OracleInstance(ComponentInstance):
     port = models.IntegerField(max_length=6, verbose_name=u"Port d'écoute du listener", default=1521)
     listener = models.CharField(max_length=100, verbose_name=u'Nom du listener', default='LISTENER')
+    data_directory = models.CharField(max_length=254, verbose_name=u'répertoire data par défaut', blank=True, null=True)
     
     parents = {'server': {'model': 'OsServer', 'cardinality':1}}
     
@@ -48,6 +59,7 @@ class OracleSchema(ComponentInstance):
     parents = {'oracle_instance': {'model' : 'OracleInstance'}}
     detail_template = 'cpn/ora_schema_table.html'
     key = ('instance_name',)
+    restricted_fields = ('password', 'private_key',)
     
     def __unicode__(self):
         return u"%s (%s)" % (self.name, self.oracle_instance)
@@ -74,6 +86,7 @@ class OraclePackage(ComponentInstance):
 
 class WasApplication(ComponentInstance):
     parents = {'was_cluster': {'model': 'WasCluster'}}
+    context_root = models.CharField(max_length=50, default='/')
     
     def __unicode__(self):
         return u'Application Java %s' % (self.name,)
@@ -121,6 +134,8 @@ class WasNode(ComponentInstance):
     
 class WasAS(ComponentInstance):
     parents = {'was_node': {'model': 'WasNode'}, 'was_cluster': {'model': 'WasCluster'}, 'server': {'model': 'OsServer'}}
+    http_port = models.IntegerField(default=8080)
+    https_port = models.IntegerField(default=8081)
     
     def __unicode__(self):
         return u'AS WAS %s' % (self.name,)

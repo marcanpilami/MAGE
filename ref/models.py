@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import six
 from MAGE.exceptions import MageError
 from django.core.exceptions import ValidationError
+from UserDict import DictMixin
 
 
 ################################################################################
@@ -56,10 +57,10 @@ class LogicalComponent(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.CharField(max_length=500)
     application = models.ForeignKey(Application)
-    scm_trackable = models.BooleanField(default = True)
+    scm_trackable = models.BooleanField(default=True)
     
     def __unicode__(self):
-        return u'%s' %(self.name)
+        return u'%s' % (self.name)
     
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. Automatically created. """
@@ -223,6 +224,7 @@ class ComponentInstance(models.Model):
     def __init__(self, *args, **kwargs):
         super(ComponentInstance, self).__init__(*args, **kwargs)
         self.__setContentType()
+        self.extParams = ExtendedParameterDict(self)
     
     ## Pretty print
     def __unicode__(self):
@@ -258,8 +260,37 @@ class CI2DO(models.Model):
     class Meta:
         verbose_name = 'link to base component'
         verbose_name_plural = 'links to base components'
-    
 
+class ExtendedParameterDict(DictMixin):
+    def __init__(self, instance):
+        self.instance = instance
+    
+    def __len__(self):
+        return self.instance.parameters.all().count()
+        
+    def __getitem__(self, key): 
+        try:
+            return self.instance.parameters.get(key=key)
+        except ExtendedParameter.DoesNotExist:
+            raise KeyError
+    
+    def __setitem__(self, key, value):
+        try:
+            self.__getitem__(key).value = value
+        except KeyError:
+            ep = ExtendedParameter(key=key, value=value, instance=self.instance)
+            ep.save()
+    
+    def __delitem__(self, key):
+        ep = self.__getitem__(key)
+        ep.delete()
+
+class ExtendedParameter(models.Model):
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=100)
+    instance = models.ForeignKey(ComponentInstance, related_name='parameters')
+    
+    
 ################################################################################
 ## Naming norms
 ################################################################################ 
@@ -299,7 +330,7 @@ class NamingConventionField(models.Model):
         verbose_name_plural = u'normes de nommage des champs des composants'
         
     def __unicode__(self):
-        return u'%s.%s = %s' %(self.model, self.field, self.pattern)
+        return u'%s.%s = %s' % (self.model, self.field, self.pattern)
 
 class NamingConventionCounter(models.Model):
     scope_type = models.CharField(max_length=50)
