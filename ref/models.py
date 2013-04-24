@@ -3,7 +3,6 @@
 from django.db import models
 from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
-from django.utils import six
 from MAGE.exceptions import MageError
 from django.core.exceptions import ValidationError
 from UserDict import DictMixin
