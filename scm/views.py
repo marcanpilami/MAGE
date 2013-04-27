@@ -15,7 +15,7 @@ from functools import cmp_to_key
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, NamingConvention, Application, LogicalComponent
 from cpn.tests import TestHelper
-from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency
+from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag
 from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
@@ -31,6 +31,7 @@ def envts(request):
 
 def all_installs(request, envt_name, limit=15):
     envt = Environment.objects.get(name=envt_name)
+    envt.potential_tag = datetime.today().strftime('%Y%M%d') + "_" + envt_name
     dlimit = datetime.now() - timedelta(days=limit)
     installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
     # logical_components = envt.component_instances.all().instanciates.implements;
@@ -178,6 +179,31 @@ def get_lc_versions(request, lc_id):
         res.append((v.id, v.version))
     
     return HttpResponse(json.dumps(res))
+
+@permission_required('scm.add_tag')
+def tag_create(request, envt_name, tag_name):
+    e = Environment.objects.get(name=envt_name)
+    
+    tt = Tag.objects.filter(name__contains=tag_name).count()
+    if tt > 0:
+        tag_name = "%s_%s " % (tag_name, tt)
+    
+    t = Tag(name=tag_name, from_envt=e)
+    t.save()
+    
+    for instance in e.component_instances.all():
+        v = instance.version_object_safe
+        if v is not None:
+            t.versions.add(v)
+            
+    return redirect('scm:tag_detail', tag_id=t.id)
+ 
+def tag_detail(request, tag_id):
+    t = Tag.objects.get(pk=tag_id)
+    return render(request, 'scm/tag_detail.html', {'tag': t})
+ 
+def tag_list(request):
+    return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()}) 
     
 @transaction.commit_on_success
 def demo(request):

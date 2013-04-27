@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Liste des tags{% endblock %}
+
+{% block content %}
+
+{% regroup tags by from_envt as envt_list %}
+
+
+{% for envt in envt_list %}
+<div class='column'>
+	<div class='t2'>{{envt.grouper.name}}</div>
+	{% for tag in envt.list %}
+	<a class='metContainer metRectList' href="{% url 'scm:tag_detail' tag.id %}">
+		{{tag.name}}
+	</a>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% endblock content %}

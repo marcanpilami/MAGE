@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Tag {{tag.name}}{% endblock %}
+
+{% block content %}
+
+<div class='metContainer metSection' style='background-color: #B01E00;'>
+	<table>
+		<tr><td>Environnement source</td><td>{{tag.from_envt}}</td></tr>
+		<tr><td>Pris le</td><td>{{tag.snapshot_date}}</td></tr>
+	</table>
+</div>
+
+{% for v in tag.versions.all %}
+<div class='metContainer metRectList'>
+	[{{v.logical_component.name}}] en version [{{v.version}}]
+</div>
+
+{% endfor %}
+
+{% endblock content %}

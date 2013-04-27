@@ -85,7 +85,7 @@ body {
 
 .visibleTable td {
 	border: 1px solid #4617B4;
-	padding:0px;
+	padding: 0px;
 }
 
 /* Modern components containers */
@@ -153,6 +153,7 @@ body {
 	padding: 5px;
 	vertical-align: top;
 	position: relative;
+	background-color: #004A00;
 }
 
 .metSquareLong {
@@ -249,7 +250,8 @@ a.metSquare,a.frequentAction,a.metRectList,a.metContainer {
 	/*overflow-x: scroll;*/
 }
 
-.metContainer input[type=button],.metContainer input[type=submit], .metContainer button, .metButton{
+.metContainer input[type=button],.metContainer input[type=submit],.metContainer button,.metButton
+	{
 	border: none;
 	background: none;
 	background-color: #16499A;

@@ -2,6 +2,10 @@
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Installations sur {{envt.name}} ces {{limit}} derniers jours{% endblock %}
 
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:tag_create' envt.name envt.potential_tag %}" title="Créer un tag">T</a>
+{%endblock%}
+
 {% block content %}
 
 <table class='visibleTable'>
