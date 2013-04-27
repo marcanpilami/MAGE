@@ -5,23 +5,22 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Max
 from django.db.models.aggregates import Count
-from django import forms
-from django.forms import ModelForm
 from django.forms.models import inlineformset_factory
 from django.http.response import HttpResponseRedirect, HttpResponse
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.contrib.auth.decorators import login_required, permission_required
 
-import re
 from datetime import datetime, timedelta
 import json
 from functools import cmp_to_key
 
-from ref.models import Environment, ComponentInstance, EnvironmentType, LogicalComponent, NamingConvention, Application
+from ref.models import Environment, ComponentInstance, EnvironmentType, NamingConvention, Application, LogicalComponent
 from cpn.tests import TestHelper
-from scm.models import InstallableSet, InstallableItem, Installation, Delivery, InstallationMethod, LogicalComponentVersion, ItemDependency
+from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency
 from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
+
+from forms import DeliveryForm, IDForm, IIForm
 
 
 def envts(request):
@@ -93,59 +92,6 @@ def lc_versions_per_environment(request):
     
     return render(request, 'scm/lc_installs_envt.html', {'res': res, 'envts': envts})
 
-class DeliveryForm(ModelForm):
-    def clean_ticket_list(self):
-        data = self.cleaned_data['ticket_list']
-        if len(data) == 0:
-            return data
-        p = re.compile('(\d+,?)+$')
-        if p.match(data) is None:
-            raise forms.ValidationError("This field must be a comma-separated list of integers")
-        return data
-    
-    class Meta:
-        model = Delivery
-        exclude = ['removed', 'status',]
-
-class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='Composant livré')
-    version = forms.CharField(label='Version livrée')
-    
-    def save(self, commit=True):
-        print self.__dict__
-        logicalcompo = self.cleaned_data['target']
-        version = self.cleaned_data['version']
-        v = LogicalComponentVersion.objects.get_or_create(logical_component=logicalcompo, version=version)[0]
-        v.save()
-        self.instance.what_is_installed = v
-        o = super(IIForm, self).save(commit)
-        return o
-    
-    def clean_how_to_install(self):
-        data = self.cleaned_data['how_to_install']
-        if len(data) == 0:
-            raise forms.ValidationError("At least one technical target is required")
-        return data
-        
-    def clean(self):
-        cleaned_data = super(IIForm, self).clean()
-        
-        ## Check how_to_install consistency
-        if self.cleaned_data.has_key('target') and self.cleaned_data.has_key('how_to_install'):
-            logicalcompo = self.cleaned_data['target']
-            htis = self.cleaned_data['how_to_install']
-            for hti in htis:
-                if not logicalcompo in [i.implements for i in hti.method_compatible_with.all()]:
-                    raise forms.ValidationError("Inconsistent choice - that method is not compatible with this target")
-            
-        return cleaned_data
-   
-    class Meta:
-        model = InstallableItem
-        # exclude = ['what_is_installed',]
-        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)  # 'what_is_installed')
-
-
 
 @login_required
 @permission_required('scm.add_delivery')
@@ -192,12 +138,6 @@ def delivery_edit(request, iset_id=None):
         'iisf' : iiformset,
         'lc_im' : lc_im,
     })
-
-class IDForm(ModelForm):   
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='dépend de ', required=False)
-    class Meta:
-        model = ItemDependency
-        fields = ('target', 'depends_on_version', 'operator',)
 
 
 @login_required
