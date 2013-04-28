@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Liste des sauvegardes{% endblock %}
+
+{% block content %}
+
+{% regroup backups by from_envt as envt_list %}
+
+
+{% for envt in envt_list %}
+<div class='column'>
+	<div class='t2'>{{envt.grouper.name}}</div>
+	{% for bckset in envt.list %}
+	<a class='metContainer metRectFixedwidth' href="{% url 'scm:backup_detail' bckset.id %}">
+		{{bckset.set_date}}
+		<div>
+			{% for item in bckset.nonversioned_items.all %}
+			<div class='annotation'>{{ item.instance }}</div>
+			
+			{% endfor %}
+		</div>
+	</a>
+	{% endfor %}
+</div>
+{% endfor %}
+
+{% endblock content %}

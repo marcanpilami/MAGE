@@ -4,6 +4,8 @@
 
 {%block frequentActionsButtons%}
 <a class='frequentAction' href="{% url 'scm:tag_create' envt.name envt.potential_tag %}" title="Créer un tag">T</a>
+<a class='frequentAction' href="{% url 'scm:backup_envt' envt.name %}" title="Enregistrer manuellement un backup par défaut">B</a>
+<a class='frequentAction' href="{% url 'scm:backup_envt_manual' envt.name %}" title="Enregistrer manuellement un backup de certains éléments">M</a>
 {%endblock%}
 
 {% block content %}

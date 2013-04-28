@@ -1,12 +1,20 @@
 # coding: utf-8
 
-# # GCL
+## SCM/GCL
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
 from exceptions import MageScmUndefinedVersionError
 from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
 from MAGE.exceptions import MageError
 
+
+################################################################################
+## The sets
+################################################################################
+ 
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
@@ -16,6 +24,10 @@ class InstallableSet(models.Model):
     ticket_list = models.CharField(max_length=100, verbose_name='ticket(s) lié(s) séparés par une virgule', null=True , blank=True)
     STATUS_CHOICES = ((1, 'VALIDATED'), (2, 'TESTED'), (3, 'HANDEDOFF'))
     status = models.IntegerField(choices=STATUS_CHOICES, default=3)
+    location_data_1 = models.CharField(max_length=100, blank=True, null=True)
+    location_data_2 = models.CharField(max_length=100, blank=True, null=True)
+    location_data_3 = models.CharField(max_length=100, blank=True, null=True)
+    location_data_4 = models.CharField(max_length=100, blank=True, null=True)
     # Through related_name: set_content
     
     removed = models.DateTimeField(null=True, blank=True)
@@ -48,7 +60,12 @@ class Delivery(InstallableSet):
     pass
 
 class BackupSet(InstallableSet):
-    pass
+    from_envt = models.ForeignKey(Environment, blank=True, null=True)
+    
+
+################################################################################
+## The version object
+################################################################################ 
     
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
@@ -83,52 +100,56 @@ class LogicalComponentVersion(models.Model):
         """ The function actually doing the comparison. Here, equality (0) has a strict meaning. """
         lcv1 = self
         
-        # # Argument check
+        ## Argument check
         if not isinstance(lcv1, LogicalComponentVersion) or not isinstance(lcv2, LogicalComponentVersion):
             raise MageError("Arguments must be component version objects")
         
-        # # Easy equality
+        ## Easy equality
         if (lcv1.logical_component == lcv2.logical_component) and (lcv1.version == lcv2.version):
             return 0
         
-        # # Loop on all the InstallableSets that install ctv1
+        ## Loop on all the InstallableSets that install ctv1
         for ii in lcv1.installed_by.all():
             # # Loop on all the requirements of the installable set
             for dep in ii.dependencies.all():              
-                # # Terminaison condition: we have found ctv2
+                ## Terminaison condition: we have found ctv2
                 if dep.depends_on_version == lcv2:
                     if dep.operator == '>=' or dep.operator == '==': 
                         return 1
                     else:
                         return 0
                 
-                # # Recursion
+                ## Recursion
                 try:
                     tmp = dep.depends_on_version.__compareWith(lcv2)
                 except MageScmUnrelatedItemsError:
                     continue  # # Nothing can be deduced from this relation - go on to the others
                 
-                # # Analysis of the recursion result
+                ## Analysis of the recursion result
                 if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
                     return 1  # # Transitivity on >
                 if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
                     return -1  # # Transitivity on <
                 
-                # # If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
+                ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
                 
-            # # If here : no relationship has given fruit. Let's try the reverse relationship analysis.
+            ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
             if not __reverseCall:
                 return -lcv2.__compareWith(lcv1, True)
             
-        # # If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
+        ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
         raise MageScmUnrelatedItemsError(lcv1, lcv2)   
 
 
+################################################################################
+## Set contents
+################################################################################ 
+
 class InstallationMethod(models.Model):
-    name = models.CharField(max_length=254)
-    halts_service = models.BooleanField(default=True)
-    method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods')
-    available = models.BooleanField(default=True)
+    name = models.CharField(max_length=254, verbose_name=u'nom')
+    halts_service = models.BooleanField(default=True, verbose_name=u'arrêt de service')
+    method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods', verbose_name=u'permet d\'installer')
+    available = models.BooleanField(default=True, verbose_name=u'disponible')
     
     def __unicode__(self):
         a = ""
@@ -136,6 +157,18 @@ class InstallationMethod(models.Model):
             a = "OBSOLETE - "
         return u'%s%s for %s' % (a, self.name, ",".join([ i.name for i in self.method_compatible_with.all()]))
     
+    class Meta:
+        verbose_name = u'méthode d\'installation'
+        verbose_name_plural = u'méthodes d\'installation'
+
+class BackupItem(models.Model):
+    """ Backup can contain component instances that are NOT SCM tracked.
+        This object represents these contents """
+    backupset = models.ForeignKey(BackupSet, related_name='nonversioned_items')
+    instance = models.ForeignKey(ComponentInstance)
+    related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True) # null if not SCM-tracked
+    instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
+        
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
     how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='techniquement compatible avec')
@@ -174,14 +207,14 @@ class InstallableItem(models.Model):
                 continue
             
             for compo in rs.all():
-                # # Retrieve current version
+                ## Retrieve current version
                 try:
                     ver = compo.latest_cic.result_of.what_is_installed
                 except MageScmUndefinedVersionError:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'No version is defined for this component - cannot check dependency!'))
                     continue
                 
-                # # Check current version against dependency
+                ## Check current version against dependency
                 compa = ver.compare(dep.depends_on_version)
                 # print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
                 if dep.operator == '==' and compa != 0:
@@ -254,20 +287,71 @@ class Tag(models.Model):
         return u'Tag n°%s - %s (concerne %s composants)' % (self.pk, self.name, self.versions.count())
 
 
-
 #######################################################################################
-# # Update Component class with GCL objects
+## Backup parameters
 #######################################################################################
 
-# # Add a version property to component objects   
+class BackupRestoreMethod(models.Model):
+    method = models.ForeignKey(InstallationMethod)
+    target = models.ForeignKey(ComponentImplementationClass, related_name='restore_methods', verbose_name='cible')
+    apply_to = models.ForeignKey(Environment, verbose_name='environnement')
+    
+    class Meta:
+        verbose_name = u'méthode de restauration par défaut'
+        verbose_name_plural = 'méthodes de restauration par défaut'
+
+@receiver(post_save, sender=ComponentImplementationClass)
+def create_brm(sender, instance, **kwargs):
+    cic = instance
+    im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True,)
+    if created:
+        im.save()
+        im.method_compatible_with.add(instance)
+    for e in Environment.objects.all():
+        m, created = BackupRestoreMethod.objects.get_or_create(target=cic, apply_to=e, method=im)
+        if created:
+            m.save()
+        
+@receiver(post_save, sender=Environment)
+def create_brm2(sender, instance, **kwargs):
+    e = instance
+    for cic in ComponentImplementationClass.objects.all():
+        im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True,)
+        if created:
+            im.save()
+        m, created = BackupRestoreMethod.objects.get_or_create(target=cic, apply_to=e, method=im)
+        if created:
+            m.save()
+    
+    
+#######################################################################################
+## Update Component class with GCL objects
+#######################################################################################
+
+## Add a version properties to component objects   
 def getLatestCIC(comp):
     """@return: the latest installed ComponentInstanceConguration (CIC) on the Component"""
     try:
         return comp.configurations.latest('pk')
     except:
         raise MageScmUndefinedVersionError(comp)
+def getCICAtDate(comp, date):
+    try:
+        return comp.configurations.filter(created_on__lte=date).order_by('created_on', 'pk').reverse()[0]
+    except IndexError :
+        raise MageScmUndefinedVersionError(comp)
+def getCICAtDateSafe(comp, date):
+    try:
+        return getCICAtDate(comp, date)
+    except MageScmUndefinedVersionError:
+        return None
+def getVersionObjectAtDateSafe(comp, date):
+    try:
+        return getCICAtDate(comp, date).result_of.what_is_installed
+    except MageScmUndefinedVersionError:
+        return None
 def getComponentVersion(comp):
-    """@return: the latest installed ICV on the Component"""
+    """@return: the latest installed LCV on the Component"""
     return getLatestCIC(comp).result_of.what_is_installed
 def getComponentVersionText(comp):
     try:
@@ -282,3 +366,6 @@ def getComponentVersionObjectSafe(comp):
 ComponentInstance.version = property(getComponentVersionText)
 ComponentInstance.version_object_safe = property(getComponentVersionObjectSafe)    
 ComponentInstance.latest_cic = property(getLatestCIC)
+ComponentInstance.cic_at_safe = getCICAtDateSafe
+ComponentInstance.version_at = getCICAtDate
+ComponentInstance.version_at_safe = getVersionObjectAtDateSafe

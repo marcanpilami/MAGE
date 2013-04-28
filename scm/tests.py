@@ -7,15 +7,15 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
+from django.utils.datetime_safe import datetime
 from django.test import TestCase
-from scm.models import InstallableSet, InstallableItem, InstallationMethod, \
-    LogicalComponentVersion, Delivery
-from ref.models import Application, LogicalComponent, \
-    ComponentImplementationClass, EnvironmentType, Environment
-from cpn.models import OsServer, OracleInstance, OracleSchema
+
+from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery
 from cpn.tests import TestHelper, utility_create_test_envt 
 from install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
+from scm.backup import register_backup
+
 
 
 def create_test_is():
@@ -214,3 +214,9 @@ class SimpleTest(TestCase):
         self.assertTrue(is_list[5].check_prerequisites('PRD1'))
         install_iset_envt(is_list[5], ref.envt_prd1)
               
+    def test_backup(self):
+        create_test_is()
+        ref = TestHelper()
+        
+        bs = register_backup('PRD1', datetime.now(), *ref.envt_prd1.component_instances.all())
+        install_iset_envt(bs, ref.envt_tec2)

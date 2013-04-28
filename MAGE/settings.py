@@ -128,11 +128,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'ref',
-    'cpn',
-    'scm',
-    'prm',
-    'gph',
+    
+    'ref', ## Keep REF first after django internals
+    'prm', ## Keep PRM second
+    'gph', ## Keep GPH third
+    'cpn', ## This can be removed - default/sample components
+           ## Put your specifics here
+    
+    'scm', ## Keep SCM last
 )
 
 # A sample logging configuration. The only tangible logging

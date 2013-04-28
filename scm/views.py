@@ -15,12 +15,15 @@ from functools import cmp_to_key
 
 from ref.models import Environment, ComponentInstance, EnvironmentType, NamingConvention, Application, LogicalComponent
 from cpn.tests import TestHelper
-from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag
+from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
+    BackupSet, BackupItem
 from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
 
 from forms import DeliveryForm, IDForm, IIForm
+from scm.backup import register_backup, register_backup_envt_default_plan
+from scm.forms import BackupForm
 
 
 def envts(request):
@@ -49,7 +52,7 @@ def delivery_list(request):
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries})
 
 def delivery(request, iset_id):
-    delivery = Delivery.objects.get(pk=iset_id)
+    delivery = InstallableSet.objects.get(pk=iset_id)
     return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all().order_by('typology__chronological_order', 'name')})
 
 @permission_required('scm.validate_installableset')
@@ -60,7 +63,7 @@ def delivery_validate(request, iset_id):
     return redirect('scm:delivery_detail', iset_id=iset_id)
 
 def delivery_test(request, delivery_id, envt_id):
-    delivery = Delivery.objects.get(pk=delivery_id)
+    delivery = InstallableSet.objects.get(pk=delivery_id)
     envt = Environment.objects.get(pk=envt_id)
     try:
         delivery.check_prerequisites(envt.name)
@@ -70,7 +73,7 @@ def delivery_test(request, delivery_id, envt_id):
  
 @permission_required('scm.install_installableset')
 def delivery_apply_envt(request, delivery_id, envt_id):    
-    delivery = Delivery.objects.get(pk=delivery_id)
+    delivery = InstallableSet.objects.get(pk=delivery_id)
     envt = Environment.objects.get(pk=envt_id)   
     
     install_iset_envt(delivery, envt)
@@ -204,9 +207,37 @@ def tag_detail(request, tag_id):
  
 def tag_list(request):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()}) 
+
+def backup_list(request):
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True)})
+
+def backup_detail(request, bck_id):
+    return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk = bck_id)})
+
+@permission_required('scm.add_backupset')
+def backup_envt(request, envt_name):
+    b = register_backup_envt_default_plan(envt_name, datetime.now())
+    return redirect('scm:backup_detail', bck_id=b.id)
+
+@permission_required('scm.add_backupset')
+def backup_envt_manual(request, envt_name):
+    e = Environment.objects.get(name = envt_name)
+    
+    if request.method == 'POST':  # If the form has been submitted...
+        f = BackupForm(request.POST, envt = e)
+        if f.is_valid():
+            pass
+    else:
+        f = BackupForm(envt = e)
+    
+    return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
     
 @transaction.commit_on_success
 def demo(request):
+    for ta in Tag.objects.all():
+        ta.delete()
+    for bi in BackupItem.objects.all():
+        bi.delete()
     for IS in InstallableSet.objects.all():
         IS.delete()
     for ii in InstallableItem.objects.all():
@@ -233,6 +264,10 @@ def demo(request):
     install_iset_envt(is_list[2], ref.envt_prd1)
     install_iset_envt(is_list[3], ref.envt_prd1)
     install_iset_envt(is_list[5], ref.envt_prd1)
+    
+    bs1 = register_backup('PRD1', datetime.now(), *ref.envt_prd1.component_instances.all())
+    bs2 = register_backup_envt_default_plan('PRD1', datetime.now())
+    install_iset_envt(bs1, ref.envt_tec2)
     
     return HttpResponseRedirect(reverse('welcome'))
     

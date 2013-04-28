@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Backup {{bck.name}}{% endblock %}
+
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:delivery_detail' bck.id %}" title="Voir comme une livraison">L</a>
+{% endblock %}
+
+{% block content %}
+
+<div class='metContainer metSection' style='background-color: #B01E00;'>
+	<table>
+		<tr><td>Environnement source</td><td>{{bck.from_envt}}</td></tr>
+		<tr><td>Pris le</td><td>{{bck.set_date}}</td></tr>
+	</table>
+</div>
+
+{% for item in bck.nonversioned_items.all %}
+	<div class='metContainer metRectList'>
+		{{item.instance.name}}
+		{% if item.instance_configuration %} - {{ item.instance_configuration.result_of.what_is_installed.version }} {% else %} - no version {% endif %}
+		<div class='annotation'>{{ item.instance.instanciates }}</div>
+	</div>
+{% endfor %}
+
+{% endblock content %}

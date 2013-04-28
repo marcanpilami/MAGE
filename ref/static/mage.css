@@ -156,6 +156,19 @@ body {
 	background-color: #004A00;
 }
 
+.metRectFixedwidth {
+	display: inline-block;
+	width: 250px;
+	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 5px;
+	vertical-align: top;
+	position: relative;
+	background-color: #004A00;
+}
+
 .metSquareLong {
 	display: block;
 	position: absolute;

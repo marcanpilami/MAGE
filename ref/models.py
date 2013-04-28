@@ -18,7 +18,11 @@ class SLA(models.Model):
     avalability = models.FloatField()
     #closed =
     open_at = models.TimeField()
-    closes_at = models.TimeField()  
+    closes_at = models.TimeField()
+    
+    class Meta:
+        verbose_name = 'SLA'
+        verbose_name_plural = 'SLA'  
     
      
 ################################################################################
@@ -35,6 +39,10 @@ class Project(models.Model):
     alternate_name_2 = models.CharField(max_length=100)
     alternate_name_3 = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
+    
+    class Meta:
+        verbose_name = u'projet'
+        verbose_name_plural = u'projets'
 
 class Application(models.Model):
     name = models.CharField(max_length=100)
@@ -61,16 +69,24 @@ class LogicalComponent(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
     
+    class Meta:
+        verbose_name = u'composant logique'
+        verbose_name_plural = u'composants logiques'
+    
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. Automatically created. """
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.CharField(max_length=500)
-    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by')
+    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name = u'élément logique implémenté')
     sla = models.ForeignKey(SLA, blank=True, null=True)
-    python_model_to_use = models.ForeignKey(ContentType)
+    python_model_to_use = models.ForeignKey(ContentType, verbose_name = u'implémentation technique')
     
     def __unicode__(self):
         return u'%s' % self.name
+    
+    class Meta:
+        verbose_name = u'implémentation technique d\'un composant logique'
+        verbose_name_plural = u'implémentations techniques des composants logiques'
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
@@ -99,7 +115,11 @@ class Environment(models.Model):
     typology = models.ForeignKey(EnvironmentType)
     
     def __unicode__(self):
-        return "%s" % (self.name,)  
+        return "%s" % (self.name,)
+    
+    class Meta:
+        verbose_name = 'environnement'
+        verbose_name_plural = 'environnements'  
     
 
 ################################################################################
@@ -151,6 +171,8 @@ class ComponentInstance(models.Model):
     ## Base data for all components
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'nom ')
     instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
+    deleted = models.BooleanField(default = False)
+    include_in_envt_backup = models.BooleanField()
     
     ## Environments
     environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='environnements ', related_name='component_instances')
@@ -224,6 +246,8 @@ class ComponentInstance(models.Model):
         super(ComponentInstance, self).__init__(*args, **kwargs)
         self.__setContentType()
         self.extParams = ExtendedParameterDict(self)
+        if self.pk is None:
+            self.include_in_envt_backup = self.include_in_default_envt_backup
     
     ## Pretty print
     def __unicode__(self):
@@ -235,6 +259,7 @@ class ComponentInstance(models.Model):
             return '%s' % (self.name)
     
     restricted_fields = ('password',)
+    include_in_default_envt_backup = True
     class Meta:
         permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)
 

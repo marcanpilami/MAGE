@@ -38,13 +38,13 @@ class ParamNotFound(Exception):
     def __init__(self, kwargs):
         self.query = kwargs
     def __str__(self):
-        return u'Parametre mal specifié : %s' %self.query
+        return u'Parametre mal specifié : %s' % self.query
 
 class DuplicateParam(Exception):
     def __init__(self, param):
         self.param = param
     def __str__(self):
-        return u'il existe deja un parametre répondant a cette définition : %s' %self.param
+        return u'il existe deja un parametre répondant a cette définition : %s' % self.param
 
 
 
@@ -60,23 +60,25 @@ def choice_list():
         yield (app_name, app_name)
         
 class MageParam(models.Model):
-    key = models.CharField(max_length = 30, verbose_name = u'clé')
-    app = models.CharField(max_length = 5, verbose_name = u'application', choices = choice_list())
-    value = models.CharField(max_length = 100, verbose_name = u'valeur')
+    key = models.CharField(max_length=30, verbose_name=u'clé')
+    app = models.CharField(max_length=5, verbose_name=u'application', choices=choice_list())
+    value = models.CharField(max_length=100, verbose_name=u'valeur')
     
-    description = models.CharField(max_length = 200, blank = True, null = True, verbose_name = u'description')
-    default_value = models.CharField(max_length = 100, blank = True, null = True, verbose_name = u'valeur par défaut')
-    model = models.ForeignKey(ContentType, blank = True, null = True, verbose_name = u'modèle concerné')
-    axis1 = models.CharField(max_length = 30, verbose_name = u'classification optionnelle', blank = True, null = True)
+    description = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'description')
+    default_value = models.CharField(max_length=100, blank=True, null=True, verbose_name=u'valeur par défaut')
+    model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné')
+    axis1 = models.CharField(max_length=30, verbose_name=u'classification optionnelle', blank=True, null=True)
+    
+    restricted = models.BooleanField(default=False)
     
     def __unicode__(self):
-        return u'[%s] %s : %s' %(self.app, self.key, self.value)
+        return u'[%s] %s : %s' % (self.app, self.key, self.value)
     
     class Meta:
         verbose_name = u'paramètre'
         verbose_name_plural = u'paramètres'
-        ordering = ['app', 'key',]
-        unique_together = [('key', 'app', 'model', 'axis1'),]
+        ordering = ['app', 'key', ]
+        unique_together = [('key', 'app', 'model', 'axis1'), ]
 
 
 ##########################################################################
@@ -132,4 +134,4 @@ def getMyParams():
         @return: all the parameters of an application
     """
     app = sys._getframe(1).f_globals['__name__'].split('.')[0]
-    return MageParam.objects.filter(app = app)
+    return MageParam.objects.filter(app=app)

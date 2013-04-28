@@ -67,3 +67,15 @@ class IDForm(ModelForm):
         model = ItemDependency
         fields = ('target', 'depends_on_version', 'operator',)
 
+
+class BackupForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    date = forms.DateTimeField()
+    instances = forms.MultipleChoiceField(choices=(), widget=forms.widgets.CheckboxSelectMultiple)
+
+    def __init__(self, *args, **kwargs):
+        self.envt = kwargs['envt']
+        del kwargs['envt']
+        super(BackupForm, self).__init__(*args, **kwargs)
+        self.fields['instances'].choices = [(i.pk, i.__unicode__()) for i in self.envt.component_instances.all()]
+    

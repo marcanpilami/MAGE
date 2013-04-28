@@ -3,7 +3,7 @@
 from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO,\
+    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO, \
     NamingConventionCounter, ExtendedParameter
 from ref.naming import nc_sync_naming_convention
 from django.contrib.contenttypes.models import ContentType
@@ -36,6 +36,22 @@ class EnvironmentAdmin(ModelAdmin):
 
 site.register(Environment, EnvironmentAdmin)
 
+
+################################################################################
+## CIC
+################################################################################
+
+class CICAdmin(ModelAdmin):
+    list_display = ('name', 'implements', 'python_model_to_use',)
+    list_filter = ('implements',)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "python_model_to_use":
+            kwargs["queryset"] = ContentType.objects.exclude(app_label__in=('ref', 'scm', 'prm', 'auth', 'contenttypes', 'sessions', 'sites', 'messages', 'admin'))
+        return super(CICAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    
+site.register(ComponentImplementationClass, CICAdmin)
 
 
 ################################################################################
@@ -78,7 +94,7 @@ class CI2DOFieldInline(TabularInline):
     model = CI2DO
     extra = 5
     can_delete = True
-    fields = ['rel_name', 'pedestal',]
+    fields = ['rel_name', 'pedestal', ]
     fk_name = 'statue'
     template = 'admin/tabular_no_title.html'
       
@@ -92,7 +108,7 @@ class CI2DOFieldInline(TabularInline):
             
         ## Superseed the fields as defined in the class
         if db_field.name == 'rel_name':
-            kwargs['widget'] =  Select(choices = [('', '---------'),] + [ (i, i) for i in statue_model.parents.keys()])
+            kwargs['widget'] = Select(choices=[('', '---------'), ] + [ (i, i) for i in statue_model.parents.keys()])
 
         
         return super(CI2DOFieldInline, self).formfield_for_dbfield(db_field, **kwargs)
@@ -145,7 +161,7 @@ class ComponentInstanceAdmin(ModelAdmin):
 
 
     ## Default values for the various admin options. Should usually be at least partially overloaded
-    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo', ]}), ]
+    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo', 'include_in_envt_backup']}), ]
     fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'connectedTo']}), ]
     fieldsets = fieldsets_generic
     filter_horizontal = ('connectedTo', 'dependsOn', 'environments')

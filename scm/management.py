@@ -13,6 +13,7 @@ from django.contrib.auth.models import Group, User, Permission
 
 ## MAGE imports
 import models
+from scm.models import InstallationMethod
 
 def post_syncdb_handler(sender, **kwargs):
     ## Create DEV group & first user
@@ -26,6 +27,8 @@ def post_syncdb_handler(sender, **kwargs):
         dev.save()
         
         dev.groups.add(devgroup)
+        
+    #if not InstallationMethod.objects.exists()
         
 
 ## Listen to the syncdb signal

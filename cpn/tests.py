@@ -290,6 +290,12 @@ def utility_create_test_envt(i):
     mqp5.connectedTo.add(mqp6)
     
     
+    #### TEC2
+    tec2_os1 = OracleSchema(name='tec2_int', password='toto', instanciates=impl_1_1)
+    tec2_os1.save()
+    tec2_os1.environments.add(e5)
+    tec2_os1.oracle_instance = oi1
+    
     #### Naming conventions
     nc_create_naming_convention('main NC')
     

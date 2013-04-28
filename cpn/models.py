@@ -17,6 +17,7 @@ class OsServer(ComponentInstance):
     os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008R2', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
 
     restricted_fields = ('admin_account_password',)
+    include_in_default_envt_backup = False
 
 
 class OsAccount(ComponentInstance):
@@ -27,6 +28,7 @@ class OsAccount(ComponentInstance):
     
     restricted_fields = ('password', 'private_key',)
     parents = {'server': {'model': 'OsServer', 'cardinality': 1}}
+    include_in_default_envt_backup = False
 
 
 ######################################################
@@ -39,6 +41,7 @@ class OracleInstance(ComponentInstance):
     data_directory = models.CharField(max_length=254, verbose_name=u'répertoire data par défaut', blank=True, null=True)
     
     parents = {'server': {'model': 'OsServer', 'cardinality':1}}
+    include_in_default_envt_backup = False
     
     class Meta:
         verbose_name = u'instance Oracle'
@@ -85,11 +88,13 @@ class OraclePackage(ComponentInstance):
 ######################################################
 
 class WasApplication(ComponentInstance):
-    parents = {'was_cluster': {'model': 'WasCluster'}}
     context_root = models.CharField(max_length=50, default='/')
     
     def __unicode__(self):
         return u'Application Java %s' % (self.name,)
+    
+    parents = {'was_cluster': {'model': 'WasCluster'}}
+    include_in_default_envt_backup = False
     
     class Meta:
         verbose_name = u'application déployée sur un WAS'
@@ -108,6 +113,7 @@ class WasCluster(ComponentInstance):
         verbose_name_plural = u'clusters WAS'
         
     detail_template = 'cpn/wascluster_schema_table.html'
+    include_in_default_envt_backup = False
 
 class WasCell(ComponentInstance):
     parents = {'manager_server': {'model': 'OsServer'}}
@@ -118,12 +124,15 @@ class WasCell(ComponentInstance):
     def __unicode__(self):
         return u'Cellule WAS %s' % (self.name,)
     
+    include_in_default_envt_backup = False
+    
     class Meta:
         verbose_name = u'cellule WAS'
         verbose_name_plural = u'cellules WAS'
 
 class WasNode(ComponentInstance):
     parents = {'server': {'model': 'OsServer'}, 'was_cell': {'model': 'WasCell'}}
+    include_in_default_envt_backup = False
     
     def __unicode__(self):
         return u'Noeud WAS %s' % (self.name,)
@@ -145,9 +154,11 @@ class WasAS(ComponentInstance):
         verbose_name_plural = u'JVMs WAS'
     
     detail_template = 'cpn/wasas_schema_table.html'
+    include_in_default_envt_backup = False
         
 class GlassfishAS(ComponentInstance):
     parents = {'server': {'model': 'OsServer'}}
+    include_in_default_envt_backup = False
     
     def __unicode__(self):
         return u'Glassfish serveur sur %s' % (self.server.name)
@@ -167,6 +178,7 @@ class MqQueueManager(ComponentInstance):
     adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
     
     parents = {'server': {'model': 'UnixServer'}}
+    include_in_default_envt_backup = False
     
     class Meta:
         verbose_name = u'Gestionnaire de files'
@@ -174,7 +186,8 @@ class MqQueueManager(ComponentInstance):
 
 class MqQueueManagerParams(ComponentInstance):
     parents = {'qm': {'model': 'MqQueueManager'}}
-   
+    include_in_default_envt_backup = False
+    
     def __unicode__(self):
         return "Params %s sur %s" % (self.instanciates.name, self.qm.name)
     
