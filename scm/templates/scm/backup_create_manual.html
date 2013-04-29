@@ -1,24 +1,34 @@
 {% extends "base.html" %}
+
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Référencement d'un backup de {{envt.name}}{% endblock %}
 
 {% block content %}
 
-<form method="POST">
-	<table>
-		<tr>
-			<td>Nom du backup</td><td>{{form.name}}<div class='annotation'>Vous pouvez laisser vide pour utiliser la norme de nommage</div></td>
-		</tr>
-		<tr>
-			<td>Moment de la prise de backup</td><td>{{form.date}}<div class='annotation'>Cette date est notamment utile pour trouver la version des éléments sauvegardés</div></td>
-		</tr>
-		<tr>
-			<td>Eléments inclus</td><td>{{form.instances}}</td>
-		</tr>
-	</table>
-	
-	<input type="submit" value="Enregistrer" class='metButton'/>
-	<button class='metButton cancel' onclick="history.back();return false;">annuler</button>
-</form>
+<div class='metContainer'>
+	<form method="POST">
+		<table>
+			<tr {% if form.name.errors %} class='formerror'{%endif%}>
+				<td>Description du backup</td>
+				<td >{{form.description}}{% for error in form.description.errors %}{{error}}{%endfor%}
+					<div class='annotation left'>Vous pouvez laisser vide.</div>	
+				</td>
+			</tr>
+			<tr {% if form.date.errors %} class='formerror'{%endif%}>
+				<td>Moment de la prise de backup</td>
+				<td>{{form.date}}{% for error in form.date.errors %}{{error}}{%endfor%}
+					<div class='annotation left'>dd/MM/YYYY HH:mm. Cette date est notamment utile pour trouver la version des éléments sauvegardés.</div>
+				</td>
+			</tr>
+			<tr {% if form.instances.errors %} class='formerror'{%endif%}>
+				<td>Eléments inclus</td>
+				<td class='bulletLessList'>{% for error in form.instances.errors %}{{error}}{%endfor%}{{form.instances}}</td>
+			</tr>
+		</table>
+		
+		<input type="submit" value="Enregistrer" class='metButton'/>
+		<button class='metButton cancel' onclick="history.back();return false;">annuler</button>
+	</form>
+</div>
 
 {% endblock content %}

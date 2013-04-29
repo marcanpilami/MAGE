@@ -225,8 +225,11 @@ def backup_envt_manual(request, envt_name):
     
     if request.method == 'POST':  # If the form has been submitted...
         f = BackupForm(request.POST, envt = e)
+        
         if f.is_valid():
-            pass
+            instances = ComponentInstance.objects.filter(pk__in = f.cleaned_data['instances'])
+            bs = register_backup(e, f.cleaned_data['date'], "MANUAL - %s" %f.cleaned_data['description'], *instances)
+            return redirect('scm:backup_detail', bck_id=bs.id)
     else:
         f = BackupForm(envt = e)
     
@@ -265,8 +268,8 @@ def demo(request):
     install_iset_envt(is_list[3], ref.envt_prd1)
     install_iset_envt(is_list[5], ref.envt_prd1)
     
-    bs1 = register_backup('PRD1', datetime.now(), *ref.envt_prd1.component_instances.all())
-    bs2 = register_backup_envt_default_plan('PRD1', datetime.now())
+    bs1 = register_backup('PRD1', datetime.now(), "no descr", *ref.envt_prd1.component_instances.all())
+    register_backup_envt_default_plan('PRD1', datetime.now())
     install_iset_envt(bs1, ref.envt_tec2)
     
     return HttpResponseRedirect(reverse('welcome'))

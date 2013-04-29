@@ -62,6 +62,12 @@ body {
 	margin: 0px;
 }
 
+.bulletLessList,.bulletLessList li,.bulletLessList ul {
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+
 .formerror {
 	background-color: red;
 }
@@ -75,6 +81,10 @@ body {
 	font-size: 10pt;
 	vertical-align: bottom;
 	text-align: right;
+}
+
+.left {
+	text-align: left;
 }
 
 /* tables */
@@ -210,6 +220,10 @@ div.metContainer td {
 	padding-right: 3px;
 }
 
+div.metContainer form td {
+	padding-bottom: 5px;
+}
+
 div.metContainer th {
 	font-weight: inherit;
 	text-align: right;
@@ -286,6 +300,10 @@ button.cancel {
 
 .metRibbonSplashContent .right {
 	margin-top: 10px;
+}
+
+.metContainer form tbody {
+	vertical-align: top;
 }
 
 /* Toolbar */

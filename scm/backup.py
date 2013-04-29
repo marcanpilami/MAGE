@@ -3,7 +3,7 @@ from ref.models import Environment
 from MAGE.exceptions import MageCallerError
 from scm.models import BackupSet, BackupItem, InstallableItem, BackupRestoreMethod
 
-def register_backup(envt, backup_date, *component_instances):
+def register_backup(envt, backup_date, description, *component_instances):
     ## Check params
     if isinstance(envt, str):
         envt = Environment.objects.get(name=envt)
@@ -39,4 +39,4 @@ def register_backup(envt, backup_date, *component_instances):
 
 def register_backup_envt_default_plan(envt_name, backup_date):
     e = Environment.objects.get(name=envt_name)
-    return register_backup(e, backup_date, * e.component_instances.filter(include_in_envt_backup=True))
+    return register_backup(e, backup_date, "default plan backup", * e.component_instances.filter(include_in_envt_backup=True))

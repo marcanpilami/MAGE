@@ -7,6 +7,7 @@ import re
 
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency
 from ref.models import LogicalComponent
+from scm.validators import validate_non_empty
 
 
 class DeliveryForm(ModelForm):
@@ -69,9 +70,9 @@ class IDForm(ModelForm):
 
 
 class BackupForm(forms.Form):
-    name = forms.CharField(max_length=100)
-    date = forms.DateTimeField()
-    instances = forms.MultipleChoiceField(choices=(), widget=forms.widgets.CheckboxSelectMultiple)
+    description = forms.CharField(max_length=90, required=False)
+    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M',])
+    instances = forms.TypedMultipleChoiceField(choices=(), widget=forms.widgets.CheckboxSelectMultiple, validators=[validate_non_empty,], coerce=int)
 
     def __init__(self, *args, **kwargs):
         self.envt = kwargs['envt']
