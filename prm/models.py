@@ -2,10 +2,11 @@
 
 """
     MAGE parameter module models and helpers file.
-    Usefull functions (part of the API) are :
+    Useful functions (part of the API) are :
         - getParam
         - setParam
         - getMyParams
+        - setOrCreateParam
     
     @author: Marc-Antoine Gouillart
     @contact: marsu_pilami@msn.com
@@ -24,7 +25,6 @@ import sys
 
 ## Django imports
 from django.db import models
-from django.contrib import admin
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
@@ -104,6 +104,16 @@ def getParam(key, **others):
     except (MageParam.DoesNotExist, MageParam.MultipleObjectsReturned):
         raise ParamNotFound(filters)
 
+def setOrCreateParam(key, value, **others):
+    if others and others.has_key('app'): app = others['app']
+    else: app = sys._getframe(1).f_globals['__name__'].split('.')[0]
+    args = others or {}
+    args['key'] = key
+    args['app'] = app
+    
+    prm = MageParam.objects.get_or_create(**args)[0]
+    prm.value = value
+    prm.save()
 
 def setParam(key, value, **others):
     """ 
