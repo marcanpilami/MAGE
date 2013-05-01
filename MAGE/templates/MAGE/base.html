@@ -3,11 +3,30 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta charset="utf-8" />
-		<!-- <link media="all" type="text/css" href="{{ STATIC_URL }}mage.css" rel="stylesheet"/> -->
 		<link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
-		<title>{%block pagetitle%}titre générique{%endblock pagetitle%}</title>
+		<title>{%block pagetitle%}MAGE{%endblock pagetitle%}</title>
 		{%block scripts%}{%endblock%}
 		{%block other_css%}{%endblock%}
+		
+		<script type="text/javascript">function back() 
+		{
+			if (document.referrer !== null && document.referrer !== "")
+			{
+				if (document.referrer.indexOf("accounts/login") === -1)
+				{
+					history.back();return false;
+				}
+				else
+				{
+					history.go(-2);return false;
+				}
+			}
+			else
+			{
+				window.location = '/';
+				return false;
+			}
+		}</script>
 	</head>
 	<body>
 		<div id='beforeFooter'>
