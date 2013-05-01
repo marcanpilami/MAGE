@@ -18,56 +18,69 @@ class SimpleTest(TestCase):
         utility_create_test_envt(1)
         
         # Only a name.
-        res = parser.get_components('(S,name="waPRDINT2")')
+        res = parser.get_components('((S,name="waPRDINT2"))')
         self.assertEqual(1, len(res))
         
         # Only a type
-        res = parser.get_components('(T,"wascluster")')
+        res = parser.get_components('((T,wascluster))')
         self.assertEqual(4, len(res))
         
         # A type and a name
-        res = parser.get_components('(T,"wascluster")(S,name="wcluPRDUSR")')
+        res = parser.get_components('((T,wascluster)(S,name="wcluPRDUSR"))')
         self.assertEqual(1, len(res))
 
     def test_mcl_with_nothing(self):
         utility_create_test_envt(1)
         
         # Nothing at all - no filter means returning everything!
-        res = parser.get_components('')
+        res = parser.get_components('()')
         self.assertEqual(ComponentInstance.objects.count(), len(res))
         
     def test_mcl_with_one_simple_relation(self):
         utility_create_test_envt(1)
         
         # One parent specified by name (P)
-        res = parser.get_components('(P,name="wcluPRDUSR")')
+        res = parser.get_components('((P,((S,name="wcluPRDUSR"))))')
         self.assertEqual(3, len(res))
         
         # One parent specified by model and name (P)
-        res = parser.get_components('(P,model="wascluster",name="wcluPRDUSR")')
+        res = parser.get_components('((P,((T,wascluster)(S,name="wcluPRDUSR"))))')
         self.assertEqual(3, len(res))
         
         # One connected partner specified by model and name (C)
-        res = parser.get_components('(C,model="oracleschema",name="prd_int")')
+        res = parser.get_components('((C,((T,oracleschema)(S,name="prd_int"))))')
         self.assertEqual(2, len(res))
         
     def test_mcl_with_one_complex_relation(self):
         utility_create_test_envt(1)
         
-        # P,P
-        res = parser.get_components('(P,model="wascluster",name="wcluPRDUSR"|P,name="wcellPRD")')
+        # P -> P
+        res = parser.get_components('((P,((T,wascluster)(S,name="wcluPRDUSR")(P,((S,name="wcellPRD"))))))')
         self.assertEqual(3, len(res))
         
-        # C,P
-        res = parser.get_components('(C,model="oracleschema",name="prd_user"|P,name="ORAINST3")')
+        # C -> P
+        res = parser.get_components('((C,((T,oracleschema)(S,name="prd_user")(P,((S,name="ORAINST3"))))))')
         self.assertEqual(1, len(res))
         
     def test_mcl_with_multiple_relations(self):
         utility_create_test_envt(1)
         
         # One P, one C
-        res = parser.get_components('(P,name="wcluPRDUSR")(C,name="prd_user")')
+        res = parser.get_components('((P,((S,name="wcluPRDUSR")))(C,((S,name="prd_user"))))')
         self.assertEqual(1, len(res))
+        
+        res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_int")))(P,was_cluster,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
+        self.assertEqual(1, len(res))
+        
+        # With a mistake in relationship name
+        res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_int")))(P,was_clusterZ,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
+        self.assertEqual(0, len(res))
+        
+        # With a mistake in C name
+        res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_intZ")))(P,was_cluster,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
+        self.assertEqual(0, len(res))
+        
+        
         
     def test_base(self):
         et1 = EnvironmentType(name='production', short_name='PRD')
@@ -128,7 +141,7 @@ class SimpleTest(TestCase):
         self.assertEqual(len(t2_1.extParams), 1)
         
         
-    def Xtest_nc(self):
+    def test_nc(self):
         #utility_create_test_envt(1)
         
         et1 = EnvironmentType(name='production', short_name='PRD')
@@ -169,6 +182,7 @@ class SimpleTest(TestCase):
         t2.environments.add(e2)
         nc1.value_instance(t2)
         t2.save()
+        self.assertEqual('TEST2_NOENVIRONMENT', t2.name)
         
         # With force, it should
         nc1.value_instance(t2, force = True)

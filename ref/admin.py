@@ -62,7 +62,7 @@ class NamingConventionFieldInline(TabularInline):
     model = NamingConventionField
     extra = 0
     can_delete = False
-    fields = ['model', 'field', 'pattern_type', 'pattern', ]
+    fields = ['model', 'field', 'pattern_type', 'overwrite_copy', 'pattern', ]
     readonly_fields = ['model', 'field', 'pattern_type']
     ordering = ['model', 'field']
     template = 'admin/tabular_no_title.html'

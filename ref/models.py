@@ -347,7 +347,9 @@ class NamingConventionField(models.Model):
     pattern_type = models.CharField(max_length=4, choices=(('MCL1', 'MCL query with only one result'),
                                                                ('MCL0', 'MCL query with 0 to * results'),
                                                                ('P', 'simple pattern'),
-                                                               ('CIC', 'implementation class name'),))
+                                                               ('CIC', 'implementation class name'),
+                                                               ('TF', 'True ou False')))
+    overwrite_copy = models.BooleanField(default = False, verbose_name = u'prioritaire sur copie')
     
     class Meta:
         verbose_name = u'norme de nommage d\'un champ de composant'
