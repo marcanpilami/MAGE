@@ -237,6 +237,20 @@ class ComponentInstance(models.Model):
         for r in f:
             r.delete()
             
+    def check_relation_complete(self):
+        """ returns a list of tuples containing errors (relation_name, cardinality, actual_length)"""
+        res = []
+        for r,descr in self.parents.items():
+            real = self.pedestals_ci2do.filter(rel_name = r)
+            card = descr['cardinality']
+            if card == 0:
+                continue # 0..n: whatever result is OK
+            else:
+                if real.count() != card:
+                    res.append((r, card, real.count()))
+        
+        return res
+    
     ## Set the "model" field at initialization
     def __setContentType(self):
         if self.model_id is None:
@@ -375,3 +389,7 @@ class Test1(ComponentInstance):
 class Test2(ComponentInstance):
     parents = {'daddy': {'model': 'Test1', 'cardinality' :1, 'compulsory': False},
                'daddies': {'model': 'Test1', 'cardinality' :3, 'compulsory': False}} 
+
+class Test3(ComponentInstance):
+    f = models.ForeignKey(Test1)
+    

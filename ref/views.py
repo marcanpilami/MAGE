@@ -9,6 +9,7 @@ from ref.csvi import get_components_csv
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
+from MAGE.exceptions import MageCallerError
 
 def csv(request, url_end):
     comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))    
@@ -46,18 +47,23 @@ def model_types(request):
 class MclTesterForm(forms.Form):
     mcl = forms.CharField(max_length=300, initial='()', label='Requête MCL', widget=forms.TextInput(
                  attrs={'size':'200', 'class':'inputText'}))   
+    allow_creation = forms.BooleanField(initial = False, required=False)
 
 def mcl_tester(request):
     base = request.build_absolute_uri('/')[:-1]
+    error = None
     if request.method == 'POST': # If the form has been submitted...
         form = MclTesterForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
-            res = parser.get_components(form.cleaned_data['mcl'])
-            return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res, 'base': base}) 
+            try:
+                res = parser.get_components(form.cleaned_data['mcl'], allow_create=form.cleaned_data['allow_creation'])
+                return render(request, 'ref/mcltester.html', {'mcl': form.cleaned_data['mcl'], 'form': form, 'results': res, 'base': base})
+            except MageCallerError, e:
+                error = e.message 
     else:
         form = MclTesterForm() # An unbound form
 
-    return render(request, 'ref/mcltester.html', {'form': form, 'base': base})
+    return render(request, 'ref/mcltester.html', {'form': form, 'base': base, 'error': error})
 
 
 def mcl_request(request, titles, mcl, format=None):

@@ -8,10 +8,12 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from cpn.tests import utility_create_test_envt
 from ref.mcl import parser 
-from ref.models import ComponentInstance, Environment, Test1, EnvironmentType,\
-    Test2
+from ref.models import ComponentInstance, Environment, Test1, EnvironmentType, \
+    Test2, Test3
 import naming
 from MAGE.exceptions import MageError
+from cpn.models import OracleInstance, OracleSchema
+from ref.exceptions import MageMclAttributeNameError
 
 class SimpleTest(TestCase):
     def test_mcl_without_relations(self):
@@ -73,34 +75,85 @@ class SimpleTest(TestCase):
         self.assertEqual(1, len(res))
         
         # With a mistake in relationship name
-        res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_int")))(P,was_clusterZ,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
-        self.assertEqual(0, len(res))
+        try:
+            res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_int")))(P,was_clusterZ,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
+            self.fail('malformed attribute name was accepted')
+        except MageMclAttributeNameError:
+            pass
         
         # With a mistake in C name
         res = parser.get_components('((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_intZ")))(P,was_cluster,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))')
         self.assertEqual(0, len(res))
         
+    def test_mcl_with_dot(self):
+        t1 = Test1(name='r', raccoon='y')
+        t1.save()
+        t3 = Test3(name='t', f=t1)
+        t3.save()
+        
+        res = parser.get_components('((T,test3)(S,f.name="r"))')
+        self.assertEqual(1, len(res))   
+        self.assertEqual('t', res[0].name)
+        
+    def test_mc_create(self):
+        res = parser.get_components('((T,osserver)(S,name="test",os="Win2003")(A,admin_account_password="meuh"))')
+        self.assertEqual(1, len(res))
+        c = res[0]
+        self.assertEqual(c.admin_account_password, "meuh")   
+        
+        ## Should not be created again if already exists
+        res = parser.get_components('((T,osserver)(S,name="test",os="Win2003")(A,admin_account_password="meuh"))')
+        self.assertEqual(1, len(res))
+        
+        ## With a dependsOn that exists
+        i = OracleInstance(name="instance1")
+        i.save()
+        res = parser.get_components('((T,oracleschema)(S,name="test")(A,password="meuh")(P,oracle_instance,((S,name="instance1"))))')
+        self.assertEqual(1, len(res))
+        self.assertEqual(1, OracleSchema.objects.all().count())
+        self.assertEqual(1, OracleInstance.objects.all().count())
+        
+        ## With a dependsOn that does not exist
+        try:
+            res = parser.get_components('((T,oracleschema)(S,name="test")(A,password="meuh")(P,oracle_instance,((S,name="instance2"))))')
+            self.fail('could create an impossible instance')
+        except MageError:
+            pass
+        self.assertEqual(1, OracleSchema.objects.all().count())
+        self.assertEqual(1, OracleInstance.objects.all().count())
+        
+        ## With a dependsOn that should be created
+        res = parser.get_components('((T,oracleschema)(S,name="test")(A,password="meuh")(P,oracle_instance,((S,name="instance2")(A,)(P,server,((S,name="test"))))))')
+        self.assertEqual(1, len(res))
+        self.assertEqual(2, OracleSchema.objects.all().count())
+        self.assertEqual(2, OracleInstance.objects.all().count())
+        
+        ## And again: should not be created again
+        res = parser.get_components('((T,oracleschema)(S,name="test")(A,password="meuh")(P,oracle_instance,((S,name="instance2")(A,)(P,server,((S,name="test"))))))')
+        self.assertEqual(1, len(res))
+        self.assertEqual(2, OracleSchema.objects.all().count())
+        self.assertEqual(2, OracleInstance.objects.all().count())
         
         
     def test_base(self):
         et1 = EnvironmentType(name='production', short_name='PRD')
         et1.save()
         
-        e = Environment(name = 'marsu', typology = et1)
+        e = Environment(name='marsu', typology=et1)
         e.save()
         
-        t1_1 = Test1(name = 't1_1', raccoon = 'pouet')
+        t1_1 = Test1(name='t1_1', raccoon='pouet')
         t1_1.save()
         t1_1.environments.add(e)
         
-        t1_2 = Test1(name = 't1_2', raccoon = 'pouet')
+        t1_2 = Test1(name='t1_2', raccoon='pouet')
         t1_2.save()
         t1_2.environments.add(e)
         
-        t2_1 = Test2(name = 't2_1')
+        t2_1 = Test2(name='t2_1')
         t2_1.save()
         
-        t2_2 = Test2(name = 't2_2')
+        t2_2 = Test2(name='t2_2')
         t2_2.save()
         t2_2.daddies_add(t1_1)
         t2_2.daddies_add(t1_2)
@@ -185,15 +238,15 @@ class SimpleTest(TestCase):
         self.assertEqual('TEST2_NOENVIRONMENT', t2.name)
         
         # With force, it should
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_PRD2', t2.name)
         
         ## Counters/sequences: global
         nc1.set_field('test2', 'name', 'TEST2_%cg%')
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_1', t2.name)
         
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_2', t2.name)
         
         # other models in other envt should also use the same counter
@@ -203,27 +256,27 @@ class SimpleTest(TestCase):
         
         ## Counters: by environment
         nc1.set_field('test2', 'name', 'TEST2_%ce%')
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_1', t2.name)
         
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_2', t2.name)
         
         nc1.set_field('test1', 'name', 'TEST1_%ce%')
-        nc1.value_instance(t1, force = True)
+        nc1.value_instance(t1, force=True)
         self.assertEqual('TEST1_1', t1.name)
         
         ## Counters: by envt and model type
         nc1.set_field('test2', 'name', 'TEST2_%cem%')
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_1', t2.name)
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_2', t2.name)
-        nc1.value_instance(t2, force = True)
+        nc1.value_instance(t2, force=True)
         self.assertEqual('TEST2_3', t2.name)
         
         nc1.set_field('test1', 'name', 'TEST1_%cem%')
-        nc1.value_instance(t3, force = True)
+        nc1.value_instance(t3, force=True)
         self.assertEqual('TEST1_1', t3.name)
-        nc1.value_instance(t3, force = True)
+        nc1.value_instance(t3, force=True)
         self.assertEqual('TEST1_2', t3.name)

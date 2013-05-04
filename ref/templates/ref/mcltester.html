@@ -8,9 +8,14 @@
 <form action="{% url 'ref:mcltester' %}" method="post">
 	{{ form.as_p }}
 	<input type="submit" value="Submit" />
+	{% if error %}
+		<div class='formerror'>{{error}}</div>
+	{% endif %}
 </form>
 {% if form.mcl %}
+{% if not error %}
 CSV link would be: {{base}}{% url 'ref:mcl_csv' "1" mcl %} (<a href="{% url 'ref:mcl_csv' "1" mcl %}">Try it</a>)
+{% endif %}
 {% endif %}
 
 <div style="column-width:200px;-moz-column-width:200px;-webkit-column-width:200px;height:70%;">

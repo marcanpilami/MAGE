@@ -6,7 +6,7 @@ MCL
 Introduction
 -----------------------
 
-MCL is a query and component creation language.
+MCL is a sadistic parenthesis-oriented query and component creation language. It allows to find components based on its attributes and, most important, based on the relationships it has with other components. That way, scripts may easily find all the data they need to run. For exemple, just knowing the hostname of the server it runs on, a script will be able to query all database accounts running on databases running on this server, and then backup or export them.
 
 Grammar (EBNF)
 -----------------------
@@ -58,7 +58,7 @@ S means Self. Double inverted commas are compulsory. In case there are some in t
 
 .. warning:: if no type is given (see next paragraph), only base instance attributes can be queried (name, description)
 
-.. note:: Queriable attributes are documented
+.. note:: Queriable attributes will one day be documented automatically. Right now it should be done manually.
 
 Exemples:::
 
@@ -104,15 +104,20 @@ Beware in this case if you use the @ notation - it refers to the base instance, 
 Exemple::
 
 	((S,instance.name="MYORACLEINSTANCE"))
+	((S,environments.name="PRD1"))
 	
 looks for every component instance which has an instance named MYORACLEINSTANCE.
 
-Query on parents
+Query on parents/connected
 ++++++++++++++++++++++++++++++++++++++++++++
 
 Instances have a special set of relationships called Parents. To query on this relationships, just create a sub query inside a (P,)::
 
 	((P,((S,name="MYORACLEINSTANCE"))))
+	
+You can give the name of the parent relationship between the P and the subquery::
+
+	((P,oracle_instance,((S,name="MYORACLEINSTANCE"))))
 
 Same thing with connected instance with (C,)
 
@@ -121,6 +126,23 @@ Mixing it all
 
 Just collate the different filters in this order: T, S, P, C. For exemple::
 
-	((T,wasapplication)(S,name="module1")(P,((T,wascluster)(P,((T,osserver)(S,name="server1"))))))
+	((T,wasapplication)(S,name="integration", name="integration")(C,((T,oracleschema)(S,name="prd_int")))(P,was_cluster,((T,wascluster)(P,((T,wascell)(S,name="wcellPRD")))))))
 	
-will look for applications named module1 that run on a cluster running on server1.
+will look for applications named integration that:
+
+* are linked to an Oracle Schema named prd_int
+* run on a cluster (which is not named here)
+	* the cluster must run on a cell named wcellPRD
+
+	
+Instance creation
++++++++++++++++++++++++++
+
+To create an instance, add an (A,) section after the S section. This section may be empty (just (A,)) or contain the definition of some attributes value (that you want to set be not use in the S filter definition). It is not recursive: the A only applies to the current component, not its parents or connected friends. If you want to also create these, just put an A section inside the P (or C) sub queries.
+The whole expression is used to create the instance: S, P and C. If P relations do not respect the constraints given in the component definition, a user error is raised.
+
+Please note that there are ways to complete the created components through conventions.
+
+.. warning:: adding an A section will slow down the query. Only put it if you want to create an instance.
+
+.. note:: there is no way to script (through MCL or otherwise) an instance update. It is only possible to query and create. Updates and deletes (actually, disabling and hiding to preserve history) are supposed to be exceptional and therefore manually done through the administration website.
