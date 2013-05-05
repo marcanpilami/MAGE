@@ -63,6 +63,9 @@ class MclEngine:
             for att in self_query:
                 attrname = prefix + att.attribute_name.replace('.', '__')
                 attrvalue = att.attribute_value
+                if '*' in attrvalue:
+                    attrname = "%s__contains" %attrname
+                    attrvalue = attrvalue.replace('*', '')
                 filters[attrname] = attrvalue
         
         return rs_l.filter(**filters)
@@ -172,10 +175,10 @@ class MclEngine:
         
         ## Done. This function does not return anything - it has created a component that will be retrieved by a query in __parseQuery
     
-    def get_components(self, mcl, allow_create=True):
+    def get_components(self, mcl, allow_create=True, force_type=None):
         try:  
             results = self.mcl_query.parseString(mcl)  
-            res = self.__parseQuery(results, allow_create=allow_create)
+            res = self.__parseQuery(results, allow_create=allow_create, force_type=force_type)
         except ParseException, e:
             raise MageMclSyntaxError(str(e))
         return res.distinct()

@@ -1,7 +1,7 @@
 MCL
 ############
 
-.. toctree::
+.. _mclquery:
 
 Introduction
 -----------------------

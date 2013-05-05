@@ -1,15 +1,10 @@
-'''
-Created on 23 mars 2013
-
-@author: Marc-Antoine
-'''
+# coding: utf-8
 
 import datetime
 
 from django.contrib.contenttypes.models import ContentType
 
-from ref.models import NamingConvention, NamingConventionField, ComponentInstance, \
-    NamingConventionCounter, ComponentImplementationClass, Environment
+from ref.models import Convention, ConventionField, ComponentInstance, ConventionCounter, ComponentImplementationClass, Environment
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from MAGE.exceptions import MageError
 from ref.mcl import parser
@@ -36,7 +31,7 @@ def nc_sync_naming_convention(nc, model_name_list=None):
                 field = field.field
             
             # No generic field
-            if fn in ('dependsOn', 'model', 'pedestals_ci2do', 'statues_ci2do', 'environments', 'configurations', 'subscribers', 'deleted', 'backupitem'):
+            if fn in ('dependsOn', 'model', 'pedestals_ci2do', 'statues_ci2do', 'environments', 'configurations', 'subscribers', 'deleted', 'backupitem', 'parameters'):
                 continue
             
             # Only true model fields
@@ -62,7 +57,7 @@ def nc_sync_naming_convention(nc, model_name_list=None):
             if fn == 'name' or fn.find('password') >= 0:
                 overwrite_copy = True
                 
-            ncf = NamingConventionField(model=ct.model, field=fn, pattern=None, pattern_type=ptype, convention_set=nc, overwrite_copy=overwrite_copy)
+            ncf = ConventionField(model=ct.model, field=fn, pattern=None, pattern_type=ptype, convention_set=nc, overwrite_copy=overwrite_copy)
             ncf.save()
             
         # Loop on dependsOn elements so as to create an empty convention for each
@@ -73,15 +68,15 @@ def nc_sync_naming_convention(nc, model_name_list=None):
             
             # Create the convention
             ptype = 'MCL0'
-            f_card = v.get('card') or 1
+            f_card = v.get('cardinality') or 1
             if f_card == 1:
                 ptype = 'MCL1'
                 
-            ncf = NamingConventionField(model=ct.model, field=k, pattern=None, pattern_type=ptype, convention_set=nc)
+            ncf = ConventionField(model=ct.model, field=k, pattern=None, pattern_type=ptype, convention_set=nc)
             ncf.save()
 
 def nc_create_naming_convention(convention_name):
-    nc = NamingConvention(name=convention_name)
+    nc = Convention(name=convention_name)
     nc.save()
     nc_sync_naming_convention(nc)
     return nc
@@ -143,6 +138,40 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%p%", "noproject")
         res = res.replace("%P%", "NOPROJECT")
     
+    ## CIC
+    if instance.instanciates is not None:
+        cic = instance.instanciates
+        res = res.replace("%ic1%", cic.ref1)
+        res = res.replace("%ic2%", cic.ref2)
+        res = res.replace("%ic3%", cic.ref3)
+        res = res.replace("%IC1%", cic.ref1.upper())
+        res = res.replace("%IC2%", cic.ref2.upper())
+        res = res.replace("%IC3%", cic.ref3.upper())
+    else:
+        res = res.replace("%ic1%", "nocic")
+        res = res.replace("%ic2%", "nocic")
+        res = res.replace("%ic3%", "nocic")
+        res = res.replace("%IC1%", "NOCIC")
+        res = res.replace("%IC2%", "NOCIC")
+        res = res.replace("%IC3%", "NOCIC")
+        
+    ## LC
+    if instance.instanciates is not None and instance.instanciates.implements is not None:
+        lc = instance.instanciates.implements
+        res = res.replace("%lc1%", lc.ref1)
+        res = res.replace("%lc2%", lc.ref2)
+        res = res.replace("%lc3%", lc.ref3)
+        res = res.replace("%LC1%", lc.ref1.upper())
+        res = res.replace("%LC2%", lc.ref2.upper())
+        res = res.replace("%LC3%", lc.ref3.upper())
+    else:
+        res = res.replace("%lc1%", "nolc")
+        res = res.replace("%lc2%", "nolc")
+        res = res.replace("%lc3%", "nolc")
+        res = res.replace("%LC1%", "NOLC")
+        res = res.replace("%LC2%", "NOLC")
+        res = res.replace("%LC3%", "NOLC")
+        
     ## Date (Japanese format)
     d = datetime.datetime.now().strftime('%Y%m%d')
     res = res.replace("%d%", d)
@@ -151,7 +180,7 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     if "%ce%" in res:
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        c = NamingConventionCounter.objects.get_or_create(scope_type="environment", scope_param_1=envt.id)[0]
+        c = ConventionCounter.objects.get_or_create(scope_type="environment", scope_param_1=envt.id)[0]
         c.val = c.val + 1    
         c.save()
         
@@ -160,14 +189,14 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     if "%cp%" in res:
         if envt is None or envt.project is None:
             raise MageError('a counter within a project scope can only be used if the instance is associated to an environment belonging to a project')
-        c = NamingConventionCounter.objects.get_or_create(scope_type="project", scope_param_1=envt.project_id)[0]
+        c = ConventionCounter.objects.get_or_create(scope_type="project", scope_param_1=envt.project_id)[0]
         c.val = c.val + 1    
         c.save()
         
         res = res.replace("%cp%", str(c.val))
         
     if "%cg%" in res:        
-        c = NamingConventionCounter.objects.get_or_create(scope_type="global", scope_param_1=None)[0]
+        c = ConventionCounter.objects.get_or_create(scope_type="global", scope_param_1=None)[0]
         c.val = c.val + 1    
         c.save()
         
@@ -176,10 +205,20 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     if "%cem%" in res:
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        c = NamingConventionCounter.objects.get_or_create(scope_type="environment_", scope_param_1=envt.id, scope_param_2=instance.model_id)[0]
+        c = ConventionCounter.objects.get_or_create(scope_type="environment_", scope_param_1=envt.id, scope_param_2=instance.model_id)[0]
         
         c.val = c.val + 1    
         c.save()
+        
+        res = res.replace("%cem%", str(c.val))
+        
+    if "%cemc%" in res: # current value
+        if envt is None:
+            raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
+        try:
+            c = ConventionCounter.objects.get(scope_type="environment_", scope_param_1=envt.id, scope_param_2=instance.model_id)[0]
+        except ConventionCounter.DoesNotExist:
+            raise MageError('counter does not exist yet - no current value!')
         
         res = res.replace("%cem%", str(c.val))
         
@@ -192,7 +231,7 @@ def __value_bool_field(nc, instance, pattern, envt=None):
     else:
         return True
 
-def __value_instance(nc, instance, envt_name=None, force=False, respect_overwrite=True, create_missing_links=True, force_envt=True):
+def __value_instance(nc, instance, envt_name=None, force=False, respect_overwrite=False, create_missing_links=True, force_envt=True):
     ## Environment: take parameter, or what is already defined in the instance, or nothing.
     e = None
     if envt_name is not None:
@@ -206,48 +245,55 @@ def __value_instance(nc, instance, envt_name=None, force=False, respect_overwrit
             
     ## CIC
     cic = nc.fields.filter(pattern__isnull=False, model=instance.model.model, pattern_type='CIC')
-    if cic.count() == 1 and (instance.instanciates is not None or force):
-        cic = ComponentImplementationClass.objects.get(name=cic)
+    if cic.count() == 1 and (instance.instanciates is None or force):
+        cic = ComponentImplementationClass.objects.get(name=cic[0].pattern)
         instance.instanciates = cic
     
     ## Basic fields: Patterns, TrueFalse
     for ncf in nc.fields.filter(pattern__isnull=False, model=instance.model.model, pattern_type='P'):
-        if instance.__dict__[ncf.field] is None or force:            
+        if instance.__dict__[ncf.field] is None or force or (respect_overwrite and ncf.overwrite_copy):            
             instance.__dict__[ncf.field] = __value_pattern_field(nc, instance, ncf.pattern, envt_name)
     
     for ncf in nc.fields.filter(pattern__isnull=False, model=instance.model.model, pattern_type='TF'):
-        if instance.__dict__[ncf.field] is None or force:            
+        if instance.__dict__[ncf.field] is None or force or (respect_overwrite and ncf.overwrite_copy):            
             instance.__dict__[ncf.field] = __value_bool_field(nc, instance, ncf.pattern, envt_name)
 
-    ## Relationships 1-1
-    for ncf in nc.fields.filter(pattern__isnull=False, model=instance.model.model, pattern_type='MCL1'):
-        r = parser.get_components(ncf.pattern)
-        if len(r) == 0:
-            if not create_missing_links:
-                raise MageError('the default query %s has not returned any result - one unique result is required' % ncf.pattern)
-            try:
-                ## Get class of the relationship
-                parents = instance.parents
-                type = None
-                if parents.has_key(ncf.field):
-                    type = parents[ncf.field]['model']
-                    type = ContentType.objects.get(model__iexact=type).model_class()
-                else:
-                    f = instance._meta.get_field_by_name(ncf.field)
-                    type = f.model
-                
-                ## Create empty instance and apply conventions
-                c = type()
-                nc.value_instance(c, envt_name, force, create_missing_links, False)
-                c.save()
-                
-            except Exception, e:
-                raise MageError('cannot create a component instance corresponding to query %s - error is %s' % (ncf.pattern, e))
-        if len(r) > 1:
-            raise MageError('the default query %s has returned more than one result - one unique result is required' % ncf.pattern)
+    ## Relationships 1..1 and 0..*
+    for ncf in nc.fields.filter(pattern__isnull=False, model=instance.model.model, pattern_type__in=('MCL1', 'MCL0')):
+        mcl = __value_pattern_field(nc, instance, ncf.pattern, envt_name)
         
-        r = r[0]
-        instance.__dict__[ncf.field] = r
+        if ncf.pattern_type == 'MCL1' and getattr(instance, ncf.field) is not None and not (force or (respect_overwrite and ncf.overwrite_copy)):
+            continue
+        if ncf.pattern_type == 'MCL0' and getattr(instance, ncf.field).count() > 0 and not (force or (respect_overwrite and ncf.overwrite_copy)):
+            continue
+        
+        # Get class of the relationship
+        parents = instance.parents
+        itype = None
+        if parents.has_key(ncf.field):
+            itype = parents[ncf.field]['model']
+            itype = ContentType.objects.get(model__iexact=itype).model_class()
+        else:
+            f = instance._meta.get_field_by_name(ncf.field)
+            itype = f.model
+
+        # Run query
+        r = parser.get_components(mcl, allow_create=create_missing_links, force_type=itype.__name__.lower())
+        
+        # Tests
+        if ncf.pattern_type == 'MCL1':
+            if len(r) == 0:
+                raise MageError('the default query %s has not returned any result - one unique result is required' % ncf.pattern)
+            if len(r) > 1:
+                raise MageError('the default query %s has returned more than one result - one unique result is required' % ncf.pattern)
+            
+        # Set result
+        if ncf.pattern_type == 'MCL1':
+            setattr(instance, ncf.field, r[0])
+        elif ncf.pattern_type == 'MCL0':
+            instance.__clearcustomlink__(ncf.field)
+            for c in r:
+                instance.__addtocustomlink__(c, None, ncf.field)
     
-NamingConvention.value_pattern_field = __value_pattern_field
-NamingConvention.value_instance = __value_instance
+Convention.value_pattern_field = __value_pattern_field
+Convention.value_instance = __value_instance

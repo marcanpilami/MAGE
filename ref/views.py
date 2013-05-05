@@ -1,15 +1,16 @@
 # coding: utf-8
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.contenttypes.models import ContentType
 from django import forms
 
+from MAGE.exceptions import MageCallerError
 from ref.csvi import get_components_csv
+from ref.creation import duplicate_envt
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
-from MAGE.exceptions import MageCallerError
 
 def csv(request, url_end):
     comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))    
@@ -80,3 +81,9 @@ def mcl_request(request, titles, mcl, format=None):
     
 def create_instance(request, instance_type, name):
     pass    
+
+
+def envt_duplicate(request, envt_name):
+    e = duplicate_envt(envt_name, "new_name", {})
+    
+    return redirect('admin:ref_environment_change', e.id)

@@ -3,7 +3,8 @@ Created on 6 mars 2013
 
 @author: Marc-Antoine
 '''
-from ref.naming import nc_create_naming_convention
+from ref.conventions import nc_create_naming_convention
+from ref.creation import duplicate_envt
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
@@ -14,7 +15,7 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
-from ref.models import ComponentInstance
+from ref.models import ComponentInstance, Convention
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
 from cpn.models import  OracleInstance, OracleSchema, WasCell, \
@@ -51,31 +52,33 @@ class TestHelper:
         
         self.ci_ora_1 = OracleSchema.objects.get(name='prd_int')
         
+        self.nc1 = Convention.objects.all()[0]
+        
 
 def utility_create_test_envt(i):
     a1 = Application(name='application %s' % i)
     a1.save()
     
-    l1 = LogicalComponent(name='RDBMS container for module 1', application=a1)
+    l1 = LogicalComponent(name='RDBMS container for module 1', description="description", application=a1, ref1='module1')
     l1.save()
-    l2 = LogicalComponent(name='RDBMS container for module 2', application=a1)
+    l2 = LogicalComponent(name='RDBMS container for module 2', description="description", application=a1, ref1='module2')
     l2.save()
-    l3 = LogicalComponent(name='EJB container for integration platform', application=a1, scm_trackable = False)
+    l3 = LogicalComponent(name='EJB container for integration platform', description="description", application=a1, scm_trackable=False)
     l3.save()
-    l4 = LogicalComponent(name='EJB container for user web apps', application=a1, scm_trackable = False)
+    l4 = LogicalComponent(name='EJB container for user web apps', description="description", application=a1, scm_trackable=False)
     l4.save()
-    l5 = LogicalComponent(name='Queuing broker cfg for integration platform', application=a1)
+    l5 = LogicalComponent(name='Queuing broker cfg for integration platform', description="description", application=a1)
     l5.save()
-    l6 = LogicalComponent(name='Queuing broker cfg for user web apps', application=a1)
+    l6 = LogicalComponent(name='Queuing broker cfg for user web apps', description="description", application=a1)
     l6.save()
-    l7 = LogicalComponent(name='integration application binaries (batch)', application=a1)
+    l7 = LogicalComponent(name='integration application binaries (batch)', description="description", application=a1)
     l7.save()
     
-    et1 = EnvironmentType(name='production', short_name='PRD', chronological_order = 5)
-    et2 = EnvironmentType(name='functional conformity', short_name='FCF', chronological_order = 4)
-    et3 = EnvironmentType(name='technical conformity', short_name='TCF', chronological_order = 2)
-    et4 = EnvironmentType(name='integration tests', short_name='INT', chronological_order = 3)
-    et5 = EnvironmentType(name='development', short_name='DEV', chronological_order = 1)
+    et1 = EnvironmentType(name='production', description="description", short_name='PRD', chronological_order=5)
+    et2 = EnvironmentType(name='functional conformity', description="description", short_name='FCF', chronological_order=4)
+    et3 = EnvironmentType(name='technical conformity', description="description", short_name='TCF', chronological_order=2)
+    et4 = EnvironmentType(name='integration tests', description="description", short_name='INT', chronological_order=3)
+    et5 = EnvironmentType(name='development', description="description", short_name='DEV', chronological_order=1)
     et1.save()
     et2.save()
     et3.save()
@@ -297,7 +300,8 @@ def utility_create_test_envt(i):
     tec2_os1.oracle_instance = oi1
     
     #### Naming conventions
-    nc_create_naming_convention('main NC')
+    nc1 = nc_create_naming_convention('main NC')
+    nc1.set_field('wasapplication', 'name', '%lc1%_%e')
     
     return a1
 
@@ -316,7 +320,7 @@ class SimpleTest(TestCase):
         Tests that it is possible to access the auto fields from an instance
         """
         i = OracleInstance(port=123, listener="LISTENER")
-        d = OsServer(name = 'test', os='AIX', admin_account_login='root', admin_account_password='password')
+        d = OsServer(name='test', os='AIX', admin_account_login='root', admin_account_password='password')
         i.save()
         d.save()
         
@@ -337,3 +341,22 @@ class SimpleTest(TestCase):
         
     def test_fullapp(self):
         utility_create_test_envt(1)
+        
+    def test_duplication_nc(self):
+        utility_create_test_envt(1)
+        
+        helper = TestHelper()
+        
+        e1 = helper.envt_prd1
+        e1.typology.default_convention = helper.nc1
+        wa1 = e1.component_instances.get(instanciates__implements__ref1="module1")
+        old_name = wa1.name
+        
+        e2 = duplicate_envt(e1.name, "RACCOON1", {})
+        wa1 = e1.component_instances.get(instanciates__implements__ref1="module1")
+        wa2 = e2.component_instances.get(instanciates__implements__ref1="module1")
+        
+        self.assert_("module1_raccoon1", wa2.name)
+        self.assert_(old_name, wa1.name)
+            
+

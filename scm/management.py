@@ -14,6 +14,8 @@ from django.contrib.auth.models import Group, User, Permission
 ## MAGE imports
 import models
 from scm.models import InstallationMethod
+from ref.models import Convention
+from ref.conventions import nc_sync_naming_convention
 
 def post_syncdb_handler(sender, **kwargs):
     ## Create DEV group & first user
@@ -28,7 +30,12 @@ def post_syncdb_handler(sender, **kwargs):
         
         dev.groups.add(devgroup)
         
-    #if not InstallationMethod.objects.exists()
+    ## Create default convention & update existing ones
+    if Convention.objects.count() == 0:
+        default = Convention(name = 'default convention')
+        default.save()
+    for c in Convention.objects.all():
+        nc_sync_naming_convention(c)
         
 
 ## Listen to the syncdb signal

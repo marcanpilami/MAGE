@@ -35,20 +35,24 @@ class Project(models.Model):
         and containing a description
     """
     name = models.CharField(max_length=100)
-    alternate_name_1 = models.CharField(max_length=100)
-    alternate_name_2 = models.CharField(max_length=100)
-    alternate_name_3 = models.CharField(max_length=100)
+    alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
+    alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
+    alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
+    default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_projects')
     
     class Meta:
         verbose_name = u'projet'
         verbose_name_plural = u'projets'
+        
+    def __unicode__(self):
+        return self.name
 
 class Application(models.Model):
     name = models.CharField(max_length=100)
-    alternate_name_1 = models.CharField(max_length=100)
-    alternate_name_2 = models.CharField(max_length=100)
-    alternate_name_3 = models.CharField(max_length=100)
+    alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
+    alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
+    alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
     project = models.ForeignKey(Project, null=True, blank=True)
     
@@ -61,10 +65,13 @@ class Application(models.Model):
 ################################################################################
     
 class LogicalComponent(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Nom')
+    name = models.CharField(max_length=100, verbose_name='nom')
     description = models.CharField(max_length=500)
     application = models.ForeignKey(Application)
     scm_trackable = models.BooleanField(default=True)
+    ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
+    ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
+    ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
     
     def __unicode__(self):
         return u'%s' % (self.name)
@@ -76,10 +83,14 @@ class LogicalComponent(models.Model):
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. Automatically created. """
     name = models.CharField(max_length=100, verbose_name='Nom')
+    
     description = models.CharField(max_length=500)
-    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name = u'élément logique implémenté')
+    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'élément logique implémenté')
     sla = models.ForeignKey(SLA, blank=True, null=True)
-    python_model_to_use = models.ForeignKey(ContentType, verbose_name = u'implémentation technique')
+    python_model_to_use = models.ForeignKey(ContentType, verbose_name=u'implémentation technique')
+    ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
+    ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
+    ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
     
     def __unicode__(self):
         return u'%s' % self.name
@@ -91,11 +102,16 @@ class ComponentImplementationClass(models.Model):
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
     name = models.CharField(max_length=100, verbose_name='Nom')
-    description = models.CharField(max_length=500, verbose_name='Nom')
-    short_name = models.CharField(max_length=10, verbose_name='Nom')
+    description = models.CharField(max_length=500, verbose_name='description')
+    short_name = models.CharField(max_length=10, verbose_name='code')
     sla = models.ForeignKey(SLA, blank=True, null=True)
     implementation_patterns = models.ManyToManyField(ComponentImplementationClass)
     chronological_order = models.IntegerField(default=1)
+    default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
+
+    def __get_cic_list(self):
+        return ','.join([ i.name for i in self.implementation_patterns.all()])
+    cic_list = property(__get_cic_list)
 
 
 ################################################################################
@@ -113,6 +129,7 @@ class Environment(models.Model):
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
     project = models.ForeignKey(Project, null=True, blank=True)
     typology = models.ForeignKey(EnvironmentType)
+    template_only = models.BooleanField(default=False)
     
     def __unicode__(self):
         return "%s" % (self.name,)
@@ -171,7 +188,7 @@ class ComponentInstance(models.Model):
     ## Base data for all components
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=u'nom ')
     instanciates = models.ForeignKey(ComponentImplementationClass, null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
-    deleted = models.BooleanField(default = False)
+    deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField()
     
     ## Environments
@@ -218,8 +235,11 @@ class ComponentInstance(models.Model):
             nc = CI2DO(pedestal=value, statue=self, rel_name=field_name)
             nc.save()
         elif len(c) == 1:
-            c[0].pedestal = value
-            c[0].save()
+            if value is None:
+                c[0].delete()
+            else:
+                c[0].pedestal = value
+                c[0].save()
         else:
             raise MageError('a field with cardinality 1 has more than one value')
     
@@ -236,12 +256,17 @@ class ComponentInstance(models.Model):
         f = self.pedestals_ci2do.filter(rel_name=field_name, pedestal_id=value.id) 
         for r in f:
             r.delete()
+    
+    def __clearcustomlink__(self, field_name):
+        f = self.pedestals_ci2do.filter(rel_name=field_name) 
+        for r in f:
+            r.delete()
             
     def check_relation_complete(self):
         """ returns a list of tuples containing errors (relation_name, cardinality, actual_length)"""
         res = []
-        for r,descr in self.parents.items():
-            real = self.pedestals_ci2do.filter(rel_name = r)
+        for r, descr in self.parents.items():
+            real = self.pedestals_ci2do.filter(rel_name=r)
             card = descr['cardinality']
             if card == 0:
                 continue # 0..n: whatever result is OK
@@ -330,19 +355,18 @@ class ExtendedParameter(models.Model):
     
     
 ################################################################################
-## Naming norms
+## Naming and linking norms
 ################################################################################ 
 
-class NamingConvention(models.Model):
+class Convention(models.Model):
     name = models.CharField(max_length=20)
-    applications = models.ManyToManyField(Application, verbose_name=u'used in')
     
     def __unicode__(self):
         return u'Norme %s' % self.name
     
     class Meta:
-        verbose_name = 'norme de nommage'
-        verbose_name_plural = 'normes de nommage'
+        verbose_name = 'norme'
+        verbose_name_plural = 'normes'
     
     def set_field(self, model_name, field_name, pattern):
         rel = self.fields.get(model=model_name, field=field_name)
@@ -350,33 +374,34 @@ class NamingConvention(models.Model):
         rel.save()
     
     # def value_field() # actually monkey patched from naming.py to avoid circular imports between mcl.py and models.py
-        
-          
     
-class NamingConventionField(models.Model):
+class ConventionField(models.Model):
     model = models.CharField(max_length=254, verbose_name=u'composant technique')
     field = models.CharField(max_length=254, verbose_name=u'champ')
-    pattern = models.CharField(max_length=1023, null=True, blank=True, verbose_name=u'norme de nommage') 
-    convention_set = models.ForeignKey(NamingConvention, related_name='fields') 
+    pattern = models.CharField(max_length=1023, null=True, blank=True, verbose_name=u'norme') 
+    convention_set = models.ForeignKey(Convention, related_name='fields') 
     pattern_type = models.CharField(max_length=4, choices=(('MCL1', 'MCL query with only one result'),
                                                                ('MCL0', 'MCL query with 0 to * results'),
                                                                ('P', 'simple pattern'),
                                                                ('CIC', 'implementation class name'),
                                                                ('TF', 'True ou False')))
-    overwrite_copy = models.BooleanField(default = False, verbose_name = u'prioritaire sur copie')
+    overwrite_copy = models.BooleanField(default=False, verbose_name=u'prioritaire sur copie')
     
     class Meta:
-        verbose_name = u'norme de nommage d\'un champ de composant'
-        verbose_name_plural = u'normes de nommage des champs des composants'
+        verbose_name = u'norme de remplissage d\'un champ de composant'
+        verbose_name_plural = u'normes de remplissage des champs des composants'
         
     def __unicode__(self):
         return u'%s.%s = %s' % (self.model, self.field, self.pattern)
 
-class NamingConventionCounter(models.Model):
+class ConventionCounter(models.Model):
     scope_type = models.CharField(max_length=50)
     scope_param_1 = models.CharField(max_length=50, blank=True, null=True, default=None)
     scope_param_2 = models.CharField(max_length=50, blank=True, null=True, default=None)
     val = models.IntegerField(default=0)
+    
+    class Meta:
+        verbose_name = u'Compteur'
     
 
 ################################################################################

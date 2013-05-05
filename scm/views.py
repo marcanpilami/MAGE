@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 import json
 from functools import cmp_to_key
 
-from ref.models import Environment, ComponentInstance, EnvironmentType, NamingConvention, Application, LogicalComponent
+from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent
 from cpn.tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
@@ -252,7 +252,7 @@ def demo(request):
         et.delete()
     for lc in LogicalComponent.objects.all():
         lc.delete()
-    for nc in NamingConvention.objects.all():
+    for nc in Convention.objects.all():
         nc.delete()
     for ap in Application.objects.all():
         ap.delete()

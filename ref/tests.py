@@ -6,13 +6,15 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from cpn.tests import utility_create_test_envt
+
+import conventions
 from ref.mcl import parser 
-from ref.models import ComponentInstance, Environment, Test1, EnvironmentType, \
-    Test2, Test3
-import naming
-from MAGE.exceptions import MageError
+from ref.models import ComponentInstance, Environment, Test1, EnvironmentType, Test2, Test3
+
+from cpn.tests import utility_create_test_envt
 from cpn.models import OracleInstance, OracleSchema
+
+from MAGE.exceptions import MageError
 from ref.exceptions import MageMclAttributeNameError
 
 class SimpleTest(TestCase):
@@ -95,7 +97,7 @@ class SimpleTest(TestCase):
         self.assertEqual(1, len(res))   
         self.assertEqual('t', res[0].name)
         
-    def test_mc_create(self):
+    def test_mcl_create(self):
         res = parser.get_components('((T,osserver)(S,name="test",os="Win2003")(A,admin_account_password="meuh"))')
         self.assertEqual(1, len(res))
         c = res[0]
@@ -204,13 +206,12 @@ class SimpleTest(TestCase):
         e2 = Environment(name='PRD2', typology=et1, description='production envt 2')
         e2.save()
         
-    
-        nc1 = naming.nc_create_naming_convention('genius convention')
+        nc1 = conventions.nc_create_naming_convention('genius convention')
         nb = nc1.fields.count()
         self.assertLess(10, nb)
         
         # A sync should not modify the convention
-        naming.nc_sync_naming_convention(nc1)
+        conventions.nc_sync_naming_convention(nc1)
         self.assertEqual(nb, nc1.fields.count())
         
         # Set a field
@@ -280,3 +281,43 @@ class SimpleTest(TestCase):
         self.assertEqual('TEST1_1', t3.name)
         nc1.value_instance(t3, force=True)
         self.assertEqual('TEST1_2', t3.name)
+        
+    def test_nc_rel(self):
+        et1 = EnvironmentType(name='production', short_name='PRD')
+        et1.save()
+        e1 = Environment(name='PRD1', typology=et1, description='production envt')
+        e1.save()
+        e2 = Environment(name='PRD2', typology=et1, description='production envt 2')
+        e2.save()
+        
+        nc1 = conventions.nc_create_naming_convention('genius convention')
+        
+        t1 = Test1(name="TEST1_456")
+        t1.save()
+        t1.environments.add(e1)
+        
+        t2 = Test2()
+        t2.save()
+        t2.environments.add(e1)
+        
+        ## Relationship with card 1
+        nc1.set_field('test2', 'daddy', '((T,test1)(S,name="TEST1_*"))')
+        nc1.value_instance(t2, force=True)
+        t2.save()
+        self.assertEqual('TEST1_456', t2.daddy.name)
+        
+        ## Without type
+        t2.daddy = None
+        t2.save()
+        nc1.set_field('test2', 'daddy', '((S,name="TEST1_*"))')
+        nc1.value_instance(t2, force=True)
+        t2.save()
+        self.assertEqual('TEST1_456', t2.daddy.name)
+        
+        ## M2M
+        t1_2 = Test1(name="TEST1_2")
+        t1_2.save()
+        t1_2.environments.add(e1)
+        nc1.set_field('test2', 'daddy', None)
+        nc1.set_field('test2', 'daddies', '()')
+        nc1.value_instance(t2, force=True)

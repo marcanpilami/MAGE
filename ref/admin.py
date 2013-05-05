@@ -3,9 +3,9 @@
 from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, NamingConvention, NamingConventionField, CI2DO, \
-    NamingConventionCounter, ExtendedParameter
-from ref.naming import nc_sync_naming_convention
+    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter,\
+    EnvironmentType
+from ref.conventions import nc_sync_naming_convention
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import Select
 from django.contrib.admin.sites import AdminSite
@@ -36,6 +36,13 @@ class EnvironmentAdmin(ModelAdmin):
 
 site.register(Environment, EnvironmentAdmin)
 
+class EnvironmentTypeAdmin(ModelAdmin):
+    list_display = ('name', 'short_name', 'description', 'cic_list')
+    ordering = ('chronological_order', 'name')
+    filter_horizontal = ('implementation_patterns',)
+
+site.register(EnvironmentType, EnvironmentTypeAdmin)
+
 
 ################################################################################
 ## CIC
@@ -58,8 +65,8 @@ site.register(ComponentImplementationClass, CICAdmin)
 ## Naming conventions
 ################################################################################
     
-class NamingConventionFieldInline(TabularInline):
-    model = NamingConventionField
+class ConventionFieldInline(TabularInline):
+    model = ConventionField
     extra = 0
     can_delete = False
     fields = ['model', 'field', 'pattern_type', 'overwrite_copy', 'pattern', ]
@@ -67,9 +74,9 @@ class NamingConventionFieldInline(TabularInline):
     ordering = ['model', 'field']
     template = 'admin/tabular_no_title.html'
 
-class NamingConventionAdmin(ModelAdmin):
-    fields = ['name', 'applications']
-    inlines = [NamingConventionFieldInline, ]
+class ConventionAdmin(ModelAdmin):
+    fields = ['name',]
+    inlines = [ConventionFieldInline, ]
     actions = ['make_refresh_nc', ]
     
     def make_refresh_nc(self, request, queryset):
@@ -78,9 +85,9 @@ class NamingConventionAdmin(ModelAdmin):
             self.message_user(request, "%s successfully refreshed." % nc.name)
     make_refresh_nc.short_description = u'actualiser les champs des modèles'
 
-site.register(NamingConvention, NamingConventionAdmin)
+site.register(Convention, ConventionAdmin)
 
-site.register(NamingConventionCounter)
+site.register(ConventionCounter)
 
 
 ################################################################################
