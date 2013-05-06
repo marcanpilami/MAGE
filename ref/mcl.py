@@ -3,7 +3,8 @@
 from pyparsing import Suppress, Optional, Token, Word, Or , alphanums , QuotedString , oneOf, OneOrMore, ZeroOrMore, delimitedList, Group, Forward, ParseException
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField, ForeignKey  
-from ref.models import ComponentInstance, CI2DO
+from ref.models import ComponentInstance, CI2DO, ComponentImplementationClass, \
+    Environment
 from MAGE.exceptions import MageError
 from ref.exceptions import MageMclAttributeNameError, MageMclSyntaxError
 
@@ -26,9 +27,10 @@ class MclEngine:
         # Self filters - (S,name="toto")
         self_query = Group(Suppress('(S,') + attribute_filter_list + Suppress(')'))('self_query')
         
-        # Self Type - (T,"modelname")
-        model_type = Word(alphanums)
-        type_query = Group(Suppress('(T,') + model_type + Suppress(')'))("type_query")
+        # Self Type - (T,"modelname"[,"cic"])
+        model_type = Word(alphanums + '_')
+        cic_name = Word(alphanums + '_')
+        type_query = Group(Suppress('(T,') + model_type + Optional(Suppress(',') + cic_name) + Suppress(')'))("type_query")
         
         # Related components connections - (P,(S,name="marsu",description="houba"))
         parent_query = Group(Suppress('(P,') + Optional(attribute_name + Suppress(',')) + mcl_query + Suppress(')'))('parent_query')
@@ -38,13 +40,18 @@ class MclEngine:
         # Add (A,key="value")
         addition_query = Group(Suppress('(A,') + Optional(attribute_filter_list) + Suppress(')'))('addition_query')
         
+        # Environment (E,envtname1,...)
+        envt_name = Word(alphanums + '_')
+        envt_list = delimitedList(envt_name)
+        envt_query = Group(Suppress('(E,') + envt_list + Suppress(')'))('envt_query')
+        
         ## All together... the MCL query!
-        mcl_query << Group(Suppress('(') + Optional(type_query) + Optional(self_query) + Optional(addition_query) + all_links_queries + Suppress(')'))('mcl')
+        mcl_query << Group(Suppress('(') + Optional(type_query) + Optional(self_query) + Optional(envt_query) + Optional(addition_query) + all_links_queries + Suppress(')'))('mcl')
     
         self.mcl_query = mcl_query
         
         
-    def __parseLevel0(self, type_name, self_query, prefix='', rs=None):
+    def __parseLevel0(self, type_name, self_query, prefix='', rs=None, cic=None):
         filters = {}
         if rs is None:
             rs_l = ComponentInstance.objects
@@ -58,13 +65,16 @@ class MclEngine:
             if rs is not None:
                 prefix = "%s%s__" % (prefix, type_name.lower())
             filters[prefix + 'model'] = t
-
+        
+        if cic:
+            filters[prefix + 'instanciates__name'] = cic
+            
         if self_query:
             for att in self_query:
                 attrname = prefix + att.attribute_name.replace('.', '__')
                 attrvalue = att.attribute_value
                 if '*' in attrvalue:
-                    attrname = "%s__contains" %attrname
+                    attrname = "%s__contains" % attrname
                     attrvalue = attrvalue.replace('*', '')
                 filters[attrname] = attrvalue
         
@@ -72,7 +82,7 @@ class MclEngine:
 
     
     def __parseQuery(self, tree, prefix="", rs=None, allow_create=False, force_type=None):                 
-        ## Use T and S      
+        ## Use T and S     
         if len(tree.mcl.type_query) > 0:
             type_name = tree.mcl.type_query[0]
         else:
@@ -86,7 +96,14 @@ class MclEngine:
         t_class = None
         if type_name:
             t_class = ContentType.objects.get(model=type_name.lower()).model_class()
-        rs = self.__parseLevel0(type_name, self_query, prefix=prefix, rs=rs)
+        cic = None
+        if len(tree.mcl.type_query) == 2:
+            cic = tree.mcl.type_query[1]
+        rs = self.__parseLevel0(type_name, self_query, prefix=prefix, rs=rs, cic=cic)
+        
+        ## Use E
+        for envt_name in tree.mcl.envt_query:
+            rs = rs.filter(environments__name=envt_name)
         
         ## Use P & C
         for pq in tree.mcl.all_links_queries:
@@ -115,12 +132,12 @@ class MclEngine:
             if self.__parseQuery(tree, prefix="", rs=None, allow_create=False).count() == 0:
                 if type_name is None:
                     raise MageMclSyntaxError('component instance should be created but type is not given')
-                self.__createFromQuery(tree, type_name)
+                self.__createFromQuery(tree, type_name, cic=cic)
         
         ## Done                    
         return rs
     
-    def __createFromQuery(self, tree, type_name):
+    def __createFromQuery(self, tree, type_name, cic=None):
         """ When this function is called, all relations are supposed to exist"""
         
         ## Create base element using T and S
@@ -133,6 +150,11 @@ class MclEngine:
                 attrname = att.attribute_name
                 attrvalue = att.attribute_value
                 all_fields[attrname] = attrvalue
+                
+        ## CIC
+        if cic:
+            cic = ComponentImplementationClass.objects.get(name=cic)
+            all_fields['instanciates'] = cic
         
         ## Add A fields - as long as this is not a link field...
         if tree.mcl.addition_query != "" and len(tree.mcl.addition_query) > 0:
@@ -149,6 +171,10 @@ class MclEngine:
         ## Create the base element
         res = t_class(**all_fields)
         res.save() # To enable M2M
+        
+        ## Use E
+        for envt_name in tree.mcl.envt_query:
+            res.environments.add(Environment.objects.get(name=envt_name))
         
         ## Add the relations
         for pq in tree.mcl.all_links_queries:

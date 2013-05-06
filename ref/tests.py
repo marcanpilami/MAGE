@@ -136,7 +136,28 @@ class SimpleTest(TestCase):
         self.assertEqual(2, OracleSchema.objects.all().count())
         self.assertEqual(2, OracleInstance.objects.all().count())
         
+    def test_mcl_with_cic(self):
+        utility_create_test_envt(1)
+        res = parser.get_components('((T,oracleschema)(S,environments.name="PRD1"))')
+        self.assertEqual(2, len(res))
         
+        res = parser.get_components('((T,oracleschema,oracle_module1)(S,environments.name="PRD1"))')
+        self.assertEqual(1, len(res))
+        
+        res = parser.get_components('((T,oracleschema,oracle_module1)(S,name="toto")(A,)(P,oracle_instance,((S,name="ORAINST1"))))')
+        self.assertEqual(1, len(res))
+        self.assertEqual("oracle_module1", res[0].instanciates.name)
+        
+    def test_mcl_with_envt(self):
+        utility_create_test_envt(1)
+        
+        res = parser.get_components('((T,oracleschema,oracle_module1)(E,PRD1))')
+        self.assertEqual(1, len(res))
+        
+        res = parser.get_components('((T,oracleschema,oracle_module1)(S,name="toto")(E,PRD1,DEV2)(A,)(P,oracle_instance,((S,name="ORAINST1"))))')
+        self.assertEqual(1, len(res))
+        self.assertEqual(2, res[0].environments.count())
+             
     def test_base(self):
         et1 = EnvironmentType(name='production', short_name='PRD')
         et1.save()

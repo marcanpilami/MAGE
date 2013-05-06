@@ -1,5 +1,6 @@
 # coding: utf-8
 from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter
+from ref.mcl import parser
 
 def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
     """ 
@@ -101,12 +102,7 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
         
         ###############################
         ## Convention
-        c = None
-        if envt.project and envt.project.default_convention:
-            c = envt.project.default_convention
-        if envt.typology and envt.typology.default_convention:
-            c = envt.typology.default_convention
-        
+        c = instance.default_convention
         if c is not None:
             c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
         
@@ -114,3 +110,14 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
         instance.save()
     
     return envt
+
+
+def create_instance(self, mcl, apply_convention = True, apply_convention_force = False):
+    instance = parser.get_components(mcl, True)[0]
+    
+    if apply_convention:
+        c= instance.default_convention
+        if c:
+            c.value_instance(instance, force = apply_convention_force)
+    
+    return instance

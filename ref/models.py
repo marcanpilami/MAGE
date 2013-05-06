@@ -81,11 +81,11 @@ class LogicalComponent(models.Model):
         verbose_name_plural = u'composants logiques'
     
 class ComponentImplementationClass(models.Model):
-    """ An implementation offer for a given service. Automatically created. """
+    """ An implementation offer for a given service. """
     name = models.CharField(max_length=100, verbose_name='Nom')
     
     description = models.CharField(max_length=500)
-    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'élément logique implémenté')
+    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'composant logique implémenté')
     sla = models.ForeignKey(SLA, blank=True, null=True)
     python_model_to_use = models.ForeignKey(ContentType, verbose_name=u'implémentation technique')
     ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)

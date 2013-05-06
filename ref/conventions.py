@@ -294,6 +294,20 @@ def __value_instance(nc, instance, envt_name=None, force=False, respect_overwrit
             instance.__clearcustomlink__(ncf.field)
             for c in r:
                 instance.__addtocustomlink__(c, None, ncf.field)
+
+def __get_default_convention(instance):
+    ## Note: EnvironmentType > Project 
+    c = None
+    for envt in instance.environments.all():
+        if envt.project and envt.project.default_convention:
+            c = envt.project.default_convention
+    
+    for envt in instance.environments.all():
+        if envt.typology and envt.typology.default_convention:
+            c = envt.typology.default_convention
+            
+    return c
     
 Convention.value_pattern_field = __value_pattern_field
 Convention.value_instance = __value_instance
+ComponentInstance.default_convention = __get_default_convention
