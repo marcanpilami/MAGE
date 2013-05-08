@@ -12,8 +12,7 @@
 import unicodedata
 
 # Django imports
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.context_processors import csrf
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django import forms
 from django.core.urlresolvers import reverse
@@ -37,11 +36,11 @@ def demo_pic(request):
 
 def filter_pic(request, nbParents, nbPartners, collapseThr): 
     dico = request.GET
-    filter = {}
+    cfilter = {}
 
     # Extract model filter from the url
     for fi in dico.keys():
-        filter[unicodedata.normalize('NFKD', fi).encode('ascii', 'ignore')] = [int(i) for i in dico[fi].split(',')]
+        cfilter[unicodedata.normalize('NFKD', fi).encode('ascii', 'ignore')] = [int(i) for i in dico[fi].split(',')]
     
     # Init the drawing context
     dc = DrawingContext()
@@ -50,7 +49,7 @@ def filter_pic(request, nbParents, nbPartners, collapseThr):
     dc.collapse_threshold = int(collapseThr)
     
     # Return the picture
-    return HttpResponse(getGraph(filter, context=dc), mimetype="image/png")
+    return HttpResponse(getGraph(cfilter, context=dc), mimetype="image/png")
 
 
 def envt_pic(request, envt_id):
@@ -59,20 +58,20 @@ def envt_pic(request, envt_id):
     dc.parentRecursionLevel = 0
     dc.patnersRecursionLevel = 5
     dc.collapse_threshold = 5
-    filter = {'environments__pk':envt_id}
+    cfilter = {'environments__pk':envt_id}
     
     # Return the picture
-    return HttpResponse(getGraph(filter, context=dc), mimetype="image/png")
+    return HttpResponse(getGraph(cfilter, context=dc), mimetype="image/png")
 
 class CartoForm(forms.Form):
     envts = forms.MultipleChoiceField(
-                    choices=[(e.pk, e.name) for e in Environment.objects.all()],
+                    choices=[(e.pk, e.name) for e in Environment.objects.all().order_by('typology__chronological_order', 'name')],
                     widget=forms.widgets.CheckboxSelectMultiple,
                     initial=[e.pk for e in Environment.objects.all()],
                     label=u'Environnements à afficher')
     
     models = forms.MultipleChoiceField(
-                    choices=[(m.pk, m.model_class()._meta.verbose_name) for m in list_component_models()],
+                    choices=[(m.pk, m.model_class()._meta.verbose_name_plural) for m in list_component_models()],
                     widget=forms.widgets.CheckboxSelectMultiple,
                     initial=[m.pk for m in list_component_models()],
                     label=u'Composants à afficher')
@@ -103,8 +102,8 @@ def view_carto(request):
         form = CartoForm(request.POST)      # A form bound to the POST data
         if form.is_valid():                 # All validation rules pass
             # Process the data in form.cleaned_data
-            filter = {}
-            filter['environments__pk__in'] = form.cleaned_data['envts']
+            cfilter = {}
+            cfilter['environments__pk__in'] = form.cleaned_data['envts']
             ad = reverse('gph:filter',
                          args=(str(form.cleaned_data['parentRecursion']),
                                str(form.cleaned_data['partnerRecursion']),

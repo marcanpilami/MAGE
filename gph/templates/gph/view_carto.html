@@ -3,23 +3,22 @@
 {% block maintitle %}Marsupilamographe{% endblock %}
 
 {% block content %}
-<table>
-	<tr>
-		<td>
-			<form action="{% url 'gph:main' %}" method="POST">
-				{{ form.as_p }}
-				<input type="submit" value="Mettre à jour">
-			</form>
-		</td>
-		<td>
-			<div>
-				{% if resultlink %}
-					<img src="{{ resultlink }}" title="Image résultat" width="100%">
-				{%else%}
-					<img src="{% url 'gph:full' %}" title="Image résultat" width="100%">
-				{% endif %}
-			</div>
-		</td>
-	</tr>
-</table>
+
+<div class='metContainer' style='width: auto;'>
+
+	<span style="width: 180px; min-width: 180px; display: table-cell; vertical-align: top;">
+		<form class='bulletLessList' action="{% url 'gph:main' %}" method="POST">
+			{{ form.as_p }}
+			<input type="submit" value="Mettre à jour">
+		</form>
+	</span>
+	
+	<span style="display: table-cell;">
+		{% if resultlink %}
+			<img src="{{ resultlink }}" title="Image résultat">
+		{% else %}
+			<img src="{% url 'gph:full' %}" title="Carte de tous les environnements">
+		{% endif %}
+	</span>
+</div>
 {% endblock content %}
