@@ -119,24 +119,7 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_MAGE_PATH, r'MAGE/templates/MAGE'),
 )
 
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.admin',
-    'django.contrib.admindocs',
-    
-    'ref', ## Keep REF first after django internals
-    'prm', ## Keep PRM second
-    'gph', ## Keep GPH third
-    'cpn', ## This can be removed - default/sample components
-           ## Put your specifics here
-    
-    'scm', ## Keep SCM last
-)
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -169,7 +152,27 @@ LOGGING = {
 
 LOGIN_URL='login' # named URL
 
+LOCAL_APPS=()
 try:
     from MAGE.local_settings import *
 except ImportError, e:
     pass
+
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    
+    'ref', ## Keep REF first after django internals
+    'prm', ## Keep PRM second
+    'gph', ## Keep GPH third
+    'cpn', ## This can be removed - default/sample components
+)
+
+INSTALLED_APPS += LOCAL_APPS
+INSTALLED_APPS += ('scm',) # SCM should always be last
