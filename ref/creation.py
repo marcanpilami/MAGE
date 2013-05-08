@@ -10,7 +10,7 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
     @param components_to_duplicate: list of components to duplicate; If the components are not in the source environement, it is ignored. If the list is empty, every component instance is copied.
     """
     envt = Environment.objects.get(name=envt_name)
-    old_envt = Environment.objects.get(name=envt_name)
+    #old_envt = Environment.objects.get(name=envt_name)
     
     if components_to_duplicate is None or len(components_to_duplicate) == 0:
         components_to_duplicate = envt.component_instances.all()
@@ -112,12 +112,13 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
     return envt
 
 
-def create_instance(self, mcl, apply_convention = True, apply_convention_force = False):
-    instance = parser.get_components(mcl, True)[0]
+def create_instance(mcl, apply_convention=True, apply_convention_force=False):
+    instances = parser.get_components(mcl, allow_create=True)
     
     if apply_convention:
-        c= instance.default_convention
-        if c:
-            c.value_instance(instance, force = apply_convention_force)
+        for instance in instances:
+            c = instance.default_convention
+            if c:
+                c.value_instance(instance, force=apply_convention_force)
     
-    return instance
+    return instances

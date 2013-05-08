@@ -7,7 +7,7 @@ from django import forms
 
 from MAGE.exceptions import MageCallerError
 from ref.csvi import get_components_csv
-from ref.creation import duplicate_envt
+from ref.creation import duplicate_envt, create_instance
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
@@ -67,7 +67,7 @@ def mcl_tester(request):
     return render(request, 'ref/mcltester.html', {'form': form, 'base': base, 'error': error})
 
 
-def mcl_request(request, titles, mcl, format=None):
+def mcl_query(request, mcl, titles = '1'):
     res = parser.get_components(mcl)
     if titles == '1':
         titles = True
@@ -79,9 +79,19 @@ def mcl_request(request, titles, mcl, format=None):
     return response
     
     
-def create_instance(request, instance_type, name):
-    pass    
+def mcl_create(request, mcl, use_convention = '1'):
+    if use_convention == '1':
+        use_convention = True
+    else:
+        use_convention = False
+    res = create_instance(mcl, use_convention)
+    
+    response = HttpResponse(content_type='text/csv')
+    get_components_csv(res, True, response, displayRestricted=(request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance')))
+    return response
 
+def mcl_create_without_convention(request, mcl):
+    return mcl_create(request, mcl, '0')
 
 def envt_duplicate(request, envt_name):
     e = duplicate_envt(envt_name, "new_name", {})

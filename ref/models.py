@@ -347,6 +347,12 @@ class ExtendedParameterDict(DictMixin):
     def __delitem__(self, key):
         ep = self.__getitem__(key)
         ep.delete()
+        
+    def keys(self):
+        return self.instance.parameters.values_list('key')
+    
+    def values(self):
+        return self.instance.parameters.values_list('value')
 
 class ExtendedParameter(models.Model):
     key = models.CharField(max_length=50)

@@ -310,4 +310,4 @@ def __get_default_convention(instance):
     
 Convention.value_pattern_field = __value_pattern_field
 Convention.value_instance = __value_instance
-ComponentInstance.default_convention = __get_default_convention
+ComponentInstance.default_convention = property(__get_default_convention)
