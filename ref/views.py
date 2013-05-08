@@ -1,8 +1,12 @@
 # coding: utf-8
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import PermissionDenied
+from django.db.models.fields.related import ManyToManyField, ForeignKey
+from django.shortcuts import render, redirect
+
 from django import forms
 
 from MAGE.exceptions import MageCallerError
@@ -11,7 +15,8 @@ from ref.creation import duplicate_envt, create_instance
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
-from django.db.models.fields.related import ManyToManyField, ForeignKey
+
+
 
 def csv(request, url_end):
     comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))    
@@ -79,7 +84,7 @@ def model_detail(request):
             f = {'code': fi, 'target': descr.get('model'), 'verbose_name': 'depends on', 'default': None, 'card': descr.get('cardinality') or 1, 'mcl_compat': 'rel'}
             d['fields'].append(f)
             
-    return render(request, 'ref/model_details.html', {'res' : sorted(  res.iteritems(), key= lambda (k, v) :  v['id']['name']) })
+    return render(request, 'ref/model_details.html', {'res' : sorted(res.iteritems(), key=lambda (k, v) :  v['id']['name']) })
 
 
 class MclTesterForm(forms.Form):
@@ -134,3 +139,18 @@ def envt_duplicate(request, envt_name):
     e = duplicate_envt(envt_name, "new_name", {})
     
     return redirect('admin:ref_environment_change', e.id)
+
+def urls(request):
+    return render(request, 'ref/urls.html')
+
+def script_login(request, username, password):
+    user = authenticate(username=username, password=password)
+    if user is not None and user.is_active:
+        login(request, user)
+        return HttpResponse("<html><body>User authenticated</body></html>")
+    else:
+        raise PermissionDenied # will return a 403 (HTTP forbidden) 
+    
+def script_logout(request):
+    logout(request)
+    return HttpResponse("<html><body>User logged out</body></html>")

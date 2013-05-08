@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block pagetitle %}API web{% endblock %}
+{% block maintitle %}URL utiles pour les scripts{% endblock %}
+
+
+{% block content %}
+Unless stated otherwise, use GET for all calls. MAGE is always case sensitive (both in URL and arguments).
+<br/>
+<br/>
+Login (sets 'sessionid' in cookie): {% url 'script_login' "USERNAME" "PASSWORD" %}<br/>
+Logout: {% url 'script_logout' %}<br/>
+<br/>
+MCL query (query only) - CSV file : {% url 'ref:mcl_query' "MCL_QUERY" %}<br/>
+MCL get or create if not exists - CSV file : {% url 'ref:mcl_create_cv' "MCL_QUERY" %}<br/>
+MCL get or create if not exists without applying conventions - CSV file : {% url 'ref:mcl_create_nocv' "MCL_QUERY" %}<br/>
+<br/>
+Duplicate environment : {% url 'ref:envt_duplicate' "ENVIRONMENT_NAME" %}<br/>
+<br/>
+Full PNG of all environments: {% url 'gph:full' %}<br/>
+<br/>
+Validate patchset: {% url 'scm:delivery_validate' 123456789 %}<br/>
+Register new default backupset: {% url 'scm:backup_envt' "ENVIRONMENT_NAME" %}<br/>
+{% endblock content %}
+

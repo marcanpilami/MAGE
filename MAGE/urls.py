@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     
     # Login & co
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
+    url(r'^accounts/scriptlogin/(?P<username>.*)/(?P<password>.*)$', 'ref.views.script_login', name='script_login'),
+    url(r'^accounts/scriptlogout$', 'ref.views.script_logout', name='script_logout'),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
     url(r'^.*/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}), # including admin logout
     
