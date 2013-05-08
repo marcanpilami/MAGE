@@ -3,7 +3,7 @@
 from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
 
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter,\
+    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter, \
     EnvironmentType
 from ref.conventions import nc_sync_naming_convention
 from django.contrib.contenttypes.models import ContentType
@@ -30,9 +30,11 @@ site.register(LogicalComponent)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
-    fields = ['name', 'description', 'destructionDate', ]
-    list_display = ('name', 'description',)
+    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active',]
+    list_display = ('name', 'description','template_only')
     ordering = ('name',)
+    readonly_fields=('buildDate',)
+    list_filter = ['template_only', ]
 
 site.register(Environment, EnvironmentAdmin)
 
@@ -75,7 +77,7 @@ class ConventionFieldInline(TabularInline):
     template = 'admin/tabular_no_title.html'
 
 class ConventionAdmin(ModelAdmin):
-    fields = ['name',]
+    fields = ['name', ]
     inlines = [ConventionFieldInline, ]
     actions = ['make_refresh_nc', ]
     

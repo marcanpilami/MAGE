@@ -12,8 +12,9 @@ urlpatterns = patterns('',
     url(r'csv/(?P<url_end>[\d,]*)$', views.csv, name='csv'),
     
     url(r'envt$', views.envts, name='envts'),
+    url(r'templates$', views.templates, name='templates'),
     url(r'envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
-    url(r'envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate, name='envt_duplicate'),
+    url(r'envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
     
     url(r'type$', views.model_types, name='types'),
     url(r'types_details$', views.model_detail, name='types_details'),
@@ -25,3 +26,4 @@ urlpatterns = patterns('',
     
     url(r'urls', views.urls, name='urls'),
 )
+

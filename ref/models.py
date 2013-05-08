@@ -49,12 +49,12 @@ class Project(models.Model):
         return self.name
 
 class Application(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
-    project = models.ForeignKey(Project, null=True, blank=True)
+    project = models.ForeignKey(Project, null=True, blank=True, related_name='applications')
     
     def __unicode__(self):
         return self.name
@@ -114,12 +114,19 @@ class EnvironmentType(models.Model):
     def __get_cic_list(self):
         return ','.join([ i.name for i in self.implementation_patterns.all()])
     cic_list = property(__get_cic_list)
+    
+    def __unicode__(self):
+        return self.name
 
 
 ################################################################################
 ## Main notion: the environment
 ################################################################################
 
+class EnvironmentManagerStd(models.Manager):
+    def get_query_set(self):
+        return super(EnvironmentManagerStd, self).get_query_set().filter(template_only = False, active = True)
+    
 class Environment(models.Model):
     """ 
         A set of components forms an environment
@@ -136,6 +143,9 @@ class Environment(models.Model):
     
     def __unicode__(self):
         return "%s" % (self.name,)
+    
+    objects = models.Manager()
+    objects_active = EnvironmentManagerStd()
     
     class Meta:
         verbose_name = 'environnement'

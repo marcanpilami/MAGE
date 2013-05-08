@@ -41,7 +41,10 @@ def welcome(request):
 
 
 def envts(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects.all().order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
+    return render(request, 'ref/envts.html', {'envts': Environment.objects_active.all().order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
+
+def templates(request):
+    return render(request, 'ref/envts.html', {'envts': Environment.objects.filter(template_only = True).order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def envt(request, envt_id):
     envt = Environment.objects.get(pk=envt_id)
@@ -154,3 +157,19 @@ def script_login(request, username, password):
 def script_logout(request):
     logout(request)
     return HttpResponse("<html><body>User logged out</body></html>")
+
+class DuplicateForm(forms.Form):
+    new_name = forms.CharField(max_length=20)
+    
+def envt_duplicate_name(request, envt_name):
+    e = Environment.objects.get(name = envt_name)
+    
+    if request.method == 'POST': # If the form has been submitted...
+        form = DuplicateForm(request.POST) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            e1 = duplicate_envt(envt_name, form.cleaned_data['new_name'], {})
+            return redirect('admin:ref_environment_change', e1.id)
+    else:
+        form = DuplicateForm() # An unbound form
+
+    return render(request, 'ref/envt_duplicate.html', {'form': form, 'envt': e})

@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 import json
 from functools import cmp_to_key
 
-from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent
+from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent,\
+    Project, ConventionCounter
 from cpn.tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
@@ -235,9 +236,8 @@ def backup_envt_manual(request, envt_name):
         f = BackupForm(envt = e)
     
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
-    
-@transaction.commit_on_success
-def demo(request):
+
+def reset():
     for ta in Tag.objects.all():
         ta.delete()
     for bi in BackupItem.objects.all():
@@ -258,8 +258,17 @@ def demo(request):
         lc.delete()
     for nc in Convention.objects.all():
         nc.delete()
+    for cc in ConventionCounter.objects.all():
+        cc.delete()
     for ap in Application.objects.all():
         ap.delete()
+    for pr in Project.objects.all():
+        pr.delete()
+    
+@transaction.commit_on_success
+def demo_internal(request):
+    reset()
+    
     is_list = create_test_is()
     default = Convention(name = 'default convention')
     default.save()
@@ -278,3 +287,20 @@ def demo(request):
     
     return HttpResponseRedirect(reverse('welcome'))
     
+@transaction.commit_on_success
+def demo(request):
+    reset()
+    default = Convention(name = 'default convention')
+    default.save()
+    nc_sync_naming_convention(default)
+    
+    from MAGE.settings import INSTALLED_APPS
+    for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
+        try:
+            demo_data = getattr(__import__(app + '.models', fromlist=['demo_data']), 'demo_data')
+        except:
+            continue
+        
+        demo_data()
+        
+    return HttpResponseRedirect(reverse('welcome'))

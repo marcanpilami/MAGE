@@ -80,12 +80,12 @@ class DrawingContext(MageDC):
 ## Functions to build the graphs
 ####################################################################################
 
-def getGraph(django_filters={}, filename=None, context=None):
+def getGraph(django_filters={}, filename=None, context=None, django_filter_unnamed = ()):
     """
         draws (or stores) a map of all components and of their interactions
     """
     dc = context or DrawingContext()
-    dc.components = ComponentInstance.objects.select_related().filter(**django_filters)
+    dc.components = ComponentInstance.objects.select_related().filter(*django_filter_unnamed, **django_filters)
     dc.set_simplify(True)
     dc.set_bgcolor('#1F0068')
     

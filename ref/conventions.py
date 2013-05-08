@@ -108,12 +108,12 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     ## Application
     if instance.instanciates is not None:
         trg = instance.instanciates.implements.application
-        res = res.replace("%a1%", trg.alternate_name_1.lower())
-        res = res.replace("%A1%", trg.alternate_name_1.upper())
-        res = res.replace("%a2%", trg.alternate_name_2.lower())
-        res = res.replace("%A2%", trg.alternate_name_2.upper())
-        res = res.replace("%a3%", trg.alternate_name_3.lower())
-        res = res.replace("%A3%", trg.alternate_name_3.upper())
+        res = res.replace("%a1%", trg.alternate_name_1.lower() if trg.alternate_name_1 else 'noname')
+        res = res.replace("%A1%", trg.alternate_name_1.upper() if trg.alternate_name_1 else 'NONAME')
+        res = res.replace("%a2%", trg.alternate_name_2.lower() if trg.alternate_name_2 else 'noname')
+        res = res.replace("%A2%", trg.alternate_name_2.upper() if trg.alternate_name_2 else 'NONAME')
+        res = res.replace("%a3%", trg.alternate_name_3.lower() if trg.alternate_name_3 else 'noname')
+        res = res.replace("%A3%", trg.alternate_name_3.upper() if trg.alternate_name_3 else 'NONAME')
         res = res.replace("%a%", trg.name.lower())
         res = res.replace("%A%", trg.name.upper())
     else:
@@ -127,14 +127,17 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%A", "NOAPPLICATION")
     
     ## Project
-    if instance.instanciates is not None and instance.instanciates.implements.application.project is not None:
-        trg = instance.instanciates.implements.application.project
-        res = res.replace("%p1%", trg.alternate_name_1.lower())
-        res = res.replace("%P1%", trg.alternate_name_1.upper())
-        res = res.replace("%p2%", trg.alternate_name_2.lower())
-        res = res.replace("%P2%", trg.alternate_name_2.upper())
-        res = res.replace("%p3%", trg.alternate_name_3.lower())
-        res = res.replace("%P3%", trg.alternate_name_3.upper())
+    if (instance.instanciates is not None and instance.instanciates.implements.application.project is not None) or (instance.environments.filter(project__isnull=False).count() > 0):
+        if instance.instanciates is not None and instance.instanciates.implements.application.project is not None:
+            trg = instance.instanciates.implements.application.project
+        else:
+            trg = instance.environments.filter(project__isnull=False).all()[0].project
+        res = res.replace("%p1%", trg.alternate_name_1.lower() if trg.alternate_name_1 else 'noname')
+        res = res.replace("%P1%", trg.alternate_name_1.upper() if trg.alternate_name_1 else 'NONAME')
+        res = res.replace("%p2%", trg.alternate_name_2.lower() if trg.alternate_name_2 else 'noname')
+        res = res.replace("%P2%", trg.alternate_name_2.upper() if trg.alternate_name_2 else 'NONAME')
+        res = res.replace("%p3%", trg.alternate_name_3.lower() if trg.alternate_name_3 else 'noname')
+        res = res.replace("%P3%", trg.alternate_name_3.upper() if trg.alternate_name_3 else 'NONAME')
         res = res.replace("%p%", trg.name.lower())
         res = res.replace("%P%", trg.name.upper())
     else:
@@ -150,12 +153,12 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     ## CIC
     if instance.instanciates is not None:
         cic = instance.instanciates
-        res = res.replace("%ic1%", cic.ref1)
-        res = res.replace("%ic2%", cic.ref2)
-        res = res.replace("%ic3%", cic.ref3)
-        res = res.replace("%IC1%", cic.ref1.upper())
-        res = res.replace("%IC2%", cic.ref2.upper())
-        res = res.replace("%IC3%", cic.ref3.upper())
+        res = res.replace("%ic1%", cic.ref1 or 'noname')
+        res = res.replace("%ic2%", cic.ref2 or 'noname')
+        res = res.replace("%ic3%", cic.ref3 or 'noname')
+        res = res.replace("%IC1%", cic.ref1.upper() if cic.ref1 else 'NONAME')
+        res = res.replace("%IC2%", cic.ref2.upper() if cic.ref2 else 'NONAME')
+        res = res.replace("%IC3%", cic.ref3.upper() if cic.ref3 else 'NONAME')
     else:
         res = res.replace("%ic1%", "nocic")
         res = res.replace("%ic2%", "nocic")
@@ -167,12 +170,12 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
     ## LC
     if instance.instanciates is not None and instance.instanciates.implements is not None:
         lc = instance.instanciates.implements
-        res = res.replace("%lc1%", lc.ref1)
-        res = res.replace("%lc2%", lc.ref2)
-        res = res.replace("%lc3%", lc.ref3)
-        res = res.replace("%LC1%", lc.ref1.upper())
-        res = res.replace("%LC2%", lc.ref2.upper())
-        res = res.replace("%LC3%", lc.ref3.upper())
+        res = res.replace("%lc1%", lc.ref1 or 'noname')
+        res = res.replace("%lc2%", lc.ref2 or 'noname')
+        res = res.replace("%lc3%", lc.ref3 or 'noname')
+        res = res.replace("%LC1%", lc.ref1.upper() if lc.ref1 else 'NONAME')
+        res = res.replace("%LC2%", lc.ref2.upper() if lc.ref2 else 'NONAME')
+        res = res.replace("%LC3%", lc.ref3.upper() if lc.ref3 else 'NONAME')
     else:
         res = res.replace("%lc1%", "nolc")
         res = res.replace("%lc2%", "nolc")
@@ -308,11 +311,11 @@ def __get_default_convention(instance):
     ## Note: EnvironmentType > Project 
     c = None
     for envt in instance.environments.all():
-        if envt.project and envt.project.default_convention:
+        if envt.project is not None and envt.project.default_convention is not None:
             c = envt.project.default_convention
     
     for envt in instance.environments.all():
-        if envt.typology and envt.typology.default_convention:
+        if envt.typology is not None and envt.typology.default_convention is not None:
             c = envt.typology.default_convention
             
     return c

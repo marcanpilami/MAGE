@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django import forms
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 # MAGE imports
 from graphs_mlg import getGraph, DrawingContext
@@ -25,7 +26,9 @@ from cpn.tests import utility_create_test_envt
 
 def full_pic(request):
     """Carte de l'ensemble des composants référencés"""
-    return HttpResponse(getGraph(), mimetype="image/png")
+    cfilter = {'environments__template_only':False}
+    uFilter = (Q(environments__isnull=True) | Q(environments__template_only=False),)
+    return HttpResponse(getGraph(django_filter_unnamed=uFilter), mimetype="image/png")
 
 def demo_pic(request):
     """Carte de l'ensemble de composants test"""
@@ -67,7 +70,7 @@ class CartoForm(forms.Form):
     envts = forms.MultipleChoiceField(
                     choices=[(e.pk, e.name) for e in Environment.objects.all().order_by('typology__chronological_order', 'name')],
                     widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[e.pk for e in Environment.objects.all()],
+                    initial=[e.pk for e in Environment.objects.filter(template_only=False)],
                     label=u'Environnements à afficher')
     
     models = forms.MultipleChoiceField(

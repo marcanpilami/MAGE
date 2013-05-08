@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block pagetitle %}Duplication{% endblock %}
+{% block maintitle %}Duplication de l'environnement {{envt.name}}{% endblock %}
+
+
+{% block content %}
+
+<form  method="post">
+
+	{{form.as_p}}
+	<input type="submit" value="Submit" />
+</form>
+
+{% endblock content %}
+

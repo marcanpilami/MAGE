@@ -20,6 +20,8 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
     ## Duplicate the envt
     envt.id = None
     envt.name = new_name
+    envt.template_only = False
+    envt.description = "copied from environment %s (%s)" %(envt_name, envt.description)
     envt.save()
     
     ## Duplicate the instances
@@ -105,6 +107,7 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
         c = instance.default_convention
         if c is not None:
             c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
+            print instance.name
         
         ###############################
         instance.save()
