@@ -11,6 +11,7 @@ from ref.mcl import parser
 from django.forms.fields import BooleanField
 
 def nc_sync_naming_convention(nc, model_name_list=None):
+    defaults = __get_app_default()
     cts = None
     if model_name_list is None or len(model_name_list) == 0:
         cts = ContentType.objects.all()
@@ -56,8 +57,12 @@ def nc_sync_naming_convention(nc, model_name_list=None):
             overwrite_copy = False
             if fn == 'name' or fn.find('password') >= 0:
                 overwrite_copy = True
+            
+            default = None
+            if defaults.has_key(ct.model) and defaults[ct.model].has_key(fn):
+                default = defaults[ct.model][fn]
                 
-            ncf = ConventionField(model=ct.model, field=fn, pattern=None, pattern_type=ptype, convention_set=nc, overwrite_copy=overwrite_copy)
+            ncf = ConventionField(model=ct.model, field=fn, pattern=default, pattern_type=ptype, convention_set=nc, overwrite_copy=overwrite_copy)
             ncf.save()
             
         # Loop on dependsOn elements so as to create an empty convention for each
@@ -71,8 +76,12 @@ def nc_sync_naming_convention(nc, model_name_list=None):
             f_card = v.get('cardinality') or 1
             if f_card == 1:
                 ptype = 'MCL1'
+
+            default = None
+            if defaults.has_key(ct.model) and defaults[ct.model].has_key(k):
+                default = defaults[ct.model][k]
                 
-            ncf = ConventionField(model=ct.model, field=k, pattern=None, pattern_type=ptype, convention_set=nc)
+            ncf = ConventionField(model=ct.model, field=k, pattern=default, pattern_type=ptype, convention_set=nc)
             ncf.save()
 
 def nc_create_naming_convention(convention_name):
@@ -307,6 +316,22 @@ def __get_default_convention(instance):
             c = envt.typology.default_convention
             
     return c
+
+def __get_app_default():
+    res = {}
+    tmp = {}
+    from MAGE.settings import INSTALLED_APPS
+    for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
+        try:
+            tmp = getattr(__import__(app + '.models', fromlist=['convention']), 'convention')
+        except:
+            continue
+        for key, values in tmp.items():
+            if res.has_key(key):
+                res[key].update(values)
+            else:
+                res[key] = values
+    return res
     
 Convention.value_pattern_field = __value_pattern_field
 Convention.value_instance = __value_instance

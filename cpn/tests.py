@@ -1,9 +1,5 @@
-'''
-Created on 6 mars 2013
+# coding: utf-8
 
-@author: Marc-Antoine
-'''
-from ref.conventions import nc_create_naming_convention
 from ref.creation import duplicate_envt
 """
 This file demonstrates writing tests using the unittest module. These will pass
@@ -51,8 +47,6 @@ class TestHelper:
         self.cic_mqc_usr_wmq = ComponentImplementationClass.objects.get(name="mq_usr")
         
         self.ci_ora_1 = OracleSchema.objects.get(name='prd_int')
-        
-        self.nc1 = Convention.objects.all()[0]
         
 
 def utility_create_test_envt(i):
@@ -299,10 +293,6 @@ def utility_create_test_envt(i):
     tec2_os1.environments.add(e5)
     tec2_os1.oracle_instance = oi1
     
-    #### Naming conventions
-    nc1 = nc_create_naming_convention('main NC')
-    nc1.set_field('wasapplication', 'name', '%lc1%_%e')
-    
     return a1
 
 
@@ -348,7 +338,7 @@ class SimpleTest(TestCase):
         helper = TestHelper()
         
         e1 = helper.envt_prd1
-        e1.typology.default_convention = helper.nc1
+        e1.typology.default_convention = Convention.objects.all()[0]
         wa1 = e1.component_instances.get(instanciates__implements__ref1="module1")
         old_name = wa1.name
         

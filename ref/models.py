@@ -69,6 +69,7 @@ class LogicalComponent(models.Model):
     description = models.CharField(max_length=500)
     application = models.ForeignKey(Application)
     scm_trackable = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, verbose_name=u'utilisé')
     ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
     ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
@@ -91,6 +92,7 @@ class ComponentImplementationClass(models.Model):
     ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
     ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
+    active = models.BooleanField(default=True, verbose_name=u'utilisé')
     
     def __unicode__(self):
         return u'%s' % self.name
@@ -124,12 +126,13 @@ class Environment(models.Model):
     """
     name = models.CharField(max_length=100, verbose_name='Nom')
     buildDate = models.DateField(verbose_name=u'Date de création', auto_now_add=True)
-    destructionDate = models.DateField(verbose_name=u'Date de suppression', null=True, blank=True)
+    destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
     project = models.ForeignKey(Project, null=True, blank=True)
     typology = models.ForeignKey(EnvironmentType)
     template_only = models.BooleanField(default=False)
+    active = models.BooleanField(default=True, verbose_name=u'utilisé')
     
     def __unicode__(self):
         return "%s" % (self.name,)

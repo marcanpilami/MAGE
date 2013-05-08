@@ -24,6 +24,7 @@ from scm.tests import create_test_is
 from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
+from ref.conventions import nc_sync_naming_convention
 
 
 def envts(request):
@@ -260,6 +261,9 @@ def demo(request):
     for ap in Application.objects.all():
         ap.delete()
     is_list = create_test_is()
+    default = Convention(name = 'default convention')
+    default.save()
+    nc_sync_naming_convention(default)
     
     ref = TestHelper()
     install_iset_envt(is_list[0], ref.envt_prd1)
