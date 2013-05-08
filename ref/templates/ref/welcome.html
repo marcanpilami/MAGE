@@ -19,7 +19,7 @@
 	<a class='metSquare' style='background: #D24726;' href="{% url 'scm:lc_installs_envts' %}">Parcours des versions entre environnements</a>
 	<a class='metSquare' style='background: #AD103C;' href="{% url 'scm:deliveries' %}">Liste des livraisons disponibles à l'installation</a>
 	<a class='metSquare' style='background: #7F6E94;' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
-	<a class='metSquare' style='background: #1B58B8;' href="{% url 'scm:tag_list' %}">Tags des environnements</a>
+	<a class='metSquare' style='background: #004D60;' href="{% url 'scm:tag_list' %}">Tags des environnements</a>
 	<a class='metSquare' style='background: #1B58B8;' href="{% url 'scm:backup_list' %}">Sauvegardes des environnements</a>
 </div>
 <div class='column'>
@@ -32,5 +32,6 @@
 	<div class='t2'>Aides scripting</div>
 	<a class='metSquare' style='background: #423173;' href="{% url 'ref:types' %}">Types de composants installés</a>
 	<a class='metSquare' style='background: #D24726;' href="{% url 'ref:mcltester' %}">Requête MCL et référence MCL</a>
+	<a class='metSquare' style='background: #D39D09;' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
 </div>
 {% endblock content %}

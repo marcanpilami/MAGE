@@ -11,6 +11,7 @@ from ref.creation import duplicate_envt, create_instance
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
+from django.db.models.fields.related import ManyToManyField, ForeignKey
 
 def csv(request, url_end):
     comps = ComponentInstance.objects.filter(pk__in=url_end.split(','))    
@@ -42,13 +43,49 @@ def envt(request, envt_id):
     return render(request, 'ref/envt.html', {'envt': envt, })
 
 def model_types(request):
+    
     return render(request, 'ref/model_types.html', {'models' :  [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']})
+
+def model_detail(request):
+    res = {}
+    for ct in [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']:
+        model = ct.model_class()
+        res[model] = {}
+        d = res[model]
+        
+        d['id'] = {'name': model.__name__, 'code':ct.model, 'verbose_name': model._meta.verbose_name}
+    
+        d['fields'] = []
+        
+        for fi in model._meta.fields:
+            if fi.attname in ('instanciates_id', 'deleted', 'include_in_envt_backup', 'model_id', 'componentinstance_ptr_id'):
+                continue
+            
+            f = {'code': fi.attname, 'verbose_name':fi.verbose_name, 'default':fi.default if fi.has_default() else None, 'null': fi.null, 'unique': fi.unique}
+            
+            if f.has_key('rel') and f.rel:
+                f['target'] = f.related.model
+            
+            if isinstance(fi, ForeignKey) or isinstance(fi, ManyToManyField):
+                f['mcl_compat'] = 'no'
+            elif fi.model == ComponentInstance:
+                f['mcl_compat'] = 'base'
+            else:
+                f['mcl_compat'] = 'cast'
+                
+            d['fields'].append(f)
+                
+        for fi, descr in model.parents.items():
+            f = {'code': fi, 'target': descr.get('model'), 'verbose_name': 'depends on', 'default': None, 'card': descr.get('cardinality') or 1, 'mcl_compat': 'rel'}
+            d['fields'].append(f)
+            
+    return render(request, 'ref/model_details.html', {'res' : sorted(  res.iteritems(), key= lambda (k, v) :  v['id']['name']) })
 
 
 class MclTesterForm(forms.Form):
     mcl = forms.CharField(max_length=300, initial='()', label='Requête MCL', widget=forms.TextInput(
                  attrs={'size':'200', 'class':'inputText'}))   
-    allow_creation = forms.BooleanField(initial = False, required=False)
+    allow_creation = forms.BooleanField(initial=False, required=False)
 
 def mcl_tester(request):
     base = request.build_absolute_uri('/')[:-1]
@@ -67,7 +104,7 @@ def mcl_tester(request):
     return render(request, 'ref/mcltester.html', {'form': form, 'base': base, 'error': error})
 
 
-def mcl_query(request, mcl, titles = '1'):
+def mcl_query(request, mcl, titles='1'):
     res = parser.get_components(mcl)
     if titles == '1':
         titles = True
@@ -79,7 +116,7 @@ def mcl_query(request, mcl, titles = '1'):
     return response
     
     
-def mcl_create(request, mcl, use_convention = '1'):
+def mcl_create(request, mcl, use_convention='1'):
     if use_convention == '1':
         use_convention = True
     else:

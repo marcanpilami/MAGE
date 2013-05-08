@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block pagetitle %}Types{% endblock %}
+{% block maintitle %}Types installés{% endblock %}
+
+{% block content %}
+
+<table class='metContainer visibleTable'>
+	<thead>
+		<tr style='text-align: left; padding: 30px;'><th></th><th>Champ</th><th>Description</th><th>Défaut</th><th>Nullable</th><th>Unique</th><th>Cardinalité</th><th>Type lié</th><th>Compatibilité MCL</th></tr>
+	</thead>
+{% for model, md in res %}
+	<tr>
+		<td style='padding: 10px;' rowspan='{{md.fields|length|add:"1"}}'><a id='{{md.id.name}}' style='text-decoration: none;'>{{md.id.name}}</a> <div class='annotation'>{{md.id.code}}<br/>{{md.id.verbose_name}}</div></td>
+	</tr>
+	
+	{% for f in md.fields %}
+		<tr><td>{{f.code}}</td><td>{{f.verbose_name}}</td>
+		<td>{% if f.default %} {{f.default}} {% endif %}</td>
+		<td>{{f.null}}</td><td>{{f.unique}}</td><td>{{f.card}}</td>
+		<td>{% if f.target %} <a href='#{{f.target}}'>{{f.target}}</a>{%endif%}</td>
+		<td>{{f.mcl_compat}}</td></tr>
+	{% endfor %}
+
+{% endfor %}
+</table>
+{% endblock content %}
