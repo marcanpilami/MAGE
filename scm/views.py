@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 import json
 from functools import cmp_to_key
 
-from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent,\
+from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent, \
     Project, ConventionCounter
 from cpn.tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
@@ -29,7 +29,7 @@ from ref.conventions import nc_sync_naming_convention
 
 
 def envts(request):
-    envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
+    envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
         annotate(configuration_modification_count=Count('component_instances__configurations')).\
         order_by('typology')
     return render(request, 'scm/envts.html', {'envts': envts, })
@@ -40,10 +40,10 @@ def all_installs(request, envt_name, limit=15):
     dlimit = datetime.now() - timedelta(days=limit)
     installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
     # logical_components = envt.component_instances.all().instanciates.implements;
-    logical_components = LogicalComponent.objects.filter(implemented_by__instances__environments=envt)
+    logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt)
     
     versions = {}
-    for compo in envt.component_instances.filter(instanciates__isnull=False):
+    for compo in envt.component_instances.filter(instanciates__isnull=False, instanciates__implements__scm_trackable = True):
         lc = logical_components.get(id=compo.instanciates.implements_id)
         versions[lc] = compo.version
         
@@ -83,7 +83,7 @@ def delivery_apply_envt(request, delivery_id, envt_id):
 
 def lc_versions_per_environment(request):
     Installation.objects.filter()
-    envts = Environment.objects.all().order_by('typology__chronological_order', 'name')
+    envts = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
     res = {}
     for lc in LogicalComponent.objects.filter(scm_trackable=True):
         lc_list = []
@@ -214,7 +214,7 @@ def backup_list(request):
     return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True)})
 
 def backup_detail(request, bck_id):
-    return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk = bck_id)})
+    return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
 
 @permission_required('scm.add_backupset')
 def backup_envt(request, envt_name):
@@ -223,17 +223,17 @@ def backup_envt(request, envt_name):
 
 @permission_required('scm.add_backupset')
 def backup_envt_manual(request, envt_name):
-    e = Environment.objects.get(name = envt_name)
+    e = Environment.objects.get(name=envt_name)
     
     if request.method == 'POST':  # If the form has been submitted...
-        f = BackupForm(request.POST, envt = e)
+        f = BackupForm(request.POST, envt=e)
         
         if f.is_valid():
-            instances = ComponentInstance.objects.filter(pk__in = f.cleaned_data['instances'])
-            bs = register_backup(e, f.cleaned_data['date'], "MANUAL - %s" %f.cleaned_data['description'], *instances)
+            instances = ComponentInstance.objects.filter(pk__in=f.cleaned_data['instances'])
+            bs = register_backup(e, f.cleaned_data['date'], "MANUAL - %s" % f.cleaned_data['description'], *instances)
             return redirect('scm:backup_detail', bck_id=bs.id)
     else:
-        f = BackupForm(envt = e)
+        f = BackupForm(envt=e)
     
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
 
@@ -270,7 +270,7 @@ def demo_internal(request):
     reset()
     
     is_list = create_test_is()
-    default = Convention(name = 'default convention')
+    default = Convention(name='default convention')
     default.save()
     nc_sync_naming_convention(default)
     
@@ -290,7 +290,7 @@ def demo_internal(request):
 @transaction.commit_on_success
 def demo(request):
     reset()
-    default = Convention(name = 'default convention')
+    default = Convention(name='default convention')
     default.save()
     nc_sync_naming_convention(default)
     
