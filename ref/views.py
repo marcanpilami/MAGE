@@ -15,6 +15,8 @@ from ref.creation import duplicate_envt, create_instance
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
+from ref.forms import DuplicateForm, DuplicateFormRelInline
+from django.forms.formsets import formset_factory
 
 
 
@@ -44,7 +46,7 @@ def envts(request):
     return render(request, 'ref/envts.html', {'envts': Environment.objects_active.all().order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def templates(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects.filter(template_only = True).order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
+    return render(request, 'ref/envts.html', {'envts': Environment.objects.filter(template_only=True).order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def envt(request, envt_id):
     envt = Environment.objects.get(pk=envt_id)
@@ -157,19 +159,35 @@ def script_login(request, username, password):
 def script_logout(request):
     logout(request)
     return HttpResponse("<html><body>User logged out</body></html>")
-
-class DuplicateForm(forms.Form):
-    new_name = forms.CharField(max_length=20)
     
 def envt_duplicate_name(request, envt_name):
-    e = Environment.objects.get(name = envt_name)
+    e = Environment.objects.get(name=envt_name)
+    FS = formset_factory(DuplicateFormRelInline, extra=0)
     
     if request.method == 'POST': # If the form has been submitted...
-        form = DuplicateForm(request.POST) # A form bound to the POST data
-        if form.is_valid(): # All validation rules pass
-            e1 = duplicate_envt(envt_name, form.cleaned_data['new_name'], {})
+        form = DuplicateForm(request.POST, envt=e) # A form bound to the POST data
+        fs = FS(request.POST)
+        
+        if form.is_valid() and fs.is_valid(): # All validation rules pass
+            remaps = {}
+            for f in fs.cleaned_data:
+                if f['new_target']:
+                    remaps[f['old_target'].id] = f['new_target'].id
+            e1 = duplicate_envt(envt_name, form.cleaned_data['new_name'], remaps, *ComponentInstance.objects.filter(pk__in = form.cleaned_data['instances_to_copy']))
             return redirect('admin:ref_environment_change', e1.id)
     else:
-        form = DuplicateForm() # An unbound form
+        form = DuplicateForm(envt=e) # An unbound form
+        
+        ## Create a formset for each external relation
+        internal_pks = [i.pk for i in e.component_instances.all()]
+        ext = {}
+        initial_rel = []
+        for cpn in e.component_instances.all():
+            for rel in cpn.connectedTo.all() | cpn.dependsOn.all():
+                if not rel.id in internal_pks:
+                    ext[rel] = None
+        for rel in ext.keys():
+            initial_rel .append({'old_target':rel, 'new_target': None})
+        fs = FS(initial=initial_rel)
 
-    return render(request, 'ref/envt_duplicate.html', {'form': form, 'envt': e})
+    return render(request, 'ref/envt_duplicate.html', {'form': form, 'envt': e, 'fs': fs})

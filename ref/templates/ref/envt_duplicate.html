@@ -1,14 +1,45 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% block pagetitle %}Duplication{% endblock %}
 {% block maintitle %}Duplication de l'environnement {{envt.name}}{% endblock %}
 
 
+{% block scripts %}
+<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#remap select[id$=old_target]').clone().appendTo('#hidden');
+	$('#remap select[id$=old_target]').attr('disabled', 'disabled'); });
+</script>
+{% endblock %}
+
+
 {% block content %}
-
-<form  method="post">
-
-	{{form.as_p}}
-	<input type="submit" value="Submit" />
+<form class='metContainer bulletLessList'  method="post">
+	<div class='column'>
+		<div class='t2'>Nouveau nom</div>
+		{{form.new_name}}{{form.new_name.errors}}
+		<br/><br/>
+		<input type="submit" value="Submit" />
+	</div>
+	<div class='column'>
+		<span class='t2'>composants à copier</span>
+		{{form.instances_to_copy}}
+		
+	</div>
+	<div id='remap' class='column' style='width: auto; max-width: none;'>
+		<span class='t2'>Remapping optionnel</span>
+		
+		{{ fs.management_form }}
+		{% for f in fs %}	
+			<div>
+				{{ f.id }}
+				Remap {{ f.old_target }} to {{f.new_target}}
+			</div>
+		{% endfor %}
+	</div>
+	
+	<div id='hidden' style='display: none;'></div>
 </form>
 
 {% endblock content %}

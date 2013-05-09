@@ -1,5 +1,6 @@
 # coding: utf-8
-from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter
+from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter,\
+    EnvironmentType
 from ref.mcl import parser
 
 def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
@@ -22,6 +23,11 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     envt.name = new_name
     envt.template_only = False
     envt.description = "copied from environment %s (%s)" % (envt_name, envt.description)
+    
+    ## Try to find the ET
+    for et in EnvironmentType.objects.all():
+        if et.short_name in new_name:
+            envt.typology = et
     envt.save()
     
     ## Duplicate the instances
