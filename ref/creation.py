@@ -2,7 +2,7 @@
 from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter
 from ref.mcl import parser
 
-def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
+def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     """ 
     @param envt_name: the name of the environment to duplicate
     @param new_name: name of the new environment. Must not already exist.
@@ -21,7 +21,7 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
     envt.id = None
     envt.name = new_name
     envt.template_only = False
-    envt.description = "copied from environment %s (%s)" %(envt_name, envt.description)
+    envt.description = "copied from environment %s (%s)" % (envt_name, envt.description)
     envt.save()
     
     ## Duplicate the instances
@@ -62,9 +62,10 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
                 ## This is an external mapping.
                 if ci2do.pedestal.id in remaps.keys():
                     ## Remap was asked.
-                    remapped_pedestal = ComponentInstance.objects.get(pk=remaps[ci2do.pedestal.id])
-                    c = CI2DO(statue=instance, pedestal=remapped_pedestal, rel_name=ci2do.rel_name)
-                    c.save()
+                    if remaps[ci2do.pedestal.id]: # None is valid - it means the connection should be discarded
+                        remapped_pedestal = ComponentInstance.objects.get(pk=remaps[ci2do.pedestal.id])
+                        c = CI2DO(statue=instance, pedestal=remapped_pedestal, rel_name=ci2do.rel_name)
+                        c.save()
                 else:
                     ## Keep the template relationship
                     c = CI2DO(statue=instance, pedestal=ci2do.pedestal, rel_name=ci2do.rel_name)
@@ -95,7 +96,8 @@ def duplicate_envt(envt_name, new_name, remaps, *components_to_duplicate):
                     pass # see reverse relation
             else:
                 if cnx.id in remaps.keys():
-                    instance.connectedTo.add(ComponentInstance.objects.get(pk=remaps[cnx.id]))
+                    if remaps[cnx.id]: # None is valid - it means the connection should be discarded
+                        instance.connectedTo.add(ComponentInstance.objects.get(pk=remaps[cnx.id])) 
                 else:
                     instance.connectedTo.add(cnx)
         

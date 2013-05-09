@@ -22,7 +22,6 @@ class OsServer(ComponentInstance):
 
 
 class OsAccount(ComponentInstance):
-    login = models.CharField(max_length=100, verbose_name=u'login')
     password = models.CharField(max_length=100, verbose_name=u'mot de passe', null=True, blank=True)
     public_key = models.CharField(max_length=2048, null=True, blank=True)
     private_key = models.CharField(max_length=2048, null=True, blank=True)
@@ -30,6 +29,9 @@ class OsAccount(ComponentInstance):
     restricted_fields = ('password', 'private_key',)
     parents = {'server': {'model': 'OsServer', 'cardinality': 1}}
     include_in_default_envt_backup = False
+    
+    def __unicode__(self):
+        return "%s on %s" %(self.name, self.server.name if self.server else 'no server')
 
 
 ######################################################

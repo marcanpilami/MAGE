@@ -101,30 +101,40 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
             envt = Environment.objects.get(name=envt)
         res = res.replace("%e%", envt.name.lower())
         res = res.replace("%E%", envt.name.upper())
+        res = res.replace("%E~%", envt.name.capitalize())
     else:
         res = res.replace("%e%", "noenvironment")
         res = res.replace("%E%", "NOENVIRONMENT")
+        res = res.replace("%E~%", "NoEnvironment")
     
     ## Application
     if instance.instanciates is not None:
         trg = instance.instanciates.implements.application
         res = res.replace("%a1%", trg.alternate_name_1.lower() if trg.alternate_name_1 else 'noname')
         res = res.replace("%A1%", trg.alternate_name_1.upper() if trg.alternate_name_1 else 'NONAME')
+        res = res.replace("%A1~%", trg.alternate_name_1.capitalize() if trg.alternate_name_1 else 'NoName')
         res = res.replace("%a2%", trg.alternate_name_2.lower() if trg.alternate_name_2 else 'noname')
         res = res.replace("%A2%", trg.alternate_name_2.upper() if trg.alternate_name_2 else 'NONAME')
+        res = res.replace("%A2~%", trg.alternate_name_2.capitalize() if trg.alternate_name_2 else 'NoName')
         res = res.replace("%a3%", trg.alternate_name_3.lower() if trg.alternate_name_3 else 'noname')
         res = res.replace("%A3%", trg.alternate_name_3.upper() if trg.alternate_name_3 else 'NONAME')
+        res = res.replace("%A3~%", trg.alternate_name_3.capitalize() if trg.alternate_name_3 else 'NoName')
         res = res.replace("%a%", trg.name.lower())
         res = res.replace("%A%", trg.name.upper())
+        res = res.replace("%A~%", trg.name.capitalize())
     else:
         res = res.replace("%a1%", "noapplication")
         res = res.replace("%A1%", "NOAPPLICATION")
+        res = res.replace("%A1~%", "NoApplication")
         res = res.replace("%a2%", "noapplication")
         res = res.replace("%A2%", "NOAPPLICATION")
+        res = res.replace("%A2~%", "NoApplication")
         res = res.replace("%a3%", "noapplication")
         res = res.replace("%A3%", "NOAPPLICATION")
+        res = res.replace("%A3~%", "NoApplication")
         res = res.replace("%a", "noapplication")
         res = res.replace("%A", "NOAPPLICATION")
+        res = res.replace("%A~%", "NoApplication")
     
     ## Project
     if (instance.instanciates is not None and instance.instanciates.implements.application.project is not None) or (instance.environments.filter(project__isnull=False).count() > 0):
@@ -134,19 +144,26 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
             trg = instance.environments.filter(project__isnull=False).all()[0].project
         res = res.replace("%p1%", trg.alternate_name_1.lower() if trg.alternate_name_1 else 'noname')
         res = res.replace("%P1%", trg.alternate_name_1.upper() if trg.alternate_name_1 else 'NONAME')
+        res = res.replace("%P1~%", trg.alternate_name_1.capitalize() if trg.alternate_name_1 else 'NoName')
         res = res.replace("%p2%", trg.alternate_name_2.lower() if trg.alternate_name_2 else 'noname')
         res = res.replace("%P2%", trg.alternate_name_2.upper() if trg.alternate_name_2 else 'NONAME')
+        res = res.replace("%P2~%", trg.alternate_name_2.capitalize() if trg.alternate_name_2 else 'NoName')
         res = res.replace("%p3%", trg.alternate_name_3.lower() if trg.alternate_name_3 else 'noname')
         res = res.replace("%P3%", trg.alternate_name_3.upper() if trg.alternate_name_3 else 'NONAME')
+        res = res.replace("%P3~%", trg.alternate_name_3.capitalize() if trg.alternate_name_3 else 'NoName')
         res = res.replace("%p%", trg.name.lower())
         res = res.replace("%P%", trg.name.upper())
+        res = res.replace("%P~%", trg.name.capitalize())
     else:
         res = res.replace("%p1%", "noproject")
         res = res.replace("%P1%", "NOPROJECT")
+        res = res.replace("%P1~%", "NoProject")
         res = res.replace("%p2%", "noproject")
         res = res.replace("%P2%", "NOPROJECT")
+        res = res.replace("%P2~%", "NoProject")
         res = res.replace("%p3%", "noproject")
         res = res.replace("%P3%", "NOPROJECT")
+        res = res.replace("%P3~%", "NoProject")
         res = res.replace("%p%", "noproject")
         res = res.replace("%P%", "NOPROJECT")
     
@@ -159,6 +176,9 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%IC1%", cic.ref1.upper() if cic.ref1 else 'NONAME')
         res = res.replace("%IC2%", cic.ref2.upper() if cic.ref2 else 'NONAME')
         res = res.replace("%IC3%", cic.ref3.upper() if cic.ref3 else 'NONAME')
+        res = res.replace("%IC1~%", cic.ref1.capitalize() if cic.ref1 else 'NoName')
+        res = res.replace("%IC2~%", cic.ref2.capitalize() if cic.ref2 else 'NoName')
+        res = res.replace("%IC3~%", cic.ref3.capitalize() if cic.ref3 else 'NoName')
     else:
         res = res.replace("%ic1%", "nocic")
         res = res.replace("%ic2%", "nocic")
@@ -166,6 +186,9 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%IC1%", "NOCIC")
         res = res.replace("%IC2%", "NOCIC")
         res = res.replace("%IC3%", "NOCIC")
+        res = res.replace("%IC1~%", "NoCic")
+        res = res.replace("%IC2~%", "NoCic")
+        res = res.replace("%IC3~%", "NoCic")
         
     ## LC
     if instance.instanciates is not None and instance.instanciates.implements is not None:
@@ -176,6 +199,9 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%LC1%", lc.ref1.upper() if lc.ref1 else 'NONAME')
         res = res.replace("%LC2%", lc.ref2.upper() if lc.ref2 else 'NONAME')
         res = res.replace("%LC3%", lc.ref3.upper() if lc.ref3 else 'NONAME')
+        res = res.replace("%LC1~%", lc.ref1.capitalize() if lc.ref1 else 'NoName')
+        res = res.replace("%LC2~%", lc.ref2.capitalize() if lc.ref2 else 'NoName')
+        res = res.replace("%LC3~%", lc.ref3.capitalize() if lc.ref3 else 'NoName')
     else:
         res = res.replace("%lc1%", "nolc")
         res = res.replace("%lc2%", "nolc")
@@ -183,56 +209,52 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%LC1%", "NOLC")
         res = res.replace("%LC2%", "NOLC")
         res = res.replace("%LC3%", "NOLC")
+        res = res.replace("%LC1~%", "NoLc")
+        res = res.replace("%LC2~%", "NoLc")
+        res = res.replace("%LC3~%", "NoLc")
         
     ## Date (Japanese format)
     d = datetime.datetime.now().strftime('%Y%m%d')
     res = res.replace("%d%", d)
     
     ## Counter
-    if "%ce%" in res:
+    if "%ce%" in res or '%ce~%' in res:
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
         c = ConventionCounter.objects.get_or_create(scope_type="environment", scope_param_1=envt.id)[0]
-        c.val = c.val + 1    
+        if "%ce%" in res:
+            c.val = c.val + 1    
         c.save()
-        
         res = res.replace("%ce%", str(c.val))
+        res = res.replace("%ce~%", str(c.val))
     
-    if "%cp%" in res:
+    if "%cp%" in res or "%cp~%" in res:
         if envt is None or envt.project is None:
             raise MageError('a counter within a project scope can only be used if the instance is associated to an environment belonging to a project')
         c = ConventionCounter.objects.get_or_create(scope_type="project", scope_param_1=envt.project_id)[0]
-        c.val = c.val + 1    
+        if "%cp%" in res:
+            c.val = c.val + 1    
         c.save()
-        
         res = res.replace("%cp%", str(c.val))
+        res = res.replace("%cp~%", str(c.val))
         
-    if "%cg%" in res:        
+    if "%cg%" in res or "%cg~%" in res:        
         c = ConventionCounter.objects.get_or_create(scope_type="global", scope_param_1=None)[0]
-        c.val = c.val + 1    
+        if "%cg%" in res:
+            c.val = c.val + 1    
         c.save()
-        
         res = res.replace("%cg%", str(c.val))
+        res = res.replace("%cg~%", str(c.val))
         
-    if "%cem%" in res:
+    if "%cem%" in res or "%cem~%" in res:
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
         c = ConventionCounter.objects.get_or_create(scope_type="environment_", scope_param_1=envt.id, scope_param_2=instance.model_id)[0]
-        
-        c.val = c.val + 1    
-        c.save()
-        
+        if "%cem%" in res:
+            c.val = c.val + 1  
+        c.save()        
         res = res.replace("%cem%", str(c.val))
-        
-    if "%cemc%" in res: # current value
-        if envt is None:
-            raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        try:
-            c = ConventionCounter.objects.get(scope_type="environment_", scope_param_1=envt.id, scope_param_2=instance.model_id)[0]
-        except ConventionCounter.DoesNotExist:
-            raise MageError('counter does not exist yet - no current value!')
-        
-        res = res.replace("%cem%", str(c.val))
+        res = res.replace("%cem~%", str(c.val))
         
     ## Done
     return res
@@ -339,3 +361,4 @@ def __get_app_default():
 Convention.value_pattern_field = __value_pattern_field
 Convention.value_instance = __value_instance
 ComponentInstance.default_convention = property(__get_default_convention)
+
