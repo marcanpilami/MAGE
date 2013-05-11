@@ -38,7 +38,7 @@ class InstallableSet(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
     
-    def check_prerequisites(self, envt_name, ii_selection = ()):
+    def check_prerequisites(self, envt_name, ii_selection=()):
         failures = []
         for ii in self.set_content.all():
             try:
@@ -152,6 +152,7 @@ class InstallationMethod(models.Model):
     halts_service = models.BooleanField(default=True, verbose_name=u'arrêt de service')
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods', verbose_name=u'permet d\'installer')
     available = models.BooleanField(default=True, verbose_name=u'disponible')
+    restoration_only = models.BooleanField(default=False, verbose_name=u'opération purement de restauration')
     
     def __unicode__(self):
         a = ""
@@ -310,7 +311,7 @@ class BackupRestoreMethod(models.Model):
 @receiver(post_save, sender=ComponentImplementationClass)
 def create_brm(sender, instance, **kwargs):
     cic = instance
-    im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True,)
+    im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True, restoration_only=True)
     if created:
         im.save()
         im.method_compatible_with.add(instance)

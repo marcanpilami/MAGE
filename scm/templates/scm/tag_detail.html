@@ -2,6 +2,10 @@
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Tag {{tag.name}}{% endblock %}
 
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:tag_list' %}" title="Liste des tags">↑</a>
+{%endblock%}
+
 {% block content %}
 
 <div class='metContainer metSection' style='background-color: #B01E00;'>

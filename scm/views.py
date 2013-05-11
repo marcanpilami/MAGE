@@ -130,21 +130,21 @@ def delivery_edit(request, iset_id=None):
         lc_im[lc.id] = r
     
     ## Bind form
-    if request.method == 'POST':  # If the form has been submitted...
-        form = DeliveryForm(request.POST)  # A form bound to the POST data
-        iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
+    if request.method == 'POST':
+        form = DeliveryForm(request.POST, instance=instance)  # A form bound to the POST data
+        iiformset = InstallableItemFormSet(request.POST, prefix='iis', instance=form.instance)
         
         if form.is_valid() and iiformset.is_valid():  # All validation rules pass
             instance = form.save()
         
-            iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
+            iiformset = InstallableItemFormSet(request.POST, prefix='iis', instance=instance)
             if iiformset.is_valid():
                 iiformset.save()
                 
-                # # Done
+                ## Done
                 return redirect('scm:delivery_edit_dep', iset_id=instance.id)
     else:
-        form = DeliveryForm(instance=instance)  # An unbound form
+        form = DeliveryForm(instance=instance)
         iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
 
     return render(request, 'scm/delivery_edit.html', {

@@ -26,7 +26,7 @@ $(document).ready(function()
 		var select = $(this).parent().parent().parent().find('select[id$=how_to_install]')
 		var selected = $(this).val();
 
-		// If no value selected, no IS available!
+		// If no value selected, no IM available!
 		if (!selected)
 		{
 			select.empty();
@@ -50,5 +50,26 @@ $(document).ready(function()
 			}
 		}
 	});
-	$('#iisf select[id$=how_to_install]').empty();
+
+	// Installation Method init
+	$('#iisf select[id$=how_to_install]').each(function()
+	{
+		var t = $(this)
+		var selected = t.children('option:selected');
+		var arr = [];
+		selected.each(function()
+		{
+			arr.push($(this).val());
+		});
+
+		var target = t.parent().parent().parent().find('select[id$=target]')
+		target.trigger('change');
+		t.children('option').each(function()
+		{
+			if ($.inArray($(this).val(), arr) !== -1)
+				$(this).attr('selected', 'selected');
+			else
+				$(this).removeAttr('selected');
+		});
+	});
 });

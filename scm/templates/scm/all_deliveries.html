@@ -2,6 +2,10 @@
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Livraisons disponibles à l'installation{% endblock %}
 
+{%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:delivery_create' %}" title="Créer une livraison">+</a>
+{% endblock %}
+
 {% block content %}
 
 {% for is in deliveries %}

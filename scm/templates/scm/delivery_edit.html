@@ -23,15 +23,15 @@
 	</div>
 	
 	{{ iisf.management_form }}
-
 	<div id='iisf'>
-		{% for form in iisf %}
+		{% for fs in iisf %}
 			<div class='metContainer metFreeRect' style='background:#423173;'>
 				<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
+				<input class="deleteContent" type="button" value="Supprimer ce contenu" style='display: none;margin-left: 150px;'>
 				<table>
-				{{ form }}
+				{{ fs }}
 				</table>
-				<input class="deleteContent" type="button" value="Supprimer ce contenu" style='display: none'>
+				
 			</div>
 		{% endfor %}
 	</div>

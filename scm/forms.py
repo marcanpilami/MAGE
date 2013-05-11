@@ -5,7 +5,7 @@ from django.forms import ModelForm
 
 import re
 
-from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency
+from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
 from ref.models import LogicalComponent
 
 
@@ -21,10 +21,10 @@ class DeliveryForm(ModelForm):
     
     class Meta:
         model = Delivery
-        exclude = ['removed', 'status', ]
+        exclude = ['removed', 'status', 'location_data_4', 'location_data_3', 'location_data_2']
 
 class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='Composant livré')
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).order_by('name').distinct(), label='Composant livré')
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):
@@ -54,6 +54,14 @@ class IIForm(ModelForm):
                     raise forms.ValidationError("Inconsistent choice - that method is not compatible with this target")
             
         return cleaned_data
+    
+    def __init__(self, *args, **kwargs):
+        super(IIForm, self).__init__(*args, **kwargs)
+        self.fields['how_to_install'].queryset = InstallationMethod.objects.filter(restoration_only = False)
+        
+        if self.instance != None and self.instance.pk is not None:
+            self.initial['target'] = self.instance.what_is_installed.logical_component.pk
+            self.initial['version'] = self.instance.what_is_installed.version
    
     class Meta:
         model = InstallableItem
@@ -70,7 +78,7 @@ class IDForm(ModelForm):
 
 class BackupForm(forms.Form):
     description = forms.CharField(max_length=90, required=False)
-    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M',])
+    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M', ])
     instances = forms.TypedMultipleChoiceField(choices=(), widget=forms.widgets.CheckboxSelectMultiple, coerce=int)
 
     def __init__(self, *args, **kwargs):

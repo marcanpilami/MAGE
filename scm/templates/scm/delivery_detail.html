@@ -3,6 +3,7 @@
 {% block maintitle %}Livraison {{delivery.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'scm:deliveries' %}" title="Liste des livraisons">↑</a>
 <a class='frequentAction' href="{% url 'scm:delivery_edit' delivery.id %}" title="Editer la liraison">E</a>
 <a class='frequentAction' href="{% url 'scm:delivery_edit_dep' delivery.id %}" title="Editer les dépendances">D</a>
 {% if delivery.status > 1 %}

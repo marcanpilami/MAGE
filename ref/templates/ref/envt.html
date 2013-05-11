@@ -3,6 +3,7 @@
 {% block maintitle %}Environnement {{envt.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
+<a class='frequentAction' href="{% url 'ref:envts' %}" title="Liste des environnements">↑</a>
 <a class='frequentAction' href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>
 {% endblock %}
 
