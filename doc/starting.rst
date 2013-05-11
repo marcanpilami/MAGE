@@ -22,23 +22,18 @@ The second thing is to describe the environments that will be used. This can be 
 Project
 ---------------------
 
-A project is nothing more than a classifier. It has no other interest than to regroup Applications.
+A project is nothing more than a classifier. It has no other interest than to regroup Environments (an Environment belongs to zero or one Project).
 
-It's main use is in Conventions, which can make use of its name and alternative names.
+It's main use is in Conventions, which can make use of its name and alternative names. It is also the bearer of the default Convention for all its Environments.
 
-Projects are fully optional.
 
 Application
 ---------------------
 
-This is second level of classification. It is also optional, even if it will often be used in Cenventions (more than Projects).
+This is a second level of classification: a project may have zero to many Applications. It can also be used in Conventions. THe different Logical Components (see below) belong to one (and only one) Application.
 
-It provides :
 
-* A name, and three optional alternatives
-* An optional default Convention
-
-.. note:: Project and Application are just names. They can be considered as "Big project" and "Sub project", or "Program" and "Project", etc.
+.. note:: 'Project' and 'Application' are just names. They can be considered as "Big project" and "Sub project", or "Program" and "Project", etc.
 
 Environment Type
 ---------------------
@@ -47,7 +42,7 @@ Each environment has - optionally - one associated Type. It provides common valu
 
 * an optional SLA
 * a typology (production, conformity, ...)
-* a default Convention (that replaces the Convention given by the Application, if any) 
+* a default Convention (that replaces the Convention given by the Project, if any) 
 
 At the beginning of the project, the first few types should be referenced. The list can be completed later - but not purged.
 

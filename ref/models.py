@@ -34,7 +34,7 @@ class Project(models.Model):
         referential objects may optionally be classified inside projects, defined by a code name
         and containing a description
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)

@@ -11,16 +11,13 @@ MCL is a sadistic parenthesis-oriented query and component creation language. It
 Grammar (EBNF)
 -----------------------
 
-::
-
+.. productionlist:: 
 	mcl_query ::= '(' ('(T,' component_type ')' )? ('(S,' attribute_filter (',' attribute_filter)* ')')? ('(P,' (parent_field_name ',')+ mcl_query ')')* ('(C,' mcl_query ')')* ')'
-
 	attribute_filter ::= attribute_name ('.' attribute_name)* '=' (('"' .+ '"') | '@' attribute_name | mcl_query )
-
 	attribute_name ::= [a-zA-Z0-9_]+
-
 	parent_field_name ::= attribute_name 
 
+	
 *mcl_query*: 
 
 .. image:: media/mcl_query.png
