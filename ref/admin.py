@@ -35,6 +35,14 @@ class EnvironmentAdmin(ModelAdmin):
     ordering = ('name',)
     readonly_fields=('buildDate',)
     list_filter = ['template_only', ]
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    def get_actions(self, request):
+        actions = super(EnvironmentAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
 site.register(Environment, EnvironmentAdmin)
 
@@ -170,13 +178,22 @@ class ComponentInstanceAdmin(ModelAdmin):
 
 
     ## Default values for the various admin options. Should usually be at least partially overloaded
-    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo', 'include_in_envt_backup']}), ]
+    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo', 'include_in_envt_backup', 'deleted']}), ]
     fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'connectedTo']}), ]
     fieldsets = fieldsets_generic
     filter_horizontal = ('connectedTo', 'dependsOn', 'environments')
     ordering = ('name',)
     search_fields = ('name', 'dependsOn__name',)
-    list_filter = ['environments', CICFilter, ]
-    list_display = ('name', 'instanciates')
+    list_filter = ['environments', CICFilter, 'deleted']
+    list_display = ('name', 'instanciates', 'deleted')
     inlines = [CI2DOFieldInline, ExtendedParameterInline, ]
+    
+    ## Prevent deletion - should be marked ununsed instead
+    def has_delete_permission(self, request, obj=None):
+        return False
+    def get_actions(self, request):
+        actions = super(ComponentInstanceAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
