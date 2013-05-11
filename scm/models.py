@@ -38,11 +38,11 @@ class InstallableSet(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
     
-    def check_prerequisites(self, envt_name):
+    def check_prerequisites(self, envt_name, ii_selection = ()):
         failures = []
         for ii in self.set_content.all():
             try:
-                ii.check_prerequisites(envt_name)
+                ii.check_prerequisites(envt_name, ii_selection)
             except MageScmFailedEnvironmentDependencyCheck, e:
                 failures.extend(e.failing_dep)
         
@@ -120,10 +120,12 @@ class LogicalComponentVersion(models.Model):
                         return 0
                 
                 ## Recursion
+                if dep.depends_on_version == self:
+                    continue
                 try:
                     tmp = dep.depends_on_version.__compareWith(lcv2)
                 except MageScmUnrelatedItemsError:
-                    continue  # # Nothing can be deduced from this relation - go on to the others
+                    continue  ## Nothing can be deduced from this relation - go on to the others
                 
                 ## Analysis of the recursion result
                 if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
@@ -188,13 +190,18 @@ class InstallableItem(models.Model):
             ide = ItemDependency(installable_item=self, depends_on_version=lcv, operator=operator)
             ide.save()
             
-    def check_prerequisites(self, envt_name):
-        # print self
+    def check_prerequisites(self, envt_name, installed_along_ii=()):
         if self.is_full:
             return True
+        installed_along_version = [i.what_is_installed for i in installed_along_ii]
 
         failures = []
         for dep in self.dependencies.all():
+            ## Check it is not installed alongside this II - in which case it is OK
+            if dep.depends_on_version in installed_along_version:
+                continue
+                        
+            ## Check history
             potential_cic = []
             for i in self.how_to_install.all():
                 potential_cic.extend(i.method_compatible_with.all())

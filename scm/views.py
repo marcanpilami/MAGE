@@ -26,6 +26,7 @@ from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from ref.conventions import nc_sync_naming_convention
+import csv
 
 
 def envts(request):
@@ -43,7 +44,7 @@ def all_installs(request, envt_name, limit=15):
     logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt)
     
     versions = {}
-    for compo in envt.component_instances.filter(instanciates__isnull=False, instanciates__implements__scm_trackable = True):
+    for compo in envt.component_instances.filter(instanciates__isnull=False, instanciates__implements__scm_trackable=True):
         lc = logical_components.get(id=compo.instanciates.implements_id)
         versions[lc] = compo.version
         
@@ -55,7 +56,7 @@ def delivery_list(request):
 
 def delivery(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
-    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects.all().order_by('typology__chronological_order', 'name')})
+    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects_active.all().order_by('typology__chronological_order', 'name')})
 
 @permission_required('scm.validate_installableset')
 def delivery_validate(request, iset_id):
@@ -64,19 +65,26 @@ def delivery_validate(request, iset_id):
     delivery.save()
     return redirect('scm:delivery_detail', iset_id=iset_id)
 
-def delivery_test(request, delivery_id, envt_id):
+def delivery_test(request, delivery_id, envt_id_or_name):
     delivery = InstallableSet.objects.get(pk=delivery_id)
-    envt = Environment.objects.get(pk=envt_id)
+    try:
+        envt = Environment.objects.get(name=envt_id_or_name)
+    except Environment.DoesNotExist:
+        envt = Environment.objects.get(pk=int(envt_id_or_name))
+        
     try:
         delivery.check_prerequisites(envt.name)
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': None})
     except MageScmFailedEnvironmentDependencyCheck, e:
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': e})
- 
+
 @permission_required('scm.install_installableset')
-def delivery_apply_envt(request, delivery_id, envt_id):    
+def delivery_apply_envt(request, delivery_id, envt_id_or_name):    
     delivery = InstallableSet.objects.get(pk=delivery_id)
-    envt = Environment.objects.get(pk=envt_id)   
+    try:
+        envt = Environment.objects.get(name=envt_id_or_name)
+    except Environment.DoesNotExist:
+        envt = Environment.objects.get(pk=int(envt_id_or_name))
     
     install_iset_envt(delivery, envt)
     return redirect('scm:envtinstallhist', envt_name=envt.name)
@@ -236,6 +244,35 @@ def backup_envt_manual(request, envt_name):
         f = BackupForm(envt=e)
     
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
+
+def iset_content_csv(request, iset):
+    if isinstance(iset, unicode):
+        try:
+            i = int(iset)
+            iset = InstallableSet.objects.get(pk=i)
+        except:
+            iset = InstallableSet.objects.get(name=iset)
+    
+    response = HttpResponse(content_type='text/csv')
+    wr = csv.DictWriter(response, fieldnames=('id', 'target', 'target_id', 'version', 'is_full', 'data_loss'), restval="", extrasaction='ignore', dialect='excel', delimiter=";")    
+    wr.writeheader()
+    
+    for ii in iset.set_content.all():
+        wr.writerow({'id': ii.id, 'target': ii.what_is_installed.logical_component.name, 'target_id': ii.what_is_installed.logical_component.id, 'version': ii.what_is_installed.version, 'is_full': ii.is_full, 'data_loss': ii.data_loss})
+    
+    return response
+
+def iset_id(request, iset_name):
+    res = 0
+    try:
+        iset = InstallableSet.objects.get(name=iset_name)
+        res = iset.id
+    except InstallableSet.DoesNotExist:
+        res = 0
+    
+    response = HttpResponse(content_type='text/text')
+    response.write(res)
+    return response
 
 def reset():
     for ta in Tag.objects.all():

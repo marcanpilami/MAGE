@@ -31,7 +31,7 @@ class OsAccount(ComponentInstance):
     include_in_default_envt_backup = False
     
     def __unicode__(self):
-        return "%s on %s" %(self.name, self.server.name if self.server else 'no server')
+        return "%s on %s" % (self.name, self.server.name if self.server else 'no server')
 
 
 ######################################################
@@ -42,6 +42,8 @@ class OracleInstance(ComponentInstance):
     port = models.IntegerField(max_length=6, verbose_name=u"Port d'écoute du listener", default=1521)
     listener = models.CharField(max_length=100, verbose_name=u'Nom du listener', default='LISTENER')
     data_directory = models.CharField(max_length=254, verbose_name=u'répertoire data par défaut', blank=True, null=True)
+    dba_acount = models.CharField(max_length=20, verbose_name=u'compte DBA', default='system', blank=True, null=True)
+    dba_password = models.CharField(max_length=100, verbose_name=u'mot de passe compte DBA', blank=True, null=True)
     
     parents = {'server': {'model': 'OsServer', 'cardinality':1}}
     include_in_default_envt_backup = False

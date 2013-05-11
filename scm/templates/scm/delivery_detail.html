@@ -8,6 +8,7 @@
 {% if delivery.status > 1 %}
 	<a class='frequentAction' href="{% url 'scm:delivery_validate' delivery.id %}" title="Valider la livraison">V</a>
 {% endif %}
+<a class='frequentAction' href="{% url 'scm:delivery_content_csv' delivery.id %}" title="CSV du contenu">C</a>
 {%endblock%}
 
 {% block content %}

@@ -201,7 +201,7 @@ class SimpleTest(TestCase):
             is_list[2].check_prerequisites('PRD1')
             
         # v2/v3
-        install_iset_envt(is_list[2], ref.envt_prd1)
+        install_iset_envt(is_list[2], ref.envt_prd1, force_prereqs=True)
         self.assertTrue(is_list[4].check_prerequisites('PRD1'))
 
         # v2/v4

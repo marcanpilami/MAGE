@@ -4,7 +4,7 @@
 
 
 {% block content %}
-Unless stated otherwise, use GET for all calls. MAGE is always case sensitive (both in URL and arguments).
+Unless stated otherwise, use GET for all calls. MAGE is always case sensitive (both in URL and arguments).<br/>All CSV files are Excel-compatible.
 <br/>
 <br/>
 Login (sets 'sessionid' in cookie): {% url 'script_login' "USERNAME" "PASSWORD" %}<br/>
@@ -20,5 +20,9 @@ Full PNG of all environments: {% url 'gph:full' %}<br/>
 <br/>
 Validate patchset: {% url 'scm:delivery_validate' 123456789 %}<br/>
 Register new default backupset: {% url 'scm:backup_envt' "ENVIRONMENT_NAME" %}<br/>
+<br/>
+Get the ID (in a text file) of a delivery by name (0 if not found): {% url 'scm:iset_id' "SET_NAME" %}<br/>
+Content (with IDs) of a delivery or backupset as a CSV: {% url 'scm:delivery_content_csv' "SET_NAME_OR_ID" %}<br/>
+Fully apply a delivery to an environment: {% url 'scm:delivery_apply_envt' 123456789 "ENVT_NAME_OR_ID" %}<br/>
 {% endblock content %}
 

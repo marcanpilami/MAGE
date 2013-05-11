@@ -63,6 +63,14 @@ Run::
 
 This will launch a small web server listening on an address printed on the standard output. With a browser, try this address. You should access MAGE's homepage.
 
+Initial data
+=======================
+
+MAGE module authors may provide intiial data with a hook. So just call in your internet browser the page ${ROOT_MAGE_URL}/scm/demo (this will redirect to the home page).
+
+This will delete every last bit of data from the database, and fill it with the data provided by the modules. In case there is no such data, you can still get some demo data with ${ROOT_MAGE_URL}/scm/demointernal
+
+
 OSGI/FastCGI/SCGI/AJP integration
 =====================================
 

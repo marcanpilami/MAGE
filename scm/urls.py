@@ -10,13 +10,17 @@ urlpatterns = patterns('',
     
     url(r'delivery$', views.delivery_list, name='deliveries'),
     url(r'delivery/(?P<iset_id>\d*)$', views.delivery, name='delivery_detail'),
+    
     url(r'delivery/edit$', views.delivery_edit, name='delivery_create'),
     url(r'delivery/(?P<iset_id>\d*)/edit$', views.delivery_edit, name='delivery_edit'),
     url(r'delivery/(?P<iset_id>\d*)/validate$', views.delivery_validate, name='delivery_validate'),
     url(r'delivery/(?P<iset_id>\d*)/editdep$', views.delivery_edit_dep, name='delivery_edit_dep'),
-    url(r'delivery/test/(?P<delivery_id>\d*)/(?P<envt_id>\d*)$', views.delivery_test, name='delivery_prereqs_test'),
-    url(r'delivery/applyenvt/(?P<delivery_id>\d*)/(?P<envt_id>\d*)$', views.delivery_apply_envt, name='delivery_apply_envt'),
+    url(r'delivery/(?P<delivery_id>\d*)/testonenvt/(?P<envt_id_or_name>.+)$', views.delivery_test, name='delivery_prereqs_test'),
+    url(r'delivery/(?P<delivery_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)$', views.delivery_apply_envt, name='delivery_apply_envt'),
     url(r'delivery/lcapplyenvt$', views.lc_versions_per_environment, name='lc_installs_envts'),
+    
+    url(r'delivery/get/content/(?P<iset>.*)/csv.csv$', views.iset_content_csv, name='delivery_content_csv'),
+    url(r'delivery/get/id/(?P<iset_name>.*)$', views.iset_id, name='iset_id'),
     
     url(r'tag/create/(?P<envt_name>.*)/(?P<tag_name>.*)$', views.tag_create, name='tag_create'),
     url(r'tag/(?P<tag_id>\d*)$', views.tag_detail, name='tag_detail'),
