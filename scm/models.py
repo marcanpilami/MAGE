@@ -74,7 +74,7 @@ class LogicalComponentVersion(models.Model):
     def __unicode__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
     
-    def compare(self, lcv2):
+    def compare(self, lcv2, strict = False):
         """
             Order relation between LCV objects
             
@@ -93,11 +93,15 @@ class LogicalComponentVersion(models.Model):
             @note: do NOT overload __cmp__ or eq with this function as they are already used by Django internals.
         """
         lcv1 = self
-        try: return lcv1.__compareWith(lcv2)
-        except MageScmUnrelatedItemsError: return 0
+        if not strict:
+            try: return lcv1.__compareWith(lcv2)
+            except MageScmUnrelatedItemsError: return 0
+        else:
+            return lcv1.__compareWith(lcv2)
     
     def __compareWith(self, lcv2, __reverseCall=False):
-        """ The function actually doing the comparison. Here, equality (0) has a strict meaning. """
+        """ The function actually doing the comparison. Here, equality (0) has a strict meaning, 
+            and if the two LCVs are unrelated an MageScmUnrelatedItemsError is raised """
         lcv1 = self
         
         ## Argument check
@@ -223,7 +227,12 @@ class InstallableItem(models.Model):
                     continue
                 
                 ## Check current version against dependency
-                compa = ver.compare(dep.depends_on_version)
+                try:
+                    compa = ver.compare(dep.depends_on_version, strict = True)
+                except MageScmUnrelatedItemsError:
+                    failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'version [%s] is unrelated to the required version' % ver.version))
+                    continue
+                
                 # print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
                 if dep.operator == '==' and compa != 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
