@@ -3,14 +3,15 @@
 {% block maintitle %}Livraison {{delivery.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
-<a class='frequentAction' href="{% url 'scm:deliveries' %}" title="Liste des livraisons">↑</a>
-<a class='frequentAction' href="{% url 'scm:delivery_edit' delivery.id %}" title="Editer la liraison">E</a>
-<a class='frequentAction' href="{% url 'scm:delivery_edit_dep' delivery.id %}" title="Editer les dépendances">D</a>
+<a href="{% url 'scm:delivery_edit' delivery.id %}" title="Editer la liraison">E</a>
+<a href="{% url 'scm:delivery_edit_dep' delivery.id %}" title="Editer les dépendances">D</a>
 {% if delivery.status > 1 %}
-	<a class='frequentAction' href="{% url 'scm:delivery_validate' delivery.id %}" title="Valider la livraison">V</a>
+	<a href="{% url 'scm:delivery_validate' delivery.id %}" title="Valider la livraison">V</a>
 {% endif %}
-<a class='frequentAction' href="{% url 'scm:delivery_content_csv' delivery.id %}" title="CSV du contenu">C</a>
+<a href="{% url 'scm:delivery_content_csv' delivery.id %}" title="CSV du contenu">C</a>
 {%endblock%}
+
+{%block navigationButtons%}<a href="{% url 'scm:deliveries' %}" title="Liste des livraisons">↑</a>{%endblock%}
 
 {% block content %}
 

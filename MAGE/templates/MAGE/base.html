@@ -32,9 +32,12 @@
 		<div id='beforeFooter'>
 			<div id='upperBar'>
 				<div class='pageTitle'>{%block maintitle%}{%endblock%}</div>
-				<div id='frequentActionsButtons'>
-					{%block frequentActionsButtons%}{%endblock%}
-					<a class='frequentAction' href="{% url 'welcome' %}" title="Home">H</a>
+				<div id='quickAccessButtons'>
+					<span id='quickAccessActionButtons'>{%block frequentActionsButtons%}{%endblock%}</span>
+					<span id='quickAccessNavigationButtons'>
+						{%block navigationButtons%}{%endblock%}
+						<a href="{% url 'welcome' %}" title="Home"><img src='{% static "home.svg" %}'/></a>
+					</span>
 				</div>
 			</div>
 			{% if messages %}

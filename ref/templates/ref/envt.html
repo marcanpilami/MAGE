@@ -3,9 +3,12 @@
 {% block maintitle %}Environnement {{envt.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
-<a class='frequentAction' href="{% url 'ref:envts' %}" title="Liste des environnements">↑</a>
-<a class='frequentAction' href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>
+<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>
 {% endblock %}
+
+{%block navigationButtons%}
+<a href="{% url 'ref:envts' %}" title="Liste des environnements">↑</a>
+{%endblock%}
 
 {% block content %}
 {% regroup envt.component_instances.all by model_id as compotype_list %}

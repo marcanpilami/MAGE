@@ -3,9 +3,12 @@
 {% block maintitle %}Backup {{bck.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
-<a class='frequentAction' href="{% url 'scm:backup_list' %}" title="Liste des sauvegardes">↑</a>
-<a class='frequentAction' href="{% url 'scm:delivery_detail' bck.id %}" title="Voir comme une livraison">L</a>
+<a href="{% url 'scm:delivery_detail' bck.id %}" title="Voir comme une livraison">L</a>
 {% endblock %}
+
+{%block navigationButtons%}
+<a href="{% url 'scm:backup_list' %}" title="Liste des sauvegardes">↑</a>
+{%endblock%}
 
 {% block content %}
 

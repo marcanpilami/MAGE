@@ -2,8 +2,8 @@
 {% block pagetitle %}Accueil{% endblock %}
 {% block maintitle %}Accueil utilisateur{% endblock %}
 
-{%block frequentActionsButtons%}
-<a class='frequentAction' href='{% url "admin:index" %}' title="Administration">A</a>
+{%block navigationButtons%}
+<a href='{% url "admin:index" %}' title="Administration">A</a>
 {% endblock %}
 
 {% block content %}

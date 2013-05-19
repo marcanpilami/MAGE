@@ -257,7 +257,7 @@ div.metRibbonSplash table input {
 	width: 70em;
 }
 
-div.metContainer select,span {
+div.metContainer select,div.metContainer span {
 	margin-bottom: 0px;
 	font-size: 8pt;
 }
@@ -307,13 +307,13 @@ button.cancel {
 }
 
 /* Toolbar */
-#frequentActionsButtons {
+#quickAccessButtons {
 	position: absolute;
 	right: 5px;
 	top: 6px;
 }
 
-.frequentAction {
+#quickAccessButtons a {
 	display: inline-block;
 	padding: 3px;
 	border-radius: 50%;
@@ -323,6 +323,16 @@ button.cancel {
 	text-align: center;
 	vertical-align: middle;
 	font-weight: bold;
+	text-decoration: inherit;
+}
+
+#quickAccessButtons a img {
+	width: 20px;
+	height: 20px;
+}
+
+#quickAccessActionButtons {
+	padding-right: 10px;
 }
 
 /* Footer */
