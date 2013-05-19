@@ -14,14 +14,14 @@
 <table class='visibleTable'>
 	<thead>
 		<tr>
-			<td>Install</td>
+			<td></td>
 			<td>Date</td>
 			{% for lc in logical_components %}
 				<td>{{lc.name}}</td>
 			{% endfor %}			
 		</tr>
 		<tr style='background-color: #B01E00;'>
-			<td>Version actuelle</td>
+			<td>Version actuelle :</td>
 			<td></td>
 			{% for lc in logical_components %}
 				{% for key, value in versions.items %}
@@ -38,7 +38,7 @@
 			<tr>
 				<td>
 					<div class='metRectList' style='background:#004A00;margin:0;' >
-						<a href="{% url "scm:delivery_detail" install.pk %}"> {{ install.installed_set.name }}</a>
+						<a href="{% url "scm:delivery_detail" install.installed_set.pk %}"> {{ install.installed_set.name }}</a>
 					</div>
 				</td>
 				<td>
