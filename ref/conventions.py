@@ -60,7 +60,12 @@ def nc_sync_naming_convention(nc, model_name_list=None):
             
             default = None
             if defaults.has_key(ct.model) and defaults[ct.model].has_key(fn):
-                default = defaults[ct.model][fn]
+                if isinstance(defaults[ct.model][fn], tuple):
+                    default = defaults[ct.model][fn][0]
+                    if len(defaults[ct.model][fn]) == 2:
+                        overwrite_copy = defaults[ct.model][fn][1]
+                else:
+                    default = defaults[ct.model][fn]
                 
             ncf = ConventionField(model=ct.model, field=fn, pattern=default, pattern_type=ptype, convention_set=nc, overwrite_copy=overwrite_copy)
             ncf.save()
