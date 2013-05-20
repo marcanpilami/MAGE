@@ -221,6 +221,9 @@ def tag_list(request):
 def backup_list(request):
     return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True)})
 
+def backup_list_archive(request):
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False), 'archive': True})
+
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
 
@@ -244,6 +247,23 @@ def backup_envt_manual(request, envt_name):
         f = BackupForm(envt=e)
     
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
+
+@permission_required('scm.del_backupset')
+def is_archive(request, is_id):
+    """Remove does not mean delete - just means it's not available anymore"""
+    i_s = InstallableSet.objects.get(pk = is_id)
+    i_s.removed = datetime.now()
+    i_s.save()
+    return redirect('welcome')
+
+@permission_required('scm.del_backupset')
+def is_unarchive(request, is_id):
+    """Remove does not mean delete - just means it's not available anymore"""
+    i_s = InstallableSet.objects.get(pk = is_id)
+    i_s.removed = None
+    i_s.save()
+    print request
+    return redirect('welcome')
 
 def iset_content_csv(request, iset):
     if isinstance(iset, unicode):

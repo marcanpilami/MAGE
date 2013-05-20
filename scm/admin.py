@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from ref import admin
-from scm.models import BackupRestoreMethod, InstallationMethod
+from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet
 
 
 class BackupRestoreMethodAdmin(admin.ModelAdmin):
@@ -34,3 +34,18 @@ class InstallationMethodAdmin(admin.ModelAdmin):
         return actions
     
 admin.site.register(InstallationMethod, InstallationMethodAdmin)
+
+
+class BackupSetAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_available', 'from_envt')
+    list_filter = ('from_envt', 'set_date', 'removed')
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    def get_actions(self, request):
+        actions = super(BackupSetAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+admin.site.register(BackupSet, BackupSetAdmin)

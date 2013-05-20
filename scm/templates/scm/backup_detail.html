@@ -3,6 +3,11 @@
 {% block maintitle %}Backup {{bck.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
+{% if not bck.removed %}
+<a href="{% url 'scm:backup_archive' bck.id %}" title="Archiver (marquer comme non disponible)">A</a>
+{% else %}
+<a href="{% url 'scm:backup_unarchive' bck.id %}" title="Sortir de l'archive (marquer comme disponible)">R</a>
+{% endif %}
 <a href="{% url 'scm:delivery_detail' bck.id %}" title="Voir comme une livraison">L</a>
 {% endblock %}
 

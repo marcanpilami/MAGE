@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
-{% block maintitle %}Liste des sauvegardes{% endblock %}
+{% block maintitle %}Liste des sauvegardes {% if archive %}archivées{% endif %}{% endblock %}
+
+{%block navigationButtons%}
+{% if not archive %}<a href="{% url 'scm:backup_list_archive' %}" title="Voir l'archive (backups non disponibles)">A</a>{% endif %}
+{%endblock%}
 
 {% block content %}
 

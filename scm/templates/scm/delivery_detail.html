@@ -53,9 +53,12 @@
 {% endfor %}
 
 <br/>
+{% if delivery.available %}
 	{% for envt in envts %}
 		<a class='metRectList' style='background-color: #004A00;' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
 	{% endfor %}
-
+{% else %}
+	<div class='metRectList' style='background-color: #AD103C;'>Livraison non disponible - non installable</div>
+{% endif %}
 
 {% endblock content %}

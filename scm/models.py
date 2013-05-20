@@ -31,9 +31,10 @@ class InstallableSet(models.Model):
     # Through related_name: set_content
     
     removed = models.DateTimeField(null=True, blank=True)
-    def __is_available(self):
+    def is_available(self):
         return self.removed == None
-    available = property(__is_available)
+    available = property(is_available)
+    is_available.admin_order_field = 'removed'
     
     def __unicode__(self):
         return u'%s' % (self.name)

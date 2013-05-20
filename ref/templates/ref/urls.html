@@ -20,8 +20,10 @@ Full PNG of all environments: {% url 'gph:full' %}<br/>
 <br/>
 Validate patchset: {% url 'scm:delivery_validate' 123456789 %}<br/>
 Register new default backupset: {% url 'scm:backup_envt' "ENVIRONMENT_NAME" %}<br/>
+Archive backupset: {% url 'scm:backup_archive' "123456789" %}<br/>
+Unarchive backupset: {% url 'scm:backup_unarchive' "123456789" %}<br/>
 <br/>
-Get the ID (in a text file) of a delivery by name (0 if not found): {% url 'scm:iset_id' "SET_NAME" %}<br/>
+Get the ID (in a text file) of a delivery or backupset by name (0 if not found): {% url 'scm:iset_id' "SET_NAME" %}<br/>
 Content (with IDs) of a delivery or backupset as a CSV: {% url 'scm:delivery_content_csv' "SET_NAME_OR_ID" %}<br/>
 Fully apply a delivery to an environment: {% url 'scm:delivery_apply_envt' 123456789 "ENVT_NAME_OR_ID" %}<br/>
 {% endblock content %}
