@@ -78,6 +78,20 @@ def delivery_test(request, delivery_id, envt_id_or_name):
     except MageScmFailedEnvironmentDependencyCheck, e:
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': e})
 
+def delivery_test_script(request, delivery_id, envt_id_or_name):
+    delivery = InstallableSet.objects.get(pk=delivery_id)
+    try:
+        envt = Environment.objects.get(name=envt_id_or_name)
+    except Environment.DoesNotExist:
+        envt = Environment.objects.get(pk=int(envt_id_or_name))
+        
+    try:
+        delivery.check_prerequisites(envt.name)
+        return HttpResponse("<html><body>OK</body></html>")
+    except MageScmFailedEnvironmentDependencyCheck, e:
+        return HttpResponse("<html><body>%s</body></html>" %e, status=424)
+
+
 @permission_required('scm.install_installableset')
 def delivery_apply_envt(request, delivery_id, envt_id_or_name):    
     delivery = InstallableSet.objects.get(pk=delivery_id)

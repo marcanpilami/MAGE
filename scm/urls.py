@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     url(r'delivery/(?P<iset_id>\d*)/validate$', views.delivery_validate, name='delivery_validate'),
     url(r'delivery/(?P<iset_id>\d*)/editdep$', views.delivery_edit_dep, name='delivery_edit_dep'),
     url(r'delivery/(?P<delivery_id>\d*)/testonenvt/(?P<envt_id_or_name>.+)$', views.delivery_test, name='delivery_prereqs_test'),
+    url(r'delivery/(?P<delivery_id>\d*)/testonenvtscript/(?P<envt_id_or_name>.+)$', views.delivery_test_script, name='delivery_prereqs_test_script'),
     url(r'delivery/(?P<delivery_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)$', views.delivery_apply_envt, name='delivery_apply_envt'),
     url(r'delivery/lcapplyenvt$', views.lc_versions_per_environment, name='lc_installs_envts'),
     
