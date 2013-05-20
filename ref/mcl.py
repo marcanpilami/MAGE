@@ -32,7 +32,7 @@ class MclEngine:
         cic_name = Word(alphanums + '_')
         type_query = Group(Suppress('(T,') + model_type + Optional(Suppress(',') + cic_name) + Suppress(')'))("type_query")
         
-        # Related components connections - (P,(S,name="marsu",description="houba"))
+        # Related components connections
         parent_query = Group(Suppress('(P,') + Optional(attribute_name + Suppress(',')) + mcl_query + Suppress(')'))('parent_query')
         connected_query = Group(Suppress('(C,') + mcl_query + Suppress(')'))('connected_query')
         all_links_queries = Group(ZeroOrMore(connected_query | parent_query))('all_links_queries')
@@ -48,7 +48,11 @@ class MclEngine:
         ## All together... the MCL query!
         mcl_query << Group(Suppress('(') + Optional(type_query) + Optional(self_query) + Optional(envt_query) + Optional(addition_query) + all_links_queries + Suppress(')'))('mcl')
     
-        self.mcl_query = mcl_query
+        
+        ## A query can be followed by an update statement (can NOT be in sub queries)
+        update_query = Group(Suppress('(U,') + attribute_filter_list + Suppress(')'))('update_query')
+    
+        self.mcl_query = mcl_query + Optional(update_query)
         
         
     def __parseLevel0(self, type_name, self_query, prefix='', rs=None, cic=None):
@@ -133,6 +137,14 @@ class MclEngine:
                 if type_name is None:
                     raise MageMclSyntaxError('component instance should be created but type is not given')
                 self.__createFromQuery(tree, type_name, cic=cic)
+        
+        ## Update
+        if tree.update_query != "":
+            for cp in rs:
+                cp = cp.leaf
+                for att in tree.update_query.attribute_filter_list:
+                    setattr(cp, att.attribute_name, att.attribute_value)
+                cp.save()
         
         ## Done                    
         return rs

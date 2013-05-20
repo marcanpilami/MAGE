@@ -157,6 +157,18 @@ class SimpleTest(TestCase):
         res = parser.get_components('((T,oracleschema,oracle_module1)(S,name="toto")(E,PRD1,DEV2)(A,)(P,oracle_instance,((S,name="ORAINST1"))))')
         self.assertEqual(1, len(res))
         self.assertEqual(2, res[0].environments.count())
+        
+    def test_mcl_update(self):
+        utility_create_test_envt(1)
+        
+        res = parser.get_components('((T,oracleschema,oracle_module1)(E,PRD1))(U,password="ratonlaveur",service_name_to_use="PouEt")')
+        self.assertEqual(1, len(res))
+        
+        self.assertEqual("ratonlaveur", res[0].leaf.password)
+        
+        res = parser.get_components('()(U,name="meuh")')
+        for cpn in ComponentInstance.objects.all():
+            self.assertEqual("meuh", cpn.name)
              
     def test_base(self):
         et1 = EnvironmentType(name='production', short_name='PRD')
