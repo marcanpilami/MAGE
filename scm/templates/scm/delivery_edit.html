@@ -15,7 +15,7 @@
 {% block content %}
 <form id='mainForm' method='POST'>
 
-	<div id='main' class='metContainer metSection wideInputs' style='background:#423173;'>
+	<div id='main' class='metContainer metSection wideInputs metFormSection'>
 		<label class='t2' for='main'>Informations de base</label>
 		<table>
 			{{ form.as_table }}
@@ -25,13 +25,13 @@
 	{{ iisf.management_form }}
 	<div id='iisf'>
 		{% for fs in iisf %}
-			<div class='metContainer metFreeRect' style='background:#423173;'>
+			<div class='metContainer metFreeRect metFormSection'>
 				<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
-				<input class="deleteContent" type="button" value="Supprimer ce contenu" style='display: none;margin-left: 150px;'>
+				
 				<table>
 				{{ fs }}
 				</table>
-				
+				<input class="deleteContent" type="button" value="Supprimer ce contenu" style='display: none;margin-left: 480px;'>
 			</div>
 		{% endfor %}
 	</div>
@@ -42,7 +42,7 @@
 </form>
 
 <div id='emptyformset' style='display: none;'>
-	<div class='metContainer metFreeRect'  style='background:#423173;'>
+	<div class='metContainer metFreeRect metFormSection'>
 		<label class='t3' for='main'>Nouveau contenu pour cette livraison</label>
 		<table>
 			{{ iisf.empty_form }}

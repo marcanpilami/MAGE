@@ -87,7 +87,7 @@ def getGraph(django_filters={}, filename=None, context=None, django_filter_unnam
     dc = context or DrawingContext()
     dc.components = ComponentInstance.objects.select_related().filter(*django_filter_unnamed, **django_filters)
     dc.set_simplify(True)
-    dc.set_bgcolor('#1F0068')
+    dc.set_bgcolor('#F5F0F2')
     
     for compo in dc.components:
         drawNode(compo, dc)

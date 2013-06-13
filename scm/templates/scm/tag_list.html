@@ -11,7 +11,7 @@
 <div class='column'>
 	<div class='t2'>{{envt.grouper.name}}</div>
 	{% for tag in envt.list %}
-	<a class='metContainer metRectList' href="{% url 'scm:tag_detail' tag.id %}">
+	<a class='metContainer metRectList defaultHighlightBackground' href="{% url 'scm:tag_detail' tag.id %}">
 		{{tag.name}}
 	</a>
 	{% endfor %}

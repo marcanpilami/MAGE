@@ -17,15 +17,16 @@
 
 {% block content %}
 
-<div class='metContainer metSection' style='background-color: #B01E00;'>
+<div class='metContainer metSection metDefaultBackground'>
 	<table>
 		<tr><td>Environnement source</td><td>{{bck.from_envt}}</td></tr>
 		<tr><td>Pris le</td><td>{{bck.set_date}}</td></tr>
 	</table>
 </div>
 
+<div class='t2'>Contenu</div>
 {% for item in bck.nonversioned_items.all %}
-	<div class='metContainer metRectList'>
+	<div class='metContainer metRectList metDefaultBackground'>
 		{{item.instance.name}}
 		{% if item.instance_configuration %} - {{ item.instance_configuration.result_of.what_is_installed.version }} {% else %} - no version {% endif %}
 		<div class='annotation'>{{ item.instance.instanciates }}</div>

@@ -11,7 +11,7 @@
 	<div class='t2'>{{ type.grouper.name }}</div>
 	{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
 	{% for envt in type.list %}	
-		<a class='metSquare' style='background: {{ moderncolors }};' href="{% url 'ref:envt' envt.id %}">{{ envt.name }}<div class='metSquareLong annotation'>{{envt.description}}</div></a>
+		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{ envt.name }}<div class='metSquareLong annotation'>{{envt.description}}</div></a>
 	{% endfor %}
 </div>
 {% endfor %}

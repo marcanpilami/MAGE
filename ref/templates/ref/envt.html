@@ -14,9 +14,9 @@
 {% regroup envt.component_instances.all by model_id as compotype_list %}
 
 <div style='width:auto;'>
-	<div class='column'>
+	<div class='column' style='min-width: 0px;'>
 		<div class='t2'>Généralités</div>
-		<div class=metSquare style='width: auto; height: auto; background: #AD103C'>
+		<div class="metContainer metFreeRect defaultHighlightBackground">
 			<table>
 				<tr><td>Nom de code</td><td>: {{envt.name}}</td></tr>
 				<tr><td>Responsable</td><td>: {{envt.manager}}</td></tr>
@@ -33,7 +33,7 @@
 			{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
 			{% for compo in compotype.list %}
 				
-				<div class=metSquare style='width: auto; height: auto; background: {{moderncolors}};'>
+				<div class="metContainer metFreeRect metDefaultBackground">
 					<table>
 						<tr><td colspan="2" style='font-style: italic;text-align: center;'>{%if compo.instanciates %} {{compo.instanciates.name}} 
 						{% else %} {{compo.model.model}} {% endif %} </td></tr>

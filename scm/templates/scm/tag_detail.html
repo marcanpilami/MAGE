@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class='metContainer metSection' style='background-color: #B01E00;'>
+<div class='metContainer metSection metDefaultBackground'>
 	<table>
 		<tr><td>Environnement source</td><td>{{tag.from_envt}}</td></tr>
 		<tr><td>Pris le</td><td>{{tag.snapshot_date}}</td></tr>
@@ -14,7 +14,7 @@
 </div>
 
 {% for v in tag.versions.all %}
-<div class='metContainer metRectList'>
+<div class='metContainer metRectList metDefaultBackground'>
 	[{{v.logical_component.name}}] en version [{{v.version}}]
 </div>
 

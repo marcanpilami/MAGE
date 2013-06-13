@@ -18,13 +18,18 @@
 	<thead>
 		<tr>
 			<td></td>
-			<td>Date</td>
+			<td style='width: 6em;'>Date</td>
 			{% for lc in logical_components %}
 				<td>{{lc.name}}</td>
 			{% endfor %}			
 		</tr>
-		<tr style='background-color: #B01E00;'>
-			<td>Version actuelle :</td>
+		
+	</thead>
+	
+	<tbody>
+	
+		<tr style='background-color: #D6D6D6; font-style: italic;'>
+			<td>Version actuelle</td>
 			<td></td>
 			{% for lc in logical_components %}
 				{% for key, value in versions.items %}
@@ -34,13 +39,10 @@
 				{% endfor %}
 			{% endfor %}	
 		</tr>
-	</thead>
-	
-	<tbody>
 		{% for install in installs %}
 			<tr>
 				<td>
-					<div class='metRectList' style='background:#004A00;margin:0;' >
+					<div class='metContainer' style='background:#D6D6D6;margin:0;' >
 						<a href="{% url "scm:delivery_detail" install.installed_set.pk %}"> {{ install.installed_set.name }}</a>
 					</div>
 				</td>
@@ -51,7 +53,7 @@
 					<td style='height:100%;'>
 					{% for ii in install.installed_set.set_content.all %}
 						{% ifequal ii.what_is_installed.logical_component_id lc.id %}
-							<div style='background-color: #004A00; height: 100%;width:100%;display:inline-block;'> {{ ii.what_is_installed.version }}</div>
+							<div class='metContainer' style='background-color: #4D944D;'> {{ ii.what_is_installed.version }}</div>
 						{% endifequal %}
 					{% endfor %}
 					</td>

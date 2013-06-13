@@ -15,7 +15,7 @@ versionfinder="{% url 'scm:getlcversions' 99999999 %}";
 <form id='mainForm' method='POST'>
 
 	{% for ii, fs in fss.items %}
-		<div class='metContainer metFreeRect subform' id='fs{{ii.pk}}' style='background:#423173;'>
+		<div class='metContainer metFreeRect subform metFormSection' id='fs{{ii.pk}}'>
 			{{ fs.management_form }}
 			<div class='addFS' style='display: none;'>
 				<div class='subformset'>

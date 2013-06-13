@@ -348,9 +348,9 @@ def demo_internal(request):
     ref = TestHelper()
     install_iset_envt(is_list[0], ref.envt_prd1)
     install_iset_envt(is_list[1], ref.envt_prd1)
-    install_iset_envt(is_list[2], ref.envt_prd1)
-    install_iset_envt(is_list[3], ref.envt_prd1)
-    install_iset_envt(is_list[5], ref.envt_prd1)
+    #install_iset_envt(is_list[2], ref.envt_prd1)
+    #install_iset_envt(is_list[3], ref.envt_prd1)
+    #install_iset_envt(is_list[5], ref.envt_prd1)
     
     bs1 = register_backup('PRD1', datetime.now(), "no descr", *ref.envt_prd1.component_instances.all())
     register_backup_envt_default_plan('PRD1', datetime.now())

@@ -15,7 +15,7 @@
 
 {% block content %}
 
-<div class='metContainer metSection' style='background-color: #004A00;'>
+<div class='metContainer metSection metDefaultBackground'>
 	<table>
 		<tr><td>Enregistrée le</td><td> : {{ delivery.set_date|date:"d/m/Y" }}</td></tr>
 		<tr><td>Description courte</td><td> : {{delivery.description}}</td>	</tr>
@@ -26,39 +26,37 @@
 </div>
 
 {% for ii in delivery.set_content.all %}
-	<div class='metContainer metFreeRect' style='background-color: #423173;'>
-		<div class='t2'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
-		
-			
+	<div class='metContainer metFreeRect metDefaultBackground'>
+		<div class='t3'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
+
 				{% for method in ii.how_to_install.all %}
-					<div class='metContainer metRectList' style='background-color: #180052;height: auto;'>
-						<div class='t3'>Compatible avec</div>
+					<div class='metContainer metFreeRect'>
 						
 						{% for cic in method.method_compatible_with.all %}
 							{% if cic.implements_id == ii.what_is_installed.logical_component_id %}
-								<div>{{ cic.name }}</div>
+								<div class='smallContent'>Compatible avec {{ cic.name }} (via {{ method.name }})</div>
 							{%endif%}
 						{% endfor %}
-						<div class='annotation'>via {{ method.name }}</div>
+						
 					</div>
 				
 				{% endfor %}
 		
-		{% for dep in ii.dependencies.all %}
-			<div class='metRectList' style='background-color: #180052;'>
+		<div class='metContainer smallContent'>
+			{% for dep in ii.dependencies.all %}
 				Requiert version [{{dep.depends_on_version.logical_component.name}}] {{dep.operator}} [{{dep.depends_on_version.version}}]
-			</div>
-		{%endfor%}
+			{%endfor%}
+		</div>
 	</div>
 {% endfor %}
 
 <br/>
 {% if delivery.available %}
 	{% for envt in envts %}
-		<a class='metRectList' style='background-color: #004A00;' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
+		<a class='metRectList defaultHighlightBackground' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
 	{% endfor %}
 {% else %}
-	<div class='metRectList' style='background-color: #AD103C;'>Livraison non disponible - non installable</div>
+	<div class='metRectList metErrorBackground'>Livraison non disponible - non installable</div>
 {% endif %}
 
 {% endblock content %}
