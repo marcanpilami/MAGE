@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Versions disponibles des composants logiques{% endblock %}
+
+{% block content %}
+
+{% for lc in lcs %}
+	<a class='metSquare metContainer' href="{% url 'scm:lc_versions' lc.id %}">
+		{{ lc.name }}
+	</a>
+{% endfor %}
+
+{% endblock content %}

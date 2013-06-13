@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block pagetitle %}Gestion de configuration{% endblock %}
+{% block maintitle %}Versions disponibles de {{lc}}{% endblock %}
+
+{%block navigationButtons%}
+<a href="{% url 'scm:lc_list' %}" title="Liste des composants logiques">↑</a>
+{%endblock%}
+
+{% block content %}
+
+{% for v in lc.versions.all %}
+	<div class='metRectList defaultHighlightBackground'>
+		{{ v.version }}
+	</div>
+	{% for ii in v.installed_by.all %}
+		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">
+			<div class='smallContent'>Livré dans</div>{{ ii.belongs_to_set.name }}
+		</a>
+	{% endfor %}
+
+	<br/>
+{% endfor %}
+
+{% endblock content %}

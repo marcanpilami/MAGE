@@ -121,6 +121,16 @@ def lc_versions_per_environment(request):
     return render(request, 'scm/lc_installs_envt.html', {'res': res, 'envts': envts})
 
 
+def lc_list(request):
+    lcs = LogicalComponent.objects.all()
+    return render(request, 'scm/lc_versions.html', {'lcs': lcs})
+
+def lc_versions(request, lc_id):
+    lc = LogicalComponent.objects.get(pk = lc_id)
+    return render(request, 'scm/lc_versions_detail.html', {'lc': lc})
+
+
+
 @login_required
 @permission_required('scm.add_delivery')
 def delivery_edit(request, iset_id=None):
