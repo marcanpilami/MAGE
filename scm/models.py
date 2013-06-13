@@ -279,7 +279,7 @@ class SetDependency(models.Model):
 
 class Installation(models.Model):
     installed_set = models.ForeignKey(InstallableSet, verbose_name='livraison appliquée ')
-    asked_in_ticket = models.IntegerField(max_length=6, verbose_name='ticket lié ', blank=True, null=True)
+    asked_in_ticket = models.CharField(max_length=10, verbose_name='ticket lié ', blank=True, null=True)
     install_date = models.DateTimeField(verbose_name='date d\installation ')
 
     def __unicode__(self):

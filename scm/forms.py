@@ -14,9 +14,9 @@ class DeliveryForm(ModelForm):
         data = self.cleaned_data['ticket_list']
         if len(data) == 0:
             return data
-        p = re.compile('(\d+,?)+$')
+        p = re.compile('([\da-zA-Z_-]+,?)+$')
         if p.match(data) is None:
-            raise forms.ValidationError("This field must be a comma-separated list of integers")
+            raise forms.ValidationError("This field must be a comma-separated list of ticket ID (letters and integers)")
         return data
     
     class Meta:
