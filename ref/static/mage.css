@@ -355,6 +355,7 @@ button.cancel {
 	background-color: #0000CC;
 	color: white;
 	padding-bottom: 3px;
+	min-height: 36px;
 }
 
 
