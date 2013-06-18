@@ -47,7 +47,7 @@ class MageDC(Dot):
     
     ####################################################
     ## Colour sequence
-    colours = ['bisque1', 'darkorange1', 'gold1', 'mediumseagreen', 'skyblue', 'orchid', 'gray']
+    colours = ['cornsilk3', 'darkorange1', 'gold1', 'mediumseagreen', 'skyblue', 'orchid', 'gray']
     def getObjectColour(self,object_name):
         try:
             return self.object_colours[object_name]

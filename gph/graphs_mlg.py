@@ -88,6 +88,7 @@ def getGraph(django_filters={}, filename=None, context=None, django_filter_unnam
     dc.components = ComponentInstance.objects.select_related().filter(*django_filter_unnamed, **django_filters)
     dc.set_simplify(True)
     dc.set_bgcolor('#F5F0F2')
+    dc.set_concentrate(True)
     
     for compo in dc.components:
         drawNode(compo, dc)
@@ -116,12 +117,12 @@ def drawNode(component, context):
     
     ## connectedTo
     for linkedCompo in component.connectedTo.all():
-        if isCompoToBeDrawn(linkedCompo, context):
+        if __nodeExists(linkedCompo, context): ## Already drawn. That way, we avoid the two-way-rel.
             # Draw (possibly the node) and the edge
             linkedNode = drawNode(linkedCompo, context) # recursion. Creates node if not already drawn.
-            e = Edge(curNode, linkedNode)
+            e = Edge(curNode, linkedNode, weight = 0, penwidth=5)
             e.set_arrowhead('none')
-            e.set_color('white')
+            e.set_color('antiquewhite4')
             context.add_edge(e)
     
     ## dependsOn
@@ -129,9 +130,9 @@ def drawNode(component, context):
         if isCompoToBeDrawn(daddy, context):
             # Draw (possibly the node) and the edge
             linkedNode = drawNode(daddy, context) # recursion
-            e = Edge(curNode, linkedNode)
-            e.set_style('dotted')
-            e.set_color('cornsilk3')
+            e = Edge(curNode, linkedNode, weight = 100)
+            #e.set_style('dotted')
+            e.set_color('blue2')
             context.add_edge(e)
     
     return curNode
