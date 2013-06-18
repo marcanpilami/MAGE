@@ -32,6 +32,10 @@ class OsAccount(ComponentInstance):
     
     def __unicode__(self):
         return "%s on %s" % (self.name, self.server.name if self.server else 'no server')
+    
+    class Meta:
+        verbose_name = u'compte OS'
+        verbose_name_plural = u'comptes OS'
 
 
 ######################################################
@@ -55,6 +59,7 @@ class OracleInstance(ComponentInstance):
 class OracleSchema(ComponentInstance):
     password = models.CharField(max_length=100, verbose_name=u'Mot de passe')
     service_name_to_use = models.CharField(max_length=30, verbose_name=u'SERVICE_NAME', blank=True, null=True)
+    dns_to_use = models.CharField(max_length=100, verbose_name=u'database DNS', blank=True, null=True)
     
     def connectString(self):
         if self.service_name_to_use:
@@ -63,6 +68,18 @@ class OracleSchema(ComponentInstance):
             return '%s/%s@%s' % (self.name, self.password, self.oracle_instance.name)
     connectString.short_description = u"chaîne de connexion"
     connectString.admin_order_field = 'name'
+    
+    def jdbcString(self):
+        if self.service_name_to_use and self.dns_to_use:
+            return 'jdbc:oracle:thin:@%s:%s/%s' %(self.dns_to_use, self.oracle_instance.port, self.service_name_to_use)
+        elif self.service_name_to_use:
+            return 'jdbc:oracle:thin:@%s:%s/%s' %(self.oracle_instance.server.name, self.oracle_instance.port, self.service_name_to_use)
+        elif self.dns_to_use:
+            return 'jdbc:oracle:thin:@%s:%s:%s' %(self.dns_to_use, self.oracle_instance.port, self.oracle_instance.name)
+        else:
+            return 'jdbc:oracle:thin:@%s:%s:%s' %(self.oracle_instance.server.name, self.oracle_instance.port, self.oracle_instance.name)
+    jdbcString.short_description = u"chaîne JDBC"
+    jdbcString.admin_order_field = 'name'
     
     parents = {'oracle_instance': {'model' : 'OracleInstance'}}
     detail_template = 'cpn/ora_schema_table.html'
@@ -93,17 +110,33 @@ class OraclePackage(ComponentInstance):
 ######################################################
 
 class WasApplication(ComponentInstance):
-    context_root = models.CharField(max_length=50, default='/')
+    context_root = models.CharField(max_length=50, default='/', null = False)
+    client_url = models.CharField(max_length=100, verbose_name=u'access URL', blank=True, null=True)
     
     def __unicode__(self):
         return u'Application Java %s' % (self.name,)
     
+    def url(self):
+        if self.client_url:
+            return self.client_url
+        elif self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.dns_to_use:
+            return 'http://%s:%s%s' % (self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.dns_to_use, 
+                                        self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.http_port, 
+                                        self.context_root)
+        else:
+            return 'http://%s:%s%s' %(self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.was_node.server.name,
+                                       self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.http_port, 
+                                       self.context_root)
+    url.short_description = u"adresse de l'application"
+    url.admin_order_field = 'name'
+    
     parents = {'was_cluster': {'model': 'WasCluster'}}
     include_in_default_envt_backup = False
+    detail_template = 'cpn/wasapp_table.html'
     
     class Meta:
-        verbose_name = u'application déployée sur un WAS'
-        verbose_name_plural = u'applications déployées sur un WAS'
+        verbose_name = u'application sur un WAS'
+        verbose_name_plural = u'applications sur un WAS'
 
 class WasCluster(ComponentInstance):
     parents = {'was_cell': {'model': 'WasCell'}}
@@ -147,9 +180,10 @@ class WasNode(ComponentInstance):
         verbose_name_plural = u'noeuds WAS'
     
 class WasAS(ComponentInstance):
-    parents = {'was_node': {'model': 'WasNode'}, 'was_cluster': {'model': 'WasCluster'}, 'server': {'model': 'OsServer'}}
-    http_port = models.IntegerField(default=8080)
+    parents = {'was_node': {'model': 'WasNode'}, 'was_cluster': {'model': 'WasCluster'}}
+    http_port = models.IntegerField(default=9080)
     https_port = models.IntegerField(default=8081)
+    dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias to use instead of the Unix/Windows server DNS name', blank=True, null=True)
     
     def __unicode__(self):
         return u'AS WAS %s' % (self.name,)

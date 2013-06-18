@@ -110,6 +110,7 @@ class EnvironmentType(models.Model):
     implementation_patterns = models.ManyToManyField(ComponentImplementationClass)
     chronological_order = models.IntegerField(default=1)
     default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
+    default_show_sensitive_data = models.BooleanField(default = False, verbose_name = "afficher les informations sensibles")
 
     def __get_cic_list(self):
         return ','.join([ i.name for i in self.implementation_patterns.all()])
@@ -140,6 +141,16 @@ class Environment(models.Model):
     typology = models.ForeignKey(EnvironmentType)
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
+    show_sensitive_data = models.NullBooleanField(verbose_name = "afficher les informations sensibles", null = True, blank = True)
+    
+    def __protected(self):
+        if self.show_sensitive_data is not None:
+            return not self.show_sensitive_data
+        elif self.typology is not None:
+            return not self.typology.default_show_sensitive_data
+        else:
+            return True
+    protected = property(__protected)
     
     def __unicode__(self):
         return "%s" % (self.name,)

@@ -137,8 +137,8 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%a3%", "noapplication")
         res = res.replace("%A3%", "NOAPPLICATION")
         res = res.replace("%A3~%", "NoApplication")
-        res = res.replace("%a", "noapplication")
-        res = res.replace("%A", "NOAPPLICATION")
+        res = res.replace("%a%", "noapplication")
+        res = res.replace("%A%", "NOAPPLICATION")
         res = res.replace("%A~%", "NoApplication")
     
     ## Project

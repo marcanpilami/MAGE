@@ -1,2 +1,6 @@
-<tr><td>Instance</td><td>{{compo.oracle_instance.name}} ({{compo.oracle_instance.server.name}}:{{compo.oracle_instance.port}})</td></tr>
-<tr><td>Chaine de connexion</td><td>{{compo.connectString}}</td></tr>
+<tr><td>Instance</td><td>{{compo.oracle_instance.name}}</td></tr>
+<tr><td>Nom de service</td><td>{{compo.service_name_to_use}}</td></tr>
+{% if perms.ref.allfields_componentinstance or envt.protected == False %}
+<tr><td>Sqlplus</td><td>{{compo.connectString}}</td></tr>
+{% endif %}
+<tr><td colspan='2' style='max-width: 20em;'>{{compo.jdbcString}}</td></tr>

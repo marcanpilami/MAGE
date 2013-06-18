@@ -43,7 +43,7 @@ def welcome(request):
 
 
 def envts(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects_active.all().order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
+    return render(request, 'ref/envts.html', {'envts': Environment.objects_active.all().order_by('typology__chronological_order', 'typology__name'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def templates(request):
     return render(request, 'ref/envts.html', {'envts': Environment.objects.filter(template_only=True).order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})

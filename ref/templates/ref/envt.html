@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filter %}
 {% block pagetitle %}{{envt.name}}{% endblock %}
 {% block maintitle %}Environnement {{envt.name}}{% endblock %}
 
@@ -14,7 +15,7 @@
 {% regroup envt.component_instances.all by model_id as compotype_list %}
 
 <div style='width:auto;'>
-	<div class='column' style='min-width: 0px;'>
+	<div class='column' style="min-width: 0px; max-width: 230px;">
 		<div class='t2'>Généralités</div>
 		<div class="metContainer metFreeRect defaultHighlightBackground">
 			<table>
@@ -24,10 +25,13 @@
 				<tr><td>Sera détruit le</td><td>: {{envt.destructionDate}}</td></tr>
 				<tr><td>Catégorie</td><td>: {{envt.typology.name}}</td></tr>
 		</table>	
-		</div>
+		</div><br/><br/>
+		<a  href="{% url 'scm:envtinstallhist' envt.name %}">Historique des installations</a><br/>
+		<a href="{% url 'scm:backup_list' %}">Sauvegardes</a><br/>
+		<a href="{% url 'scm:tag_list' %}">Tags</a><br/>
 	</div>
 	
-	<div class='column' style='max-width:500px; min-width:300px; width=auto;'>
+	<div class='column' style='max-width:650px; min-width:300px; width=auto;'>
 		<div class='t2'>Composants</div>	
 		{% for compotype in compotype_list %}
 			{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
@@ -35,13 +39,22 @@
 				
 				<div class="metContainer metFreeRect metDefaultBackground">
 					<table>
-						<tr><td colspan="2" style='font-style: italic;text-align: center;'>{%if compo.instanciates %} {{compo.instanciates.name}} 
-						{% else %} {{compo.model.model}} {% endif %} </td></tr>
-						{% if compo.name %}
-						<tr><td>Nom </td><td>{{compo.name}}</td></tr>
+						
+						{% if compo.instanciates %}
+							<tr><td colspan='2' style='background-color:#B3B3B3; text-transform: uppercase;text-align: center; max-width: 9em; font-size: 8pt;'>{{compo.instanciates.implements.name}}</td></tr>
 						{% endif %}
+						<tr><td colspan="2" style='font-style: italic;text-align: center;background-color:#B3B3B3; '>
+						{{ compo.leaf | verbose_name | capfirst }}
+						</td></tr>
+						
 						{% if compo.leaf.detail_template %}
 							{% include compo.leaf.detail_template  with compo=compo.leaf %}
+						{% else %}
+							{% if compo.name %}
+								<tr><td>Nom </td><td>{{compo.name}}</td></tr>
+							{% else %}
+								<tr><td>Nom </td><td>no name specified</td></tr>
+							{% endif %}
 						{% endif %}
 					</table>	
 				</div>
