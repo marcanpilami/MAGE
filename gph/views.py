@@ -58,7 +58,7 @@ def filter_pic(request, nbParents, nbPartners, collapseThr):
 def envt_pic(request, envt_id):
     # Create png with GraphWiz  
     dc = DrawingContext()
-    dc.parentRecursionLevel = 0
+    dc.parentRecursionLevel = 1
     dc.patnersRecursionLevel = 5
     dc.collapse_threshold = 5
     cfilter = {'environments__pk':envt_id}
