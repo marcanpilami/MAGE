@@ -110,10 +110,11 @@ def delivery_ii_apply_envt(request, ii_id, instance_id, envt_name, install_id = 
     install = Installation.objects.get(pk = install_id) if install_id is not None else None
     envt = Environment.objects.get(name=envt_name)
 
-    install = install_ii_single_target_envt(ii, instance, envt, True, install = install)
+    install = install_ii_single_target_envt(ii = ii, instance = instance, envt = envt, force_prereqs = True, install = install)
     
     response = HttpResponse(content_type='text/text')
     response.write(install.id)
+    response.write(install.__dict__)
     return response
 
 def lc_versions_per_environment(request):

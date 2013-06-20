@@ -67,16 +67,14 @@ def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, ins
     
     ## Check prerequisites
     try:
-        iset.check_prerequisites(envt.name, (instance,))
+        iset.check_prerequisites(envt.name)
     except MageScmFailedEnvironmentDependencyCheck, e:
         if force_prereqs:
             warnings.warn('prerequisites are not valid but this is a forced install') # debug info
         else:
             raise e
 
-    if install is not None:
-        pass
-    else:
+    if install is None:
         install = Installation(installed_set = iset, install_date = install_date, asked_in_ticket = ticket)
         install.save()
     
