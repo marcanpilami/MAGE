@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     url(r'delivery/lc$', views.lc_list, name='lc_list'),
     url(r'delivery/lc/(?P<lc_id>\d*)/versions$', views.lc_versions, name='lc_versions'),
     
+    url(r'ii/(?P<ii_id>\d+)/apply/(?P<envt_name>.+)/(?P<instance_id>\d+)$', views.delivery_ii_apply_envt, name='delivery_apply_ii_single'),
+    
     url(r'delivery/get/content/(?P<iset>.*)/csv.csv$', views.iset_content_csv, name='delivery_content_csv'),
     url(r'delivery/get/content/(?P<isetid>.*)/ksh$', views.iset_content_shell, name='delivery_content_shell'),
     url(r'delivery/get/id/(?P<iset_name>.*)$', views.iset_id, name='iset_id'),

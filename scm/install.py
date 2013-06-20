@@ -61,3 +61,27 @@ def install_iset(iset, targets, envt, force_prereqs = False, install_date = date
         ii = duet[1]
         cic = ComponentInstanceConfiguration(component_instance = compo, result_of = ii, part_of_installation = i, created_on = install_date)
         cic.save() 
+        
+def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, install_date = datetime.now(), ticket = None, install = None):
+    iset = ii.belongs_to_set
+    
+    ## Check prerequisites
+    try:
+        iset.check_prerequisites(envt.name, (instance,))
+    except MageScmFailedEnvironmentDependencyCheck, e:
+        if force_prereqs:
+            warnings.warn('prerequisites are not valid but this is a forced install') # debug info
+        else:
+            raise e
+
+    if install is not None:
+        pass
+    else:
+        install = Installation(installed_set = iset, install_date = install_date, asked_in_ticket = ticket)
+        install.save()
+    
+    cic = ComponentInstanceConfiguration(component_instance = instance, result_of = ii, part_of_installation = install, created_on = install_date)
+    cic.save() 
+    
+    return install
+    

@@ -18,7 +18,7 @@ from ref.models import Environment, ComponentInstance, EnvironmentType, Conventi
 from cpn.tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
-from scm.install import install_iset_envt
+from scm.install import install_iset_envt, install_ii_single_target_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
 
@@ -102,6 +102,19 @@ def delivery_apply_envt(request, delivery_id, envt_id_or_name):
     
     install_iset_envt(delivery, envt)
     return redirect('scm:envtinstallhist', envt_name=envt.name)
+
+@permission_required('scm.install_installableset')
+def delivery_ii_apply_envt(request, ii_id, instance_id, envt_name, install_id = None):    
+    ii = InstallableItem.objects.get(pk=ii_id)
+    instance = ComponentInstance.objects.get(pk = instance_id)
+    install = Installation.objects.get(pk = install_id) if install_id is not None else None
+    envt = Environment.objects.get(name=envt_name)
+
+    install = install_ii_single_target_envt(ii, instance, envt, True, install = install)
+    
+    response = HttpResponse(content_type='text/text')
+    response.write(install.id)
+    return response
 
 def lc_versions_per_environment(request):
     Installation.objects.filter()
