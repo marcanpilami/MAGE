@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django import forms
 
 from MAGE.exceptions import MageCallerError
-from ref.csvi import get_components_csv
+from ref.csvi import get_components_csv, get_components_pairs
 from ref.creation import duplicate_envt, create_instance
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
@@ -125,6 +125,11 @@ def mcl_query(request, mcl, titles='1'):
     get_components_csv(res, titles, response, displayRestricted=(request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance')))
     return response
     
+
+def mcl_query_shell(request, mcl):
+    res = parser.get_components(mcl)
+    compos = get_components_pairs(res, request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'))
+    return render(request, 'ref/shell_mcl_result_ksh.html', {'attrs': compos}, content_type="test/text")
     
 def mcl_create(request, mcl, use_convention='1'):
     if use_convention == '1':

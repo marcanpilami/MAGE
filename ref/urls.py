@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'mcl/get_or_create_nocv/(?P<mcl>.*)/mcl\.csv$', views.mcl_create_without_convention, name='mcl_create_nocv'),
     url(r'mcl/get_or_create_cv/(?P<mcl>.*)/mcl\.csv$', views.mcl_create, name='mcl_create_cv'),
     url(r'mcl/(?P<mcl>.*)/mcl\.csv$', views.mcl_query, name='mcl_query'),
+    url(r'mcl/(?P<mcl>.*)/mcl/ksh$', views.mcl_query_shell, name='mcl_shell'),
     
     url(r'urls', views.urls, name='urls'),
 )

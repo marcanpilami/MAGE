@@ -7,6 +7,16 @@ Created on 8 mars 2013
 from cStringIO import StringIO
 import csv
 
+
+def get_components_exportable_attributes(component_instances=(), displayRestricted=False):
+    keys = set()
+    for compo in component_instances:
+        compo.leaf.__dict__['component_type'] = compo.model.model
+        keys = set(compo.exportable_fields(displayRestricted)) | set(keys)
+    keys=list(keys)
+    #keys.remove('model_id');keys.remove('_state');keys.append('environments')
+    return keys
+
 def get_components_csv(component_instances=(), display_titles=False, outputFile=None, displayRestricted=False):
     if not outputFile:
         output = StringIO()
@@ -16,14 +26,7 @@ def get_components_csv(component_instances=(), display_titles=False, outputFile=
     if len(component_instances) == 0:
         return ""
     
-    keys = ()
-    for compo in component_instances:
-        compo.leaf.__dict__['component_type'] = compo.model.model
-        if displayRestricted:
-            keys = list(set(compo.leaf.__dict__.keys()) | set(keys))
-        else:      
-            keys = list(set([ i for i in compo.leaf.__dict__.keys() if i not in compo.leaf.restricted_fields]) | set(keys))
-    keys.remove('model_id');keys.remove('_state');keys.append('environments')
+    keys = get_components_exportable_attributes(component_instances, displayRestricted)
     
     wr = csv.DictWriter(output, fieldnames=keys, restval="", extrasaction='ignore', dialect='excel', delimiter=";")
     if display_titles:
@@ -41,3 +44,15 @@ def get_components_csv(component_instances=(), display_titles=False, outputFile=
     # else, no need to return anything - the CSV is written in the file
 
 
+def get_components_pairs(component_instances=(), displayRestricted=False):
+    keys = get_components_exportable_attributes(component_instances, displayRestricted)
+    res = []
+    
+    for compo in component_instances:
+        tmp = []
+        compo = compo.leaf
+        for key in keys:
+            tmp.append({"key":key, "value":getattr(compo, key)})
+        res.append(tmp)
+
+    return res

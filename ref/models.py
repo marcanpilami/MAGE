@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from MAGE.exceptions import MageError
 from django.core.exceptions import ValidationError
 from UserDict import DictMixin
+import inspect
 
 
 ################################################################################
@@ -296,9 +297,27 @@ class ComponentInstance(models.Model):
                 continue # 0..n: whatever result is OK
             else:
                 if real.count() != card:
-                    res.append((r, card, real.count()))
-        
+                    res.append((r, card, real.count()))        
         return res
+    
+    ## Introspection helpers
+    def exportable_fields(self, restricted_access = False):
+        internal_attrs = ('latest_cic', 'leaf', 'pk', 'version', 'version_object_safe', 'default_convention')
+        self.leaf.__dict__['component_type'] = self.model.model
+        if restricted_access:
+            keys = self.leaf.__dict__.keys()
+            for t in inspect.getmembers(type(self.leaf), lambda x: isinstance(x, property)):
+                if t[0] in internal_attrs:
+                    continue
+                keys.append(t[0])
+        else:      
+            keys = [ i for i in self.leaf.__dict__.keys() if i not in self.leaf.restricted_fields]
+            for t in inspect.getmembers(type(self.leaf), lambda x: isinstance(x, property)):
+                if t[0] in internal_attrs or t[0] in self.leaf.restricted_fields:
+                    continue
+                keys.append(t[0])
+        keys.remove('model_id');keys.remove('_state');keys.remove('componentinstance_ptr_id');keys.append('environments')
+        return keys
     
     ## Set the "model" field at initialization
     def __setContentType(self):

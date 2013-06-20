@@ -68,6 +68,7 @@ class OracleSchema(ComponentInstance):
             return '%s/%s@%s' % (self.name, self.password, self.oracle_instance.name)
     connectString.short_description = u"chaîne de connexion"
     connectString.admin_order_field = 'name'
+    connection_string = property(connectString)
     
     def jdbcString(self):
         if self.service_name_to_use and self.dns_to_use:
@@ -84,7 +85,7 @@ class OracleSchema(ComponentInstance):
     parents = {'oracle_instance': {'model' : 'OracleInstance'}}
     detail_template = 'cpn/ora_schema_table.html'
     key = ('instance_name',)
-    restricted_fields = ('password', 'private_key',)
+    restricted_fields = ('password', 'private_key', 'connection_string')
     
     def __unicode__(self):
         return u"%s (%s)" % (self.name, self.oracle_instance)
