@@ -129,7 +129,7 @@ def mcl_query(request, mcl, titles='1'):
 def mcl_query_shell(request, mcl):
     res = parser.get_components(mcl)
     compos = get_components_pairs(res, request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'))
-    return render(request, 'ref/shell_mcl_result_ksh.html', {'attrs': compos}, content_type="test/text")
+    return render(request, 'ref/shell_mcl_result_ksh.html', {'attrs': compos}, content_type="text/text")
     
 def mcl_create(request, mcl, use_convention='1'):
     if use_convention == '1':

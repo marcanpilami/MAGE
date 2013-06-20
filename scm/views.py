@@ -306,6 +306,10 @@ def iset_content_csv(request, iset):
     
     return response
 
+def iset_content_shell(request, isetid):
+    iset = InstallableSet.objects.get(pk=int(isetid))
+    return render(request, 'scm/shell_ii_detail_ksh.html', {'is': iset}, content_type="text/text")
+
 def iset_id(request, iset_name):
     res = 0
     try:

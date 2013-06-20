@@ -1,0 +1,9 @@
+{% load filter%}{% autoescape off %}{% for ii in is.set_content.all %}
+MAGE_IS_II{{forloop.counter}}_ID={{ii.id | ksh_protect_and_quote}}
+MAGE_IS_II{{forloop.counter}}_TARGET={{ii.what_is_installed.logical_component.name | ksh_protect_and_quote}}
+MAGE_IS_II{{forloop.counter}}_TARGET_ID={{ii.what_is_installed.logical_component.id | ksh_protect_and_quote}}
+MAGE_IS_II{{forloop.counter}}_VERSION={{ii.what_is_installed.version | ksh_protect_and_quote}}
+MAGE_IS_II{{forloop.counter}}_IS_FULL={{ii.is_full | ksh_protect_and_quote}}
+MAGE_IS_II{{forloop.counter}}_DATA_LOSS={{ii.data_loss | ksh_protect_and_quote}}
+{% endfor %}{% endautoescape %}
+MAGE_II_COUNT={{ is.set_content.all | length}}
