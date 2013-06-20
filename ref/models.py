@@ -304,6 +304,7 @@ class ComponentInstance(models.Model):
     def exportable_fields(self, restricted_access = False):
         internal_attrs = ('latest_cic', 'leaf', 'pk', 'version', 'version_object_safe', 'default_convention')
         self.leaf.__dict__['component_type'] = self.model.model
+        self.leaf.__dict__['lc_id'] = self.instanciates.implements.pk if self.instanciates else None
         if restricted_access:
             keys = self.leaf.__dict__.keys()
             for t in inspect.getmembers(type(self.leaf), lambda x: isinstance(x, property)):
