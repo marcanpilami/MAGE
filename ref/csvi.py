@@ -52,7 +52,10 @@ def get_components_pairs(component_instances=(), displayRestricted=False):
         tmp = []
         compo = compo.leaf
         for key in keys:
-            tmp.append({"key":key, "value":getattr(compo, key)})
+            try:
+                tmp.append({"key":key, "value":getattr(compo, key)})
+            except AttributeError:
+                pass
         res.append(tmp)
 
     return res

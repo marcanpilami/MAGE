@@ -27,5 +27,13 @@ Get the ID (in a text file) of a delivery or backupset by name (0 if not found):
 Content (with IDs) of a delivery or backupset as a CSV: {% url 'scm:delivery_content_csv' "SET_NAME_OR_ID" %}<br/>
 Fully apply a delivery to an environment: {% url 'scm:delivery_apply_envt' 123456789 "ENVT_NAME_OR_ID" %}<br/>
 Test if prerequisites are respected: {% url 'scm:delivery_prereqs_test_script' 123456789 "ENVT_NAME_OR_ID" %}<br/>
+Apply only one item from a delivery to an environment component instance: {% url 'scm:delivery_apply_ii_single' 123456789 "ENVT_NAME" 123456789 %} (item_id, envt_name, instance_id)<br/>
+<br/>
+Get a KSH (probably BASH compatible) file describing a delivery with variables: {% url 'scm:delivery_content_shell' 123456789 %} (installable set ID)<br/>
+(just source it in your scripts)<br/>
+Get a KSH (probably BASH compatible) file putting an MCL result in variables: {% url 'ref:mcl_shell' "MCL_QUERY" %}<br/>
+(just source it in your scripts)<br/>
+
+
 {% endblock content %}
 

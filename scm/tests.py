@@ -10,11 +10,14 @@ Replace this with more appropriate tests for your application.
 from django.utils.datetime_safe import datetime
 from django.test import TestCase
 
-from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery
+from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery,\
+    Installation
 from cpn.tests import TestHelper, utility_create_test_envt 
 from install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.backup import register_backup
+from scm.install import install_ii_single_target_envt
+from prm.models import setOrCreateParam
 
 
 
@@ -220,3 +223,42 @@ class SimpleTest(TestCase):
         
         bs = register_backup('PRD1', datetime.now(), *ref.envt_prd1.component_instances.all())
         install_iset_envt(bs, ref.envt_tec2)
+
+    def test_merge(self):
+        is_list = create_test_is()
+        ref = TestHelper()
+        
+        iset = is_list[0]
+        ii1 = iset.set_content.all()[0]
+        ii2 = iset.set_content.all()[1]
+        instance1 = ref.envt_prd1.component_instances.get(instanciates__implements__name = 'RDBMS container for module 1')
+        instance2 = ref.envt_prd1.component_instances.get(instanciates__implements__name = 'RDBMS container for module 2')
+        
+        install_ii_single_target_envt(ii1, instance1, ref.envt_prd1)        
+        self.assertEqual(instance1.version, 'v1')    
+        
+        install_ii_single_target_envt(ii2, instance2, ref.envt_prd1)        
+        self.assertEqual(instance2.version, 'a')  
+        
+        installs = Installation.objects.all().count()
+        self.assertEqual(1, installs)  
+        
+    def test_not_merge(self):
+        is_list = create_test_is()
+        ref = TestHelper()
+        setOrCreateParam(key = u'APPLY_MERGE_LIMIT', value = u'0') ## Disable merge
+     
+        iset = is_list[0]
+        ii1 = iset.set_content.all()[0]
+        ii2 = iset.set_content.all()[1]
+        instance1 = ref.envt_prd1.component_instances.get(instanciates__implements__name = 'RDBMS container for module 1')
+        instance2 = ref.envt_prd1.component_instances.get(instanciates__implements__name = 'RDBMS container for module 2')
+        
+        install_ii_single_target_envt(ii1, instance1, ref.envt_prd1)        
+        self.assertEqual(instance1.version, 'v1')    
+        
+        install_ii_single_target_envt(ii2, instance2, ref.envt_prd1)        
+        self.assertEqual(instance2.version, 'a')  
+        
+        installs = Installation.objects.all().count()
+        self.assertEqual(2, installs)  

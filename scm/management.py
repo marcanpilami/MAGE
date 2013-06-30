@@ -16,6 +16,7 @@ import models
 from scm.models import InstallationMethod
 from ref.models import Convention
 from ref.conventions import nc_sync_naming_convention
+from prm.models import setOrCreateParam
 
 def post_syncdb_handler(sender, **kwargs):
     ## Create DEV group & first user
@@ -36,6 +37,11 @@ def post_syncdb_handler(sender, **kwargs):
         default.save()
     for c in Convention.objects.all():
         nc_sync_naming_convention(c)
+        
+    ## Parameters
+    setOrCreateParam(key = u'APPLY_MERGE_LIMIT', value = u'60', 
+                     default_value = u'60', 
+                     description = u'Si deux éléments d\'une même livraison sont appliquées sur un même environnement à moins de n minutes, c\'est une même installation')
         
 
 ## Listen to the syncdb signal
