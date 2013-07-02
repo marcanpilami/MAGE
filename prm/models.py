@@ -145,3 +145,9 @@ def getMyParams():
     """
     app = sys._getframe(1).f_globals['__name__'].split('.')[0]
     return MageParam.objects.filter(app=app)
+
+def getAllParams():
+    """
+        @return: all the parameters of all applications
+    """
+    return MageParam.objects.all()

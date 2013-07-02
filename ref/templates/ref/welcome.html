@@ -25,7 +25,7 @@
 	<a class='metSquare' style='background: #004A00;' href="{% url 'scm:lc_list' %}">Versions disponibles des composants logiques</a>
 </div>
 <div class='column'>
-	<div class='t2' style='color: black;'>L'équipe technique</div>
+	<div class='t2' style='color: black;'>Liens équipe technique</div>
 	{% for link in team_links %}
 		<a class='metSquare' style='background: {{ link.color }};' href="{{ link.url }}">{{ link.value|safe }}</a>
 	{% endfor %}
