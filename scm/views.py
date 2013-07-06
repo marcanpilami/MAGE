@@ -51,8 +51,9 @@ def all_installs(request, envt_name, limit=15):
     return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit })
 
 def delivery_list(request):
-    deliveries = Delivery.objects.order_by('pk').select_related('set_content__what_is_installed__logical_component')
-    return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries})
+    deliveries = Delivery.objects.order_by('set_date').reverse().select_related('set_content__what_is_installed__logical_component')
+    lis = LogicalComponent.objects.filter(scm_trackable = True, active = True).order_by('pk').select_related('versions')
+    return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries, 'lis': lis})
 
 def delivery(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
