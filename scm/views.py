@@ -8,6 +8,7 @@ from django.db.models.aggregates import Count
 from django.forms.models import inlineformset_factory
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.admin.views.decorators import staff_member_required
 
 from datetime import datetime, timedelta
 import json
@@ -27,7 +28,7 @@ from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from ref.conventions import nc_sync_naming_convention
 import csv
-
+import importlib
 
 def envts(request):
     envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -366,6 +367,7 @@ def reset():
         pr.delete()
     
 @transaction.commit_on_success
+@staff_member_required
 def demo_internal(request):
     reset()
     
@@ -388,7 +390,8 @@ def demo_internal(request):
     return HttpResponseRedirect(reverse('welcome'))
     
 @transaction.commit_on_success
-def demo(request):
+@staff_member_required
+def bootstrap(request):
     reset()
     default = Convention(name='default convention')
     default.save()
@@ -397,10 +400,8 @@ def demo(request):
     from MAGE.settings import INSTALLED_APPS
     for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
         try:
-            demo_data = getattr(__import__(app + '.models', fromlist=['demo_data']), 'demo_data')
+            importlib.import_module(app + '.bootstrap')
         except:
             continue
-        
-        demo_data()
-        
+    
     return HttpResponseRedirect(reverse('welcome'))

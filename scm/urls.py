@@ -42,7 +42,7 @@ urlpatterns = patterns('',
     url(r'bck$', views.backup_list, name='backup_list'),
     
     url(r'demointernal', views.demo_internal, name='demointernal'),
-    url(r'demo', views.demo, name='demo'),
+    url(r'bootstrap', views.bootstrap, name='boostrap'),
     
     url(r'script/lcversions/(?P<lc_id>\d*)$', views.get_lc_versions, name='getlcversions'),         
 )
