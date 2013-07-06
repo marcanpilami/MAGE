@@ -1,6 +1,9 @@
 # coding: utf-8
 
 ## SCM/GCL
+import os
+import datetime
+
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -9,12 +12,18 @@ from ref.models import ComponentInstance, LogicalComponent, ComponentImplementat
 from exceptions import MageScmUndefinedVersionError
 from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
 from MAGE.exceptions import MageError
+from ref.widgets import ClearableFileInputPretty
 
 
 ################################################################################
 ## The sets
 ################################################################################
- 
+
+def __isetdatafilename__(iset, filename):
+        ext =  os.path.splitext(filename)[1]
+        d = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        return 'installablesets/' + d + '_' + iset.name.replace(' ', '_') + ext
+     
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
@@ -28,6 +37,7 @@ class InstallableSet(models.Model):
     location_data_2 = models.CharField(max_length=100, blank=True, null=True)
     location_data_3 = models.CharField(max_length=100, blank=True, null=True)
     location_data_4 = models.CharField(max_length=100, blank=True, null=True)
+    datafile = models.FileField(upload_to = __isetdatafilename__, blank = True, null = True, verbose_name = 'fichier')
     # Through related_name: set_content
     
     removed = models.DateTimeField(null=True, blank=True)
@@ -163,7 +173,7 @@ class InstallationMethod(models.Model):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
-        return u'%s%s for %s' % (a, self.name, ",".join([ i.name for i in self.method_compatible_with.all()]))
+        return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
     
     class Meta:
         verbose_name = u'méthode d\'installation'
@@ -177,12 +187,18 @@ class BackupItem(models.Model):
     related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True) # null if not SCM-tracked
     instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
         
+def __iidatafilename__(ii, filename):
+        ext =  os.path.splitext(filename)[1]
+        d = ii.belongs_to_set.set_date.strftime("%Y%m%d_%H%M%S")
+        return 'installablesets/' + d + '_' + ii.belongs_to_set.name.replace(' ', '_') + '/' + ii.what_is_installed.logical_component.name.replace(' ', '_') + ext
+    
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
-    how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='techniquement compatible avec')
+    how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='peut s\'installer avec')
     belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
-    is_full = models.BooleanField(verbose_name='initial/annule et remplace', default=False)
+    is_full = models.BooleanField(verbose_name='installation de zéro', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
+    datafile = models.FileField(verbose_name = 'fichier', upload_to = __iidatafilename__, blank = True, null = True)
     # TODO: Add a property to access compatible envt types
     
     def __unicode__(self):
@@ -190,6 +206,9 @@ class InstallableItem(models.Model):
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
             return u'installable item'
+    
+    class Meta:
+        permissions = (('download_ii', 'can download the installation file'),)
     
     def dependsOn(self, lcv, operator='>='):
         if not self.dependencies.filter(depends_on_version_id=lcv.id, operator=operator).exists():

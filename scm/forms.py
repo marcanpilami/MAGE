@@ -7,6 +7,7 @@ import re
 
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
 from ref.models import LogicalComponent
+from ref.widgets import ClearableFileInputPretty
 
 
 class DeliveryForm(ModelForm):
@@ -21,7 +22,8 @@ class DeliveryForm(ModelForm):
     
     class Meta:
         model = Delivery
-        exclude = ['removed', 'status', 'location_data_4', 'location_data_3', 'location_data_2']
+        exclude = ['removed', 'status',]
+        widgets = { 'datafile': ClearableFileInputPretty}
 
 class IIForm(ModelForm):
     target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).order_by('name').distinct(), label='Composant livré')
@@ -66,7 +68,8 @@ class IIForm(ModelForm):
     class Meta:
         model = InstallableItem
         # exclude = ['what_is_installed',]
-        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss',)  # 'what_is_installed')
+        fields = ('target', 'version', 'how_to_install', 'is_full', 'data_loss', 'datafile')  # 'what_is_installed')
+        widgets = { 'datafile': ClearableFileInputPretty}
 
 
 class IDForm(ModelForm):   

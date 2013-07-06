@@ -29,6 +29,7 @@ from scm.forms import BackupForm
 from ref.conventions import nc_sync_naming_convention
 import csv
 import importlib
+from prm.models import getParam
 
 def envts(request):
     envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
@@ -161,6 +162,23 @@ def delivery_edit(request, iset_id=None):
         if not request.user.has_perm('scm.modify_delivery') and instance.status != 3:
             return redirect(reverse('login') + '?next=%s' % request.path)
     
+    ## General parameters
+    level = int(getParam('DELIVERY_FORM_DATA_FIELDS'))
+    display = { 'd1': False, 'd2': False, 'd3':False, 'd4':False, 'globalfile':False, 'iifile': False }
+    if level >= 1:
+        display['d1'] = True
+    if level >= 2:
+        display['d2'] = True
+    if level >= 3:
+        display['d3'] = True
+    if level >= 4:
+        display['d4'] = True
+    mode = getParam('DELIVERY_FORM_DATAFILE_MODE')
+    if mode == 'ONE_FILE_PER_SET':
+        display['globalfile']= True
+    if mode == 'ONE_FILE_PER_ITEM':
+        display['iifile'] = True 
+    
     ## Helper for javascript
     lc_im = {}
     for lc in LogicalComponent.objects.all():
@@ -171,13 +189,13 @@ def delivery_edit(request, iset_id=None):
     
     ## Bind form
     if request.method == 'POST':
-        form = DeliveryForm(request.POST, instance=instance)  # A form bound to the POST data
-        iiformset = InstallableItemFormSet(request.POST, prefix='iis', instance=form.instance)
+        form = DeliveryForm(request.POST, request.FILES, instance=instance)  # A form bound to the POST data
+        iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
         
         if form.is_valid() and iiformset.is_valid():  # All validation rules pass
             instance = form.save()
         
-            iiformset = InstallableItemFormSet(request.POST, prefix='iis', instance=instance)
+            iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
             if iiformset.is_valid():
                 iiformset.save()
                 
@@ -191,6 +209,7 @@ def delivery_edit(request, iset_id=None):
         'form': form,
         'iisf' : iiformset,
         'lc_im' : lc_im,
+        'display' : display
     })
 
 

@@ -42,11 +42,22 @@ STATIC_ROOT = ''
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'
 
+# Absolute filesystem path to the directory that will hold the uploaded patch files.
+# Only use if file upload is enabled in your environment.
+# Example: "/var/www/example.com/media/"
+MEDIA_ROOT = 'C:/Users/Marc-Antoine/Documents/GitHub/MAGE/tmp/files'
+
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# trailing slash.
+# Only use if file upload is enabled in your environment.
+# Examples: "http://example.com/media/", "http://media.example.com/"
+MEDIA_URL = '/magefiles/'
+
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(BASE_MAGE_PATH, r'MAGE/templates/MAGE'),
+    r'C:/MARSU/MAGE/templates/MAGE',
 )
 
 LOCAL_APPS=()

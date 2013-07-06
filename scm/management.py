@@ -42,6 +42,14 @@ def post_syncdb_handler(sender, **kwargs):
     setOrCreateParam(key = u'APPLY_MERGE_LIMIT', value = u'60', 
                      default_value = u'60', 
                      description = u'Si deux éléments d\'une même livraison sont appliquées sur un même environnement à moins de n minutes, c\'est une même installation')
+    
+    setOrCreateParam(key = u'DELIVERY_FORM_DATA_FIELDS', value = u'0', 
+                     default_value = u'0', 
+                     description = u'nombre de champs data à afficher dans le formulaire de bon de livraison')
+        
+    setOrCreateParam(key = u'DELIVERY_FORM_DATAFILE_MODE', value = u'ONE_FILE_PER_ITEM', 
+                     default_value = u'ONE_FILE_PER_ITEM', 
+                     description = u'ONE_FILE_PER_SET, ONE_FILE_PER_ITEM, NO_UPLOAD')
         
 
 ## Listen to the syncdb signal

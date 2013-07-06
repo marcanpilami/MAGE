@@ -291,7 +291,7 @@ div.metRibbonSplash table input {
 }
 
 /* Misc modern consequences */
-.wideInputs input {
+.wideInputs input[type=text] {
 	width: 70em;
 }
 
@@ -330,7 +330,7 @@ a.frequentAction,a.metRectList,a.metContainer {
 	font-size: 10pt;
 }
 
-button.cancel {
+button.cancel, input.cancel[type='button'] {
 	background-color: #6E7E94;
 }
 
