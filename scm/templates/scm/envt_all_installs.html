@@ -51,9 +51,9 @@
 				</td>
 				{% for lc in logical_components %}
 					<td style='height:100%;'>
-					{% for ii in install.installed_set.set_content.all %}
-						{% ifequal ii.what_is_installed.logical_component_id lc.id %}
-							<div class='metContainer' style='background-color: #4D944D;'> {{ ii.what_is_installed.version }}</div>
+					{% for cic in install.modified_components.all %}
+						{% ifequal cic.component_instance.instanciates.implements_id lc.id %}
+							<div class='metContainer' style='background-color: #4D944D;'> {{ cic.result_of.what_is_installed.version }}</div>
 						{% endifequal %}
 					{% endfor %}
 					</td>

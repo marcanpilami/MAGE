@@ -117,7 +117,6 @@ def delivery_ii_apply_envt(request, ii_id, instance_id, envt_name, install_id = 
     
     response = HttpResponse(content_type='text/text')
     response.write(install.id)
-    response.write(install.__dict__)
     return response
 
 def lc_versions_per_environment(request):
