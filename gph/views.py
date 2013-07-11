@@ -70,7 +70,7 @@ class CartoForm(forms.Form):
     envts = forms.MultipleChoiceField(
                     choices=[(e.pk, e.name) for e in Environment.objects.all().order_by('typology__chronological_order', 'name')],
                     widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[e.pk for e in Environment.objects.filter(template_only=False)],
+                    initial=[e.pk for e in Environment.objects.filter(template_only=False).order_by('typology__chronological_order', 'name')],
                     label=u'Environnements à afficher')
     
     models = forms.MultipleChoiceField(
