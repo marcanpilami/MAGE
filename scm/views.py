@@ -150,8 +150,13 @@ def lc_versions(request, lc_id):
 @login_required
 @permission_required('scm.add_delivery')
 def delivery_edit(request, iset_id=None):
+    if iset_id is None:
+        extra=3
+    else:
+        extra=0
+    
     ## Out model formset, linked to its parent
-    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, extra=1)
+    InstallableItemFormSet = inlineformset_factory(Delivery, InstallableItem, form=IIForm, extra=extra)
     
     ## Already bound?
     instance = None
