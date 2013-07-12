@@ -30,11 +30,13 @@ site.register(LogicalComponent)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
-    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active',]
-    list_display = ('name', 'description','template_only')
+    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active','managed',]
+    list_display = ('name', 'description','template_only', 'managed')
     ordering = ('name',)
     readonly_fields=('buildDate',)
-    list_filter = ['template_only', ]
+    list_filter = ['template_only', 'managed',]
+    search_fields = ('name',)
+    
     
     def has_delete_permission(self, request, obj=None):
         return False

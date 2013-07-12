@@ -112,7 +112,7 @@ class EnvironmentType(models.Model):
     chronological_order = models.IntegerField(default=1)
     default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
     default_show_sensitive_data = models.BooleanField(default = False, verbose_name = "afficher les informations sensibles")
-
+    
     def __get_cic_list(self):
         return ','.join([ i.name for i in self.implementation_patterns.all()])
     cic_list = property(__get_cic_list)
@@ -143,6 +143,7 @@ class Environment(models.Model):
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
     show_sensitive_data = models.NullBooleanField(verbose_name = "afficher les informations sensibles", null = True, blank = True)
+    managed = models.BooleanField(default = True, verbose_name = u'administré')
     
     def __protected(self):
         if self.show_sensitive_data is not None:
