@@ -80,10 +80,15 @@ def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, ins
         installs = Installation.objects.filter(installed_set = iset, modified_components__component_instance__environments = envt, 
                                                install_date__lte = tlimit2, install_date__gte = tlimit1)
         if limit != 0 and installs.count() > 0:
-            install = installs[0]
-        else:
-            install = Installation(installed_set = iset, install_date = install_date, asked_in_ticket = ticket)
-            install.save()
+            ## If here, there are installs running on the same environment on the same ISET. Check the II is not already installed.
+            for ins in installs:
+                if not ii.id in [i.result_of_id for i in ins.modified_components.all()]:
+                    install = ins
+                    break
+
+    if install is None:
+        install = Installation(installed_set = iset, install_date = install_date, asked_in_ticket = ticket)
+        install.save()
     
     cic = ComponentInstanceConfiguration(component_instance = instance, result_of = ii, part_of_installation = install, created_on = install_date)
     cic.save() 
