@@ -18,9 +18,12 @@
 	<div id='main' class='metContainer metSection wideInputs metFormSection'>
 		<label class='t2' for='main'>Informations de base</label>
 		<table>
-			<tr><td>{{form.name.label}} :</td><td>{{form.name}}</td></tr>
-			<tr><td>{{form.description.label}} :</td><td>{{form.description}}</td></tr>
-			<tr><td>{{form.ticket_list.label}} :</td><td>{{form.ticket_list}}</td></tr>
+			<tr {% if form.name.errors %} class='formerror'{%endif%}><td>{{form.name.label}} :</td><td>{{form.name}}</td></tr>
+			{% if form.name.errors %}<tr><td></td><td>{{form.name.errors}}</td></tr>{%endif%}
+			<tr {% if form.description.errors %} class='formerror'{%endif%}><td>{{form.description.label}} :</td><td>{{form.description}}</td></tr>
+			{% if form.description.errors %}<tr><td></td><td>{{form.description.errors}}</td></tr>{%endif%}
+			<tr {% if form.ticket_list.errors %} class='formerror'{%endif%}><td>{{form.ticket_list.label}} :</td><td>{{form.ticket_list}}</td></tr>
+			{% if form.ticket_list.errors %}<tr><td></td><td>{{form.ticket_list.errors}}</td></tr>{%endif%}
 			
 			{% if display.d1 %}<tr><td>{{form.location_data_1.label}} :</td><td>{{form.location_data_1}}</td></tr>{% endif %}
 			{% if display.d2 %}<tr><td>{{form.location_data_2.label}} :</td><td>{{form.location_data_2}}</td></tr>{% endif %}
@@ -38,12 +41,16 @@
 				<label class='t3' for='main'>Contenu n°{{forloop.counter}} de la livraison</label>
 				{{ fs.id }}
 				<table>
-					<tr><td>{{fs.target.label}} :</td><td>{{fs.target}}</td></tr>
-					<tr><td>{{fs.version.label}} :</td><td>{{fs.version}}</td></tr>
-					<tr><td>{{fs.how_to_install.label}} :</td><td>{{fs.how_to_install}}</td></tr>
+					<tr {% if fs.target.errors %} class='formerror'{%endif%}><td>{{fs.target.label}} :</td><td>{{fs.target}}</td></tr>
+					{% if fs.target.errors %}<tr><td></td><td>{{fs.target.errors}}</td></tr>{%endif%}
+					<tr {% if fs.version.errors %} class='formerror'{%endif%}><td>{{fs.version.label}} :</td><td>{{fs.version}}</td></tr>
+					{% if fs.version.errors %}<tr><td></td><td>{{fs.version.errors}}</td></tr>{%endif%}
+					<tr {% if fs.how_to_install.errors %} class='formerror'{%endif%}><td>{{fs.how_to_install.label}} :</td><td>{{fs.how_to_install}}</td></tr>
+					{% if fs.how_to_install.errors %}<tr><td></td><td>{{fs.how_to_install.errors}}</td></tr>{%endif%}
 					<tr><td>{{fs.is_full.label}} :</td><td>{{fs.is_full}}</td></tr>
 					<tr><td>{{fs.data_loss.label}} :</td><td>{{fs.data_loss}}</td></tr>
-					{% if display.iifile %}<tr><td>{{fs.datafile.label}} :</td><td>{{fs.datafile}}</td></tr>{% endif %}
+					{% if display.iifile %}<tr {% if fs.datafile.errors %} class='formerror'{%endif%}><td>{{fs.datafile.label}} :</td><td>{{fs.datafile}}</td></tr>{% endif %}
+					{% if fs.datafile.errors %}<tr><td></td><td>{{fs.datafile.errors}}</td></tr>{%endif%}
 					<tr><td>{{fs.DELETE.label}} :</td><td>{{fs.DELETE}}</td></tr>
 				</table>
 				<input class="deleteContent cancel" type="button" value="Supprimer ce contenu" style='display: none; position:absolute; top:2px; right:2px;'>
