@@ -2,12 +2,12 @@
 
 ## SCM/GCL
 import os
-import datetime
 
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
+from django.utils.timezone import now
 
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
 from exceptions import MageScmUndefinedVersionError
@@ -22,7 +22,7 @@ from ref.widgets import ClearableFileInputPretty
 
 def __isetdatafilename__(iset, filename):
         ext =  os.path.splitext(filename)[1]
-        d = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        d = now().strftime("%Y%m%d_%H%M%S")
         return 'installablesets/' + slugify(d + '_' + iset.name) + ext
      
 class InstallableSet(models.Model):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import datetime
+from django.utils.timezone import now
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -219,7 +219,7 @@ def __value_pattern_field(nc, instance, pattern, envt=None):
         res = res.replace("%LC3~%", "NoLc")
         
     ## Date (Japanese format)
-    d = datetime.datetime.now().strftime('%Y%m%d')
+    d = now().strftime('%Y%m%d')
     res = res.replace("%d%", d)
     
     ## Counter

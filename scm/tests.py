@@ -7,7 +7,7 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from django.utils.datetime_safe import datetime
+from django.utils.timezone import now
 from django.test import TestCase
 
 from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery,\
@@ -221,7 +221,7 @@ class SimpleTest(TestCase):
         create_test_is()
         ref = TestHelper()
         
-        bs = register_backup('PRD1', datetime.now(), *ref.envt_prd1.component_instances.all())
+        bs = register_backup('PRD1', now(), *ref.envt_prd1.component_instances.all())
         install_iset_envt(bs, ref.envt_tec2)
 
     def test_merge(self):

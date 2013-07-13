@@ -7,7 +7,8 @@ Created on 17 mars 2013
 '''
 
 import warnings
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils.timezone import now
 
 from scm.exceptions import MageScmError, MageScmCallerError,\
     MageScmFailedEnvironmentDependencyCheck
@@ -16,11 +17,11 @@ from prm.models import getParam
 
 
 
-def install_iset_envt(iset, envt, force_prereqs = False, install_date = datetime.now(), ticket = None):
+def install_iset_envt(iset, envt, force_prereqs = False, install_date = now(), ticket = None):
     compos = envt.component_instances.filter(instanciates__isnull=False)
     install_iset(iset, compos, envt, force_prereqs, install_date, ticket)
 
-def install_iset(iset, targets, envt, force_prereqs = False, install_date = datetime.now(), ticket = None, ii_selection = None):
+def install_iset(iset, targets, envt, force_prereqs = False, install_date = now(), ticket = None, ii_selection = None):
     ## Check arguments
     if ii_selection is None:
         ii_selection = iset.set_content.all()
@@ -63,7 +64,7 @@ def install_iset(iset, targets, envt, force_prereqs = False, install_date = date
         cic = ComponentInstanceConfiguration(component_instance = compo, result_of = ii, part_of_installation = i, created_on = install_date)
         cic.save() 
         
-def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, install_date = datetime.now(), ticket = None, install = None):
+def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, install_date = now(), ticket = None, install = None):
     iset = ii.belongs_to_set
     
     ## Check prerequisites

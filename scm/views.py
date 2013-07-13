@@ -9,8 +9,9 @@ from django.forms.models import inlineformset_factory
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.timezone import now
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
 from functools import cmp_to_key
 
@@ -39,8 +40,8 @@ def envts(request):
 
 def all_installs(request, envt_name, limit=15):
     envt = Environment.objects.get(name=envt_name)
-    envt.potential_tag = datetime.today().strftime('%Y%M%d') + "_" + envt_name
-    dlimit = datetime.now() - timedelta(days=limit)
+    envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
+    dlimit = now() - timedelta(days=limit)
     installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
     # logical_components = envt.component_instances.all().instanciates.implements;
     logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt)
@@ -292,7 +293,7 @@ def backup_detail(request, bck_id):
 
 @permission_required('scm.add_backupset')
 def backup_envt(request, envt_name):
-    b = register_backup_envt_default_plan(envt_name, datetime.now())
+    b = register_backup_envt_default_plan(envt_name, now())
     return redirect('scm:backup_detail', bck_id=b.id)
 
 @permission_required('scm.add_backupset')
@@ -315,7 +316,7 @@ def backup_envt_manual(request, envt_name):
 def is_archive(request, is_id):
     """Remove does not mean delete - just means it's not available anymore"""
     i_s = InstallableSet.objects.get(pk = is_id)
-    i_s.removed = datetime.now()
+    i_s.removed = now()
     i_s.save()
     return redirect('welcome')
 
@@ -406,8 +407,8 @@ def demo_internal(request):
     #install_iset_envt(is_list[3], ref.envt_prd1)
     #install_iset_envt(is_list[5], ref.envt_prd1)
     
-    bs1 = register_backup('PRD1', datetime.now(), "no descr", *ref.envt_prd1.component_instances.all())
-    register_backup_envt_default_plan('PRD1', datetime.now())
+    bs1 = register_backup('PRD1', now(), "no descr", *ref.envt_prd1.component_instances.all())
+    register_backup_envt_default_plan('PRD1', now())
     install_iset_envt(bs1, ref.envt_tec2)
     
     return HttpResponseRedirect(reverse('welcome'))
