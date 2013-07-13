@@ -7,6 +7,7 @@ import datetime
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import slugify
 
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
 from exceptions import MageScmUndefinedVersionError
@@ -22,7 +23,7 @@ from ref.widgets import ClearableFileInputPretty
 def __isetdatafilename__(iset, filename):
         ext =  os.path.splitext(filename)[1]
         d = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        return 'installablesets/' + d + '_' + iset.name.replace(' ', '_') + ext
+        return 'installablesets/' + slugify(d + '_' + iset.name) + ext
      
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
@@ -190,7 +191,7 @@ class BackupItem(models.Model):
 def __iidatafilename__(ii, filename):
         ext =  os.path.splitext(filename)[1]
         d = ii.belongs_to_set.set_date.strftime("%Y%m%d_%H%M%S")
-        return 'installablesets/' + d + '_' + ii.belongs_to_set.name.replace(' ', '_') + '/' + ii.what_is_installed.logical_component.name.replace(' ', '_') + ext
+        return 'installablesets/' + slugify(d + '_' + ii.belongs_to_set.name) + '/' + slugify(ii.what_is_installed.logical_component.name) + ext
     
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
