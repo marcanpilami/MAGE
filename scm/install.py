@@ -33,9 +33,7 @@ def install_iset(iset, targets, envt, force_prereqs = False, install_date = now(
     try:
         iset.check_prerequisites(envt.name, ii_selection)
     except MageScmFailedEnvironmentDependencyCheck, e:
-        if force_prereqs:
-            warnings.warn('prerequisites are not valid but this is a forced install') # debug info
-        else:
+        if not force_prereqs:
             raise e
     
     ## Select targets
@@ -71,9 +69,7 @@ def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, ins
     try:
         iset.check_prerequisites(envt.name)
     except MageScmFailedEnvironmentDependencyCheck, e:
-        if force_prereqs:
-            warnings.warn('prerequisites are not valid but this is a forced install') # debug info
-        else:
+        if not force_prereqs:
             raise e
 
     if install is None:
