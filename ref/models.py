@@ -108,7 +108,7 @@ class EnvironmentType(models.Model):
     description = models.CharField(max_length=500, verbose_name='description')
     short_name = models.CharField(max_length=10, verbose_name='code')
     sla = models.ForeignKey(SLA, blank=True, null=True)
-    implementation_patterns = models.ManyToManyField(ComponentImplementationClass)
+    implementation_patterns = models.ManyToManyField(ComponentImplementationClass, blank = True)
     chronological_order = models.IntegerField(default=1)
     default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
     default_show_sensitive_data = models.BooleanField(default = False, verbose_name = "afficher les informations sensibles")
