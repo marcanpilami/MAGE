@@ -52,6 +52,8 @@ class InstallableSet(models.Model):
     
     def check_prerequisites(self, envt_name, ii_selection=()):
         failures = []
+        if len(ii_selection) == 0:
+            ii_selection = self.set_content.all()
         for ii in self.set_content.all():
             try:
                 ii.check_prerequisites(envt_name, ii_selection)
@@ -217,8 +219,6 @@ class InstallableItem(models.Model):
             ide.save()
             
     def check_prerequisites(self, envt_name, installed_along_ii=()):
-        if self.is_full:
-            return True
         installed_along_version = [i.what_is_installed for i in installed_along_ii]
 
         failures = []
