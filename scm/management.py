@@ -1,9 +1,4 @@
 # coding: utf-8
-'''
-Created on 10 mars 2013
-
-@author: Marc-Antoine
-'''
 
 ## Python imports
 
@@ -13,9 +8,6 @@ from django.contrib.auth.models import Group, User, Permission
 
 ## MAGE imports
 import models
-from scm.models import InstallationMethod
-from ref.models import Convention
-from ref.conventions import nc_sync_naming_convention
 from prm.models import setOrCreateParam
 
 def post_syncdb_handler(sender, **kwargs):
@@ -30,13 +22,6 @@ def post_syncdb_handler(sender, **kwargs):
         dev.save()
         
         dev.groups.add(devgroup)
-        
-    ## Create default convention & update existing ones
-    if Convention.objects.count() == 0:
-        default = Convention(name = 'default convention')
-        default.save()
-    for c in Convention.objects.all():
-        nc_sync_naming_convention(c)
         
     ## Parameters
     setOrCreateParam(key = u'APPLY_MERGE_LIMIT', value = u'60', 

@@ -171,8 +171,9 @@ INSTALLED_APPS = (
     'ref', ## Keep REF first after django internals
     'prm', ## Keep PRM second
     'gph', ## Keep GPH third
+    'scm', ## Keep SCM fourth
     'cpn', ## This can be removed - default/sample components
 )
 
 INSTALLED_APPS += LOCAL_APPS
-INSTALLED_APPS += ('scm',) # SCM should always be last
+INSTALLED_APPS += ('end',) # SCM should always be last
