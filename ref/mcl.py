@@ -1,14 +1,23 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## PyParsing imports
 from pyparsing import Suppress, Optional, Token, Word, Or , alphanums , QuotedString , oneOf, OneOrMore, ZeroOrMore, delimitedList, Group, Forward, ParseException
+
+## Django imports
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField, ForeignKey  
-from ref.models import ComponentInstance, CI2DO, ComponentImplementationClass, \
-    Environment
+
+## MAGE imports
 from MAGE.exceptions import MageError
 from ref.exceptions import MageMclAttributeNameError, MageMclSyntaxError
+from ref.models import ComponentInstance, CI2DO, ComponentImplementationClass, \
+    Environment
 
-#def create_component_instance(instance_type, instance_name, **):
 
 class MclEngine:
     def __init__(self):

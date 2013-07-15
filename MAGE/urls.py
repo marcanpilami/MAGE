@@ -1,10 +1,14 @@
-from django.conf.urls import patterns, include, url
+# coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-# Uncomment the next two lines to enable the admin:
+from django.conf.urls import patterns, include, url
 from django.contrib.admin import autodiscover
 from ref.admin import site 
 autodiscover()
-
 from ref.views import welcome
 
 urlpatterns = patterns('',

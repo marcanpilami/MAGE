@@ -1,8 +1,10 @@
+# coding: utf-8
 '''
-Created on 17 mars 2013
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-@author: Marc-Antoine
-'''
 from MAGE.exceptions import MageCallerError, MageError, MageInternalError
 
 class MageScmError(MageError):

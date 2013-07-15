@@ -3,9 +3,9 @@
 """
     Graph module view file. This is the core of the module.
     
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
-    @contact: marsu_pilami@msn.com
-    @license: GNU GVL v3
 """
 
 # Python imports
@@ -26,7 +26,7 @@ from cpn.tests import utility_create_test_envt
 
 def full_pic(request):
     """Carte de l'ensemble des composants référencés"""
-    cfilter = {'environments__template_only':False}
+    #cfilter = {'environments__template_only':False}
     uFilter = (Q(environments__isnull=True) | Q(environments__template_only=False),)
     return HttpResponse(getGraph(django_filter_unnamed=uFilter), mimetype="image/png")
 

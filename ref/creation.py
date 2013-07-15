@@ -1,7 +1,14 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
+
 from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter,\
     EnvironmentType
 from ref.mcl import parser
+
 
 def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     """ 

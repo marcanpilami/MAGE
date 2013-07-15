@@ -1,7 +1,13 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
 from django import forms
 from ref.models import ComponentInstance
+
 
 class DuplicateFormRelInline(forms.Form):
     old_target = forms.ModelChoiceField(queryset=ComponentInstance.objects.all())

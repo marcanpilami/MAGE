@@ -4,9 +4,9 @@
     Library for the gph module. These functions are not part of the API and 
     shouldn't be used outside of the gph module.
     
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
-    @contact: marsu_pilami@msn.com
-    @license: GNU GVL v3
 """
 
 ## Python imports

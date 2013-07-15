@@ -1,15 +1,15 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
+## Django imports
 from django.utils.timezone import now
 from django.test import TestCase
 
+## MAGE imports
 from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery,\
     Installation
 from cpn.tests import TestHelper, utility_create_test_envt 
@@ -18,7 +18,6 @@ from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.backup import register_backup
 from scm.install import install_ii_single_target_envt
 from prm.models import setOrCreateParam
-
 
 
 def create_test_is():

@@ -1,5 +1,18 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Python imports
+from datetime import timedelta
+import json
+from functools import cmp_to_key
+import csv
+import importlib
+
+## Django imports
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -11,26 +24,21 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.timezone import now
 
-from datetime import timedelta
-import json
-from functools import cmp_to_key
-
+## MAGE imports
 from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent, \
     Project, ConventionCounter
+from ref.conventions import nc_sync_naming_convention
 from cpn.tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
 from scm.install import install_iset_envt, install_ii_single_target_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.tests import create_test_is
-
 from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
-from ref.conventions import nc_sync_naming_convention
-import csv
-import importlib
 from prm.models import getParam
+
 
 def envts(request):
     envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\

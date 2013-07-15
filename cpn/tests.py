@@ -1,16 +1,16 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-from ref.creation import duplicate_envt
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
+## Django imports
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
+## MAGE imports
+from ref.creation import duplicate_envt
 from ref.models import ComponentInstance, Convention
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment

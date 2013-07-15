@@ -1,20 +1,21 @@
 # coding: utf-8
-
 '''
-Created on 17 mars 2013
-
-@author: Marc-Antoine
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
 '''
 
-import warnings
+## Python imports
 from datetime import timedelta
+
+## Django imports
 from django.utils.timezone import now
 
+## MAGE imports
 from scm.exceptions import MageScmError, MageScmCallerError,\
     MageScmFailedEnvironmentDependencyCheck
 from scm.models import Installation, ComponentInstanceConfiguration
 from prm.models import getParam
-
 
 
 def install_iset_envt(iset, envt, force_prereqs = False, install_date = now(), ticket = None):

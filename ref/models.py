@@ -1,12 +1,22 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Python imports
+from UserDict import DictMixin
+import inspect
+
+## Django imports
 from django.db import models
 from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
-from MAGE.exceptions import MageError
 from django.core.exceptions import ValidationError
-from UserDict import DictMixin
-import inspect
+
+## MAGE imports
+from MAGE.exceptions import MageError
 
 
 ################################################################################

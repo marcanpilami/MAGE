@@ -1,23 +1,28 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Django imports
+from django import forms
 from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.shortcuts import render, redirect
+from django.forms.formsets import formset_factory
 
-from django import forms
-
+## MAGE imports
 from MAGE.exceptions import MageCallerError
 from ref.csvi import get_components_csv, get_components_pairs
 from ref.creation import duplicate_envt, create_instance
+from ref.forms import DuplicateForm, DuplicateFormRelInline
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
-from ref.forms import DuplicateForm, DuplicateFormRelInline
-from django.forms.formsets import formset_factory
-
 
 
 def csv(request, url_end):

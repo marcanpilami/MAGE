@@ -1,21 +1,22 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+# coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-Replace this with more appropriate tests for your application.
-"""
-
+## Django imports
 from django.test import TestCase
 
+## MAGE imports
+from MAGE.exceptions import MageError
 import conventions
 from ref.mcl import parser 
 from ref.models import ComponentInstance, Environment, Test1, EnvironmentType, Test2, Test3
-
 from cpn.tests import utility_create_test_envt
 from cpn.models import OracleInstance, OracleSchema
-
-from MAGE.exceptions import MageError
 from ref.exceptions import MageMclAttributeNameError
+
 
 class SimpleTest(TestCase):
     def test_mcl_without_relations(self):

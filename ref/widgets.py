@@ -1,8 +1,19 @@
+# coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
+
+## Python imports
+import os
+
+## Django imports
 from django.forms.widgets import ClearableFileInput, CheckboxInput
 from django.utils.html import conditional_escape, format_html
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
-import os
+
 
 class ClearableFileInputPretty(ClearableFileInput):
     def render(self, name, value, attrs=None):

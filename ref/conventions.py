@@ -1,14 +1,21 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Django imports
 from django.utils.timezone import now
-
 from django.contrib.contenttypes.models import ContentType
-
-from ref.models import Convention, ConventionField, ComponentInstance, ConventionCounter, ComponentImplementationClass, Environment
 from django.db.models.fields.related import ManyToManyField, ForeignKey
-from MAGE.exceptions import MageError
-from ref.mcl import parser
 from django.forms.fields import BooleanField
+
+## MAGE imports
+from MAGE.exceptions import MageError
+from ref.models import Convention, ConventionField, ComponentInstance, ConventionCounter, ComponentImplementationClass, Environment
+from ref.mcl import parser
+
 
 def nc_sync_naming_convention(nc, model_name_list=None):
     defaults = __get_app_default()

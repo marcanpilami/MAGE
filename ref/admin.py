@@ -1,17 +1,28 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Django imports
 from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
-
-from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter, \
-    EnvironmentType
-from ref.conventions import nc_sync_naming_convention
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import Select
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
+## MAGE imports
+from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
+    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter, \
+    EnvironmentType
+from ref.conventions import nc_sync_naming_convention
+
+
+################################################################################
+## Create admin site object
+################################################################################
 
 site = AdminSite()
 site.login_template = 'login.html'

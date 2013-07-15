@@ -1,10 +1,18 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+## Python imports
+import re
+
+## Django imports
 from django import forms
 from django.forms import ModelForm
 
-import re
-
+## MAGE imports
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
 from ref.models import LogicalComponent
 from ref.widgets import ClearableFileInputPretty

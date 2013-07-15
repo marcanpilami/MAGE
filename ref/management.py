@@ -1,8 +1,8 @@
 # coding: utf-8
 '''
-Created on 10 mars 2013
-
-@author: Marc-Antoine
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
 '''
 
 ## Python imports
@@ -12,7 +12,7 @@ from django.db.models.signals import post_syncdb
 
 ## MAGE imports
 import models
-from prm.models import getMyParams, setOrCreateParam
+from prm.models import setOrCreateParam
 
 def post_syncdb_handler(sender, **kwargs):
     ## Create or update parameters

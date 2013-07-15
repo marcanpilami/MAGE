@@ -1,10 +1,15 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
+# Django imports
 from django.db import models
 
-# # MAGE imports
+## MAGE imports
 from ref.models import ComponentInstance
-
 
 
 ######################################################

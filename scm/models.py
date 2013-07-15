@@ -1,19 +1,25 @@
 # coding: utf-8
+'''
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
+'''
 
-## SCM/GCL
+## Python imports
 import os
 
+## Django imports
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils.timezone import now
 
+## MAGE imports
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
 from exceptions import MageScmUndefinedVersionError
 from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
 from MAGE.exceptions import MageError
-from ref.widgets import ClearableFileInputPretty
 
 
 ################################################################################
@@ -179,9 +185,9 @@ class InstallationMethod(models.Model):
             a = "OBSOLETE - "
         return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
     
-    def check_package(self, file):
+    def check_package(self, package_file):
         for checker in self.checkers.all():
-            checker.check(file)
+            checker.check(package_file)
     
     class Meta:
         verbose_name = u'méthode d\'installation'
@@ -207,7 +213,6 @@ class InstallableItem(models.Model):
     is_full = models.BooleanField(verbose_name='installation de zéro', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
     datafile = models.FileField(verbose_name = 'fichier', upload_to = __iidatafilename__, blank = True, null = True)
-    # TODO: Add a property to access compatible envt types
     
     def __unicode__(self):
         if self.id is not None:
@@ -376,9 +381,9 @@ class PackageChecker(models.Model):
     name = models.CharField(max_length = 200, verbose_name = 'Python checker class name')
     description = models.CharField(max_length = 200, verbose_name = 'description')
     
-    def check(self, file):
+    def check(self, package_file):
         checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name) 
-        checker_impl.check(checker_impl(), file)
+        checker_impl.check(checker_impl(), package_file)
         
     def __unicode__(self):
         return self.description

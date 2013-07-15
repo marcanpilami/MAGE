@@ -1,7 +1,8 @@
+# coding: utf-8
 '''
-Created on 8 mars 2013
-
-@author: Marc-Antoine
+    @license: Apache License, Version 2.0
+    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @author: Marc-Antoine Gouillart
 '''
 
 from ref import admin
