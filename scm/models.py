@@ -171,12 +171,17 @@ class InstallationMethod(models.Model):
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods', verbose_name=u'permet d\'installer')
     available = models.BooleanField(default=True, verbose_name=u'disponible')
     restoration_only = models.BooleanField(default=False, verbose_name=u'opération purement de restauration')
+    checkers = models.ManyToManyField('PackageChecker', related_name='used_in', blank = True)
     
     def __unicode__(self):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
         return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
+    
+    def check_package(self, file):
+        for checker in self.checkers.all():
+            checker.check(file)
     
     class Meta:
         verbose_name = u'méthode d\'installation'
@@ -360,7 +365,48 @@ def create_brm2(sender, instance, **kwargs):
         m, created = BackupRestoreMethod.objects.get_or_create(target=cic, apply_to=e, method=im)
         if created:
             m.save()
+
+
+#######################################################################################
+## DSL elements
+#######################################################################################
+
+class PackageChecker(models.Model):
+    module = models.CharField(max_length = 200, verbose_name = 'Python module containing the checker class')
+    name = models.CharField(max_length = 200, verbose_name = 'Python checker class name')
+    description = models.CharField(max_length = 200, verbose_name = 'description')
     
+    def check(self, file):
+        checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name) 
+        checker_impl.check(checker_impl(), file)
+        
+    def __unicode__(self):
+        return self.description
+        
+    
+class PackageCheckerBaseImpl(object):
+    description = None
+    def check(self, fileinfo):
+        raise NotImplemented()
+    
+class __PackageCheckerHandler:
+    def __init__(self):
+        self.this_launch = []
+    
+    def register(self, checker):
+        #if not isinstance(checker, PackageCheckerBaseImpl):
+        #    raise Exception('a checker must be a subclass of PackageCheckerBaseImpl')
+        pc = PackageChecker.objects.get_or_create(module = checker.__module__ , name= checker.__name__)
+        pc[0].description = checker.description if checker.description else checker.__name__
+        pc[0].save()
+        self.this_launch.append(pc[0])
+    
+    def end_sync(self):
+        for pc in PackageChecker.objects.all():
+            if not pc in self.this_launch:
+                pc.delete() 
+__package_checker_handler = __PackageCheckerHandler() 
+
     
 #######################################################################################
 ## Update Component class with GCL objects

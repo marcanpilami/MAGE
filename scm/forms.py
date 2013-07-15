@@ -43,6 +43,21 @@ class IIForm(ModelForm):
         if len(data) == 0:
             raise forms.ValidationError("At least one technical target is required")
         return data
+    
+    def clean_datafile(self):
+        dfile = self.cleaned_data['datafile']
+        methods = self.cleaned_data['how_to_install']
+        if len(methods) == 0:
+            return dfile
+        for method in methods:
+            if method.checkers.count() > 0 and (dfile is None or dfile == False):
+                raise forms.ValidationError('A datafile is required')
+        if dfile == False: ## Cleared file
+            return dfile
+        
+        for method in methods:
+            method.check_package(dfile)
+        return dfile
         
     def clean(self):
         cleaned_data = super(IIForm, self).clean()

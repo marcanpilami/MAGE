@@ -23,7 +23,7 @@ class InstallationMethodAdmin(admin.ModelAdmin):
     list_display = ('name', 'halts_service', 'available')
     ordering = ('name',)
     list_filter = ('available',)
-    filter_horizontal = ('method_compatible_with',)
+    filter_horizontal = ('method_compatible_with', 'checkers', )
     
     def has_delete_permission(self, request, obj=None):
         return False
