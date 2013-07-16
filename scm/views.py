@@ -23,6 +23,7 @@ from django.http.response import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.timezone import now
+from django.views.decorators.cache import cache_control
 
 ## MAGE imports
 from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent, \
@@ -61,11 +62,13 @@ def all_installs(request, envt_name, limit=15):
         
     return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit })
 
+@cache_control(must_revalidate=True, max_age=600)
 def delivery_list(request):
     deliveries = Delivery.objects.order_by('set_date').reverse().select_related('set_content__what_is_installed__logical_component')
     lis = LogicalComponent.objects.filter(scm_trackable = True, active = True).order_by('pk').select_related('versions')
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries, 'lis': lis})
 
+@cache_control(no_cache=True)
 def delivery(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
     return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects_active.all().order_by('typology__chronological_order', 'name')})
@@ -102,7 +105,6 @@ def delivery_test_script(request, delivery_id, envt_id_or_name):
         return HttpResponse("<html><body>OK</body></html>")
     except MageScmFailedEnvironmentDependencyCheck, e:
         return HttpResponse("<html><body>%s</body></html>" %e, status=424)
-
 
 @permission_required('scm.install_installableset')
 def delivery_apply_envt(request, delivery_id, envt_id_or_name):    
@@ -150,6 +152,7 @@ def lc_list(request):
     lcs = LogicalComponent.objects.all()
     return render(request, 'scm/lc_versions.html', {'lcs': lcs})
 
+@cache_control(must_revalidate=True)
 def lc_versions(request, lc_id):
     lc = LogicalComponent.objects.get(pk = lc_id)
     return render(request, 'scm/lc_versions_detail.html', {'lc': lc})
@@ -158,6 +161,7 @@ def lc_versions(request, lc_id):
 
 @login_required
 @permission_required('scm.add_delivery')
+@cache_control(no_cache=True)
 def delivery_edit(request, iset_id=None):
     if iset_id is None:
         extra=3
@@ -228,6 +232,7 @@ def delivery_edit(request, iset_id=None):
 
 @login_required
 @permission_required('scm.add_delivery')
+@cache_control(no_cache=True)
 def delivery_edit_dep(request, iset_id):
     iset = InstallableSet.objects.get(pk=iset_id)
     ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm, extra=1)
