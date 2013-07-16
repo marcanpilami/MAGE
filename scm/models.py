@@ -255,7 +255,6 @@ class InstallableItem(models.Model):
             rs = ComponentInstance.objects.filter(environments__name=envt_name,
                                           instanciates__implements=dep.depends_on_version.logical_component)
             if rs.count() == 0:
-                # raise MageScmMissingComponent(self, dep.depends_on_version.version, envt_name)
                 failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment [Technical data: logical component [%s], method name %s]' %(dep.depends_on_version.logical_component, self.how_to_install.all())))
                 continue
             

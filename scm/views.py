@@ -130,6 +130,16 @@ def delivery_ii_apply_envt(request, ii_id, instance_id, envt_name, install_id = 
     response.write(install.id)
     return response
 
+def delivery_ii_test_envt(request, ii_id, envt_name, full_delivery = False):    
+    ii = InstallableItem.objects.get(pk=ii_id)
+    envt = Environment.objects.get(name=envt_name)
+  
+    try:
+        ii.check_prerequisites(envt.name, ii.belongs_to_set.set_content.all() if full_delivery else ())
+        return HttpResponse("<html><body>OK</body></html>")
+    except MageScmFailedEnvironmentDependencyCheck, e:
+        return HttpResponse("<html><body>%s</body></html>" %e, status=424)
+
 def lc_versions_per_environment(request):
     Installation.objects.filter()
     envts = Environment.objects_active.all().order_by('typology__chronological_order', 'name')

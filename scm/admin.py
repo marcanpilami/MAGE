@@ -6,7 +6,8 @@
 '''
 
 from ref import admin
-from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet
+from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet,\
+    InstallableItem
 
 
 class BackupRestoreMethodAdmin(admin.ModelAdmin):
@@ -54,3 +55,5 @@ class BackupSetAdmin(admin.ModelAdmin):
         return actions
 
 admin.site.register(BackupSet, BackupSetAdmin)
+
+admin.site.register(InstallableItem)

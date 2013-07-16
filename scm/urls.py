@@ -25,6 +25,8 @@ urlpatterns = patterns('',
     url(r'delivery/(?P<delivery_id>\d*)/testonenvtscript/(?P<envt_id_or_name>.+)$', views.delivery_test_script, name='delivery_prereqs_test_script'),
     url(r'delivery/(?P<delivery_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)$', views.delivery_apply_envt, name='delivery_apply_envt'),
     url(r'ii/(?P<ii_id>\d+)/apply/(?P<envt_name>.+)/(?P<instance_id>\d+)$', views.delivery_ii_apply_envt, name='delivery_apply_ii_single'),
+    url(r'ii/(?P<ii_id>\d+)/testonenvtscriptfull/(?P<envt_name>.+)$', views.delivery_ii_test_envt, {'full_delivery': True}, name='delivery_test_ii_set'),
+    url(r'ii/(?P<ii_id>\d+)/testonenvtscriptsingle/(?P<envt_name>.+)$', views.delivery_ii_test_envt, name='delivery_test_ii_single'),
     
     url(r'delivery/lcapplyenvt$', views.lc_versions_per_environment, name='lc_installs_envts'),
     url(r'delivery/lc$', views.lc_list, name='lc_list'),

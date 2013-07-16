@@ -38,7 +38,11 @@ class MageScmFailedEnvironmentDependencyCheck(MageCallerError):
         self.envt_name = envt_name
     
     def __str__(self):
-        res = '%s prerequisite(s) missing in order to install %s on environment %s' % (len(self.failing_dep), self.ii.name, self.envt_name)
+        if self.ii.__class__.__name__ == 'InstallableItem':
+            name = self.ii.belongs_to_set.name
+        else:
+            name = self.ii.name
+        res = '%s prerequisite(s) missing in order to install %s on environment %s' % (len(self.failing_dep), name, self.envt_name)
         for m in self.failing_dep:
             res = '' + res + "\n" + m.__str__()
         return res

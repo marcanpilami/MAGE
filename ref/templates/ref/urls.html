@@ -26,7 +26,9 @@ Unarchive backupset: {% url 'scm:backup_unarchive' "123456789" %}<br/>
 Get the ID (in a text file) of a delivery or backupset by name (0 if not found): {% url 'scm:iset_id' "SET_NAME" %}<br/>
 Content (with IDs) of a delivery or backupset as a CSV: {% url 'scm:delivery_content_csv' "SET_NAME_OR_ID" %}<br/>
 Fully apply a delivery to an environment: {% url 'scm:delivery_apply_envt' 123456789 "ENVT_NAME_OR_ID" %}<br/>
-Test if prerequisites are respected: {% url 'scm:delivery_prereqs_test_script' 123456789 "ENVT_NAME_OR_ID" %}<br/>
+Test if prerequisites are respected for a whole installable set: {% url 'scm:delivery_prereqs_test_script' 123456789 "ENVT_NAME_OR_ID" %}<br/>
+Test if prerequisites are respected for a single item (II_ID) inside a set, without applying the rest of the set: {% url 'scm:delivery_test_ii_single' 123456789 "ENVT_NAME" %}<br/>
+Test if prerequisites are respected for a single item (II_ID) inside a set, considering the rest of the set will also be applied: {% url 'scm:delivery_test_ii_set' 123456789 "ENVT_NAME" %}<br/>
 Apply only one item from a delivery to an environment component instance: {% url 'scm:delivery_apply_ii_single' 123456789 "ENVT_NAME" 123456789 %} (item_id, envt_name, instance_id)<br/>
 <br/>
 Get a KSH (probably BASH compatible) file describing a delivery with variables: {% url 'scm:delivery_content_shell' 123456789 %} (installable set ID)<br/>
