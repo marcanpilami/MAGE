@@ -252,15 +252,11 @@ class InstallableItem(models.Model):
                 continue
                         
             ## Check history
-            potential_cic = []
-            for i in self.how_to_install.all():
-                potential_cic.extend(i.method_compatible_with.all())
             rs = ComponentInstance.objects.filter(environments__name=envt_name,
-                                          instanciates__in=potential_cic,
                                           instanciates__implements=dep.depends_on_version.logical_component)
             if rs.count() == 0:
                 # raise MageScmMissingComponent(self, dep.depends_on_version.version, envt_name)
-                failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment'))
+                failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment [Technical data: logical component [%s], method name %s]' %(dep.depends_on_version.logical_component, self.how_to_install.all())))
                 continue
             
             for compo in rs.all():
@@ -327,7 +323,7 @@ class Installation(models.Model):
     install_date = models.DateTimeField(verbose_name='date d\installation ')
 
     def __unicode__(self):
-        return '%s sur %s le %s' % (self.installed_set.name, self.target_envt.name, self.install_date)
+        return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
         
 class ComponentInstanceConfiguration(models.Model):
     component_instance = models.ForeignKey(ComponentInstance, related_name='configurations')
