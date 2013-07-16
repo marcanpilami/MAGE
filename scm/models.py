@@ -7,6 +7,7 @@
 
 ## Python imports
 import os
+import glob
 
 ## Django imports
 from django.db import models
@@ -14,6 +15,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils.timezone import now
+from MAGE.settings import MEDIA_ROOT
 
 ## MAGE imports
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
@@ -219,6 +221,18 @@ class InstallableItem(models.Model):
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
             return u'installable item'
+        
+    def __find_existing_file(self):
+        if MEDIA_ROOT is None or MEDIA_ROOT == "":
+            return
+        files = glob.glob(MEDIA_ROOT + 'installablesets/*_' + slugify(self.belongs_to_set.name) + '/' + slugify(self.what_is_installed.logical_component.name) + '.*')
+        if len(files) == 1:
+            self.datafile = os.path.relpath(files[0], MEDIA_ROOT)
+    
+    def save(self):
+        if self.pk is None and not self.datafile.name:
+            self.__find_existing_file()
+        super(InstallableItem, self).save()
     
     class Meta:
         permissions = (('download_ii', 'can download the installation file'),)
