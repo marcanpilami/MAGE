@@ -71,7 +71,7 @@ def delivery_list(request):
 @cache_control(no_cache=True)
 def delivery(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
-    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects_active.all().order_by('typology__chronological_order', 'name')})
+    return render(request, 'scm/delivery_detail.html', {'delivery': delivery, 'envts': Environment.objects_active.filter(managed = True).order_by('typology__chronological_order', 'name')})
 
 @permission_required('scm.validate_installableset')
 def delivery_validate(request, iset_id):
@@ -142,7 +142,7 @@ def delivery_ii_test_envt(request, ii_id, envt_name, full_delivery = False):
 
 def lc_versions_per_environment(request):
     Installation.objects.filter()
-    envts = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
+    envts = Environment.objects_active.filter(managed = True).order_by('typology__chronological_order', 'name')
     res = {}
     for lc in LogicalComponent.objects.filter(scm_trackable=True):
         lc_list = []
