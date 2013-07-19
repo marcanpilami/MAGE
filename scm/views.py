@@ -19,7 +19,8 @@ from django.db import transaction
 from django.db.models import Max
 from django.db.models.aggregates import Count
 from django.forms.models import inlineformset_factory
-from django.http.response import HttpResponseRedirect, HttpResponse
+from django.http.response import HttpResponseRedirect, HttpResponse,\
+    HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.timezone import now
@@ -39,6 +40,7 @@ from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from prm.models import getParam
+from django.utils.datetime_safe import date
 
 
 def envts(request):
@@ -334,6 +336,15 @@ def backup_envt_manual(request, envt_name):
         f = BackupForm(envt=e)
     
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
+
+@permission_required('scm.add_backupset')
+def backup_script(request, envt_name, ci_id, bck_id = None):
+    try:
+        bs = register_backup(envt_name, now(), bck_id, ComponentInstance.objects.get(pk = ci_id), description = 'script backup')
+        return HttpResponse(bs.id, content_type='text/text')
+    except Exception, e:
+        return HttpResponseBadRequest(e, content_type='text/text')
+    
 
 @permission_required('scm.del_backupset')
 def is_archive(request, is_id):

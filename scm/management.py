@@ -32,7 +32,11 @@ def post_syncdb_handler(sender, **kwargs):
     ## Parameters
     setOrCreateParam(key = u'APPLY_MERGE_LIMIT', value = u'60', 
                      default_value = u'60', 
-                     description = u'Si deux éléments d\'une même livraison sont appliquées sur un même environnement à moins de n minutes, c\'est une même installation')
+                     description = u'Si deux éléments d\'une même livraison sont appliquées sur un même environnement à moins de n minutes, c\'est une même installation. 0 pour désactiver la fusion.')
+    setOrCreateParam(key = u'BACKUP_MERGE_LIMIT', value = u'180', 
+                     default_value = u'180', 
+                     description = u'Si deux éléments d\'un même environnements sont sauvegardés à moins de n minutes, c\'est un même backupset. 0 pour désactiver la fusion.')
+    
     
     setOrCreateParam(key = u'DELIVERY_FORM_DATA_FIELDS', value = u'0', 
                      default_value = u'0', 

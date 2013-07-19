@@ -219,8 +219,7 @@ class SimpleTest(TestCase):
     def test_backup(self):
         create_test_is()
         ref = TestHelper()
-        
-        bs = register_backup('PRD1', now(), *ref.envt_prd1.component_instances.all())
+        bs = register_backup('PRD1', now(), None, *ref.envt_prd1.component_instances.all(), description = "marsu")
         install_iset_envt(bs, ref.envt_tec2)
 
     def test_merge(self):

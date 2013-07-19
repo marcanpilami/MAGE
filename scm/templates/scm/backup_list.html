@@ -18,7 +18,7 @@
 	<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' bckset.id %}">
 		{{bckset.set_date}}
 		<div>
-			{% for item in bckset.nonversioned_items.all %}
+			{% for item in bckset.all_items.all %}
 			<div class='annotation'>{{ item.instance }}</div>
 			
 			{% endfor %}

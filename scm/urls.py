@@ -42,6 +42,9 @@ urlpatterns = patterns('',
     
     url(r'bck/create/envtdefault/(?P<envt_name>.*)$', views.backup_envt, name='backup_envt'),
     url(r'bck/create/envtmanual/(?P<envt_name>.*)$', views.backup_envt_manual, name='backup_envt_manual'),
+    url(r'bck/create/envtscript/(?P<envt_name>.*)/(?P<ci_id>\d*)/(?P<bck_id>\d*)$', views.backup_script, name='backup_script_add'),
+    url(r'bck/create/envtscript/(?P<envt_name>.*)/(?P<ci_id>\d*)$', views.backup_script, name='backup_script_create'),
+    
     url(r'bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
     url(r'bck/(?P<is_id>\d*)/archive$', views.is_archive, name='backup_archive'),
     url(r'bck/(?P<is_id>\d*)/unarchive$', views.is_unarchive, name='backup_unarchive'),

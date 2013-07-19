@@ -25,7 +25,7 @@
 </div>
 
 <div class='t2'>Contenu</div>
-{% for item in bck.nonversioned_items.all %}
+{% for item in bck.all_items.all %}
 	<div class='metContainer metRectList metDefaultBackground'>
 		{{item.instance.name}}
 		{% if item.instance_configuration %} - {{ item.instance_configuration.result_of.what_is_installed.version }} {% else %} - no version {% endif %}

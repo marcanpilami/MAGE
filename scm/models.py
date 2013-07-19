@@ -198,7 +198,7 @@ class InstallationMethod(models.Model):
 class BackupItem(models.Model):
     """ Backup can contain component instances that are NOT SCM tracked.
         This object represents these contents """
-    backupset = models.ForeignKey(BackupSet, related_name='nonversioned_items')
+    backupset = models.ForeignKey(BackupSet, related_name='all_items')
     instance = models.ForeignKey(ComponentInstance)
     related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True) # null if not SCM-tracked
     instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
@@ -332,7 +332,7 @@ class ComponentInstanceConfiguration(models.Model):
     install_failure = models.BooleanField(default=False)
     
     def __unicode__(self):
-        return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.version.version)
+        return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.what_is_installed.version)
     
 class Tag(models.Model):
     name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
