@@ -308,10 +308,10 @@ def tag_list(request):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()}) 
 
 def backup_list(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True)})
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True).order_by('from_envt')})
 
 def backup_list_archive(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False), 'archive': True})
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False).order_by('from_envt'), 'archive': True})
 
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
