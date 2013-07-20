@@ -94,7 +94,7 @@ class LogicalComponent(models.Model):
     
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. """
-    name = models.CharField(max_length=100, verbose_name='Nom')
+    name = models.CharField(max_length=100, verbose_name='code')
     
     description = models.CharField(max_length=500)
     implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'composant logique implémenté')
@@ -119,7 +119,7 @@ class EnvironmentType(models.Model):
     short_name = models.CharField(max_length=10, verbose_name='code')
     sla = models.ForeignKey(SLA, blank=True, null=True)
     implementation_patterns = models.ManyToManyField(ComponentImplementationClass, blank = True)
-    chronological_order = models.IntegerField(default=1)
+    chronological_order = models.IntegerField(default=1, verbose_name = 'ordre d\'affichage')
     default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
     default_show_sensitive_data = models.BooleanField(default = False, verbose_name = "afficher les informations sensibles")
     
@@ -459,7 +459,7 @@ class ConventionCounter(models.Model):
     scope_type = models.CharField(max_length=50)
     scope_param_1 = models.CharField(max_length=50, blank=True, null=True, default=None)
     scope_param_2 = models.CharField(max_length=50, blank=True, null=True, default=None)
-    val = models.IntegerField(default=0)
+    val = models.IntegerField(default=0, verbose_name='valeur actuelle')
     
     class Meta:
         verbose_name = u'Compteur'

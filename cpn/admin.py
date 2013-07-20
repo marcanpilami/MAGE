@@ -10,7 +10,16 @@ from ref import admin
 from ref.admin import ComponentInstanceAdmin
 from cpn.models import OracleInstance, OracleSchema, OraclePackage, \
     WasApplication, WasCluster, WasCell, WasNode, WasAS, MqQueueManagerParams, \
-    MqQueueManager, ApplicationBinary
+    MqQueueManager, ApplicationBinary, OsServer, OsAccount, GlassfishAS
+
+## Server
+class OsServerAdmin(ComponentInstanceAdmin):
+    list_display = ('name', 'admin_account_login', 'os')
+admin.site.register(OsServer, OsServerAdmin)
+
+class OsAccountAdmin(ComponentInstanceAdmin):
+    list_display = ('name', 'server')
+admin.site.register(OsAccount, OsAccountAdmin)
 
 ## Oracle
 class OracleInstanceAdmin(ComponentInstanceAdmin):
@@ -53,3 +62,6 @@ class ApplicationBinaryAdmin(ComponentInstanceAdmin):
     list_display = ('name', 'root_directory', 'server',)
     fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique binaires', {'fields': ['root_directory', ]})]
 admin.site.register(ApplicationBinary, ApplicationBinaryAdmin)
+
+## Misc
+admin.site.register(GlassfishAS)

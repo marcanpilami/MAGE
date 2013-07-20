@@ -60,7 +60,7 @@ class EnvironmentAdmin(ModelAdmin):
 site.register(Environment, EnvironmentAdmin)
 
 class EnvironmentTypeAdmin(ModelAdmin):
-    list_display = ('name', 'short_name', 'description', 'cic_list')
+    list_display = ('name', 'short_name', 'description', 'chronological_order',)
     ordering = ('chronological_order', 'name')
     filter_horizontal = ('implementation_patterns',)
 
@@ -72,7 +72,7 @@ site.register(EnvironmentType, EnvironmentTypeAdmin)
 ################################################################################
 
 class CICAdmin(ModelAdmin):
-    list_display = ('name', 'implements', 'python_model_to_use',)
+    list_display = ('name', 'implements', 'python_model_to_use', 'description')
     list_filter = ('implements',)
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -110,7 +110,10 @@ class ConventionAdmin(ModelAdmin):
 
 site.register(Convention, ConventionAdmin)
 
-site.register(ConventionCounter)
+class ConventionCounterAdmin(ModelAdmin):
+    list_display = ('scope_type', 'scope_param_1', 'scope_param_2', 'val')
+    
+site.register(ConventionCounter, ConventionCounterAdmin)
 
 
 ################################################################################

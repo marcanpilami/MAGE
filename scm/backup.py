@@ -74,6 +74,6 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
 
 def register_backup_envt_default_plan(envt_name, backup_date):
     e = Environment.objects.get(name=envt_name)
-    return register_backup(e, backup_date, * e.component_instances.filter(include_in_envt_backup=True), description = "default plan backup")
+    return register_backup(e, backup_date, None, * e.component_instances.filter(include_in_envt_backup=True), description = "default plan backup")
 
     

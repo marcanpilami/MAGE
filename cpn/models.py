@@ -24,6 +24,9 @@ class OsServer(ComponentInstance):
 
     restricted_fields = ('admin_account_password',)
     include_in_default_envt_backup = False
+    
+    class Meta:
+        verbose_name = 'serveur'
 
 
 class OsAccount(ComponentInstance):
