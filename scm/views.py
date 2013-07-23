@@ -40,7 +40,6 @@ from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from prm.models import getParam
-from django.utils.datetime_safe import date
 
 
 def envts(request):
@@ -308,10 +307,10 @@ def tag_list(request):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()}) 
 
 def backup_list(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True).order_by('from_envt')})
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True).order_by('from_envt', 'set_date')})
 
 def backup_list_archive(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False).order_by('from_envt'), 'archive': True})
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False).order_by('from_envt', 'set_date'), 'archive': True})
 
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
