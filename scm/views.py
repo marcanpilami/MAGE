@@ -306,11 +306,8 @@ def tag_detail(request, tag_id):
 def tag_list(request):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()}) 
 
-def backup_list(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=True).order_by('from_envt', 'set_date')})
-
-def backup_list_archive(request):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=False).order_by('from_envt', 'set_date'), 'archive': True})
+def backup_list(request, archive = False):
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive).order_by('from_envt', 'set_date').select_related('all_items'), 'archive' : archive})
 
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})

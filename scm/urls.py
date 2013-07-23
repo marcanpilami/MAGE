@@ -48,7 +48,7 @@ urlpatterns = patterns('',
     url(r'bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
     url(r'bck/(?P<is_id>\d*)/archive$', views.is_archive, name='backup_archive'),
     url(r'bck/(?P<is_id>\d*)/unarchive$', views.is_unarchive, name='backup_unarchive'),
-    url(r'bck/archive$', views.backup_list_archive, name='backup_list_archive'),
+    url(r'bck/archive$', views.backup_list, {'archive': True}, name='backup_list_archive'),
     url(r'bck$', views.backup_list, name='backup_list'),
     
     url(r'demointernal', views.demo_internal, name='demointernal'),

@@ -3,7 +3,11 @@
 {% block maintitle %}Liste des sauvegardes {% if archive %}archivées{% endif %}{% endblock %}
 
 {%block navigationButtons%}
-{% if not archive %}<a href="{% url 'scm:backup_list_archive' %}" title="Voir l'archive (backups non disponibles)">A</a>{% endif %}
+{% if not archive %}
+<a href="{% url 'scm:backup_list_archive' %}" title="Voir l'archive (backups non disponibles)">A</a>
+{%else%}
+<a href="{% url 'scm:backup_list' %}" title="Voir les backups disponibles">D</a>
+{% endif %}
 {%endblock%}
 
 {% block content %}
@@ -18,10 +22,7 @@
 	<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' bckset.id %}">
 		{{bckset.set_date}}
 		<div>
-			{% for item in bckset.all_items.all %}
-			<div class='annotation'>{{ item.instance }}</div>
-			
-			{% endfor %}
+			<div class='annotation'>{{ bckset.all_items.count }} éléments sauvegardés</div>
 		</div>
 	</a>
 	{% endfor %}
