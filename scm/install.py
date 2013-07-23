@@ -22,13 +22,15 @@ def install_iset_envt(iset, envt, force_prereqs = False, install_date = now(), t
     compos = envt.component_instances.filter(instanciates__isnull=False)
     install_iset(iset, compos, envt, force_prereqs, install_date, ticket)
 
-def install_iset(iset, targets, envt, force_prereqs = False, install_date = now(), ticket = None, ii_selection = None):
+def install_iset(iset, targets, envt, force_prereqs = False, install_date = None, ticket = None, ii_selection = None):
     ## Check arguments
     if ii_selection is None:
         ii_selection = iset.set_content.all()
     for ii in ii_selection:
         if ii.belongs_to_set != iset:
             raise MageScmCallerError('an Installable Item does not belong to the specified set')
+    if install_date is None:
+        install_date = now()
     
     ## Check prerequisites
     try:
