@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     
     url(r'delivery/(?P<delivery_id>\d*)/testonenvt/(?P<envt_id_or_name>.+)$', views.delivery_test, name='delivery_prereqs_test'),
     url(r'delivery/(?P<delivery_id>\d*)/testonenvtscript/(?P<envt_id_or_name>.+)$', views.delivery_test_script, name='delivery_prereqs_test_script'),
+    url(r'delivery/(?P<delivery_id>\d*)/applytoenvt/force/(?P<envt_id_or_name>.+)$', views.delivery_apply_envt, {'force_prereqs' : True}, name='delivery_apply_envt_force'),
     url(r'delivery/(?P<delivery_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)$', views.delivery_apply_envt, name='delivery_apply_envt'),
     url(r'ii/(?P<ii_id>\d+)/apply/(?P<envt_name>.+)/(?P<instance_id>\d+)$', views.delivery_ii_apply_envt, name='delivery_apply_ii_single'),
     url(r'ii/(?P<ii_id>\d+)/testonenvtscriptfull/(?P<envt_name>.+)$', views.delivery_ii_test_envt, {'full_delivery': True}, name='delivery_test_ii_set'),

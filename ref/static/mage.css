@@ -364,6 +364,10 @@ button.cancel, input.cancel[type='button'] {
 	background-color: #AD103C;	
 }
 
+.metOkBackground {
+	background-color: #004A00;
+}
+
 /* Toolbar */
 #upperBar {
 	background-color: #0000CC;

@@ -108,14 +108,14 @@ def delivery_test_script(request, delivery_id, envt_id_or_name):
         return HttpResponse("<html><body>%s</body></html>" %e, status=424)
 
 @permission_required('scm.install_installableset')
-def delivery_apply_envt(request, delivery_id, envt_id_or_name):    
+def delivery_apply_envt(request, delivery_id, envt_id_or_name, force_prereqs = False):    
     delivery = InstallableSet.objects.get(pk=delivery_id)
     try:
         envt = Environment.objects.get(name=envt_id_or_name)
     except Environment.DoesNotExist:
         envt = Environment.objects.get(pk=int(envt_id_or_name))
     
-    install_iset_envt(delivery, envt)
+    install_iset_envt(delivery, envt, force_prereqs = force_prereqs)
     return redirect('scm:envtinstallhist', envt_name=envt.name)
 
 @permission_required('scm.install_installableset')
