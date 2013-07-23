@@ -187,9 +187,9 @@ class InstallationMethod(models.Model):
             a = "OBSOLETE - "
         return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
     
-    def check_package(self, package_file):
+    def check_package(self, package_file, logical_component):
         for checker in self.checkers.all():
-            checker.check(package_file)
+            checker.check(package_file, logical_component, self)
     
     class Meta:
         verbose_name = u'méthode d\'installation'
@@ -390,9 +390,9 @@ class PackageChecker(models.Model):
     name = models.CharField(max_length = 200, verbose_name = 'Python checker class name')
     description = models.CharField(max_length = 200, verbose_name = 'description')
     
-    def check(self, package_file):
+    def check(self, package_file, logical_component, installation_method):
         checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name) 
-        checker_impl.check(checker_impl(), package_file)
+        checker_impl.check(checker_impl(), package_file, logical_component, installation_method)
         
     def __unicode__(self):
         return self.description
@@ -400,7 +400,7 @@ class PackageChecker(models.Model):
     
 class PackageCheckerBaseImpl(object):
     description = None
-    def check(self, fileinfo):
+    def check(self, fileinfo, logical_component, installation_method):
         raise NotImplemented()
     
 class __PackageCheckerHandler:

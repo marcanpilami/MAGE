@@ -56,6 +56,7 @@ class IIForm(ModelForm):
     def clean_datafile(self):
         dfile = self.cleaned_data['datafile']
         methods = self.cleaned_data['how_to_install']
+        target = self.cleaned_data['target']
         if len(methods) == 0:
             return dfile
         for method in methods:
@@ -65,7 +66,7 @@ class IIForm(ModelForm):
             return dfile
         
         for method in methods:
-            method.check_package(dfile)
+            method.check_package(dfile, target)
         return dfile
         
     def clean(self):
