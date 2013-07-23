@@ -132,7 +132,8 @@ class CI2DOFieldInline(TabularInline):
     template = 'admin/tabular_no_title.html'
       
     def formfield_for_dbfield(self, db_field, **kwargs):
-        statue_model_name = kwargs['request'].path.split('/')[3]
+        path = kwargs['request'].path
+        statue_model_name = path.split('/')[path.split('/').index('admin') + 2]
         statue_model = ContentType.objects.get(model__iexact=statue_model_name).model_class()
         
         if db_field.name == "pedestal":
