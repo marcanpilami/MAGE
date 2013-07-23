@@ -6,6 +6,9 @@ $(document).ready(function()
 	{
 		var form_idx = $('#id_iis-TOTAL_FORMS').val();
 		$('#iisf').append($('#emptyformset').html().replace(/__prefix__/g, form_idx));
+		if ($('#commonversion').val() != "")
+			$('#commonversion').trigger('keyup');
+		$('#iisf select[id$=target]').trigger('change');
 		$('#id_iis-TOTAL_FORMS').val(parseInt(form_idx) + 1);
 	});
 
@@ -30,6 +33,8 @@ $(document).ready(function()
 		if (!selected)
 		{
 			select.empty();
+			select.hide();
+			select.siblings().text("");
 			return;
 		}
 
@@ -39,6 +44,8 @@ $(document).ready(function()
 
 		// Fill the SELECT with allowed values
 		select.empty();
+		var displayed=0;
+		var how_label="";
 		for ( var i = 0; i < options.length; i++)
 		{
 			var o = $(options.get(i));
@@ -47,7 +54,21 @@ $(document).ready(function()
 				var a = o.clone();
 				a.prop("selected", true);
 				select.append(a);
+				displayed++;
+				how_label += a.text();
 			}
+		}
+
+		// Hide or show the SELECT (one option = no need to) and replace it with the method name
+		if (displayed <= 1)
+		{
+			select.hide();
+			select.siblings().text(how_label);
+		}
+		else
+		{
+			select.show();
+			select.siblings().text("");
 		}
 	});
 
@@ -72,4 +93,67 @@ $(document).ready(function()
 				$(this).removeAttr('selected');
 		});
 	});
+	
+	// Common version
+	var input_commonv = $('#commonversion');
+	var txts_version =	$('input[id$=-version]');
+	
+	input_commonv.keyup(function()
+	{
+		$('input[id$=-version]').val($('#commonversion').val());
+	});
+	input_commonv.change(function()
+	{
+		$('input[id$=-version]').val($('#commonversion').val());
+	});
+
+	var vv = $(txts_version[0]).val();
+	var vl = null;
+	var found = true;
+	for (var i = 0; i < txts_version.length; i++)
+	{
+		vl = $(txts_version[i]).val();
+		if (vl === "")
+			break; // The additional form
+		if (vl !== vv)
+		{
+			found = false;
+			break;
+		}
+	}
+	if (found)
+	{
+		$('#commonversion').val(vv);
+		$('#tr_commonversion').show();
+		txts_version.parents('tr').hide();
+	}
+	
+	$('#bt_percompo').click(function()
+	{
+		$('#tr_commonversion').hide();
+		txts_version.parents('tr').show();
+	});
+	
+	
+	// Hidden elements are not taken into account in a form
+	$('#submit').click(function()
+	{
+		//$('#tr_commonversion').hide();
+		//$('input[id$=-version]').show();
+		//$('select[id$=how_to_install]').show();
+		//txts_version.parents('tr').show();
+		
+		// Remove version from empty formsets
+		$('input[id$=-version]').each(function()
+		{
+			var t = $(this);
+			if (t.parents('table').find('select[id$=target]').val() === "")
+			{
+				t.val("");
+				t.parents('table').find('select[id$=how_to_install]').val("");
+			}
+		});
+		
+	})
+	
 });

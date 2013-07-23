@@ -17,7 +17,7 @@
 
 	<div id='main' class='metContainer metSection wideInputs metFormSection'>
 		<label class='t2' for='main'>Informations de base</label>
-		<table>
+		<table id='basics'>
 			<tr {% if form.name.errors %} class='formerror'{%endif%}><td>{{form.name.label}} :</td><td>{{form.name}}</td></tr>
 			{% if form.name.errors %}<tr><td></td><td>{{form.name.errors}}</td></tr>{%endif%}
 			<tr {% if form.description.errors %} class='formerror'{%endif%}><td>{{form.description.label}} :</td><td>{{form.description}}</td></tr>
@@ -31,6 +31,8 @@
 			{% if display.d4 %}<tr><td>{{form.location_data_4.label}} :</td><td>{{form.location_data_4}}</td></tr>{% endif %}
 			
 			{% if display.globalfile %}<tr><td>{{form.datafile.label}} :</td><td><div>{{form.datafile}}</div></td></tr>{% endif %}
+			
+			<tr id='tr_commonversion' style="display: none;"><td>Version commune des contenus livrés :</td><td><input id='commonversion' maxlength="30" type="text" style="width:50em;"/><input type='button' id='bt_percompo' value='Une version par composant'/></td></tr>
 		</table>
 	</div>
 	
@@ -45,7 +47,7 @@
 					{% if fs.target.errors %}<tr><td></td><td>{{fs.target.errors}}</td></tr>{%endif%}
 					<tr {% if fs.version.errors %} class='formerror'{%endif%}><td>{{fs.version.label}} :</td><td>{{fs.version}}</td></tr>
 					{% if fs.version.errors %}<tr><td></td><td>{{fs.version.errors}}</td></tr>{%endif%}
-					<tr {% if fs.how_to_install.errors %} class='formerror'{%endif%}><td>{{fs.how_to_install.label}} :</td><td>{{fs.how_to_install}}</td></tr>
+					<tr {% if fs.how_to_install.errors %} class='formerror'{%endif%}><td>{{fs.how_to_install.label}} :</td><td>{{fs.how_to_install}}<div class='howto_label'></div></td></tr>
 					{% if fs.how_to_install.errors %}<tr><td></td><td>{{fs.how_to_install.errors}}</td></tr>{%endif%}
 					<tr><td>{{fs.is_full.label}} :</td><td>{{fs.is_full}}</td></tr>
 					<tr><td>{{fs.data_loss.label}} :</td><td>{{fs.data_loss}}</td></tr>
@@ -59,18 +61,18 @@
 	</div>
 	
 	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none' class='metButton'>
-	<input type="submit" value="Enregistrer" class='metButton'/>
+	<input id='submit' type="submit" value="Enregistrer" class='metButton'/>
 	<button class='metButton cancel' onclick="back();return false;">annuler</button>
 </form>
 
 <div id='emptyformset' style='display: none; '>
 	<div class='metContainer metFreeRect metFormSection' style='position: relative;'>
-		<label class='t3' for='main'>Nouveau contenu pour cette livraison</label>
+		<label class='t3' for='main'>Nouveau contenu</label>
 		{{ iisf.empty_form.id }}
 		<table>
 			<tr><td>{{iisf.empty_form.target.label}} :</td><td>{{iisf.empty_form.target}}</td></tr>
 			<tr><td>{{iisf.empty_form.version.label}} :</td><td>{{iisf.empty_form.version}}</td></tr>
-			<tr><td>{{iisf.empty_form.how_to_install.label}} :</td><td>{{iisf.empty_form.how_to_install}}</td></tr>
+			<tr><td>{{iisf.empty_form.how_to_install.label}} :</td><td>{{iisf.empty_form.how_to_install}}<div class='howto_label helptext'></div></td></tr>
 			<tr><td>{{iisf.empty_form.is_full.label}} :</td><td>{{iisf.empty_form.is_full}}</td></tr>
 			<tr><td>{{iisf.empty_form.data_loss.label}} :</td><td>{{iisf.empty_form.data_loss}}</td></tr>
 			{% if display.iifile %}<tr><td>{{iisf.empty_form.datafile.label}} :</td><td>{{iisf.empty_form.datafile}}</td></tr>{% endif %}

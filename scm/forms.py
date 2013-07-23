@@ -11,6 +11,7 @@ import re
 ## Django imports
 from django import forms
 from django.forms import ModelForm
+from django.db.models.aggregates import Count
 
 ## MAGE imports
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
@@ -34,7 +35,7 @@ class DeliveryForm(ModelForm):
         widgets = { 'datafile': ClearableFileInputPretty}
 
 class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).order_by('name').distinct(), label='Composant livré')
+    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):
@@ -77,12 +78,20 @@ class IIForm(ModelForm):
             for hti in htis:
                 if not logicalcompo in [i.implements for i in hti.method_compatible_with.all()]:
                     raise forms.ValidationError("Inconsistent choice - that method is not compatible with this target")
-            
+        
+        ## Check datafile according to hpow_to_install
+        ##self.clean_datafile2()
+        
+        ## Done    
         return cleaned_data
     
     def __init__(self, *args, **kwargs):
         super(IIForm, self).__init__(*args, **kwargs)
         self.fields['how_to_install'].queryset = InstallationMethod.objects.filter(restoration_only = False)
+        
+        if kwargs.has_key('application'):
+            self.field['target'].queryset = self.field['target'].queryset.filter(application = kwargs['application'])
+            kwargs.remove('application')
         
         if self.instance != None and self.instance.pk is not None:
             self.initial['target'] = self.instance.what_is_installed.logical_component.pk

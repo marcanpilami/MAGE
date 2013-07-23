@@ -175,7 +175,7 @@ def lc_versions(request, lc_id):
 @cache_control(no_cache=True)
 def delivery_edit(request, iset_id=None):
     if iset_id is None:
-        extra=3
+        extra=4
     else:
         extra=0
     
