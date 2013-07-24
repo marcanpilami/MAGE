@@ -233,6 +233,12 @@ def delivery_edit(request, iset_id=None):
         form = DeliveryForm(instance=instance)
         iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
 
+    ## Remove partially completed removed forms
+    for ff in iiformset.forms:
+        if hasattr(ff, "cleaned_data"):
+            if ff.cleaned_data["DELETE"] if ff.cleaned_data.has_key("DELETE") else False and ff.instance.pk is None:
+                iiformset.forms.remove(ff)
+    
     return render(request, 'scm/delivery_edit.html', {
         'form': form,
         'iisf' : iiformset,

@@ -22,6 +22,7 @@ $(document).ready(function()
 		div.hide();
 	});
 	$('input:checkbox[id$=DELETE]').parent().parent().hide();
+	//$('input:checkbox[id$=DELETE,checked=checked').parents('.metFormSection').hide();
 
 	// Installation Method filter
 	$('#iisf').on('change', 'select[id$=target]', function()

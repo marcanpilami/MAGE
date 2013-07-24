@@ -46,7 +46,7 @@
 					<tr {% if fs.target.errors %} class='formerror'{%endif%}><td>{{fs.target.label}} :</td><td>{{fs.target}}</td></tr>
 					{% if fs.target.errors %}<tr><td></td><td>{{fs.target.errors}}</td></tr>{%endif%}
 					<tr {% if fs.version.errors %} class='formerror'{%endif%}><td>{{fs.version.label}} :</td><td>{{fs.version}}</td></tr>
-					{% if fs.version.errors %}<tr><td></td><td>{{fs.version.errors}}</td></tr>{%endif%}
+					{% if fs.version.errors %}<tr><td>Version :</td><td>{{fs.version.errors}}</td></tr>{%endif%}
 					<tr {% if fs.how_to_install.errors %} class='formerror'{%endif%}><td>{{fs.how_to_install.label}} :</td><td>{{fs.how_to_install}}<div class='howto_label'></div></td></tr>
 					{% if fs.how_to_install.errors %}<tr><td></td><td>{{fs.how_to_install.errors}}</td></tr>{%endif%}
 					<tr><td>{{fs.is_full.label}} :</td><td>{{fs.is_full}}</td></tr>

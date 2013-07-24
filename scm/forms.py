@@ -49,14 +49,20 @@ class IIForm(ModelForm):
     
     def clean_how_to_install(self):
         data = self.cleaned_data['how_to_install']
-        if len(data) == 0:
+        deleted = self.cleaned_data.has_key('DELETE') if self.cleaned_data.has_key('DELETE') else False
+        print deleted
+        if len(data) == 0 and not deleted:
             raise forms.ValidationError("At least one technical target is required")
         return data
     
     def clean_datafile(self):
         dfile = self.cleaned_data['datafile']
+        try:
+            target = self.cleaned_data['target']
+        except KeyError:
+            return dfile
         methods = self.cleaned_data['how_to_install']
-        target = self.cleaned_data['target']
+        
         if len(methods) == 0:
             return dfile
         for method in methods:
