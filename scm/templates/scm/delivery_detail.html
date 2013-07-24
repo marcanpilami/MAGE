@@ -31,14 +31,14 @@
 {% for ii in delivery.set_content.all %}
 	<div class='metContainer metFreeRect metDefaultBackground'>
 		{% if perms.scm.download_ii and ii.datafile %}
-		<a class='t3' href='{{ii.datafile.url}}'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</a><br/>
+		<a class='t3' href='{{ii.datafile.url}}'>[ {{ii.what_is_installed.logical_component.application}} {{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</a><br/>
 		{% else %}
-		<div class='t3'>[{{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
+		<div class='t3'>[{{ii.what_is_installed.logical_component.application}} {{ ii.what_is_installed.logical_component.name }}] version [{{ ii.what_is_installed.version }}]</div>
 		{% endif %}
 
 		<div class='metContainer smallContent'>
 			{% for dep in ii.dependencies.all %}
-				<div>Requiert version [{{dep.depends_on_version.logical_component.name}}] {{dep.operator}} [{{dep.depends_on_version.version}}]</div>
+				<div>Requiert version [{{dep.depends_on_version.logical_component.application}} {{dep.depends_on_version.logical_component.name}}] {{dep.operator}} [{{dep.depends_on_version.version}}]</div>
 			{%endfor%}
 		</div>
 		

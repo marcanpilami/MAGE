@@ -17,6 +17,7 @@ from django.db.models.aggregates import Count
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
 from ref.models import LogicalComponent
 from ref.widgets import ClearableFileInputPretty
+from django.forms.models import ModelChoiceField
 
 
 class DeliveryForm(ModelForm):
@@ -34,8 +35,12 @@ class DeliveryForm(ModelForm):
         exclude = ['removed', 'status',]
         widgets = { 'datafile': ClearableFileInputPretty}
 
+class LcChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+         return "%s - %s" %( obj.application.name, obj.name)
+
 class IIForm(ModelForm):
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
+    target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):

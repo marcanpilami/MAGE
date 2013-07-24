@@ -37,7 +37,6 @@ site.register(User, UserAdmin)
 
 site.register(Project)
 site.register(Application)
-site.register(LogicalComponent)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
@@ -65,6 +64,13 @@ class EnvironmentTypeAdmin(ModelAdmin):
     filter_horizontal = ('implementation_patterns',)
 
 site.register(EnvironmentType, EnvironmentTypeAdmin)
+
+
+class LogicalComponentAdmin(ModelAdmin):
+    list_display = ('name', 'description', 'application','ref1', 'ref2', 'ref3')
+    ordering = ('application', 'name')
+    list_filter = ('application', 'active','scm_trackable')
+site.register(LogicalComponent, LogicalComponentAdmin)
 
 
 ################################################################################

@@ -15,7 +15,7 @@
 			<th></th>
 			{% for li in lis %}
 				{% if li.versions.count != 0 %}
-					<th><a style='height:40px;' class='metRectListSmall defaultHighlightBackground' href="{% url 'scm:lc_versions' li.id %}">{{li.name}}</a></th>
+					<th><a style='height:40px;' class='metRectListSmall defaultHighlightBackground' href="{% url 'scm:lc_versions' li.id %}">{{li.application.name}} - {{li.name}}</a></th>
 				{% endif %}
 			{% endfor %}
 			<th>Enregistré le</th>

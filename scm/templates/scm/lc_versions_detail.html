@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
-{% block maintitle %}Versions disponibles de {{lc}}{% endblock %}
+{% block maintitle %}Versions disponibles de {{lc.application.name}} {{lc}}{% endblock %}
 
 {%block navigationButtons%}
 <a href="{% url 'scm:lc_list' %}" title="Liste des composants logiques">↑</a>

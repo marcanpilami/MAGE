@@ -3,11 +3,19 @@
 {% block maintitle %}Versions disponibles des composants logiques{% endblock %}
 
 {% block content %}
+{% regroup lcs by application as applications_list %}
 
-{% for lc in lcs %}
-	<a class='metSquare metContainer' href="{% url 'scm:lc_versions' lc.id %}">
-		{{ lc.name }}
-	</a>
+{% for application in applications_list %}
+<div class='column' style="min-width: 10px;">
+	<div class='t2'>{{ application.grouper.name }}</div>
+	{% for lc in application.list %}
+		<a class='metSquare metContainer' href="{% url 'scm:lc_versions' lc.id %}">
+			{{ lc.name|capfirst }}
+		</a>
+	{% endfor %}
+</div>
 {% endfor %}
+
+
 
 {% endblock content %}

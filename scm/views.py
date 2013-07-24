@@ -160,7 +160,7 @@ def lc_versions_per_environment(request):
 
 
 def lc_list(request):
-    lcs = LogicalComponent.objects.all()
+    lcs = LogicalComponent.objects.all().order_by('application', 'name')
     return render(request, 'scm/lc_versions.html', {'lcs': lcs})
 
 @cache_control(must_revalidate=True)
