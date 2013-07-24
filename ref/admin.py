@@ -35,8 +35,6 @@ site.register(User, UserAdmin)
 ## No-frills admins
 ################################################################################
 
-site.register(Project)
-site.register(Application)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
@@ -44,7 +42,7 @@ class EnvironmentAdmin(ModelAdmin):
     list_display = ('name', 'description','template_only', 'managed')
     ordering = ('name',)
     readonly_fields=('buildDate',)
-    list_filter = ['template_only', 'managed',]
+    list_filter = ['template_only', 'managed','typology']
     search_fields = ('name',)
     
     
@@ -72,6 +70,17 @@ class LogicalComponentAdmin(ModelAdmin):
     list_filter = ('application', 'active','scm_trackable')
 site.register(LogicalComponent, LogicalComponentAdmin)
 
+class ApplicationAdmin(ModelAdmin):
+    list_display = ('name', 'description', 'project', 'alternate_name_1')
+    ordering = ('name',)
+    list_filter = ('project',)
+site.register(Application, ApplicationAdmin)
+
+class ProjectAdmin(ModelAdmin):
+    list_display = ('name', 'description', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
+    ordering = ('name',)
+site.register(Project, ProjectAdmin)
+
 
 ################################################################################
 ## CIC
@@ -79,7 +88,7 @@ site.register(LogicalComponent, LogicalComponentAdmin)
 
 class CICAdmin(ModelAdmin):
     list_display = ('name', 'implements', 'python_model_to_use', 'description')
-    list_filter = ('implements',)
+    list_filter = ('implements__application', 'implements')
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "python_model_to_use":
