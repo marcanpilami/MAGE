@@ -18,7 +18,7 @@ from scm.models import Installation, ComponentInstanceConfiguration
 from prm.models import getParam
 
 
-def install_iset_envt(iset, envt, force_prereqs = False, install_date = now(), ticket = None):
+def install_iset_envt(iset, envt, force_prereqs = False, install_date = None, ticket = None):
     compos = envt.component_instances.filter(instanciates__isnull=False)
     install_iset(iset, compos, envt, force_prereqs, install_date, ticket)
 
@@ -65,8 +65,10 @@ def install_iset(iset, targets, envt, force_prereqs = False, install_date = None
         cic = ComponentInstanceConfiguration(component_instance = compo, result_of = ii, part_of_installation = i, created_on = install_date)
         cic.save() 
         
-def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, install_date = now(), ticket = None, install = None):
+def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, install_date = None, ticket = None, install = None):
     iset = ii.belongs_to_set
+    if install_date is None:
+        install_date = now()
     
     ## Check prerequisites
     try:
