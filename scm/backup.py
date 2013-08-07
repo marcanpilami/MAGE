@@ -62,9 +62,9 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
             bi = BackupItem(backupset=bs , instance=ci)
             bi.save()
         else:
-            ii = InstallableItem(what_is_installed=v, belongs_to_set=bs, is_full=True)
+            ii = InstallableItem(what_is_installed=v, belongs_to_set=bs, is_full=True, data_loss = True)
             ii.save()
-            bmr = BackupRestoreMethod.objects.filter(target=ci.instanciates, apply_to=envt, method__available = True)[0]
+            bmr = BackupRestoreMethod.objects.filter(target=ci.instanciates, method__available = True)[0] # admin forbids creating more than one
             ii.how_to_install.add(bmr.method)
             bi = BackupItem(backupset=bs, instance=ci, related_scm_install=ii, instance_configuration=c)
             bi.save()

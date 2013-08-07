@@ -351,7 +351,6 @@ class Tag(models.Model):
 class BackupRestoreMethod(models.Model):
     method = models.ForeignKey(InstallationMethod)
     target = models.ForeignKey(ComponentImplementationClass, related_name='restore_methods', verbose_name='cible')
-    apply_to = models.ForeignKey(Environment, verbose_name='environnement')
     
     class Meta:
         verbose_name = u'méthode de restauration par défaut'
@@ -364,21 +363,9 @@ def create_brm(sender, instance, **kwargs):
     if created:
         im.save()
         im.method_compatible_with.add(instance)
-    for e in Environment.objects.all():
-        m, created = BackupRestoreMethod.objects.get_or_create(target=cic, apply_to=e, method=im)
-        if created:
-            m.save()
-        
-@receiver(post_save, sender=Environment)
-def create_brm2(sender, instance, **kwargs):
-    e = instance
-    for cic in ComponentImplementationClass.objects.all():
-        im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True,)
-        if created:
-            im.save()
-        m, created = BackupRestoreMethod.objects.get_or_create(target=cic, apply_to=e, method=im)
-        if created:
-            m.save()
+    m, created = BackupRestoreMethod.objects.get_or_create(target=cic, method=im)
+    if created:
+        m.save()
 
 
 #######################################################################################

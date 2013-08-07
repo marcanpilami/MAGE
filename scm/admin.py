@@ -6,14 +6,12 @@
 '''
 
 from ref import admin
-from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet,\
-    InstallableItem, BackupItem
+from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet
 
 
 class BackupRestoreMethodAdmin(admin.ModelAdmin):
-    list_display = ('apply_to', 'target',)
-    ordering = ('apply_to', 'target',)
-    list_filter = ('apply_to', 'target',)
+    list_display = ('target', 'method')
+    ordering = ('target',)
     
     def has_delete_permission(self, request, obj=None):
         return False
@@ -28,7 +26,7 @@ admin.site.register(BackupRestoreMethod, BackupRestoreMethodAdmin)
 class InstallationMethodAdmin(admin.ModelAdmin):
     list_display = ('name', 'halts_service', 'available')
     ordering = ('name',)
-    list_filter = ('available',)
+    list_filter = ('available', 'restoration_only')
     filter_horizontal = ('method_compatible_with', 'checkers', )
     
     def has_delete_permission(self, request, obj=None):
