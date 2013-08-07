@@ -463,7 +463,7 @@ def bootstrap(request):
     for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
         try:
             importlib.import_module(app + '.bootstrap')
-        except:
+        except ImportError:
             continue
     
     return HttpResponseRedirect(reverse('welcome'))

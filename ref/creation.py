@@ -22,6 +22,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     
     if components_to_duplicate is None or len(components_to_duplicate) == 0:
         components_to_duplicate = envt.component_instances.all()
+    components_to_duplicate = sorted(list(components_to_duplicate), key = lambda compo : compo.pk)
     internal_pks = [i.pk for i in components_to_duplicate] 
     already_migrated = {} # key = old PK, value = new instance
     
@@ -122,7 +123,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
         c = instance.default_convention
         if c is not None:
             c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
-            print instance.name
+        
         
         ###############################
         instance.save()
