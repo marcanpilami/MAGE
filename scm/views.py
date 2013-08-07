@@ -40,6 +40,7 @@ from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from prm.models import getParam
+from django.utils.datastructures import SortedDict
 
 
 def envts(request):
@@ -81,6 +82,7 @@ def delivery_validate(request, iset_id):
     delivery.save()
     return redirect('scm:delivery_detail', iset_id=iset_id)
 
+@cache_control(no_cache=True)
 def delivery_test(request, delivery_id, envt_id_or_name):
     delivery = InstallableSet.objects.get(pk=delivery_id)
     try:
@@ -144,8 +146,8 @@ def delivery_ii_test_envt(request, ii_id, envt_name, full_delivery = False):
 def lc_versions_per_environment(request):
     Installation.objects.filter()
     envts = Environment.objects_active.filter(managed = True).order_by('typology__chronological_order', 'name')
-    res = {}
-    for lc in LogicalComponent.objects.filter(scm_trackable=True):
+    res = SortedDict()
+    for lc in LogicalComponent.objects.filter(scm_trackable=True).select_related('application').order_by('application__name', 'name') :
         lc_list = []
         for envt in envts:
             compo_instances = envt.component_instances.filter(instanciates__implements__id=lc.id)
