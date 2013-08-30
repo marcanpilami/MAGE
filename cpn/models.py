@@ -225,7 +225,7 @@ class MqQueueManager(ComponentInstance):
     port = models.IntegerField(max_length=6)
     adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
     
-    parents = {'server': {'model': 'UnixServer'}}
+    parents = {'server': {'model': 'OsServer'}}
     include_in_default_envt_backup = False
     
     class Meta:
