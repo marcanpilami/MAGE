@@ -49,7 +49,9 @@ def envts(request):
         order_by('typology')
     return render(request, 'scm/envts.html', {'envts': envts, })
 
-def all_installs(request, envt_name, limit=15):
+def all_installs(request, envt_name, limit):
+    if isinstance(limit, unicode):
+        limit = int(limit) 
     envt = Environment.objects.get(name=envt_name)
     envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
     dlimit = now() - timedelta(days=limit)
