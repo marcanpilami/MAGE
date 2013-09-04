@@ -8,7 +8,7 @@
 
 {% block content %}
 
-{% for v in lc.versions.all %}
+{% for v in lc.versions.all|dictsortreversed:"pk" %}
 	<div class='metRectList defaultHighlightBackground'>
 		{{ v.version }}
 	</div>
