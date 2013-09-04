@@ -37,7 +37,7 @@ class DeliveryForm(ModelForm):
 
 class LcChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-         return "%s - %s" %( obj.application.name, obj.name)
+        return "%s - %s" %( obj.application.name, obj.name)
 
 class IIForm(ModelForm):
     target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
@@ -117,7 +117,7 @@ class IIForm(ModelForm):
 
 
 class IDForm(ModelForm):   
-    target = forms.ModelChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct(), label='dépend de ', required=False)
+    target = LcChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct().order_by('application__name', 'name'), label='dépend de ', required=False)
     class Meta:
         model = ItemDependency
         fields = ('target', 'depends_on_version', 'operator',)
