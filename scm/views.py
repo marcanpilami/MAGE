@@ -284,7 +284,7 @@ def delivery_edit_dep(request, iset_id):
 def get_lc_versions(request, lc_id):
     lc = LogicalComponent.objects.get(pk=lc_id)
     res = []
-    for v in lc.versions.all():
+    for v in lc.versions.all().order_by('pk'):
         res.append((v.id, v.version))
     
     return HttpResponse(json.dumps(res))
