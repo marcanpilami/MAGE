@@ -91,7 +91,8 @@ def getGraph(django_filters={}, filename=None, context=None, django_filter_unnam
     dc.set_concentrate(True)
     
     for compo in dc.components:
-        drawNode(compo, dc)
+        if not compo.deleted:
+            drawNode(compo, dc)
     
     if filename is None:
         return dc.render()
