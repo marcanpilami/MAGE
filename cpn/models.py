@@ -192,7 +192,7 @@ class WasAS(ComponentInstance):
     parents = {'was_node': {'model': 'WasNode'}, 'was_cluster': {'model': 'WasCluster'}}
     http_port = models.IntegerField(default=9080)
     https_port = models.IntegerField(default=8081)
-    dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias to use instead of the Unix/Windows server DNS name', blank=True, null=True)
+    dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias', blank=True, null=True)
     
     def __unicode__(self):
         return u'AS WAS %s' % (self.name,)

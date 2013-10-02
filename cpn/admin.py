@@ -36,7 +36,11 @@ admin.site.register(OraclePackage, ComponentInstanceAdmin)
 
 ## WAS
 admin.site.register(WasNode, ComponentInstanceAdmin)
-admin.site.register(WasAS, ComponentInstanceAdmin)
+
+class WasASAdmin(ComponentInstanceAdmin):
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique WAS', {'fields': ['http_port', 'https_port', 'dns_to_use' ]})]
+admin.site.register(WasAS, WasASAdmin)
+
 
 class WasApplicationAdmin(ComponentInstanceAdmin):
     fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique WAS', {'fields': ['context_root', 'client_url', ]})]
