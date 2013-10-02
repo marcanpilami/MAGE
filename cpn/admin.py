@@ -24,20 +24,23 @@ admin.site.register(OsAccount, OsAccountAdmin)
 ## Oracle
 class OracleInstanceAdmin(ComponentInstanceAdmin):
     list_display = ('name',)
-    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique instance Oracle', {'fields': ['port', 'listener', ]})]
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique instance Oracle', {'fields': ['port', 'listener', 'dba_acount', 'dba_password' ]})]
 admin.site.register(OracleInstance, OracleInstanceAdmin)
 
 class OracleSchemaAdmin(ComponentInstanceAdmin):
     list_display = ('name', 'instanciates', 'oracle_instance', 'connectString')
-    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique schéma', {'fields': ['password', 'service_name_to_use', ]})]
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique schéma', {'fields': ['password', 'service_name_to_use', 'dns_to_use' ]})]
 admin.site.register(OracleSchema, OracleSchemaAdmin)
 
 admin.site.register(OraclePackage, ComponentInstanceAdmin)
 
 ## WAS
-admin.site.register(WasApplication, ComponentInstanceAdmin)
 admin.site.register(WasNode, ComponentInstanceAdmin)
 admin.site.register(WasAS, ComponentInstanceAdmin)
+
+class WasApplicationAdmin(ComponentInstanceAdmin):
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique WAS', {'fields': ['context_root', 'client_url', ]})]
+admin.site.register(WasApplication, WasApplicationAdmin)
 
 class WasClusterAdmin(ComponentInstanceAdmin):
     list_display = ('name', 'was_cell')

@@ -65,7 +65,7 @@ class OracleInstance(ComponentInstance):
         verbose_name_plural = u'instances Oracle'
 
 class OracleSchema(ComponentInstance):
-    password = models.CharField(max_length=100, verbose_name=u'Mot de passe')
+    password = models.CharField(max_length=100, verbose_name=u'mot de passe')
     service_name_to_use = models.CharField(max_length=30, verbose_name=u'SERVICE_NAME', blank=True, null=True)
     dns_to_use = models.CharField(max_length=100, verbose_name=u'database DNS', blank=True, null=True)
     
@@ -237,7 +237,10 @@ class MqQueueManagerParams(ComponentInstance):
     include_in_default_envt_backup = False
     
     def __unicode__(self):
-        return "Params %s sur %s" % (self.instanciates.name, self.qm.name)
+        if self.instanciates and self.qm:
+            return "files %s" % (self.instanciates.name, self.qm.name)
+        else:
+            return "files"
     
     class Meta:
         verbose_name = u'Paramétrage MQ Series'
