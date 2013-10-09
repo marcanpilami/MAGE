@@ -23,6 +23,7 @@ from ref.forms import DuplicateForm, DuplicateFormRelInline
 from ref.models import ComponentInstance, Environment
 from ref.mcl import parser
 from prm.models import getMyParams, getParam
+from django.contrib.auth.decorators import permission_required
 
 
 def csv(request, url_end):
@@ -169,7 +170,8 @@ def script_login(request, username, password):
 def script_logout(request):
     logout(request)
     return HttpResponse("<html><body>User logged out</body></html>")
-    
+
+@permission_required('ref.scm_addenvironment')    
 def envt_duplicate_name(request, envt_name):
     e = Environment.objects.get(name=envt_name)
     FS = formset_factory(DuplicateFormRelInline, extra=0)
