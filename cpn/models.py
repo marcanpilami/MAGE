@@ -231,6 +231,8 @@ class MqQueueManager(ComponentInstance):
     class Meta:
         verbose_name = u'Gestionnaire de files'
         verbose_name_plural = u'Gestionnaires de files'
+        
+    detail_template = 'cpn/mqm_table.html'
 
 class MqQueueManagerParams(ComponentInstance):
     parents = {'qm': {'model': 'MqQueueManager'}}
