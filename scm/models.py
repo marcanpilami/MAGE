@@ -136,8 +136,8 @@ class LogicalComponentVersion(models.Model):
         
         ## Loop on all the InstallableSets that install ctv1
         for ii in lcv1.installed_by.all():
-            # # Loop on all the requirements of the installable set
-            for dep in ii.dependencies.all():              
+            ## Loop on all the requirements of the installable set
+            for dep in ii.dependencies.all():      
                 ## Terminaison condition: we have found ctv2
                 if dep.depends_on_version == lcv2:
                     if dep.operator == '>=' or dep.operator == '==': 
@@ -146,24 +146,24 @@ class LogicalComponentVersion(models.Model):
                         return 0
                 
                 ## Recursion
-                if dep.depends_on_version == self:
+                if dep.depends_on_version == lcv1:
                     continue
                 try:
-                    tmp = dep.depends_on_version.__compareWith(lcv2)
+                    tmp = dep.depends_on_version.__compareWith(lcv2, __reverseCall)
                 except MageScmUnrelatedItemsError:
                     continue  ## Nothing can be deduced from this relation - go on to the others
                 
                 ## Analysis of the recursion result
                 if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
-                    return 1  # # Transitivity on >
+                    return 1  ## Transitivity on >
                 if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
-                    return -1  # # Transitivity on <
+                    return -1  ## Transitivity on <
                 
                 ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
                 
-            ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
-            if not __reverseCall:
-                return -lcv2.__compareWith(lcv1, True)
+        ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
+        if not __reverseCall:
+            return -lcv2.__compareWith(lcv1, True)
             
         ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
         raise MageScmUnrelatedItemsError(lcv1, lcv2)   
