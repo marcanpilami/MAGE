@@ -39,7 +39,7 @@
 					<table>
 						
 						{% if compo.instanciates %}
-							<tr><td colspan='2' style='background-color:#B3B3B3; text-transform: uppercase;text-align: center; max-width: 9em; font-size: 8pt;'>{{compo.instanciates.implements.name}}</td></tr>
+							<tr><td colspan='2' style='background-color:#B3B3B3; text-transform: uppercase;text-align: center; max-width: 9em; font-size: 8pt;'>{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}</td></tr>
 						{% endif %}
 						<tr><td colspan="2" style='font-style: italic;text-align: center;background-color:#B3B3B3; '>
 						{{ compo.leaf | verbose_name | capfirst }}
