@@ -8,12 +8,12 @@
 # Django imports
 from django.db import models
 
-## MAGE imports
+# # MAGE imports
 from ref.models import ComponentInstance
 
 
 ######################################################
-## System (VM, LPAR, physical server, ...)
+# # System (VM, LPAR, physical server, ...)
 ######################################################
 
 class OsServer(ComponentInstance):
@@ -47,7 +47,7 @@ class OsAccount(ComponentInstance):
 
 
 ######################################################
-## Oracle DB
+# # Oracle DB
 ######################################################
 
 class OracleInstance(ComponentInstance):
@@ -80,13 +80,13 @@ class OracleSchema(ComponentInstance):
     
     def jdbcString(self):
         if self.service_name_to_use and self.dns_to_use:
-            return 'jdbc:oracle:thin:@%s:%s/%s' %(self.dns_to_use, self.oracle_instance.port, self.service_name_to_use)
+            return 'jdbc:oracle:thin:@%s:%s/%s' % (self.dns_to_use, self.oracle_instance.port, self.service_name_to_use)
         elif self.service_name_to_use:
-            return 'jdbc:oracle:thin:@%s:%s/%s' %(self.oracle_instance.server.name, self.oracle_instance.port, self.service_name_to_use)
+            return 'jdbc:oracle:thin:@%s:%s/%s' % (self.oracle_instance.server.name, self.oracle_instance.port, self.service_name_to_use)
         elif self.dns_to_use:
-            return 'jdbc:oracle:thin:@%s:%s:%s' %(self.dns_to_use, self.oracle_instance.port, self.oracle_instance.name)
+            return 'jdbc:oracle:thin:@%s:%s:%s' % (self.dns_to_use, self.oracle_instance.port, self.oracle_instance.name)
         else:
-            return 'jdbc:oracle:thin:@%s:%s:%s' %(self.oracle_instance.server.name, self.oracle_instance.port, self.oracle_instance.name)
+            return 'jdbc:oracle:thin:@%s:%s:%s' % (self.oracle_instance.server.name, self.oracle_instance.port, self.oracle_instance.name)
     jdbcString.short_description = u"chaîne JDBC"
     jdbcString.admin_order_field = 'name'
     
@@ -119,7 +119,7 @@ class OraclePackage(ComponentInstance):
 ######################################################
 
 class WasApplication(ComponentInstance):
-    context_root = models.CharField(max_length=50, default='/', null = False)
+    context_root = models.CharField(max_length=50, default='/', null=False)
     client_url = models.CharField(max_length=100, verbose_name=u'access URL', blank=True, null=True)
     
     def __unicode__(self):
@@ -128,13 +128,13 @@ class WasApplication(ComponentInstance):
     def url(self):
         if self.client_url:
             return self.client_url
-        elif self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.dns_to_use:
-            return 'http://%s:%s%s' % (self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.dns_to_use, 
-                                        self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.http_port, 
+        elif self.was_cluster.subscribers.filter(model__model='wasas')[0].leaf.dns_to_use:
+            return 'http://%s:%s%s' % (self.was_cluster.subscribers.filter(model__model='wasas')[0].leaf.dns_to_use,
+                                        self.was_cluster.subscribers.filter(model__model='wasas')[0].leaf.http_port,
                                         self.context_root)
         else:
-            return 'http://%s:%s%s' %(self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.was_node.server.name,
-                                       self.was_cluster.subscribers.filter(model__model = 'wasas')[0].leaf.http_port, 
+            return 'http://%s:%s%s' % (self.was_cluster.subscribers.filter(model__model='wasas')[0].leaf.was_node.server.name,
+                                       self.was_cluster.subscribers.filter(model__model='wasas')[0].leaf.http_port,
                                        self.context_root)
     url.short_description = u"adresse de l'application"
     url.admin_order_field = 'name'
@@ -266,4 +266,29 @@ class ApplicationBinary(ComponentInstance):
     class Meta:
         verbose_name = u'ensemble de programmes'
         verbose_name_plural = u'ensembles de programmes'
+
+
+class JqmCluster(ComponentInstance):
+    parents = {'schema': {'model': 'OracleSchema'} }
     
+    class Meta:
+        verbose_name = u'cluster JQM'
+        verbose_name_plural = u'clusters JQM'    
+
+class JqmEngine(ComponentInstance):
+    parents = {'cluster': {'model': 'JqmCluster'}, 'server':{'model': 'OsServer'} }
+    port = models.IntegerField(max_length = 6, null = False, default = 1789)
+    dl_repo = models.CharField(max_length=255, null=True, blank=True)
+    job_repo = models.CharField(max_length=255, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = u'moteur JQM'
+        verbose_name_plural = u'moteurs JQM'
+    
+class JqmBatch(ComponentInstance):
+    parents = {'cluster': {'model': 'JqmCluster'} }
+    
+    class Meta:
+        verbose_name = u'batch tournant dans JQM'
+        verbose_name_plural = u'batchs tournant dans JQM'
+

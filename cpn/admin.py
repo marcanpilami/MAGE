@@ -10,7 +10,8 @@ from ref import admin
 from ref.admin import ComponentInstanceAdmin
 from cpn.models import OracleInstance, OracleSchema, OraclePackage, \
     WasApplication, WasCluster, WasCell, WasNode, WasAS, MqQueueManagerParams, \
-    MqQueueManager, ApplicationBinary, OsServer, OsAccount, GlassfishAS
+    MqQueueManager, ApplicationBinary, OsServer, OsAccount, GlassfishAS,\
+    JqmCluster, JqmEngine, JqmBatch
 
 ## Server
 class OsServerAdmin(ComponentInstanceAdmin):
@@ -70,6 +71,20 @@ class ApplicationBinaryAdmin(ComponentInstanceAdmin):
     list_display = ('name', 'root_directory', 'server',)
     fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique binaires', {'fields': ['root_directory', ]})]
 admin.site.register(ApplicationBinary, ApplicationBinaryAdmin)
+
+admin.site.register(JqmCluster, ComponentInstanceAdmin)
+
+class JqmEngineAdmin(ComponentInstanceAdmin):
+    list_display = ('name', 'port',)
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JQM', {'fields': ['port', 'job_repo', 'dl_repo' ]})]
+admin.site.register(JqmEngine, JqmEngineAdmin)
+
+#class JqmBatchAdmin(ComponentInstanceAdmin):
+    #list_display = ('name', 'port',)
+    #fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JQM', {'fields': ['port', 'job_repo', 'dl_repo' ]})]
+admin.site.register(JqmBatch, ComponentInstanceAdmin)
+
+
 
 ## Misc
 admin.site.register(GlassfishAS)
