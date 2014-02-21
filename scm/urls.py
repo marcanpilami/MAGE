@@ -47,6 +47,8 @@ urlpatterns = patterns('',
     url(r'bck/create/envtscript/(?P<envt_name>.*)/(?P<ci_id>\d*)/(?P<bck_id>\d*)$', views.backup_script, name='backup_script_add'),
     url(r'bck/create/envtscript/(?P<envt_name>.*)/(?P<ci_id>\d*)$', views.backup_script, name='backup_script_create'),
     
+    url(r'bck/api/ci/(?P<ci_id>\d*)/latest$', views.backup_latest_age, name='backup_latest_age'),
+    
     url(r'bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
     url(r'bck/(?P<is_id>\d*)/archive$', views.is_archive, name='backup_archive'),
     url(r'bck/(?P<is_id>\d*)/unarchive$', views.is_unarchive, name='backup_unarchive'),

@@ -41,6 +41,8 @@ from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
 from prm.models import getParam
 from django.utils.datastructures import SortedDict
+from django.utils.datetime_safe import datetime
+from django.utils import timezone
 
 
 def envts(request):
@@ -400,6 +402,13 @@ def iset_id(request, iset_name):
     
     response = HttpResponse(content_type='text/text')
     response.write(res)
+    return response
+
+def backup_latest_age(request, ci_id):
+    ci = ComponentInstance.objects.get(pk = ci_id)
+    bis = BackupSet.objects.filter(all_items__instance__id = ci.id).latest('set_date')
+    response = HttpResponse(content_type='text/text')
+    response.write(int(round((timezone.now() - bis.set_date).seconds / 60, 0)))
     return response
 
 def reset():
