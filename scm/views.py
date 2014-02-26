@@ -405,10 +405,17 @@ def iset_id(request, iset_name):
     return response
 
 def backup_latest_age(request, ci_id):
-    ci = ComponentInstance.objects.get(pk = ci_id)
-    bis = BackupSet.objects.filter(all_items__instance__id = ci.id).latest('set_date')
     response = HttpResponse(content_type='text/text')
-    response.write(int(round((timezone.now() - bis.set_date).seconds / 60, 0)))
+    try:
+        ci = ComponentInstance.objects.get(pk = ci_id)
+        bis = BackupSet.objects.filter(all_items__instance__id = ci.id)
+        if bis.count() == 0:
+            response.write("-1")
+        else:
+            bis = bis.latest('set_date')
+            response.write(int(round((timezone.now() - bis.set_date).seconds / 60, 0)))
+    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+        response.write("-1")
     return response
 
 def reset():
