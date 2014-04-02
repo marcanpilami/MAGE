@@ -277,9 +277,11 @@ class JqmCluster(ComponentInstance):
 
 class JqmEngine(ComponentInstance):
     parents = {'cluster': {'model': 'JqmCluster'}, 'server':{'model': 'OsServer'} }
-    port = models.IntegerField(max_length = 6, null = False, default = 1789)
-    dl_repo = models.CharField(max_length=255, null=True, blank=True)
-    job_repo = models.CharField(max_length=255, null=True, blank=True)
+    port = models.IntegerField(max_length = 6, null = False, default = 1789, verbose_name=u"port HTTP")
+    jmx_registry_port = models.IntegerField(max_length = 6, null = False, default = 1790, verbose_name=u"port registry JMX")
+    jmx_server_port = models.IntegerField(max_length = 6, null = False, default = 1791, verbose_name = "port serveur JMX")
+    dl_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name = u"répertoire de stockage des fichiers produits")
+    job_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name = u"répertoire de stockage des jars utilisateur")
     
     class Meta:
         verbose_name = u'moteur JQM'

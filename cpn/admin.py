@@ -76,7 +76,7 @@ admin.site.register(JqmCluster, ComponentInstanceAdmin)
 
 class JqmEngineAdmin(ComponentInstanceAdmin):
     list_display = ('name', 'port',)
-    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JQM', {'fields': ['port', 'job_repo', 'dl_repo' ]})]
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JQM', {'fields': ['port', 'jmx_registry_port','jmx_server_port', 'job_repo', 'dl_repo' ]})]
 admin.site.register(JqmEngine, JqmEngineAdmin)
 
 #class JqmBatchAdmin(ComponentInstanceAdmin):
