@@ -86,9 +86,9 @@ def getGraph(django_filters={}, filename=None, context=None, django_filter_unnam
     """
     dc = context or DrawingContext()
     dc.components = ComponentInstance.objects.select_related().filter(*django_filter_unnamed, **django_filters)
-    dc.set_simplify(True)
+    dc.set_simplify('true')
     dc.set_bgcolor('#F5F0F2')
-    dc.set_concentrate(True)
+    dc.set_concentrate('true')
     
     for compo in dc.components:
         if not compo.deleted:
@@ -121,7 +121,7 @@ def drawNode(component, context):
         if __nodeExists(linkedCompo, context): ## Already drawn. That way, we avoid the two-way-rel.
             # Draw (possibly the node) and the edge
             linkedNode = drawNode(linkedCompo, context) # recursion. Creates node if not already drawn.
-            e = Edge(curNode, linkedNode, weight = 0, penwidth=5)
+            e = Edge(curNode, linkedNode, weight = '0', penwidth='5')
             e.set_arrowhead('none')
             e.set_color('antiquewhite4')
             context.add_edge(e)
@@ -131,7 +131,7 @@ def drawNode(component, context):
         if isCompoToBeDrawn(daddy, context):
             # Draw (possibly the node) and the edge
             linkedNode = drawNode(daddy, context) # recursion
-            e = Edge(curNode, linkedNode, weight = 100)
+            e = Edge(curNode, linkedNode, weight = '100')
             #e.set_style('dotted')
             e.set_color('blue2')
             context.add_edge(e)
@@ -181,8 +181,10 @@ def __nodeExists(component, context):
 
 def __getNode(component, context, createIfAbsent=True):
     ## The node may already exist in the graph. Since all operations on it are done at creation, we can return it at once.
-    n = context.get_node(name=str(component.pk))  
-    if (n is not None) and (len(n) > 0) and type(n[0]) == Node: ## get_node returns [] if not found.
+    n = context.get_node(name=str(component.pk)) 
+    if type(n) == Node:
+        return n 
+    elif (n is not None) and (len(n) > 0) and type(n[0]) == Node: ## get_node returns [] if not found.
         return n[0]
     else:
         n = None
@@ -229,7 +231,7 @@ def __createNode(component, context):
         curNode.set_fillcolor('floralwhite')
         curNode.set_style('filled')
     curNode.set_fontname('Segoe UI')
-    curNode.set_fontsize(12)
+    curNode.set_fontsize('12')
     
     ## Return the node
     return curNode
