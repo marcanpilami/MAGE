@@ -6,3 +6,4 @@ tmp/*
 MAGE/local_settings.py
 doc/html
 geo
+*.db
