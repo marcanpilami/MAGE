@@ -155,12 +155,16 @@ def isCompoToBeDrawn(component, context):
     ## else return false
     return False
 
-def __getRecLevelDO(component, context):
+def __getRecLevelDO(component, context, done = []):
     if context.components.filter(pk=component.pk).count() == 1:
         return 0
     rec_level = 999
+    done.append(component)
+    
     for daddy in component.subscribers.all():
-        i = __getRecLevelDO(daddy, context)
+        if daddy in done:
+            continue
+        i = __getRecLevelDO(daddy, context, done)
         if i < rec_level:
             rec_level = i
     return rec_level + 1
