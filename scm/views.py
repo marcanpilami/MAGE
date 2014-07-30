@@ -60,11 +60,14 @@ def all_installs(request, envt_name, limit):
     dlimit = now() - timedelta(days=limit)
     installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
     # logical_components = envt.component_instances.all().instanciates.implements;
-    logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt).distinct()
+    logical_components = LogicalComponent.objects.filter(scm_trackable=True, active=True, implemented_by__instances__environments=envt).distinct()
     
     versions = {}
     for compo in envt.component_instances.filter(deleted = False, instanciates__isnull=False, instanciates__implements__scm_trackable=True):
-        lc = logical_components.get(id=compo.instanciates.implements_id)
+        try:
+            lc = logical_components.get(id=compo.instanciates.implements_id)
+        except LogicalComponent.DoesNotExist:
+            continue
         if versions.has_key(lc):
             versions[lc]  += (compo.version,)
         else:
@@ -155,7 +158,7 @@ def lc_versions_per_environment(request):
     Installation.objects.filter()
     envts = Environment.objects_active.filter(managed = True).order_by('typology__chronological_order', 'name')
     res = SortedDict()
-    for lc in LogicalComponent.objects.filter(scm_trackable=True).select_related('application').order_by('application__name', 'name') :
+    for lc in LogicalComponent.objects.filter(scm_trackable=True, active=True).select_related('application').order_by('application__name', 'name') :
         lc_list = []
         for envt in envts:
             compo_instances = envt.component_instances.filter(instanciates__implements__id=lc.id)
@@ -171,7 +174,7 @@ def lc_versions_per_environment(request):
 
 
 def lc_list(request):
-    lcs = LogicalComponent.objects.all().order_by('application', 'name')
+    lcs = LogicalComponent.objects.filter(active=True, scm_trackable = True).order_by('application', 'name')
     return render(request, 'scm/lc_versions.html', {'lcs': lcs})
 
 @cache_control(must_revalidate=True)
