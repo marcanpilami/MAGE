@@ -52,6 +52,7 @@ def envts(request):
     return render(request, 'scm/envts.html', {'envts': envts, })
 
 def all_installs(request, envt_name, limit):
+    '''All installs on a given environment'''
     if isinstance(limit, unicode):
         limit = int(limit) 
     envt = Environment.objects.get(name=envt_name)
@@ -59,13 +60,16 @@ def all_installs(request, envt_name, limit):
     dlimit = now() - timedelta(days=limit)
     installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
     # logical_components = envt.component_instances.all().instanciates.implements;
-    logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt)
+    logical_components = LogicalComponent.objects.filter(scm_trackable=True, implemented_by__instances__environments=envt).distinct()
     
     versions = {}
-    for compo in envt.component_instances.filter(instanciates__isnull=False, instanciates__implements__scm_trackable=True):
+    for compo in envt.component_instances.filter(deleted = False, instanciates__isnull=False, instanciates__implements__scm_trackable=True):
         lc = logical_components.get(id=compo.instanciates.implements_id)
-        versions[lc] = compo.version
-        
+        if versions.has_key(lc):
+            versions[lc]  += (compo.version,)
+        else:
+            versions[lc]  =(compo.version,)
+    
     return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit })
 
 @cache_control(must_revalidate=True, max_age=600)
@@ -155,9 +159,10 @@ def lc_versions_per_environment(request):
         lc_list = []
         for envt in envts:
             compo_instances = envt.component_instances.filter(instanciates__implements__id=lc.id)
-            versions = [i.version_object_safe for i in compo_instances]
+            versions = [i.latest_cic for i in compo_instances if i.version_object_safe]
             if len(versions) > 0:
-                lc_list.append(max(versions, key=cmp_to_key(LogicalComponentVersion.compare)))
+                versions.sort(key=lambda x : x.created_on, reverse=True)
+                lc_list.append(versions[0].result_of.what_is_installed)
             else:
                 lc_list.append(None)
         res[lc] = lc_list

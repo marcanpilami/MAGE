@@ -34,7 +34,7 @@
 			{% for lc in logical_components %}
 				{% for key, value in versions.items %}
 					{% ifequal key.id lc.id %}
-						<td>{{value}}</td>
+						<td>{% for v in value %}{{v}} {% endfor %}</td>
 					{% endifequal %}
 				{% endfor %}
 			{% endfor %}	
