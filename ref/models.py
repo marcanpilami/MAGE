@@ -342,6 +342,13 @@ class ComponentInstance(models.Model):
         self.extParams = ExtendedParameterDict(self)
         if self.pk is None:
             self.include_in_envt_backup = self.include_in_default_envt_backup
+            
+    ## First environment
+    def first_environment(self):
+        if self.environments.count() > 0:
+            return self.environments.all()[0]
+        return None
+    first_environment.short_description = u'notamment dans'
     
     ## Pretty print
     def __unicode__(self):
