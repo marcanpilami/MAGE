@@ -10,6 +10,8 @@ from django.db import models
 
 # # MAGE imports
 from ref.models import ComponentInstance
+from django.template.defaultfilters import default
+from ref.templatetags.filter import verbose_name
 
 
 ######################################################
@@ -20,10 +22,14 @@ class OsServer(ComponentInstance):
     admin_account_login = models.CharField(max_length=100, verbose_name=u'compte d\'administration', null=True, blank=True)
     admin_account_password = models.CharField(max_length=100, verbose_name=u'mot de passe d\'administration', null=True, blank=True)
     admin_account_private_key = models.CharField(max_length=2048, null=True, blank=True)
-    os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008R2', 'Windows 2008 R2'), ('Win2012', 'Windows 2012')))
+    os = models.CharField(max_length=10, choices=(('Win2003', 'Windows 2003'), ('RHEL4', 'Red Hat Enterprise Linux 4'), ('RHEL5', 'Red Hat Enterprise Linux 5'), ('SOL10', 'Solaris 10'), ('AIX', 'AIX'), ('Win2008R2', 'Windows 2008 R2')
+                                                  , ('Win2012', 'Windows 2012'), ('Win2012R2', 'Windows 2012 R2')))
 
     restricted_fields = ('admin_account_password',)
     include_in_default_envt_backup = False
+    
+    def __unicode__(self):
+        return "%s" % (self.name,)
     
     class Meta:
         verbose_name = 'serveur'
@@ -44,6 +50,9 @@ class OsAccount(ComponentInstance):
     class Meta:
         verbose_name = u'compte OS'
         verbose_name_plural = u'comptes OS'
+        
+    detail_template = 'cpn/osaccount.html'
+
 
 
 ######################################################
@@ -59,6 +68,10 @@ class OracleInstance(ComponentInstance):
     
     parents = {'server': {'model': 'OsServer', 'cardinality':1}}
     include_in_default_envt_backup = False
+    
+    
+    def __unicode__(self):
+        return u"%s (%s)" % (self.name, self.server)
     
     class Meta:
         verbose_name = u'instance Oracle'
@@ -144,8 +157,8 @@ class WasApplication(ComponentInstance):
     detail_template = 'cpn/wasapp_table.html'
     
     class Meta:
-        verbose_name = u'application sur un WAS'
-        verbose_name_plural = u'applications sur un WAS'
+        verbose_name = u'application WAS'
+        verbose_name_plural = u'applications WAS'
 
 class WasCluster(ComponentInstance):
     parents = {'was_cell': {'model': 'WasCell'}}
@@ -170,6 +183,12 @@ class WasCell(ComponentInstance):
     
     def __unicode__(self):
         return u'Cellule WAS %s' % (self.name,)
+    
+    def __url(self):
+        if self.manager_server:
+            return 'http://' + self.manager_server.name + ':' + str(self.manager_port) + '/ibm/console'
+        return ''
+    admin_url = property(__url)
     
     include_in_default_envt_backup = False
     
@@ -222,8 +241,8 @@ class GlassfishAS(ComponentInstance):
 ######################################################
 
 class MqQueueManager(ComponentInstance):
-    port = models.IntegerField(max_length=6)
-    adminChannel = models.CharField(max_length=100, verbose_name='Canal admin')
+    port = models.IntegerField(max_length=6, default=1414)
+    adminChannel = models.CharField(max_length=100, verbose_name='Canal admin', default='SYSTEM.ADMIN.SVRCONN')
     
     parents = {'server': {'model': 'OsServer'}}
     include_in_default_envt_backup = False
@@ -240,7 +259,7 @@ class MqQueueManagerParams(ComponentInstance):
     
     def __unicode__(self):
         if self.instanciates and self.qm:
-            return "files %s" % (self.instanciates.name, self.qm.name)
+            return "files %s sur %s" % (self.instanciates.name, self.qm.name)
         else:
             return "files"
     
@@ -274,23 +293,141 @@ class JqmCluster(ComponentInstance):
     class Meta:
         verbose_name = u'cluster JQM'
         verbose_name_plural = u'clusters JQM'    
+        
+    detail_template = 'cpn/jqmcluster.html'
 
 class JqmEngine(ComponentInstance):
     parents = {'cluster': {'model': 'JqmCluster'}, 'server':{'model': 'OsServer'} }
-    port = models.IntegerField(max_length = 6, null = False, default = 1789, verbose_name=u"port HTTP")
-    jmx_registry_port = models.IntegerField(max_length = 6, null = False, default = 1790, verbose_name=u"port registry JMX")
-    jmx_server_port = models.IntegerField(max_length = 6, null = False, default = 1791, verbose_name = "port serveur JMX")
-    dl_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name = u"répertoire de stockage des fichiers produits")
-    job_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name = u"répertoire de stockage des jars utilisateur")
+    port = models.IntegerField(max_length=6, null=False, default=1789, verbose_name=u"port HTTP")
+    jmx_registry_port = models.IntegerField(max_length=6, null=False, default=1790, verbose_name=u"port registry JMX")
+    jmx_server_port = models.IntegerField(max_length=6, null=False, default=1791, verbose_name="port serveur JMX")
+    dl_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"répertoire de stockage des fichiers produits")
+    job_repo = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"répertoire de stockage des jars utilisateur")
     
     class Meta:
         verbose_name = u'moteur JQM'
         verbose_name_plural = u'moteurs JQM'
     
+    detail_template = 'cpn/jqmengine.html'    
+    
 class JqmBatch(ComponentInstance):
     parents = {'cluster': {'model': 'JqmCluster'} }
     
     class Meta:
-        verbose_name = u'batch tournant dans JQM'
-        verbose_name_plural = u'batchs tournant dans JQM'
+        verbose_name = u'batch JQM'
+        verbose_name_plural = u'batchs JQM'
 
+
+######################################################
+# # JBoss 7+
+######################################################
+
+class JBossApplication(ComponentInstance):
+    context_root = models.CharField(max_length=50, default='/', null=False)
+    client_url = models.CharField(max_length=100, verbose_name=u'access URL', blank=True, null=True, help_text=u'if empty, the URL will be deduced from the first server on which the application is deployed')
+    
+    def __unicode__(self):
+        return u'Application Java %s' % (self.name,)
+    
+    def url(self):
+        first_as = self.jboss_group.subscribers.filter(model__model='jbossas')[0].leaf
+        if self.client_url:
+            return self.client_url
+        elif self.jboss_group.dns_to_use:
+            return 'http://%s:%s%s' % (self.jboss_group.dns_to_use, first_as.http_port(), self.context_root)        
+        elif first_as.dns_to_use:
+            return 'http://%s:%s%s' % (first_as.dns_to_use, first_as.http_port(), self.context_root)
+        else:
+            return 'http://%s:%s%s' % (first_as.jboss_host.server.name, first_as.http_port(), self.context_root)
+    url.short_description = u"adresse de l'application"
+    url.admin_order_field = 'name'
+    
+    parents = {'jboss_group': {'model': 'JBossGroup'}}
+    
+    include_in_default_envt_backup = False
+    detail_template = 'cpn/jbossapp.html'
+    
+    class Meta:
+        verbose_name = u'application JBoss'
+        verbose_name_plural = u'applications JBoss'
+
+class JBossDomain(ComponentInstance):
+    parents = {'domain_controller': {'model': 'JBossHost'}, }
+    
+    admin_user = models.CharField(max_length=50, verbose_name=u'utilisateur admin', blank=True, null=True)
+    admin_password = models.CharField(max_length=50, verbose_name=u'mot de passe', blank=True, null=True)
+    
+    '''Approx: only one port binding group per domain'''
+    base_http_port = models.IntegerField(default=8080)
+    base_https_port = models.IntegerField(default=8447)
+    base_web_admin_port = models.IntegerField(default=9990)
+    base_native_admin_port = models.IntegerField(default=9999)
+    
+    def __unicode__(self):
+        return u'JBoss domain %s' % (self.name,)
+    
+    class Meta:
+        verbose_name = u'domaine JBoss'
+        verbose_name_plural = u'domaines JBoss'
+        
+    # detail_template = 'cpn/wascluster_schema_table.html'
+    include_in_default_envt_backup = False
+
+class JBossHost(ComponentInstance):
+    parents = {'server': {'model': 'OsServer'}, 'jboss_domain': {'model': 'JBossDomain'}}
+    include_in_default_envt_backup = False
+    
+    def __unicode__(self):
+        return u'Hôte JBoss %s' % (self.name,)
+    
+    def admin_port(self):
+        return self.jboss_domain.admin_port
+    
+    class Meta:
+        verbose_name = u'processus hôte JBoss'
+        verbose_name_plural = u'processus hôte JBoss'
+    
+class JBossAS(ComponentInstance):
+    parents = {'jboss_host': {'model': 'JBossHost'}, 'jboss_group': {'model': 'JBossGroup'}}
+    port_shift = models.IntegerField(default=0)
+    dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias', blank=True, null=True, help_text=u'if this server should directly be accessed through an alias only')
+        
+    def http_port(self):
+        return self.jboss_host.jboss_domain.base_http_port + self.port_shift
+    
+    def __unicode__(self):
+        return u'AS JBoss %s' % (self.name,)
+    
+    class Meta:
+        verbose_name = u'JVM JBoss'
+        verbose_name_plural = u'JVMs JBoss'
+    
+    detail_template = 'cpn/jbossas.html'
+    include_in_default_envt_backup = False
+
+class JBossGroup(ComponentInstance):
+    parents = {'jboss_domain' : {'model':'JBossDomain'}}
+    profile = models.CharField(max_length=50)
+    admin_login = models.CharField(max_length=50, verbose_name=u'utilisateur admin spécifique groupe', blank=True, null=True, help_text=u'if void, the domain admin login will be used')
+    admin_password = models.CharField(max_length=50, verbose_name=u'mot de passe spécifique groupe', blank=True, null=True)
+    dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias', blank=True, null=True, help_text=u'if this server should directly be accessed through an alias only')
+    
+    def resolved_admin_login(self):
+        if self.admin_login:
+            return self.admin_login
+        elif self.jboss_domain:
+            return self.jboss_domain.admin_user
+        else:
+            return None
+    resolved_admin_login.short_description = u'admin login'
+    def resolved_admin_password(self):
+        if self.admin_login:
+            return self.admin_password
+        elif self.jboss_domain:
+            return self.jboss_domain.admin_password
+        else:
+            return None
+    
+    class Meta:
+        verbose_name = u'groupe d\'AS JBoss'
+        verbose_name_plural = u'groupes d\'AS JBoss'

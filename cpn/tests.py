@@ -327,7 +327,8 @@ class SimpleTest(TestCase):
 
     def test_description(self):
         i = OracleInstance(name='SUPERINSTANCE', port=123, listener="LISTENER")
-        self.assertEqual(i.__unicode__(), 'SUPERINSTANCE')
+        i.save()
+        self.assertEqual(i.__unicode__(), 'SUPERINSTANCE (None)')
         
     def test_fullapp(self):
         utility_create_test_envt(1)
