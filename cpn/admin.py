@@ -106,8 +106,8 @@ class JBossApplicationAdmin(ComponentInstanceAdmin):
 admin.site.register(JBossApplication, JBossApplicationAdmin)
 
 class JBossGroupAdmin(ComponentInstanceAdmin):
-    list_display = ('name', 'profile', 'resolved_admin_login')
-    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JBoss', {'fields': ['admin_login', 'admin_password', 'profile', ]})]
+    list_display = ('name', 'profile', 'resolved_admin_login', 'max_heap_mb', 'max_permgen_mb')
+    fieldsets = ComponentInstanceAdmin.fieldsets_generic + [('Spécifique JBoss', {'fields': ['admin_login', 'admin_password', 'profile', 'max_heap_mb', 'max_permgen_mb', 'start_heap_mb', ]})]
 admin.site.register(JBossGroup, JBossGroupAdmin)
 
 class JBossDomainAdmin(ComponentInstanceAdmin):

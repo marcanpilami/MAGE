@@ -411,6 +411,9 @@ class JBossGroup(ComponentInstance):
     admin_login = models.CharField(max_length=50, verbose_name=u'utilisateur admin spécifique groupe', blank=True, null=True, help_text=u'if void, the domain admin login will be used')
     admin_password = models.CharField(max_length=50, verbose_name=u'mot de passe spécifique groupe', blank=True, null=True)
     dns_to_use = models.CharField(max_length=100, verbose_name=u'DNS alias', blank=True, null=True, help_text=u'if this server should directly be accessed through an alias only')
+    max_heap_mb = models.IntegerField(default = 386)
+    max_permgen_mb = models.IntegerField(default = 128)
+    start_heap_mb = models.IntegerField(default = 128) 
     
     def resolved_admin_login(self):
         if self.admin_login:
