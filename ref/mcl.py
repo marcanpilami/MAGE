@@ -15,8 +15,8 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 ## MAGE imports
 from MAGE.exceptions import MageError
 from ref.exceptions import MageMclAttributeNameError, MageMclSyntaxError
-from ref.models import ComponentInstance, CI2DO, ComponentImplementationClass, \
-    Environment
+from ref.models import ComponentInstance, ComponentImplementationClass, \
+    Environment, ImplementationDescription, ImplementationRelationDescription
 
 
 class MclEngine:
@@ -42,9 +42,8 @@ class MclEngine:
         type_query = Group(Suppress('(T,') + model_type + Optional(Suppress(',') + cic_name) + Suppress(')'))("type_query")
         
         # Related components connections
-        parent_query = Group(Suppress('(P,') + Optional(attribute_name + Suppress(',')) + mcl_query + Suppress(')'))('parent_query')
-        connected_query = Group(Suppress('(C,') + mcl_query + Suppress(')'))('connected_query')
-        all_links_queries = Group(ZeroOrMore(connected_query | parent_query))('all_links_queries')
+        rel_query = Group(Suppress('(R,') + attribute_name + Suppress(',') + mcl_query + Suppress(')'))('rel_query')
+        all_links_queries = Group(ZeroOrMore(rel_query))('all_rel_queries')
         
         # Add (A,key="value")
         addition_query = Group(Suppress('(A,') + Optional(attribute_filter_list) + Suppress(')'))('addition_query')
@@ -63,82 +62,68 @@ class MclEngine:
     
         self.mcl_query = mcl_query + Optional(update_query)
         
-        
-    def __parseLevel0(self, type_name, self_query, prefix='', rs=None, cic=None):
-        filters = {}
-        if rs is None:
-            rs_l = ComponentInstance.objects
-        else:
-            rs_l = rs
-        
-        if type_name:
-            t = ContentType.objects.get(model=type_name)
-            if rs is None:
-                rs_l = t.model_class().objects
-            if rs is not None:
-                prefix = "%s%s__" % (prefix, type_name.lower())
-            filters[prefix + 'model'] = t
-        
-        if cic:
-            filters[prefix + 'instanciates__name'] = cic
-            
-        if self_query:
-            for att in self_query:
-                attrname = prefix + att.attribute_name.replace('.', '__')
-                attrvalue = att.attribute_value
-                if '*' in attrvalue:
-                    attrname = "%s__contains" % attrname
-                    attrvalue = attrvalue.replace('*', '')
-                filters[attrname] = attrvalue
-        
-        return rs_l.filter(**filters)
-
     
     def __parseQuery(self, tree, prefix="", rs=None, allow_create=False, force_type=None):                 
-        ## Use T and S     
+        ## Starting recursion all all instances
+        if not rs:
+            rs = ComponentInstance.objects
+            
+        print 'before filtering: %s' % rs.count()
+        
+        ## Use T 
         if len(tree.mcl.type_query) > 0:
             type_name = tree.mcl.type_query[0]
         else:
             type_name = None
         if force_type is not None:
             type_name = force_type
-        if len(tree.mcl.self_query) > 0:
-            self_query = tree.mcl.self_query[0]
-        else:
-            self_query = None 
-        t_class = None
-        if type_name:
-            t_class = ContentType.objects.get(model=type_name.lower()).model_class()
-        cic = None
+           
+        filters = {} 
+        if type_name:           
+            filters[prefix + 'implementation__name'] = type_name
+        
         if len(tree.mcl.type_query) == 2:
             cic = tree.mcl.type_query[1]
-        rs = self.__parseLevel0(type_name, self_query, prefix=prefix, rs=rs, cic=cic)
+            filters[prefix + 'instanciates__name'] = cic
+            
+        rs = rs.filter(**filters)
+        print 'after T: %s (type was %s)' % (rs.count(), type_name)
+        filters.clear()
         
+        ## Use S
+        if len(tree.mcl.self_query) > 0:
+            for att in tree.mcl.self_query[0]:
+                attrname = att.attribute_name
+                attrvalue = att.attribute_value
+                
+                operator = '__exact'
+                if '*' in attrvalue:
+                    operator = "__contains"
+                    attrvalue = attrvalue.replace('*', '')
+                filters[prefix + 'field_set__field__name'] = attrname
+                filters[prefix + 'field_set__value' + operator] = attrvalue
+                print filters
+                rs = rs.filter(**filters)
+                filters.clear()
+                
+        print 'after S: %s' % rs.count()
+            
         ## Use E
         for envt_name in tree.mcl.envt_query:
-            rs = rs.filter(environments__name=envt_name)
+            rs = rs.filter(environments__name=envt_name)        
+        print 'after E: %s' % rs.count()
         
-        ## Use P & C
-        for pq in tree.mcl.all_links_queries:
-            if pq.getName() == 'parent_query':
-                pr = prefix
-                relationship_type = None
-                if pq.attribute_name:
-                    if t_class and not t_class.parents.has_key(pq.attribute_name):
-                        raise MageMclAttributeNameError('there is no relationship attribute named %s' % pq.attribute_name)
-                    if t_class:
-                        relationship_type = t_class.parents[pq.attribute_name]['model'].lower()
-                        
-                    filter_relationship_name = {pr + 'pedestals_ci2do__rel_name': pq.attribute_name}
-                    rs = rs.filter(**filter_relationship_name)
-                    
-                pr = pr + "dependsOn__"
-                rs = self.__parseQuery(tree=pq, prefix=pr, rs=rs, allow_create=allow_create, force_type=relationship_type)
-                
-            if pq.getName() == 'connected_query':
-                pr = prefix
-                pr = pr + "connectedTo__"
-                rs = self.__parseQuery(tree=pq, prefix=pr, rs=rs, allow_create=allow_create)
+        ## Use R
+        for pq in tree.mcl.all_rel_queries:        
+            pr = prefix
+            target_type = None
+            
+            if type_name:
+                target_type = ImplementationRelationDescription.objects.get(name=pq.attribute_name, source__name=type_name).target.name
+            
+            #rs = rs.filter(** {pr + "relationships__field__name" : pq.attribute_name})    
+            pr = pr + "relationships__"
+            rs = self.__parseQuery(tree=pq, prefix=pr, rs=rs, allow_create=allow_create, force_type=target_type)
 
         ## Creation? Only evaluate the RS if necessary.
         if tree.mcl.addition_query != "" and allow_create:
@@ -191,7 +176,7 @@ class MclEngine:
             
         ## Create the base element
         res = t_class(**all_fields)
-        res.save() # To enable M2M
+        res.save()  # To enable M2M
         
         ## Use E
         for envt_name in tree.mcl.envt_query:

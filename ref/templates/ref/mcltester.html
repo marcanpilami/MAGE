@@ -20,7 +20,7 @@ CSV link would be: {{base}}{% url 'ref:mcl_csv' "1" mcl %} (<a href="{% url 'ref
 
 <div style="column-width:200px;-moz-column-width:200px;-webkit-column-width:200px;height:70%;">
 {% if results %}
-	{% regroup results|dictsort:'model_id' by model as model_list %}
+	{% regroup results|dictsort:'implementation_id' by implementation as model_list %}
 	
 	{% for modeltype in model_list %}
 		<div class='t2'>{{ modeltype.grouper }}</div>

@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     # core applications 
     url(r'^gph/', include('gph.urls', namespace="gph")),
     url(r'^ref/', include('ref.urls', namespace="ref")),
-    url(r'^scm/', include('scm.urls', namespace="scm")),
+ #   url(r'^scm/', include('scm.urls', namespace="scm")),
     
     # Login & co
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),

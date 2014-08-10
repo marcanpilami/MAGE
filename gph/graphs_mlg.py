@@ -31,9 +31,8 @@ class DrawingContext(MageDC):
         
         ## Settings
         self.collapsed_nodes = {}
-        self.parentRecursionLevel = 0
-        self.patnersRecursionLevel = 0
-        self.collapse_threshold = 3             ## if nbBrothers >= this, collapse!
+        self.connection_level = 0
+        self.collapse_threshold = 3  ## if nbBrothers >= this, collapse!
         
         ## Components to draw
         self.components = None
@@ -59,28 +58,24 @@ class DrawingContext(MageDC):
     #################################
     ## Node aspect
     def getPresParam(self, key, component):
-        model = component.model.model
+        model = component.implementation.name
         if self.draw_compo_data.has_key(model) and self.draw_compo_data[model].has_key(key):
             return self.draw_compo_data[model][key]
         return self.draw_compo_default[key]
     
     def build_label(self, component):
         res = '<'
-        res += component.model.name
-        if not component.name is None:
-            res += "<br/>" + component.name
-        elif component.instanciates is not None:
-            res += "<br/>" + component.instanciates.name
+        res += component.implementation.name        
+        res += "<br/>" + component.__unicode__()        
         res += ">"
         return self.encode(res)
     
-
 
 ####################################################################################
 ## Functions to build the graphs
 ####################################################################################
 
-def getGraph(django_filters={}, filename=None, context=None, django_filter_unnamed = ()):
+def getGraph(django_filters={}, filename=None, context=None, django_filter_unnamed=()):
     """
         draws (or stores) a map of all components and of their interactions
     """
@@ -100,7 +95,6 @@ def getGraph(django_filters={}, filename=None, context=None, django_filter_unnam
         dc.writeFile(filename)
     
 
-
 ####################################################################################
 ## Helpers
 ####################################################################################
@@ -111,27 +105,16 @@ def drawNode(component, context):
         @warning: the context object given in argument is modified by the function!
     """   
     ## Retrieve (or create) the graph node for the current component
-    alreadyExist = __nodeExists(component, context)
-    curNode = __getNode(component, context, createIfAbsent=True)
+    (alreadyExist, curNode) = __get_or_create_node(component, context)
     if not alreadyExist: context.add_node(curNode) 
     else: return curNode
-    
-    ## connectedTo
-    for linkedCompo in component.connectedTo.all():
-        if __nodeExists(linkedCompo, context): ## Already drawn. That way, we avoid the two-way-rel.
+
+    for rel_instance in component.rel_target_set.all():
+        target_instance = rel_instance.target
+        if isCompoToBeDrawn(target_instance, context):
             # Draw (possibly the node) and the edge
-            linkedNode = drawNode(linkedCompo, context) # recursion. Creates node if not already drawn.
-            e = Edge(curNode, linkedNode, weight = '0', penwidth='5')
-            e.set_arrowhead('none')
-            e.set_color('antiquewhite4')
-            context.add_edge(e)
-    
-    ## dependsOn
-    for daddy in component.dependsOn.all():  
-        if isCompoToBeDrawn(daddy, context):
-            # Draw (possibly the node) and the edge
-            linkedNode = drawNode(daddy, context) # recursion
-            e = Edge(curNode, linkedNode, weight = '100')
+            target_node = drawNode(target_instance, context)  # recursion
+            e = Edge(curNode, target_node, weight='100')
             #e.set_style('dotted')
             e.set_color('blue2')
             context.add_edge(e)
@@ -146,79 +129,60 @@ def isCompoToBeDrawn(component, context):
     if context.components.filter(pk=component.pk).exists(): return True
     
     ## Already drawn?
-    if __nodeExists(component, context): return True
+    if __get_or_create_node(component, context)[0]: return True
     
     ## Out of the selected components, but at an acceptable level of recursion?
-    if __getRecLevelDO(component, context) <= context.parentRecursionLevel: return True
-    if __getRecLevelCT(component, context) <= context.patnersRecursionLevel: return True
+    if __getConnectionLevel(component, context, []) <= context.connection_level: return True
     
     ## else return false
+    print "don't draw %s - rec level is %s" % (component, __getConnectionLevel(component, context))
     return False
 
-def __getRecLevelDO(component, context, done = []):
+def __getConnectionLevel(component, context, done=[]):
+    #TODO: optimize this. Couldn't we directly analyse the level inside draw_node?
     if context.components.filter(pk=component.pk).count() == 1:
         return 0
     rec_level = 999
     done.append(component)
     
-    for daddy in component.subscribers.all():
+    for daddy in component.relationships.all() | component.reverse_relationships.all():
         if daddy in done:
-            continue
-        i = __getRecLevelDO(daddy, context, done)
+            continue        
+        i = __getConnectionLevel(daddy, context, done)
         if i < rec_level:
-            rec_level = i
+            rec_level = i       
     return rec_level + 1
 
-def __getRecLevelCT(component, context, prev=None):
-    if context.components.filter(pk=component.pk).count() == 1:
-        return 0
-    rec_level = 999
-    for daddy in component.connectedTo.all() | ComponentInstance.objects.filter(connectedTo=component):
-        if daddy == prev: continue
-        i = __getRecLevelCT(daddy, context, component)
-        if i < rec_level:
-            rec_level = i
-    return rec_level + 1
-
-def __nodeExists(component, context):
-    return __getNode(component, context, False) is not None
-
-def __getNode(component, context, createIfAbsent=True):
+def __get_or_create_node(component, context):
     ## The node may already exist in the graph. Since all operations on it are done at creation, we can return it at once.
     n = context.get_node(name=str(component.pk)) 
     if type(n) == Node:
-        return n 
-    elif (n is not None) and (len(n) > 0) and type(n[0]) == Node: ## get_node returns [] if not found.
-        return n[0]
+        return (True, n) 
+    elif (n is not None) and (len(n) > 0) and type(n[0]) == Node:  ## get_node returns [] if not found.
+        return (True, n[0])
     else:
         n = None
 
     ## If the node is marked as collapsed, return the collapse artefact
     if context.collapsed_nodes.__contains__(component):
-        return context.collapsed_nodes[component]
-    
-    ## If execution gets here : the node does not exist.
-    if not createIfAbsent:
-        return None
+        return (True, context.collapsed_nodes[component])
     
     ## Create the node
     n = __createNode(component, context)
-    
+     
     ## Should the node be collapsed?             
-    if component.environments.count() <= 1:          ## Multi envt nodes should never be collapsed.
-        nbBrothers = 1
-        for parent in component.dependsOn.all():
-            rs = parent.subscribers.filter(model=component.model, environments__in=component.environments.all())
-            nbBrothers += rs.count() - 1
-            if rs.count() >= context.collapse_threshold:
+    if component.environments.count() <= 1:  ## Multi envt nodes should never be collapsed.
+        for target in component.relationships.all():
+            brothers = target.reverse_relationships.filter(implementation=component.implementation, environments__in=component.environments.distinct())
+            if brothers.count() >= context.collapse_threshold:
                 ## Change the node into a collapse artifact
-                n.set_label('<%s instances de<br/>%s>' % (nbBrothers, unicodedata.normalize('NFKD', component.model.name).encode('ascii', 'ignore')))
-                ## Mark brothers as collapsed
-                for brother in rs:
+                n.set_label('<%s instances de<br/>%s>' % (brothers.count(), unicodedata.normalize('NFKD', component.implementation.name).encode('ascii', 'ignore')))
+                ## Mark brothers (which includes current node) as collapsed
+                for brother in brothers:
                     context.collapsed_nodes[brother] = n
     
     ## End : return the node   
-    return n       
+    return (False, n)       
     
 
 def __createNode(component, context):

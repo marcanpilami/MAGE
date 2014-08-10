@@ -15,8 +15,11 @@ from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
 ## MAGE imports
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, Convention, ConventionField, CI2DO, ConventionCounter, ExtendedParameter, \
-    EnvironmentType
+    ComponentImplementationClass, Convention, ConventionField, ConventionCounter, ExtendedParameter, \
+    EnvironmentType, ImplementationFieldDescription, ImplementationDescription, \
+    ImplementationRelationDescription, ImplementationRelationType, \
+    ImplementationComputedFieldDescription, ComponentInstanceField, \
+    ComponentInstanceRelation
 from ref.conventions import nc_sync_naming_convention
 
 
@@ -38,11 +41,11 @@ site.register(User, UserAdmin)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
-    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active','managed',]
-    list_display = ('name', 'description','template_only', 'managed')
+    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active', 'managed', ]
+    list_display = ('name', 'description', 'template_only', 'managed')
     ordering = ('name',)
-    readonly_fields=('buildDate',)
-    list_filter = ['template_only', 'managed','typology']
+    readonly_fields = ('buildDate',)
+    list_filter = ['template_only', 'managed', 'typology']
     search_fields = ('name',)
     
     
@@ -65,9 +68,9 @@ site.register(EnvironmentType, EnvironmentTypeAdmin)
 
 
 class LogicalComponentAdmin(ModelAdmin):
-    list_display = ('name', 'description', 'application','ref1', 'ref2', 'ref3')
+    list_display = ('name', 'description', 'application', 'ref1', 'ref2', 'ref3')
     ordering = ('application', 'name')
-    list_filter = ('application', 'active','scm_trackable')
+    list_filter = ('application', 'active', 'scm_trackable')
 site.register(LogicalComponent, LogicalComponentAdmin)
 
 class ApplicationAdmin(ModelAdmin):
@@ -87,16 +90,34 @@ site.register(Project, ProjectAdmin)
 ################################################################################
 
 class CICAdmin(ModelAdmin):
-    list_display = ('name', 'implements', 'python_model_to_use', 'description')
+    list_display = ('name', 'implements', 'technical_description', 'description')
     list_filter = ('implements__application', 'implements')
-    
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "python_model_to_use":
-            kwargs["queryset"] = ContentType.objects.exclude(app_label__in=('ref', 'scm', 'prm', 'auth', 'contenttypes', 'sessions', 'sites', 'messages', 'admin'))
-        return super(CICAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-    
+     
 site.register(ComponentImplementationClass, CICAdmin)
+
+site.register(ImplementationRelationType)
+
+class ImplementationFieldDescriptionInline(TabularInline):
+    model = ImplementationFieldDescription
+    extra = 3
+    can_delete = True
+    fields = ['name', 'datatype', 'default', 'label', 'sensitive' ]
+
+class ImplementationRelationDescriptionInline(TabularInline):
+    model = ImplementationRelationDescription
+    extra = 1
+    fk_name = "source"
+    
+class ImplementationComputedFieldDescriptionInline(TabularInline):
+    model = ImplementationComputedFieldDescription
+    extra = 1
+
+class ImplementationDescriptionAdmin(ModelAdmin):
+    list_display = ('name', 'description', 'tag')
+    list_filter = ('tag',)
+    inlines = [ImplementationFieldDescriptionInline, ImplementationRelationDescriptionInline, ImplementationComputedFieldDescriptionInline]
+    
+site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 
 
 ################################################################################
@@ -137,95 +158,20 @@ site.register(ConventionCounter, ConventionCounterAdmin)
 
 class ExtendedParameterInline(TabularInline):
     model = ExtendedParameter
-    
-class CI2DOFieldInline(TabularInline):
-    model = CI2DO
-    extra = 5
-    can_delete = True
-    fields = ['rel_name', 'pedestal', ]
-    fk_name = 'statue'
-    template = 'admin/tabular_no_title.html'
-      
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        path = kwargs['request'].path
-        statue_model_name = path.split('/')[path.split('/').index('admin') + 2]
-        statue_model = ContentType.objects.get(model__iexact=statue_model_name).model_class()
-        
-        if db_field.name == "pedestal":
-            potential_link_models = [v['model'].lower() for v in statue_model.parents.values()]
-            kwargs["queryset"] = ComponentInstance.objects.filter(model__model__in=potential_link_models)
-            
-        ## Superseed the fields as defined in the class
-        if db_field.name == 'rel_name':
-            kwargs['widget'] = Select(choices=[('', '---------'), ] + [ (i, i) for i in statue_model.parents.keys()])
 
-        
-        return super(CI2DOFieldInline, self).formfield_for_dbfield(db_field, **kwargs)
+class ComponentInstanceFieldAdmin(TabularInline):
+    model = ComponentInstanceField
+    fields = ['field', 'value', ]
 
-    
-class CICFilter(SimpleListFilter):
-    title = u'implémentation de'
-    parameter_name = 'impl'
-
-    def lookups(self, request, model_admin):
-        model_name = request.path.split('/')[3]
-        cics = ComponentImplementationClass.objects.filter(python_model_to_use__model__iexact=model_name)
-        res = ()
-        for cic in cics:
-            res += ((cic.id, cic.__unicode__()),)
-        return res
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(instanciates_id=self.value())
-        else:
-            return queryset
+class ComponentInstanceRelationAdmin(TabularInline):
+    model = ComponentInstanceRelation
+    fields = ['field', 'target', ]
+    fk_name = "source"
 
 class ComponentInstanceAdmin(ModelAdmin):
-    """
-        Base admin class for components. It filters 'dependsOn' fields so that the admin will 
-        only display relevant components and not every single last one of them, and it provides
-        default display behaviour.
+    list_display = ['__unicode__', 'implementation', 'instanciates' ]
+    list_filter = ('implementation', 'environments', 'implementation__tag', 'instanciates')
+    filter_horizontal = ('environments',)
+    inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
         
-        @note: This class is NOT meant to be directly used with the Component model, but only with
-        models inheriting from Component
-    """
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        ## Find the model that this class admins
-        model = [ k for k, v in site._registry.iteritems() if v == self][0]
-
-        ## Superseed the fields as defined in the class
-        if db_field.name == 'dependsOn' and hasattr(model, 'parents'):
-            kwargs['queryset'] = ComponentInstance.objects.filter(model__model__in=[u.lower() for u in model.parents.itervalues()])
-        elif db_field.name == 'dependsOn' and not hasattr(model, 'parents'):
-            kwargs['queryset'] = ComponentInstance.objects.none()
-            
-        if db_field.name == 'instanciates':
-            kwargs['queryset'] = ComponentImplementationClass.objects.filter(python_model_to_use__model__iexact=model.__name__)
-            
-        if db_field.name == 'service_name_to_use':
-            print kwargs
-            
-        return super(ComponentInstanceAdmin, self).formfield_for_dbfield(db_field, **kwargs)
-
-
-    ## Default values for the various admin options. Should usually be at least partially overloaded
-    fieldsets_generic = [ ('Informations génériques', {'fields': ['name', 'instanciates', 'environments', 'connectedTo', 'include_in_envt_backup', 'deleted']}), ]
-    fieldsets_generic_no_class = [ ('Informations génériques', {'fields': ['environments', 'connectedTo']}), ]
-    fieldsets = fieldsets_generic
-    filter_horizontal = ('connectedTo', 'dependsOn', 'environments')
-    ordering = ('name',)
-    search_fields = ('name', 'dependsOn__name',)
-    list_filter = ['environments', CICFilter, 'deleted']
-    list_display = ('name', 'instanciates', 'deleted')
-    inlines = [CI2DOFieldInline, ExtendedParameterInline, ]
-    
-    ## Prevent deletion - should be marked ununsed instead
-    def has_delete_permission(self, request, obj=None):
-        return False
-    def get_actions(self, request):
-        actions = super(ComponentInstanceAdmin, self).get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
-
+site.register(ComponentInstance, ComponentInstanceAdmin)

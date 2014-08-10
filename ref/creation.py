@@ -5,7 +5,7 @@
     @author: Marc-Antoine Gouillart
 '''
 
-from ref.models import Environment, ComponentInstance, CI2DO, ExtendedParameter,\
+from ref.models import Environment, ComponentInstance,  ExtendedParameter,\
     EnvironmentType
 from ref.mcl import parser
 

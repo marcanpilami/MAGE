@@ -356,7 +356,7 @@ class BackupRestoreMethod(models.Model):
         verbose_name = u'méthode de restauration par défaut'
         verbose_name_plural = 'méthodes de restauration par défaut'
 
-@receiver(post_save, sender=ComponentImplementationClass)
+#@receiver(post_save, sender=ComponentImplementationClass)
 def create_brm(sender, instance, **kwargs):
     cic = instance
     im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True, restoration_only=True)

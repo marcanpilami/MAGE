@@ -13,6 +13,8 @@ from django.db.models.signals import post_syncdb
 ## MAGE imports
 import models
 from prm.models import setOrCreateParam
+from ref.tests import utility_create_meta, utility_create_test_instances, \
+    utility_create_logical
 
 def post_syncdb_handler(sender, **kwargs):
     ## Create or update parameters
@@ -25,8 +27,38 @@ def post_syncdb_handler(sender, **kwargs):
     setOrCreateParam(key=u'MODERN_COLORS', value=u'#004A00,#61292B,#180052,#AD103C,#004D60,#1B58B8,#DE4AAD',
              default_value=u'#004A00,#61292B,#180052,#AD103C,#004D60,#1B58B8,#DE4AAD',
              description=u'Couleurs des cases de la page d\'accueil')
-
+    
+    ## DEBUG
+    utility_create_meta()
+    utility_create_logical()
+    utility_create_test_instances()
     
     
 ## Listen to the syncdb signal
 post_syncdb.connect(post_syncdb_handler, sender=models)
+
+"""
+C:\Python27\python.exe .\manage.py sqlclear ref  | C:\Python27\python.exe .\manage.py dbshell
+C:\Python27\python.exe .\manage.py migrate
+C:\Python27\python.exe .\manage.py runserver
+"""
+
+
+"""
+from ref.models import  *
+p = ComponentInstance.objects.all()[1]
+c = p.build_proxy()
+c.admin_login
+c.server_name
+"""
+
+# ((T,oracleinstance)(S,admin_login="login",admin_password="password")(R,server,((S,dns="server.marsu.net"))))
+
+''' 
+from ref.models import  *
+c = ComponentInstance.objects.filter(implementation__name='jbossapplication')[0]
+p = c.proxy
+s = ComponentInstance.objects.filter(implementation__name='oracleschema')[0]
+p.schema.append(s)
+p.schema[0]
+'''
