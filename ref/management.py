@@ -28,6 +28,24 @@ def post_syncdb_handler(sender, **kwargs):
              default_value=u'#004A00,#61292B,#180052,#AD103C,#004D60,#1B58B8,#DE4AAD',
              description=u'Couleurs des cases de la page d\'accueil')
     
+    ## Graph parameters
+    setOrCreateParam(key = u'IMAGE_TYPE', value = u'png', 
+             default_value = u'png', 
+             description = u'Type d\'image des graphes générés (png, jpg, svg,...)')
+    setOrCreateParam(key = u'GRAPHVIZ_PRG', value = u'dot', 
+             default_value = u'dot', 
+             description = u'Programme graphviz utilisé pour générer les graphes (dot, neato, ...)')
+    
+    setOrCreateParam(key = u'node_shape', value = 'ellipse', 
+             default_value = 'ellipse', 
+             description = u'valeur par défaut pour la forme des composants sur les graphes',
+             axis1 = 'presentation default')
+    setOrCreateParam(key = u'node_style', value = 'filled', 
+             default_value = 'filled', 
+             description = u'valeur par défaut pour le style des composants sur les graphes',
+             axis1 = 'presentation default')
+
+    
     ## DEBUG
     utility_create_meta()
     utility_create_logical()

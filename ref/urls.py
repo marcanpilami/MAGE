@@ -20,11 +20,18 @@ urlpatterns = patterns('',
     url(r'type$', views.model_types, name='types'),
     url(r'types_details$', views.model_detail, name='types_details'),
     
+    ## MCL
     url(r'mcltester$', views.mcl_tester, name='mcltester'),
     url(r'mcl/get_or_create_nocv/(?P<mcl>.*)/mcl\.csv$', views.mcl_create_without_convention, name='mcl_create_nocv'),
     url(r'mcl/get_or_create_cv/(?P<mcl>.*)/mcl\.csv$', views.mcl_create, name='mcl_create_cv'),
     url(r'mcl/(?P<mcl>.*)/mcl\.csv$', views.mcl_query, name='mcl_query'),
     url(r'mcl/(?P<mcl>.*)/mcl/ksh$', views.mcl_query_shell, name='mcl_shell'),
+    
+    ## Graphs
+    url(r'^full$',                                                               views.full_pic,    name='full'),
+    url(r'filter/(?P<nbRelGenerations>\d*)/(?P<collapseThr>\d*)',                views.filter_pic,  name='filter'),
+    url(r'graph$',                                                               views.view_carto,  name='main'),
+    url(r'envt/(?P<envt_id>\d*)/*$',                                             views.envt_pic,    name='envt'),
     
     url(r'urls', views.urls, name='urls'),
 )

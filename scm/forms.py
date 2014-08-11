@@ -40,7 +40,9 @@ class LcChoiceField(ModelChoiceField):
         return "%s - %s" %( obj.application.name, obj.name)
 
 class IIForm(ModelForm):
-    target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
+    #target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
+    target = LcChoiceField(queryset = LogicalComponent.objects.all())
+    # TODO: make query right
     version = forms.CharField(label='Version livrée')
     
     def save(self, commit=True):
@@ -117,7 +119,10 @@ class IIForm(ModelForm):
 
 
 class IDForm(ModelForm):   
-    target = LcChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct().order_by('application__name', 'name'), label='dépend de ', required=False)
+    #target = LcChoiceField(queryset=LogicalComponent.objects.filter(scm_trackable=True, implemented_by__installation_methods__isnull=False).distinct().order_by('application__name', 'name'), label='dépend de ', required=False)
+    target = LcChoiceField(queryset = LogicalComponent.objects.all())
+    # TODO: make query right
+    
     class Meta:
         model = ItemDependency
         fields = ('target', 'depends_on_version', 'operator',)

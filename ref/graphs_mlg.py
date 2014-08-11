@@ -15,7 +15,7 @@ import unicodedata
 ## MAGE imports
 from ref.models import ComponentInstance
 from prm.models import getMyParams
-from helpers import MageDC
+from ref.graphs_helpers import MageDC
 
 ## PYDOT imports
 from pydot import Node, Edge

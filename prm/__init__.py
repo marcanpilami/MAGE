@@ -7,3 +7,5 @@
     @contact: marsu_pilami@msn.com
     @license: GNU GVL v3
 """
+
+default_app_config = 'prm.apps.PrmAppConfig'
