@@ -15,7 +15,7 @@ from django.utils.timezone import now
 from scm.exceptions import MageScmError, MageScmCallerError,\
     MageScmFailedEnvironmentDependencyCheck
 from scm.models import Installation, ComponentInstanceConfiguration
-from prm.models import getParam
+from ref.models.parameters import getParam
 
 
 def install_iset_envt(iset, envt, force_prereqs = False, install_date = None, ticket = None):

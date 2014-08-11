@@ -23,7 +23,7 @@ from ref.creation import duplicate_envt, create_instance
 from ref.forms import DuplicateForm, DuplicateFormRelInline
 from ref.models import ComponentInstance, Environment, ImplementationDescription
 from ref.mcl import parser
-from prm.models import getMyParams, getParam
+from ref.models.parameters import getMyParams, getParam
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 import unicodedata

@@ -21,6 +21,7 @@ from ref.models import Project, Environment, LogicalComponent, Application, SLA,
     ImplementationComputedFieldDescription, ComponentInstanceField, \
     ComponentInstanceRelation
 from ref.conventions import nc_sync_naming_convention
+from ref.models.parameters import MageParam
 
 
 ################################################################################
@@ -33,6 +34,17 @@ site.login_template = 'login.html'
 site.register(Group, GroupAdmin)
 site.register(User, UserAdmin)
 
+
+################################################################################
+## Parameters
+################################################################################
+
+class MageParamAdmin(ModelAdmin):
+    list_display = ['app', 'key', 'value', 'model', 'axis1', 'description',]
+    search_fields = ['app', 'key', 'value', 'axis1', ]
+    list_filter = ['app', ]#'model',]
+
+site.register(MageParam, MageParamAdmin)
 
 ################################################################################
 ## No-frills admins

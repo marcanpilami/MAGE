@@ -13,7 +13,7 @@
 import unicodedata
 
 ## MAGE imports
-from prm.models import getParam
+from ref.models.parameters import getParam
 
 ## PYDOT imports
 from pydot import Dot

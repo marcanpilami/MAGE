@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group, User, Permission
 
 ## MAGE imports
 import models
-from prm.models import setOrCreateParam
+from ref.models.parameters import setOrCreateParam
 
 
 def post_syncdb_handler(sender, **kwargs):

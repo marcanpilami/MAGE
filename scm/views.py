@@ -39,7 +39,7 @@ from scm.tests import create_test_is
 from forms import DeliveryForm, IDForm, IIForm
 from scm.backup import register_backup, register_backup_envt_default_plan
 from scm.forms import BackupForm
-from prm.models import getParam
+from ref.models.parameters import getParam
 from django.utils.datastructures import SortedDict
 from django.utils.datetime_safe import datetime
 from django.utils import timezone

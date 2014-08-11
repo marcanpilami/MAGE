@@ -12,7 +12,7 @@ from django.db.models.signals import post_syncdb
 
 ## MAGE imports
 import models
-from prm.models import setOrCreateParam
+from ref.models.parameters import setOrCreateParam
 from ref.tests import utility_create_meta, utility_create_test_instances, \
     utility_create_logical
 

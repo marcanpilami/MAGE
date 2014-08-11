@@ -12,7 +12,7 @@ from datetime import timedelta
 from MAGE.exceptions import MageCallerError
 from ref.models import Environment
 from scm.models import BackupSet, BackupItem, InstallableItem, BackupRestoreMethod
-from prm.models import getParam
+from ref.models.parameters import getParam
 
 def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
     ## Check params

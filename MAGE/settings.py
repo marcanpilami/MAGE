@@ -169,8 +169,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     
     'ref', ## Keep REF first after django internals
-    'prm', ## Keep PRM second
-    #'scm', ## Keep SCM third
+    #'scm', ## Keep SCM second
 )
 
 INSTALLED_APPS += LOCAL_APPS

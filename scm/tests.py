@@ -17,7 +17,7 @@ from install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.backup import register_backup
 from scm.install import install_ii_single_target_envt
-from prm.models import setOrCreateParam
+from ref.models.parameters import setOrCreateParam
 
 
 def create_test_is():
