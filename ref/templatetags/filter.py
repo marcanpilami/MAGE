@@ -33,3 +33,7 @@ def ksh_protect_and_quote(value):
         return '"%s"' %value.pk
         
     return '"' + value.replace('"', '\\"') + '"'
+
+@register.filter
+def apply_field_template(component_instance, computed_field):
+    return computed_field.resolve(component_instance)

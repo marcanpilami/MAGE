@@ -41,14 +41,14 @@ site.register(User, UserAdmin)
 site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
-    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active', 'managed', ]
-    list_display = ('name', 'description', 'template_only', 'managed')
+    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active', 'managed', 'show_sensitive_data' ]
+    list_display = ('name', 'description', 'template_only', 'managed', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
     list_filter = ['template_only', 'managed', 'typology']
     search_fields = ('name',)
-    
-    
+
+
     def has_delete_permission(self, request, obj=None):
         return False
     def get_actions(self, request):
@@ -92,7 +92,7 @@ site.register(Project, ProjectAdmin)
 class CICAdmin(ModelAdmin):
     list_display = ('name', 'implements', 'technical_description', 'description')
     list_filter = ('implements__application', 'implements')
-     
+
 site.register(ComponentImplementationClass, CICAdmin)
 
 site.register(ImplementationRelationType)
@@ -107,7 +107,7 @@ class ImplementationRelationDescriptionInline(TabularInline):
     model = ImplementationRelationDescription
     extra = 1
     fk_name = "source"
-    
+
 class ImplementationComputedFieldDescriptionInline(TabularInline):
     model = ImplementationComputedFieldDescription
     extra = 1
@@ -116,14 +116,14 @@ class ImplementationDescriptionAdmin(ModelAdmin):
     list_display = ('name', 'description', 'tag')
     list_filter = ('tag',)
     inlines = [ImplementationFieldDescriptionInline, ImplementationRelationDescriptionInline, ImplementationComputedFieldDescriptionInline]
-    
+
 site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 
 
 ################################################################################
 ## Naming conventions
 ################################################################################
-    
+
 class ConventionFieldInline(TabularInline):
     model = ConventionField
     extra = 0
@@ -137,7 +137,7 @@ class ConventionAdmin(ModelAdmin):
     fields = ['name', ]
     inlines = [ConventionFieldInline, ]
     actions = ['make_refresh_nc', ]
-    
+
     def make_refresh_nc(self, request, queryset):
         for nc in queryset:
             nc_sync_naming_convention(nc)
@@ -148,7 +148,7 @@ site.register(Convention, ConventionAdmin)
 
 class ConventionCounterAdmin(ModelAdmin):
     list_display = ('scope_type', 'scope_param_1', 'scope_param_2', 'val')
-    
+
 site.register(ConventionCounter, ConventionCounterAdmin)
 
 
@@ -173,5 +173,5 @@ class ComponentInstanceAdmin(ModelAdmin):
     list_filter = ('implementation', 'environments', 'implementation__tag', 'instanciates')
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
-        
+
 site.register(ComponentInstance, ComponentInstanceAdmin)

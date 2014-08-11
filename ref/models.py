@@ -555,6 +555,7 @@ class ComponentInstance(models.Model):
             return self.implementation.resolve_self_description(self)
         else:
             return '%s' % self.pk
+    name = property(__unicode__)
 
     class Meta:
         permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)

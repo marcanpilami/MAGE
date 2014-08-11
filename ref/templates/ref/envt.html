@@ -10,7 +10,7 @@
 {%endblock%}
 
 {% block content %}
-{% regroup envt.component_instances.all by model_id as compotype_list %}
+{% regroup envt.component_instances.all by implementation_id as compotype_list %}
 
 <div style='width:auto;'>
 	<div class='column' style="min-width: 0px; max-width: 230px;">
@@ -42,17 +42,20 @@
 							<tr><td colspan='2' style='background-color:#B3B3B3; text-transform: uppercase;text-align: center; max-width: 9em; font-size: 8pt;'>{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}</td></tr>
 						{% endif %}
 						<tr><td colspan="2" style='font-style: italic;text-align: center;background-color:#B3B3B3; '>
-						{{ compo.leaf | verbose_name | capfirst }}
+						{{ compo.name | capfirst }}
 						</td></tr>
 						
-						{% if compo.leaf.detail_template %}
-							{% include compo.leaf.detail_template  with compo=compo.leaf %}
-						{% else %}
-							{% if compo.name %}
-								<tr><td>Nom </td><td>{{compo.name}}</td></tr>
-							{% else %}
-								<tr><td>Nom </td><td>no name specified</td></tr>
-							{% endif %}
+						{% if compo.implementation %}
+							{% for field in compo.field_set.all|dictsort:"field.name" %}
+								{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+									<tr><td>{{field.field.label | capfirst}}</td><td>{{field.value}}</td></tr>
+								{% endif %}
+							{% endfor %}
+							{% for field in compo.implementation.computed_field_set.all %}
+								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+									<tr><td>{{field.label | capfirst}}</td><td>{{compo | apply_field_template:field}}</td></tr>
+								{% endif %}
+							{% endfor %}
 						{% endif %}
 					</table>	
 				</div>
@@ -64,7 +67,7 @@
 	
 	<div class='column' style='width=auto;'>
 		<div class='t2'>Représentation</div>
-		<img src="{% url 'gph:envt' envt.id %}" alt="environment picture"> 
+		<img src="{% url 'ref:grenvt' envt.id %}" alt="environment picture"> 
 	</div>
 </div>
 {% endblock content %}
