@@ -20,7 +20,7 @@ from django.db.models import Q
 from MAGE.exceptions import MageCallerError
 from ref.csvi import get_components_csv, get_components_pairs
 from ref.creation import duplicate_envt, create_instance
-from ref.forms import DuplicateForm, DuplicateFormRelInline
+from ref.forms import DuplicateForm, DuplicateFormRelInline, CartoForm
 from ref.models import ComponentInstance, Environment, ImplementationDescription
 from ref.mcl import parser
 from ref.models.parameters import getMyParams, getParam
@@ -28,6 +28,7 @@ from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 import unicodedata
 from ref.graphs_mlg import getGraph, DrawingContext
+from django.db.transaction import atomic
 
 
 ##############################################################################
@@ -181,6 +182,7 @@ def envt_duplicate(request, envt_name):
     return redirect('admin:ref_environment_change', e.id)
 
 @permission_required('ref.scm_addenvironment')
+@atomic
 def envt_duplicate_name(request, envt_name):
     e = Environment.objects.get(name=envt_name)
     FS = formset_factory(DuplicateFormRelInline, extra=0)
@@ -204,7 +206,7 @@ def envt_duplicate_name(request, envt_name):
         ext = {}
         initial_rel = []
         for cpn in e.component_instances.all():
-            for rel in cpn.connectedTo.all() | cpn.dependsOn.all():
+            for rel in cpn.relationships.all():
                 if not rel.id in internal_pks:
                     ext[rel] = None
         for rel in ext.keys():
@@ -269,32 +271,6 @@ def envt_pic(request, envt_id):
 
     # Return the picture
     return HttpResponse(getGraph(cfilter, context=dc), content_type="image/png")
-
-class CartoForm(forms.Form):
-    envts = forms.MultipleChoiceField(
-                    choices=[(e.pk, e.name) for e in Environment.objects.all().order_by('typology__chronological_order', 'name')],
-                    widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[] if Environment.objects.filter(template_only=False).count() == 0 else [Environment.objects.filter(template_only=False).order_by('typology__chronological_order', 'name')[0].pk],
-                    label=u'Environnements à afficher')
-
-    models = forms.MultipleChoiceField(
-                    choices=[(m.pk, m.name) for m in ImplementationDescription.objects.all()],
-                    widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[m.pk for m in ImplementationDescription.objects.all()],
-                    label=u'Composants à afficher')
-
-    relRecursion = forms.IntegerField(
-                    label=u'Générations de relations à afficher ',
-                    max_value=3,
-                    min_value=0,
-                    initial=1)
-
-    collapseThr = forms.IntegerField(
-                    label=u'Réunir éléments similaires à partir de ',
-                    max_value=20,
-                    min_value=0,
-                    initial=4)
-
 
 def view_carto(request):
     """Marsupilamographe"""

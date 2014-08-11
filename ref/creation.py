@@ -5,9 +5,10 @@
     @author: Marc-Antoine Gouillart
 '''
 
-from ref.models import Environment, ComponentInstance,  ExtendedParameter,\
+from ref.models import Environment, ComponentInstance, ExtendedParameter, \
     EnvironmentType
 from ref.mcl import parser
+from ref.models.models import ComponentInstanceField, ComponentInstanceRelation
 
 
 def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
@@ -19,125 +20,102 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     """
     envt = Environment.objects.get(name=envt_name)
     #old_envt = Environment.objects.get(name=envt_name)
-    
+
     if components_to_duplicate is None or len(components_to_duplicate) == 0:
         components_to_duplicate = envt.component_instances.all()
-    components_to_duplicate = sorted(list(components_to_duplicate), key = lambda compo : compo.pk)
-    internal_pks = [i.pk for i in components_to_duplicate] 
+    components_to_duplicate = sorted(list(components_to_duplicate), key=lambda compo : compo.pk)
+    internal_pks = [i.pk for i in components_to_duplicate]
     already_migrated = {} # key = old PK, value = new instance
-    
+
     ## Duplicate the envt
     envt.id = None
     envt.name = new_name
     envt.template_only = False
     envt.description = "copied from environment %s (%s)" % (envt_name, envt.description)
-    
+
     ## Try to find the ET
     for et in EnvironmentType.objects.all():
         if et.short_name in new_name:
             envt.typology = et
+            break
+    else:
+        envt.typology = envt.typology # Stupid but...
     envt.save()
-    
+
     ## Duplicate the instances
-    for instance in components_to_duplicate:
-        old = ComponentInstance.objects.get(pk=instance.pk).leaf
-        
+    for old in components_to_duplicate:
+        if old.deleted:
+            continue
+
         ###############################
         ## First pass: basic fields.
-        
-        instance = instance.leaf
-        instance.pk = None
-        instance.id = None ## Inheritance!
-        instance.save()
-        already_migrated[old.pk] = instance
-        
-        ## Basics relations
-        instance.environments.add(envt)
-        instance.instanciates = old.instanciates
-        
+
+        new_instance = ComponentInstance(instanciates=old.instanciates, implementation=old.implementation, include_in_envt_backup=old.include_in_envt_backup)
+        new_instance.save()
+        new_instance.environments.add(envt)
+        already_migrated[old.pk] = new_instance
+
+        for fv in old.field_set.all():
+            new_instance.field_set.add(ComponentInstanceField(value=fv.value, field=fv.field))
+
+        ## Relationships
+        for fv in old.rel_target_set.all():
+            new_target = None
+            if fv.target.id in remaps.keys():
+                # Should be remapped
+                new_target = ComponentInstance.objects.get(pk=remaps[fv.target.id])
+            elif fv.target.id in already_migrated.keys():
+                # Internal key - remap to copied instance
+                new_target = already_migrated[fv.target.id]
+            elif not fv.target.id in internal_pks:
+                # external, but not remapped -> leave it as it is.
+                new_target = fv.target
+            if new_target:
+                t = ComponentInstanceRelation(source = new_instance, target=new_target, field=fv.field)
+                t.save()
+
+        for fv in old.rel_targeted_by_set.all():
+            new_source = None
+            if fv.source.id in remaps.keys():
+                # Should be remapped
+                new_source = ComponentInstance.objects.get(pk=remaps[fv.source.id])
+            elif fv.source.id in already_migrated.keys():
+                # Internal key - remap to copied instance
+                new_source = already_migrated[fv.source.id]
+            elif not fv.source.id in internal_pks:
+                # external, but not remapped -> leave it as it is.
+                new_source = fv.source
+            if new_source:
+                t = ComponentInstanceRelation(source=new_source, target = new_instance, field=fv.field)
+                t.save()
+
         ## Extended parameters
-        for prm in old.parameters.all():
-            p = ExtendedParameter(key=prm.key, value=prm.value, instance=instance)
+        for prm in old.parameter_set.all():
+            p = ExtendedParameter(key=prm.key, value=prm.value, instance=new_instance)
             p.save()
-        
-        ###############################
-        ## dependsOn
-        
-        ## Direct relation
-        for ci2do in old.pedestals_ci2do.all():
-            if ci2do.pedestal.id in internal_pks:
-                ## Remap to duplicated element. If not duplicated yet, don't - it will be specified with the reverse relation
-                if ci2do.pedestal.id in already_migrated.keys():
-                    c = CI2DO(statue=instance, pedestal=already_migrated[ci2do.pedestal.id], rel_name=ci2do.rel_name)
-                    c.save()
-                else:
-                    pass
-            else:
-                ## This is an external mapping.
-                if ci2do.pedestal.id in remaps.keys():
-                    ## Remap was asked.
-                    if remaps[ci2do.pedestal.id]: # None is valid - it means the connection should be discarded
-                        remapped_pedestal = ComponentInstance.objects.get(pk=remaps[ci2do.pedestal.id])
-                        c = CI2DO(statue=instance, pedestal=remapped_pedestal, rel_name=ci2do.rel_name)
-                        c.save()
-                else:
-                    ## Keep the template relationship
-                    c = CI2DO(statue=instance, pedestal=ci2do.pedestal, rel_name=ci2do.rel_name)
-                    c.save()
-            
-        ## Reverse relation
-        for ci2do in old.statues_ci2do.all():
-            if ci2do.statue.id in internal_pks:
-                ## Remap to duplicated element. If not duplicated yet, don't - it will be specified with the direct relation
-                if ci2do.statue.id in already_migrated.keys():
-                    c = CI2DO(statue=already_migrated[ci2do.statue.id], pedestal=instance, rel_name=ci2do.rel_name)
-                    c.save()
-                else:
-                    pass
-            else:
-                pass ## External mappings are all done in the direct relation analysis
-        
-        
-        ###############################
-        ## connectedTo
-        
-        # Direct relation
-        for cnx in old.connectedTo.all():
-            if cnx.pk in internal_pks:
-                if cnx.pk in already_migrated.keys():
-                    instance.connectedTo.add(already_migrated[cnx.id])
-                else:
-                    pass # see reverse relation
-            else:
-                if cnx.id in remaps.keys():
-                    if remaps[cnx.id]: # None is valid - it means the connection should be discarded
-                        instance.connectedTo.add(ComponentInstance.objects.get(pk=remaps[cnx.id])) 
-                else:
-                    instance.connectedTo.add(cnx)
-        
-        # Reverse: no need, relation is symmetrical.
-        
-        
+
+
         ###############################
         ## Convention
-        c = instance.default_convention
-        if c is not None:
-            c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
-        
-        
+        #TODO: conventions
+        #c = instance.default_convention
+        #if c is not None:
+        #    c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
+
+
         ###############################
-        instance.save()
-    
+        new_instance.save()
+
     return envt
 
 
 def create_instance(mcl, apply_convention=True, apply_convention_force=False):
     instances = parser.get_components(mcl, allow_create=True)
-    
+
     if apply_convention:
         for instance in instances:
             c = instance.default_convention
             if c:
                 c.value_instance(instance, force=apply_convention_force)
-    
+
     return instances
