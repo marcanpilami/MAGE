@@ -76,7 +76,7 @@ def envt(request, envt_id):
     return render(request, 'ref/envt.html', {'envt': envt, })
 
 def model_types(request):
-    return render(request, 'ref/model_types.html', {'models' :  [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']})
+    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.all()})
 
 def model_detail(request):
     res = {}

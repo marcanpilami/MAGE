@@ -3,18 +3,17 @@
 {% block maintitle %}Types installés{% endblock %}
 
 {% block content %}
-{% regroup models by app_label as app_list %}
+{% regroup models by tag as tag_list %}
 
 
-{% for app in app_list %}
+{% for tag in tag_list %}
 	<div class='column' style='width:auto; max-width:1000000px; '>
-		<div class='t2'>Application {{ app.grouper }}</div>
-		{% for model in app.list|dictsort:"name" %}
+		<div class='t2'>{% if tag.grouper %}{{ tag.grouper | capfirst }}{% else %}non classé{% endif %}</div>
+		{% for model in tag.list|dictsort:"name" %}
 			<div class='metRect' style='background:#004A00;'>
-				{{ model.name }}
+				{{ model.description }}
 				<div class='metSquareLong annotation'>
-					Application {{model.app_label}}<br/>
-					Code {{model.model}}<br/>
+					Code {{model.name}}<br/>
 					Id {{model.id}}
 				</div>
 			</div>
