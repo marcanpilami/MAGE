@@ -12,7 +12,7 @@ from django.test import TestCase
 ## MAGE imports
 from scm.models import InstallableItem, InstallationMethod, LogicalComponentVersion, Delivery,\
     Installation
-from cpn.tests import TestHelper, utility_create_test_envt 
+from ref.old_cpn_tests import TestHelper, utility_create_test_envt 
 from install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.backup import register_backup

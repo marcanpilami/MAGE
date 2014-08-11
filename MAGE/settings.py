@@ -171,7 +171,6 @@ INSTALLED_APPS = (
     'ref', ## Keep REF first after django internals
     'prm', ## Keep PRM second
     #'scm', ## Keep SCM third
-    #'cpn', ## This can be removed - default/sample components
 )
 
 INSTALLED_APPS += LOCAL_APPS

@@ -14,9 +14,6 @@ from ref.creation import duplicate_envt
 from ref.models import ComponentInstance, Convention
 from ref.models import Application, LogicalComponent, \
     ComponentImplementationClass, EnvironmentType, Environment
-from cpn.models import  OracleInstance, OracleSchema, WasCell, \
-    GlassfishAS, MqQueueManagerParams, MqQueueManager, WasNode, WasCluster, \
-    WasAS, WasApplication, ApplicationBinary, OsServer
 
 class TestHelper:
     def __init__(self):

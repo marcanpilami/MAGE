@@ -30,7 +30,7 @@ from django.views.decorators.cache import cache_control
 from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent, \
     Project, ConventionCounter
 from ref.conventions import nc_sync_naming_convention
-from cpn.tests import TestHelper
+from ref.old_cpn_tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
 from scm.install import install_iset_envt, install_ii_single_target_envt
