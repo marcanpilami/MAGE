@@ -454,7 +454,7 @@ def reset():
     for pr in Project.objects.all():
         pr.delete()
     
-@transaction.commit_on_success
+@transaction.atomic
 @staff_member_required
 def demo_internal(request):
     reset()
@@ -477,7 +477,7 @@ def demo_internal(request):
     
     return HttpResponseRedirect(reverse('welcome'))
     
-@transaction.commit_on_success
+@transaction.atomic
 @staff_member_required
 def bootstrap(request):
     reset()

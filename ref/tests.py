@@ -11,8 +11,10 @@ from django.test import TestCase
 ## MAGE imports
 from ref.models import  EnvironmentType, ImplementationRelationType, ImplementationDescription, Project, Application, LogicalComponent, ComponentImplementationClass, \
     Environment
+from django.db.transaction import atomic
+from ref.creation import duplicate_envt
 
-
+@atomic
 def utility_create_meta():
     ## Relations classification
     dt1 = ImplementationRelationType(name='connectedTo')
@@ -226,7 +228,7 @@ def utility_create_meta():
             add_relationship('cluster', 'member of cell', impl18, dt2, min_cardinality=1, max_cardinality=1)
     impl21.save()
 
-
+@atomic
 def utility_create_test_instances():
     ## Environments
     e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'))
@@ -289,7 +291,7 @@ def utility_create_test_instances():
     i11_1 = ImplementationDescription.class_for_name('jqmbatch')(name='JqmDev1INT', cluster=i9_1, _cic='int_batch_jqm', _env=e1)
     i11_1.save()
 
-
+@atomic
 def utility_create_logical():
     p1 = Project(name='SUPER-PROJECT', default_convention=None, description='New ERP for FIRM1. A Big Program project.', alternate_name_1='SUPERCODE', alternate_name_2='ERP')
     p1.save()
@@ -361,4 +363,14 @@ def utility_create_logical():
     et3.implementation_patterns.add(impl_1_1, impl_2_1, impl_3_1)
     et4.implementation_patterns.add(impl_1_1, impl_2_1, impl_3_1)
 
-
+@atomic
+def create_full_test_data():
+    utility_create_meta()
+    utility_create_logical()
+    utility_create_test_instances()
+    
+    duplicate_envt("DEV1", "TEC1")
+    duplicate_envt("DEV1", "TEC2")
+    duplicate_envt("DEV1", "QUA1")
+    duplicate_envt("DEV1", "REC1")
+    duplicate_envt("DEV1", "FOR")

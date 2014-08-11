@@ -303,10 +303,8 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
     
     ## Logical component (through CIC): either a CIC is given as an object, as a string or there is just no choice. 
     if _cic and isinstance(_cic, ComponentImplementationClass):
-        print _cic
         self._instance.instanciates = _cic
     elif _cic and isinstance(_cic, str):
-        print _cic
         self._instance.instanciates = ComponentImplementationClass.objects.get(name=_cic)
     elif self.__class__._related_impl and self.__class__._related_impl.cic_set.count() == 1:
         self._instance.instanciates = self.__class__._related_impl.cic_set.all()[0]
@@ -419,7 +417,7 @@ class ImplementationDescription(models.Model):
 ################################################################################
 
 class EnvironmentManagerStd(models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         return super(EnvironmentManagerStd, self).get_query_set().filter(template_only=False, active=True)
     
 class Environment(models.Model):
