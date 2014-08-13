@@ -17,6 +17,7 @@ from django.core.exceptions import ValidationError
 
 ## MAGE imports
 from MAGE.exceptions import MageError
+from ref.naming_language import resolve
 
 
 ################################################################################
@@ -134,35 +135,6 @@ class EnvironmentType(models.Model):
 ################################################################################
 ## Description of the component instances
 ################################################################################
-
-def _resolve(pattern, instance):
-    ''' Will instanciate a pattern according to the value inside the given component instance'''
-    res = u""
-    for segment in pattern.split("|"):
-        seg_res = ""
-        if segment[0] == "%": 
-            segment = segment[1:]           
-            for sub_prio_segment in segment.split(";"):
-                seg_res = instance
-                for field in sub_prio_segment.split("."):
-                    if isinstance(seg_res, ComponentInstance):
-                        seg_res = seg_res.proxy 
-                    seg_res = seg_res.__getattribute__(field)
-                    if seg_res is None:
-                        ## Go to next priority segment - this one is None
-                        break
-                else:
-                    ## If here: a priority segment was completely computed (no break)
-                    if seg_res:
-                        ## If the result is not None, no need to go over the lower-priority segments.
-                        break 
-        else:
-            # simple segment - directly return the content, no resolution required
-            seg_res = segment
-        
-        res += seg_res
-    
-    return res
         
 class ImplementationRelationType(models.Model):
     name = models.CharField(max_length=20, verbose_name='type relation')  
@@ -201,7 +173,7 @@ class ImplementationComputedFieldDescription(models.Model):
         return '%s' % (self.name)
     
     def resolve(self, instance):
-        return _resolve(self.pattern, instance)
+        return resolve(self.pattern, instance)
     
     class Meta:
         verbose_name = u'champ calculé'
@@ -335,7 +307,7 @@ class ImplementationDescription(models.Model):
         return self.name
     
     def resolve_self_description(self, instance):
-        return _resolve(self.self_description_pattern, instance)
+        return resolve(self.self_description_pattern, instance)
     
     class Meta:
         verbose_name = u'paramétres d\'implémentation'

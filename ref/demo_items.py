@@ -5,9 +5,6 @@
     @author: Marc-Antoine Gouillart
 '''
 
-## Django imports
-from django.test import TestCase
-
 ## MAGE imports
 from ref.models import  EnvironmentType, ImplementationRelationType, ImplementationDescription, Project, Application, LogicalComponent, ComponentImplementationClass, \
     Environment
@@ -27,7 +24,7 @@ def utility_create_meta():
     ######################################################################
 
     ## OS Server
-    impl1 = ImplementationDescription.create_or_update('osserver', 'a server with an installed OS', self_description_pattern='server |%dns', tag='os').\
+    impl1 = ImplementationDescription.create_or_update('osserver', 'a server with an installed OS', self_description_pattern='"server "|%dns', tag='os').\
             add_field_simple('dns', 'dns to use for admin login').\
             add_field_simple('admin_login', 'login to use for admin access', default='root').\
             add_field_simple('admin_password', 'password to use for admin access', sensitive=True)
@@ -46,24 +43,24 @@ def utility_create_meta():
     ######################################################################
 
     ## Oracle instance
-    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='instance |%sid', tag='oracle').\
+    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='"instance "|%sid', tag='oracle').\
             add_field_simple('sid', 'instance SID').\
             add_field_simple('admin_login', 'login to use for DBA access').\
             add_field_simple('admin_password', 'password to use for DBA access').\
             add_field_simple('port', 'instance port', default=1521).\
-            add_field_computed('server_name', 'name of the server', 'toto|%server.name').\
+            add_field_computed('server_name', 'name of the server', '%server.name').\
             add_field_computed('test_p', 'test overload', 'toto|%server.admin_password;server.admin_login').\
             add_relationship('server', 'server on which the instance is running', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl3.save()
 
     ## Oracle schema
-    impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name| on |%instance.sid', tag='oracle').\
+    impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name|" on "|%instance.sid', tag='oracle').\
             add_field_simple('name', 'name').\
             add_field_simple('password', 'password', sensitive=True).\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)').\
             add_field_simple('service_name_to_use', 'service name (if empty, SID will be used)').\
             add_field_computed('conn_str', 'sqlplus connection string', '%name|/|%password|@|%service_name_to_use;instance.sid', sensitive=True).\
-            add_field_computed('jdbc', 'JDBC connection string', 'jdbc:oracle:thin:@//|%dns_to_use;instance.server.dns|:|%instance.port|/|%service_name_to_use;instance.sid').\
+            add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(%dns_to_use?instance.server.dns)|":"|%instance.port|"/"|(%service_name_to_use?instance.sid)').\
             add_relationship('instance', 'instance holding the schema', impl3, dt2, min_cardinality=1, max_cardinality=1)
     impl4.save()
 
@@ -157,8 +154,8 @@ def utility_create_meta():
             add_field_simple('max_heap_mb', 'Max Heap (Mo)', 384).\
             add_field_simple('max_permgen_mb', 'Max permgen (Mo)', 128).\
             add_field_simple('start_heap_mb', 'Start heap (Mo)', 256).\
-            add_field_computed('admin_login', 'admin login', '%dedicated_admin_login;domain.admin_user').\
-            add_field_computed('admin_password', 'admin password', '%dedicated_admin_password;domain.admin_password').\
+            add_field_computed('admin_login', 'admin login', '%dedicated_admin_login?%domain.admin_user').\
+            add_field_computed('admin_password', 'admin password', '%dedicated_admin_password?%domain.admin_password').\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1)
     impl14.save()
 
@@ -166,7 +163,7 @@ def utility_create_meta():
             add_field_simple('name', 'JVM name').\
             add_field_simple('port_shift', 'port shift').\
             add_field_simple('dns_to_use', 'service DNS entry').\
-            add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port|+|%port_shift').\
+            add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port+%port_shift').\
             add_relationship('host', 'runs on host', impl13, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('group', 'member of group', impl14, dt2, min_cardinality=1, max_cardinality=1)
             #TODO: basics operations inside computed fields.
@@ -193,7 +190,7 @@ def utility_create_meta():
             add_field_simple('manager_port', 'port of network deployment management console', default=9060).\
             add_field_simple('manager_login', 'console admin login', 'admin').\
             add_field_simple('manager_password', 'console admin password', 'password').\
-            add_field_computed('url', 'manager URL', 'http://|%manager_server.dns|:|%manager_port|/ibm/console').\
+            add_field_computed('url', 'manager URL', '"http://"|%manager_server.dns|":"|%manager_port|"/ibm/console"').\
             add_relationship('manager_server', 'server holding the deployment manager node', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl17.save()
 
@@ -201,8 +198,8 @@ def utility_create_meta():
             add_field_simple('name', 'application name').\
             add_field_simple('dedicated_admin_user', 'specific account for managing this cluster').\
             add_field_simple('dedicated_admmin__password', 'specific password').\
-            add_field_computed('admin_login', 'admin login to use', '%dedicated_admin_user;cell.manager_login').\
-            add_field_computed('admin_password', 'admin password to use', '%dedicated_admin_password;cell.manager_password').\
+            add_field_computed('admin_login', 'admin login to use', '%dedicated_admin_user?%cell.manager_login').\
+            add_field_computed('admin_password', 'admin password to use', '%dedicated_admin_password?%cell.manager_password').\
             add_relationship('cell', 'member of cell', impl17, dt2, min_cardinality=1, max_cardinality=1)
     impl18.save()
 

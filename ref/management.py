@@ -13,7 +13,7 @@ from django.db.models.signals import post_syncdb
 ## MAGE imports
 import models
 from ref.models.parameters import setOrCreateParam
-from ref.tests import utility_create_meta, utility_create_test_instances, \
+from ref.demo_items import utility_create_meta, utility_create_test_instances, \
     utility_create_logical, create_full_test_data
 
 def post_syncdb_handler(sender, **kwargs):
