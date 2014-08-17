@@ -11,3 +11,6 @@ from django.apps import AppConfig
 class RefAppConfig(AppConfig):
     name='ref'
     verbose_name = u'Gestion du référentiel'
+    
+    def ready(self):
+        import cache

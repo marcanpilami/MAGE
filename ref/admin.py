@@ -40,7 +40,7 @@ site.register(User, UserAdmin)
 ################################################################################
 
 class MageParamAdmin(ModelAdmin):
-    list_display = ['app', 'key', 'value', 'model', 'axis1', 'description',]
+    list_display = ['app', 'key', 'value', 'model', 'axis1', 'description', ]
     search_fields = ['app', 'key', 'value', 'axis1', ]
     list_filter = ['app', ]#'model',]
 
@@ -113,7 +113,7 @@ class ImplementationFieldDescriptionInline(TabularInline):
     model = ImplementationFieldDescription
     extra = 3
     can_delete = True
-    fields = ['name', 'datatype', 'default', 'label', 'sensitive' ]
+    fields = ['name', 'datatype', 'default', 'label', 'compulsory', 'sensitive' ]
 
 class ImplementationRelationDescriptionInline(TabularInline):
     model = ImplementationRelationDescription

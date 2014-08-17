@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block pagetitle %}admin{% endblock %}
+{% block maintitle %}Modification {{envt.name}}{% endblock %}
+
+
+{% block content %}
+<form method="post">
+       {% for descr, formset in fss.items %}
+       	<div class='t3'>{{descr.description}}</div>
+   		{{formset.management_form}}
+   		{{ formset.non_form_errors }}
+   		<table style='border-collapse: collapse; border: 1px black; padding: 0px; margin: 0px;'>
+    		{% for form in formset %}  
+    			{% if forloop.first %}
+    				<thead>  			
+	    				<tr>
+		    				{% for field in form %}
+		    					<th>{% if not field.is_hidden %}{{ field.label| capfirst}}{%if not field.field.required %}*{% endif %}{% endif %}</th>
+		    				{% endfor %}
+	    				</tr>
+    				</thead>
+    				<tbody>
+   				{% endif %}
+    			
+    			<tr>
+    			{% for field in form %}
+    				<td>{{ field }}{{ field.errors }}</td>
+    			{% endfor %}
+    			</tr>
+    				    			
+   			{% endfor %}
+   			</tbody>
+		</table>    
+       {% endfor %}
+    </table>
+	<input type="submit">
+</form>
+
+{% endblock content %}
+

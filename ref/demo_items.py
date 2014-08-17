@@ -25,16 +25,16 @@ def utility_create_meta():
 
     ## OS Server
     impl1 = ImplementationDescription.create_or_update('osserver', 'a server with an installed OS', self_description_pattern='"server "|%dns', tag='os').\
-            add_field_simple('dns', 'dns to use for admin login').\
-            add_field_simple('admin_login', 'login to use for admin access', default='root').\
-            add_field_simple('admin_password', 'password to use for admin access', sensitive=True)
+            add_field_simple('dns', 'dns d\'administration').\
+            add_field_simple('admin_login', 'login admin', default='root').\
+            add_field_simple('admin_password', 'password admin', sensitive=True)
     impl1.save()
 
     ## OS account
     impl2 = ImplementationDescription.create_or_update('osaccount', 'account for login on a server', self_description_pattern='%login', tag='os').\
-            add_field_simple('login', 'the acocunt login').\
-            add_field_simple('password', 'password corresponding to the login', sensitive=True).\
-            add_relationship('server', 'server corresponding to the login', impl1, dt2, 1, 1)
+            add_field_simple('login', 'login du compte').\
+            add_field_simple('password', 'mot de passe', sensitive=True).\
+            add_relationship('server', 'sur le serveur', impl1, dt2, 1, 1)
     impl2.save()
 
 
@@ -44,24 +44,23 @@ def utility_create_meta():
 
     ## Oracle instance
     impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='"instance "|%sid', tag='oracle').\
-            add_field_simple('sid', 'instance SID').\
-            add_field_simple('admin_login', 'login to use for DBA access').\
-            add_field_simple('admin_password', 'password to use for DBA access').\
-            add_field_simple('port', 'instance port', default=1521).\
-            add_field_computed('server_name', 'name of the server', '%server.name').\
-            add_field_computed('test_p', 'test overload', 'toto|%server.admin_password;server.admin_login').\
-            add_relationship('server', 'server on which the instance is running', impl1, dt2, min_cardinality=1, max_cardinality=1)
+            add_field_simple('sid', 'SID instance').\
+            add_field_simple('admin_login', 'login DBA').\
+            add_field_simple('admin_password', 'mot de passe DBA').\
+            add_field_simple('port', 'port', default=1521).\
+            add_field_computed('server_dns', 'DNS serveur', '%server.name').\
+            add_relationship('server', 'serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl3.save()
 
     ## Oracle schema
     impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name|" on "|%instance.sid', tag='oracle').\
-            add_field_simple('name', 'name').\
+            add_field_simple('name', 'nom').\
             add_field_simple('password', 'password', sensitive=True).\
-            add_field_simple('dns_to_use', 'overload of the server DNS (service address)').\
-            add_field_simple('service_name_to_use', 'service name (if empty, SID will be used)').\
-            add_field_computed('conn_str', 'sqlplus connection string', '%name|/|%password|@|%service_name_to_use;instance.sid', sensitive=True).\
-            add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(%dns_to_use?instance.server.dns)|":"|%instance.port|"/"|(%service_name_to_use?instance.sid)').\
-            add_relationship('instance', 'instance holding the schema', impl3, dt2, min_cardinality=1, max_cardinality=1)
+            add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
+            add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', compulsory=False).\
+            add_field_computed('conn_str', 'sqlplus connection string', '%name|"/"|%password|"@"|(%service_name_to_use?%instance.sid)', sensitive=True).\
+            add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(%dns_to_use?%instance.server.dns)|":"|%instance.port|"/"|(%service_name_to_use?%instance.sid)').\
+            add_relationship('instance', 'sur instance', impl3, dt2, min_cardinality=1, max_cardinality=1)
     impl4.save()
 
     ## Oracle package
@@ -77,10 +76,10 @@ def utility_create_meta():
 
     ## MQ series broker
     impl6 = ImplementationDescription.create_or_update('mqseriesmanager', 'Websphere MQ broker', self_description_pattern='%name', tag='mq').\
-            add_field_simple('name', 'broker name').\
-            add_field_simple('port', 'listener port', default=1414).\
-            add_field_simple('admin_channel', 'name of the admin connection channel', default='SYSTEM.ADMIN.SVRCONN').\
-            add_relationship('server', 'instance holding the schema', impl1, dt2, min_cardinality=1, max_cardinality=1)
+            add_field_simple('name', 'nom broker').\
+            add_field_simple('port', 'port listener', default=1414).\
+            add_field_simple('admin_channel', 'canal connexion d\'admin', default='SYSTEM.ADMIN.SVRCONN').\
+            add_relationship('server', 'tourne sur le serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl6.save()
 
     ## MQ series queues configuration
@@ -95,31 +94,31 @@ def utility_create_meta():
     ######################################################################
 
     impl8 = ImplementationDescription.create_or_update('applicationfile', 'an application file', self_description_pattern='%name').\
-            add_field_simple('name', 'file name').\
-            add_field_simple('path', 'path to the file').\
-            add_relationship('belongs_to', 'OS user owning the file', impl2, dt2, min_cardinality=0, max_cardinality=1).\
-            add_relationship('server', 'server on which the file is stored', impl1, dt2, min_cardinality=1, max_cardinality=1)
+            add_field_simple('name', 'nom fichier').\
+            add_field_simple('path', 'chemin').\
+            add_relationship('belongs_to', 'compte propriétaire', impl2, dt2, min_cardinality=0, max_cardinality=1).\
+            add_relationship('server', 'serveur de stockage', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl8.save()
 
 
-    impl9 = ImplementationDescription.create_or_update('jqmcluster', 'a set of JQM nodes', self_description_pattern='%name', tag='jqm').\
+    impl9 = ImplementationDescription.create_or_update('jqmcluster', 'cluster JQM', self_description_pattern='%name', tag='jqm').\
             add_field_simple('name', 'cluster name').\
             add_relationship('schema', 'Oracle schema of the cluster', impl4, dt2, min_cardinality=0, max_cardinality=1)
     impl9.save()
 
     impl10 = ImplementationDescription.create_or_update('jqmengine', 'moteur JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'JQM node name').\
+            add_field_simple('name', 'node name').\
             add_field_simple('port', 'port HTTP').\
             add_field_simple('jmx_registry_port', 'port registry JMX').\
             add_field_simple('jmx_server_port', 'port serveur JMX').\
-            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits').\
-            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur').\
-            add_relationship('cluster', 'member of cluster', impl9, dt2, min_cardinality=1, max_cardinality=1).\
-            add_relationship('server', 'server on which the node runs', impl1, dt2, min_cardinality=1, max_cardinality=1)
+            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits', label_short='dépôt fichiers produits', compulsory=False).\
+            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur', label_short='dépôt jobs', compulsory=False).\
+            add_relationship('cluster', 'membre du cluster', impl9, dt2, min_cardinality=1, max_cardinality=1).\
+            add_relationship('server', 'tourne sur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl10.save()
 
     impl11 = ImplementationDescription.create_or_update('jqmbatch', 'batch JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'JQM batch name').\
+            add_field_simple('name', 'batch name').\
             add_relationship('cluster', 'runs on cluster', impl9, dt2, min_cardinality=1, max_cardinality=1)
     impl11.save()
 
@@ -148,9 +147,9 @@ def utility_create_meta():
     impl14 = ImplementationDescription.create_or_update('jbossgroup', u'groupe d\'AS JBoss', self_description_pattern='%name', tag='jboss').\
             add_field_simple('name', 'group name').\
             add_field_simple('profile', 'profil').\
-            add_field_simple('dedicated_admin_login', u'utilisateur admin spécifique groupe').\
-            add_field_simple('dedicated_admin_password', u'mot de passe spécifique groupe').\
-            add_field_simple('dns_to_use', u'service DNS alias').\
+            add_field_simple('dedicated_admin_login', u'login admin spécifique', label_short='admin login', compulsory=False).\
+            add_field_simple('dedicated_admin_password', u'mot de passe spécifique', label_short='admin password', compulsory=False).\
+            add_field_simple('dns_to_use', u'service DNS alias', compulsory=False).\
             add_field_simple('max_heap_mb', 'Max Heap (Mo)', 384).\
             add_field_simple('max_permgen_mb', 'Max permgen (Mo)', 128).\
             add_field_simple('start_heap_mb', 'Start heap (Mo)', 256).\
@@ -162,17 +161,16 @@ def utility_create_meta():
     impl15 = ImplementationDescription.create_or_update('jbossas', u'JVM JBoss', self_description_pattern='%name', tag='jboss').\
             add_field_simple('name', 'JVM name').\
             add_field_simple('port_shift', 'port shift').\
-            add_field_simple('dns_to_use', 'service DNS entry').\
+            add_field_simple('dns_to_use', 'service DNS entry', compulsory=False).\
             add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port+%port_shift').\
             add_relationship('host', 'runs on host', impl13, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('group', 'member of group', impl14, dt2, min_cardinality=1, max_cardinality=1)
-            #TODO: basics operations inside computed fields.
     impl15.save()
 
     impl16 = ImplementationDescription.create_or_update('jbossapplication', 'application JBoss', self_description_pattern='%name', tag='jboss').\
             add_field_simple('name', 'application name').\
             add_field_simple('context_root', 'context root', default='/').\
-            add_field_simple('client_url', 'access URL').\
+            add_field_simple('client_url', 'access URL', compulsory=False).\
             add_relationship('group', 'member of cluster', impl14, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('schema', 'uses Oracle schema', impl4, dt1, min_cardinality=0, max_cardinality=1).\
             add_relationship('broker', 'uses MQ broker', impl6, dt1, min_cardinality=0, max_cardinality=1)
@@ -365,7 +363,7 @@ def create_full_test_data():
     utility_create_meta()
     utility_create_logical()
     utility_create_test_instances()
-    
+
     duplicate_envt("DEV1", "TEC1")
     duplicate_envt("DEV1", "TEC2")
     duplicate_envt("DEV1", "QUA1")

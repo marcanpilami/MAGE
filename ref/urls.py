@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     url(r'csv/(?P<titles>\d)/(?P<mcl>.*)/extract\.csv$', views.mcl_query, name='mcl_csv'),
     url(r'csv/(?P<url_end>[\d,]*)$', views.csv, name='csv'),
     
-    url(r'envt$', views.envts, name='envts'),
+    url(r'^envt$', views.envts, name='envts'),
     url(r'^templates$', views.templates, name='templates'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
@@ -34,5 +34,12 @@ urlpatterns = patterns('',
     url(r'gph/envt/(?P<envt_id>\d*)/*$',                                            views.envt_pic,    name='grenvt'),
     
     url(r'urls', views.urls, name='urls'),
+    
+    ## Instances
+    url(r'^instance/new/(?P<description_id>\d+)$', views.edit_comp, name='instance_new'),
+    url(r'^instance/(?P<instance_id>\d+)$', views.edit_comp, name='instance_edit'),
+    url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
+    
+    url(r'^instance/envt$', views.envt_instances, name='instance_envt'),
 )
 
