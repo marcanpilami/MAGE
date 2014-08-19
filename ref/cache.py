@@ -10,5 +10,9 @@ from django.dispatch.dispatcher import receiver
 @receiver(post_save, sender=ComponentInstanceRelation)
 @receiver(post_save, sender=ComponentInstanceField)
 def refresh_cache(sender, instance, created, raw, using, update_fields, **kwargs):
-    cache.delete_many(['selfdescr_%s' %a.pk for a in ComponentInstance.objects.all()])
-    
+    cache.delete_many(['selfdescr_%s' % a.pk for a in ComponentInstance.objects.all()])
+    try:
+        cache.delete_many(['view_envt_%s' % e.pk for e in  instance.environments.all()])
+        cache.delete_many(['view_pic_envt_%s' % e.pk for e in  instance.environments.all()])
+    except:
+        pass # only instances, not cics have this attribute

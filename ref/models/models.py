@@ -144,16 +144,22 @@ class ImplementationRelationType(models.Model):
     def __unicode__(self):
         return self.name
 
-class ImplementationFieldDescription(models.Model):
-    """ The description of a standard (i.e. that must be completed by the user) field inside a technical implementation """
+class ImplementationFieldBase(models.Model):
     name = models.CharField(max_length=100, verbose_name='nom court du champ')
-    compulsory = models.BooleanField(default=True)
-    default = models.CharField(max_length=500, verbose_name='défaut', null=True, blank=True)
-    datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier')), verbose_name=u'type')
     label = models.CharField(max_length=150, verbose_name='label')
     label_short = models.CharField(max_length=30, verbose_name='label court', help_text=u'si vide, label sera utilisé', null=True, blank=True)
     help_text = models.CharField(max_length=254, verbose_name='aide descriptive du champ', null=True, blank=True)
     sensitive = models.BooleanField(default=False, verbose_name='sensible')
+
+    class Meta:
+        abstract = True
+
+class ImplementationFieldDescription(ImplementationFieldBase):
+    """ The description of a standard (i.e. that must be completed by the user) field inside a technical implementation """
+    compulsory = models.BooleanField(default=True)
+    default = models.CharField(max_length=500, verbose_name='défaut', null=True, blank=True)
+    datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier')), verbose_name=u'type')
+    widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
     implementation = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
 
@@ -167,12 +173,10 @@ class ImplementationFieldDescription(models.Model):
         verbose_name = u'champ simple'
         verbose_name_plural = u'champs simples'
 
-class ImplementationComputedFieldDescription(models.Model):
+class ImplementationComputedFieldDescription(ImplementationFieldBase):
     """ The description of a calculated field inside a technical implementation """
-    name = models.CharField(max_length=20, verbose_name='Nom court du champ')
     pattern = models.CharField(max_length=500, verbose_name='chaîne de calcul')
-    label = models.CharField(max_length=100, verbose_name='label')
-    sensitive = models.BooleanField(default=False, verbose_name='sensible')
+    widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
     implementation = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
 
@@ -186,9 +190,7 @@ class ImplementationComputedFieldDescription(models.Model):
         verbose_name = u'champ calculé'
         verbose_name_plural = u'champs calculés'
 
-class ImplementationRelationDescription(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Nom du champ')
-    label = models.CharField(max_length=100, verbose_name='label')
+class ImplementationRelationDescription(ImplementationFieldBase):
     source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source')
     target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible')
     min_cardinality = models.IntegerField(default=0)
@@ -403,12 +405,12 @@ class ImplementationDescription(models.Model):
             idn.save()
             return idn
 
-    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str'):
-        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, implementation=self, label_short=label_short, help_text=help_text, compulsory=compulsory))
+    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0):
+        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, implementation=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
         return self
 
-    def add_field_computed(self, name, label, pattern, sensitive=False):
-        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, implementation=self))
+    def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0):
+        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, implementation=self, widget_row=widget_row))
         return self
 
     def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1):

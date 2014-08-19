@@ -46,14 +46,18 @@
 						</td></tr>
 						
 						{% if compo.implementation %}
-							{% for field in compo.field_set.all|dictsort:"field.name" %}
-								{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-									<tr><td>{{field.field.label | capfirst}}</td><td>{{field.value}}</td></tr>
+							{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
+								{% if field.field.widget_row >= 0 %}
+									{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+										<tr><td>{{field.field.label | capfirst}}</td><td>{{field.value}}</td></tr>
+									{% endif %}
 								{% endif %}
 							{% endfor %}
-							{% for field in compo.implementation.computed_field_set.all %}
-								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-									<tr><td>{{field.label | capfirst}}</td><td>{{compo | apply_field_template:field}}</td></tr>
+							{% for field in compo.implementation.computed_field_set.all|dictsort:"widget_row" %}
+								{% if field.widget_row >= 0 %}
+									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+										<tr><td>{{field.label | capfirst}}</td><td>{{compo | apply_field_template:field}}</td></tr>
+									{% endif %}
 								{% endif %}
 							{% endfor %}
 						{% endif %}

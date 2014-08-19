@@ -25,14 +25,14 @@ def utility_create_meta():
 
     ## OS Server
     impl1 = ImplementationDescription.create_or_update('osserver', 'a server with an installed OS', self_description_pattern='"server "|%dns', tag='os').\
-            add_field_simple('dns', 'dns d\'administration').\
+            add_field_simple('dns', 'dns d\'administration', widget_row=None).\
             add_field_simple('admin_login', 'login admin', default='root').\
             add_field_simple('admin_password', 'password admin', sensitive=True)
     impl1.save()
 
     ## OS account
     impl2 = ImplementationDescription.create_or_update('osaccount', 'account for login on a server', self_description_pattern='%login', tag='os').\
-            add_field_simple('login', 'login du compte').\
+            add_field_simple('login', 'login du compte', widget_row=None).\
             add_field_simple('password', 'mot de passe', sensitive=True).\
             add_relationship('server', 'sur le serveur', impl1, dt2, 1, 1)
     impl2.save()
@@ -43,8 +43,8 @@ def utility_create_meta():
     ######################################################################
 
     ## Oracle instance
-    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='"instance "|%sid', tag='oracle').\
-            add_field_simple('sid', 'SID instance').\
+    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='%sid', tag='oracle').\
+            add_field_simple('sid', 'SID instance', widget_row=None).\
             add_field_simple('admin_login', 'login DBA').\
             add_field_simple('admin_password', 'mot de passe DBA').\
             add_field_simple('port', 'port', default=1521).\
@@ -54,7 +54,7 @@ def utility_create_meta():
 
     ## Oracle schema
     impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name|" on "|%instance.sid', tag='oracle').\
-            add_field_simple('name', 'nom').\
+            add_field_simple('name', 'nom', widget_row=None).\
             add_field_simple('password', 'password', sensitive=True).\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
             add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', compulsory=False).\
@@ -65,7 +65,7 @@ def utility_create_meta():
 
     ## Oracle package
     impl5 = ImplementationDescription.create_or_update('oraclepackage', 'package inside an Oracle schema', self_description_pattern='%name', tag='oracle').\
-            add_field_simple('name', 'instance SID').\
+            add_field_simple('name', 'package name', widget_row=None).\
             add_relationship('schema', 'schema holding the package', impl4, dt2, min_cardinality=1, max_cardinality=1)
     impl5.save()
 
@@ -76,7 +76,7 @@ def utility_create_meta():
 
     ## MQ series broker
     impl6 = ImplementationDescription.create_or_update('mqseriesmanager', 'Websphere MQ broker', self_description_pattern='%name', tag='mq').\
-            add_field_simple('name', 'nom broker').\
+            add_field_simple('name', 'nom broker', widget_row=None).\
             add_field_simple('port', 'port listener', default=1414).\
             add_field_simple('admin_channel', 'canal connexion d\'admin', default='SYSTEM.ADMIN.SVRCONN').\
             add_relationship('server', 'tourne sur le serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
@@ -94,7 +94,7 @@ def utility_create_meta():
     ######################################################################
 
     impl8 = ImplementationDescription.create_or_update('applicationfile', 'an application file', self_description_pattern='%name').\
-            add_field_simple('name', 'nom fichier').\
+            add_field_simple('name', 'nom fichier', widget_row=None).\
             add_field_simple('path', 'chemin').\
             add_relationship('belongs_to', 'compte propriétaire', impl2, dt2, min_cardinality=0, max_cardinality=1).\
             add_relationship('server', 'serveur de stockage', impl1, dt2, min_cardinality=1, max_cardinality=1)
@@ -102,23 +102,23 @@ def utility_create_meta():
 
 
     impl9 = ImplementationDescription.create_or_update('jqmcluster', 'cluster JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'cluster name').\
+            add_field_simple('name', 'cluster name', widget_row=None).\
             add_relationship('schema', 'Oracle schema of the cluster', impl4, dt2, min_cardinality=0, max_cardinality=1)
     impl9.save()
 
     impl10 = ImplementationDescription.create_or_update('jqmengine', 'moteur JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'node name').\
+            add_field_simple('name', 'node name', widget_row=None).\
             add_field_simple('port', 'port HTTP').\
             add_field_simple('jmx_registry_port', 'port registry JMX').\
             add_field_simple('jmx_server_port', 'port serveur JMX').\
-            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits', label_short='dépôt fichiers produits', compulsory=False).\
-            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur', label_short='dépôt jobs', compulsory=False).\
+            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits', label_short='dépôt fichiers produits', compulsory=False, widget_row=None).\
+            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur', label_short='dépôt jobs', compulsory=False, widget_row=None).\
             add_relationship('cluster', 'membre du cluster', impl9, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('server', 'tourne sur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl10.save()
 
     impl11 = ImplementationDescription.create_or_update('jqmbatch', 'batch JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'batch name').\
+            add_field_simple('name', 'batch name', widget_row=None).\
             add_relationship('cluster', 'runs on cluster', impl9, dt2, min_cardinality=1, max_cardinality=1)
     impl11.save()
 
@@ -128,28 +128,28 @@ def utility_create_meta():
     ######################################################################
 
     impl12 = ImplementationDescription.create_or_update('jbossdomain', 'domaine JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'application name').\
-            add_field_simple('admin_user', 'context root', default='/').\
-            add_field_simple('admin_password', 'access URL').\
+            add_field_simple('name', 'domain name', widget_row=None).\
+            add_field_simple('admin_user', 'admin user', default='/').\
+            add_field_simple('admin_password', 'admin password').\
             add_field_simple('base_http_port', 'HTTP port before shifting').\
             add_field_simple('base_https_port', 'HTTPS port before shifting').\
-            add_field_simple('web_admin_port', 'admin WS port').\
-            add_field_simple('native_admin_port', 'admin native port')
+            add_field_simple('web_admin_port', 'admin WS port on DC').\
+            add_field_simple('native_admin_port', 'admin native port on DC')
     impl12.save()
 
     impl13 = ImplementationDescription.create_or_update('jbosshost', u'processus hôte JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'application name').\
+            add_field_simple('name', 'application name', widget_row=None).\
             add_field_computed('admin_port', 'admin port', '%domain.native_admin_port').\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('server', 'run on server', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl13.save()
 
     impl14 = ImplementationDescription.create_or_update('jbossgroup', u'groupe d\'AS JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'group name').\
+            add_field_simple('name', 'group name', widget_row=None).\
             add_field_simple('profile', 'profil').\
-            add_field_simple('dedicated_admin_login', u'login admin spécifique', label_short='admin login', compulsory=False).\
-            add_field_simple('dedicated_admin_password', u'mot de passe spécifique', label_short='admin password', compulsory=False).\
-            add_field_simple('dns_to_use', u'service DNS alias', compulsory=False).\
+            add_field_simple('dedicated_admin_login', u'login admin spécifique', label_short='admin login', compulsory=False, widget_row=None).\
+            add_field_simple('dedicated_admin_password', u'mot de passe spécifique', label_short='admin password', compulsory=False, sensitive=True, widget_row=None).\
+            add_field_simple('dns_to_use', u'service DNS alias', compulsory=False, widget_row=None).\
             add_field_simple('max_heap_mb', 'Max Heap (Mo)', 384).\
             add_field_simple('max_permgen_mb', 'Max permgen (Mo)', 128).\
             add_field_simple('start_heap_mb', 'Start heap (Mo)', 256).\
@@ -159,16 +159,17 @@ def utility_create_meta():
     impl14.save()
 
     impl15 = ImplementationDescription.create_or_update('jbossas', u'JVM JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'JVM name').\
+            add_field_simple('name', 'JVM name', widget_row=None).\
             add_field_simple('port_shift', 'port shift').\
-            add_field_simple('dns_to_use', 'service DNS entry', compulsory=False).\
+            add_field_simple('dns_to_use', 'service DNS entry', compulsory=False, widget_row=None).\
             add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port+%port_shift').\
+            add_field_computed('dns', 'actual DNS', '%dns_to_use?%group.dns_to_use?%host.server.dns').\
             add_relationship('host', 'runs on host', impl13, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('group', 'member of group', impl14, dt2, min_cardinality=1, max_cardinality=1)
     impl15.save()
 
     impl16 = ImplementationDescription.create_or_update('jbossapplication', 'application JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'application name').\
+            add_field_simple('name', 'application name', widget_row=None).\
             add_field_simple('context_root', 'context root', default='/').\
             add_field_simple('client_url', 'access URL', compulsory=False).\
             add_relationship('group', 'member of cluster', impl14, dt2, min_cardinality=1, max_cardinality=1).\

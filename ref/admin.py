@@ -113,7 +113,7 @@ class ImplementationFieldDescriptionInline(TabularInline):
     model = ImplementationFieldDescription
     extra = 3
     can_delete = True
-    fields = ['name', 'datatype', 'default', 'label', 'compulsory', 'sensitive' ]
+    fields = ['name', 'datatype', 'default', 'label', 'compulsory', 'sensitive', 'widget_row' ]
 
 class ImplementationRelationDescriptionInline(TabularInline):
     model = ImplementationRelationDescription

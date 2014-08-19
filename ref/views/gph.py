@@ -8,6 +8,7 @@ from django import forms
 from ref.models.models import Environment, ImplementationDescription
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 
 def full_pic(request):
@@ -33,6 +34,11 @@ def filter_pic(request, nbRelGenerations, collapseThr):
     return HttpResponse(getGraph(cfilter, context=dc), content_type="image/png")
 
 def envt_pic(request, envt_id):
+    # cached?
+    a = cache.get('view_pic_envt_%s' % envt_id)
+    if a:
+        return a
+
     # Create png with GraphWiz
     dc = DrawingContext()
     dc.connection_level = 2
@@ -40,7 +46,9 @@ def envt_pic(request, envt_id):
     cfilter = {'environments__pk':envt_id}
 
     # Return the picture
-    return HttpResponse(getGraph(cfilter, context=dc), content_type="image/png")
+    a = HttpResponse(getGraph(cfilter, context=dc), content_type="image/png")
+    cache.set('view_pic_envt_%s' % envt_id, a, None)
+    return a
 
 def view_carto(request):
     """Marsupilamographe"""
@@ -69,13 +77,13 @@ class CartoForm(forms.Form):
     envts = forms.ModelMultipleChoiceField(
                     queryset=Environment.objects.all().order_by('typology__chronological_order', 'name'),
                     widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[] if Environment.objects.filter(template_only=False).count() == 0 else [Environment.objects.filter(template_only=False).order_by('typology__chronological_order', 'name')[0].pk],
+                    #initial=[] if Environment.objects.filter(template_only=False).count() == 0 else [Environment.objects.filter(template_only=False).order_by('typology__chronological_order', 'name')[0].pk],
                     label=u'Environnements à afficher')
 
     models = forms.ModelMultipleChoiceField(
                     queryset=ImplementationDescription.objects.all(),
                     widget=forms.widgets.CheckboxSelectMultiple,
-                    initial=[m.pk for m in ImplementationDescription.objects.all()],
+                    #initial=[m.pk for m in ImplementationDescription.objects.all()],
                     label=u'Composants à afficher')
 
     relRecursion = forms.IntegerField(
