@@ -311,7 +311,7 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
 
 def _proxy_single_rel_accessor(instance, field_id):
     try:
-        return instance._instance.rel_target_set.get(field_id=field_id).target
+        return instance._instance.rel_target_set.select_related('target__implementation').get(field_id=field_id).target
     except ComponentInstanceRelation.DoesNotExist:
         return None
 
@@ -519,7 +519,7 @@ class ComponentInstance(models.Model):
     ## Proxy object for easier handling
     __proxy = None
     def build_proxy(self, force=False):
-        if self.implementation is None:
+        if self.implementation_id is None:
             return
         if self.__proxy is None or force:
             self.__proxy = self.implementation.proxy_class()(base_instance=self)

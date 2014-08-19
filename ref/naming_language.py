@@ -3,6 +3,7 @@
 from pyparsing import alphas, Group, nums, ZeroOrMore, Forward, QuotedString, \
     Word, Suppress, Optional, Combine
 
+
 def build_grammar():
     expr = Forward()
     # Our identifier definition is Python's one with the added constraint of not allowing underscores as first character.
@@ -22,6 +23,10 @@ def build_grammar():
 __grammar = build_grammar()  #.setDebug()
 
 def resolve(pattern, instance):
+    try:
+        instance = instance._instance
+    except:
+        pass
     expression = parse(pattern)
     return __resolve_expr(expression.expr, instance)
 
@@ -78,15 +83,16 @@ def __resolve_expr(e, instance):
 
 def __resolve_navigation(path, instance):
     ''' Will instanciate a pattern according to the value inside the given component instance'''
-    res = instance
-    for segment in path:
-        try:
-            # if a ComponentInstance, will be translated as its proxy. If already proxy, will fail silently.
-            res = res.proxy
-        except:
-            pass
-        res = res.__getattribute__(segment)
-        if not res :
-            return None
+    
+    # Import here to avoid circular imports
+    from ref.models.models import ComponentInstanceField
+    
+    req = {'field__name': path[-1]}
+    m = "instance__"
+    for segment in path[-2::-1]:
+        req[m + 'rel_targeted_by_set__field__name'] = segment
+        m = m + 'reverse_relationships__'
+    req[m + 'id'] = instance.id
+    res = ComponentInstanceField.objects.filter(**req).all()
 
-    return res
+    return res[0].value if len(res) == 1 else None
