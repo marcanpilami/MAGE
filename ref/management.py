@@ -46,7 +46,7 @@ def post_syncdb_handler(sender, **kwargs):
              axis1='presentation default')
 
     ## DEBUG
-    create_full_test_data()
+    #create_full_test_data()
 
 
 ## Listen to the syncdb signal
