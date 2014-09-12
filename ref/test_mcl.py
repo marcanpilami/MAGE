@@ -3,14 +3,14 @@ from django.test import TestCase
 from ref.naming_language import resolve
 from ref.demo_items import utility_create_meta, utility_create_logical
 from ref.models import ImplementationDescription, Environment
-from ref import mcl2
+from ref import mql
 from ref.models.models import EnvironmentType
 
 class MCLTestCase(TestCase):
     def setUp(self):
         utility_create_meta()
         utility_create_logical()
-        
+
         e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'))
         e1.save()
 
@@ -36,41 +36,67 @@ class MCLTestCase(TestCase):
         self.i16_1 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP1', context_root='/app1', group=self.i14_1, _cic='soft1_webapp_ee6_jboss')
         self.i16_1.save()
 
+    def test_pre_query(self):
+        res = mql.run("SELECT offer 'soft1_webapp_ee6_jboss' INSTANCES")
+        self.assertEqual(1, len(res))
+        
+        res2 = mql.run("SELECT lc 'web application EE6' INSTANCES")
+        self.assertEqual(1, len(res2))
+        
+        self.assertEqual(res[0].id, res2[0].id)
+        
+        res3 = mql.run("SELECT lc 'web application EE6'  offer 'soft1_webapp_ee6_jboss' 'jbossapplication' INSTANCES")
+        self.assertEqual(1, len(res3))
+        
 
     def test_query_where_one_level_one_predicate(self):
-        res = mcl2.run("SELECT COMPONENTS where name='GEP_DEV1_01_03'")
+        res = mql.run("SELECT INSTANCES where name='GEP_DEV1_01_03'")
         self.assertEqual(1, len(res))
-        
+
     def test_query_where_one_level_two_predicates(self):
-        res = mcl2.run("SELECT COMPONENTS where name='GEP_DEV1_01_03' and port_shift='0'")
+        res = mql.run("SELECT INSTANCES where name='GEP_DEV1_01_03' and port_shift='0'")
         self.assertEqual(1, len(res))
-        
+
     def test_query_where_two_levels_one_predicate(self):
-        res = mcl2.run("SELECT COMPONENTS where _type='jbossas' and group.name='GEP_DEV1_01'")
+        res = mql.run("SELECT 'jbossas' INSTANCES where group.name='GEP_DEV1_01'")
         #print res
-        #print [p.id for p in res]        
+        #print [p.id for p in res]
         self.assertEqual(3, len(res))
-        
+
     def test_query_where_three_levels_two_predicates(self):
-        res = mcl2.run("SELECT COMPONENTS where _type='jbossas' and group.domain.name='domain1' and name='GEP_DEV1_01_03'")      
+        res = mql.run("SELECT 'jbossas' INSTANCES where group.domain.name='domain1' and name='GEP_DEV1_01_03'")
         self.assertEqual(1, len(res))
-        
+
     def test_query_where_id(self):
-        res = mcl2.run("SELECT COMPONENTS where _id='%s'" % self.i15_1_1._instance.id)
+        res = mql.run("SELECT INSTANCES where _id='%s'" % self.i15_1_1._instance.id)
         self.assertEqual(1, len(res))
         self.assertEqual(self.i15_1_1._instance.id, res[0].id)
-        
+
     def test_query_where_sub_id(self):
-        res = mcl2.run("SELECT COMPONENTS where group._id='%s'" % self.i14_2._instance.id)
+        res = mql.run("SELECT INSTANCES where group._id='%s'" % self.i14_2._instance.id)
         self.assertEqual(1, len(res))
         self.assertEqual(self.i15_2_1._instance.id, res[0].id)
-        
+
     def test_query_where_envt(self):
-        res = mcl2.run("SELECT COMPONENTS where _envt='DEV1' and _type='jbossas'")
+        res = mql.run("SELECT environment 'DEV1' 'jbossas' INSTANCES")
         self.assertEqual(1, len(res))
         self.assertEqual(self.i15_1_3._instance.id, res[0].id)
+
+    
+    def test_query_selector_simple(self):
+        res = mql.run("SELECT name,group.name,group.domain.name FROM 'jbossas' INSTANCES WHERE name='GEP_DEV1_01_03'")
+        self.assertEqual(1, len(res))
+        self.assertEqual(res[0]['name'], 'GEP_DEV1_01_03')
         
-    def Xtest_query_where_subquery(self):
-        res = mcl2.run("SELECT COMPONENTS where _type='jbossas' and group=(SELECT COMPONENTS WHERE name='GEP_DEV1_02')")
+    def Xtest_query_db_impact(self):
+        self.assertNumQueries(0, lambda : mql.run("SELECT INSTANCES where name='GEP_DEV1_01_03'"))
+        self.assertNumQueries(1, lambda : mql.run("SELECT INSTANCES where name='GEP_DEV1_01_03'").count())
+        
+        #self.assertNumQueries(2, lambda : mql.run("SELECT name FROM INSTANCES where name='GEP_DEV1_01_03'"))
+        
+        self.assertNumQueries(3, lambda : mql.run("SELECT name,group.name FROM INSTANCES where name='GEP_DEV1_01_03'"))
+
+    def test_query_where_subquery(self):
+        res = mql.run("SELECT 'jbossas' INSTANCES where group.name=(SELECT name FROM INSTANCES WHERE name='GEP_DEV1_02')")
         self.assertEqual(1, len(res))
         self.assertEqual(self.i15_2_1._instance.id, res[0].id)
