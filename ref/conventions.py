@@ -14,7 +14,6 @@ from django.forms.fields import BooleanField
 ## MAGE imports
 from MAGE.exceptions import MageError
 from ref.models import Convention, ConventionField, ComponentInstance, ConventionCounter, ComponentImplementationClass, Environment
-from ref.mcl import parser
 
 
 def nc_sync_naming_convention(nc, model_name_list=None):

@@ -51,12 +51,12 @@ def run(query):
     #return  __grammar.parseString(query)
 
 def __run(q):
-    if q.select:
+    if q.select != None:
         return __select_compo(q.select)
 
 def __select_compo(q):
 
-    rs = ComponentInstance.objects
+    rs = ComponentInstance.objects.all()
 
     if q.lc:
         rs = rs.filter(instanciates__implements__name=q.lc)
@@ -110,13 +110,39 @@ def __select_compo(q):
             rs = rs.filter(**r)
 
     if not q.selector:
-        return rs
+        return __to_dict(rs)
     else:
-        return __to_dict(q.selector, rs)
+        return __to_dict(rs, q.selector)
 
-def __to_dict(selector, rs, optim=True):
+def __to_dict(rs,selector = None, optim=True):
     '''Navigations are done entirely in memory to avoid hitting too much the database'''
     res = []
+
+    ## All data
+    if not selector:
+        rs = rs.prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field')))
+        rs = rs.prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field')))
+        rs = rs.select_related('implementation')
+        rs = rs.prefetch_related('environments')
+        
+        for ci in rs.all():
+            compo = {}
+            res.append(compo)
+            
+            compo['mage_id'] = ci.id
+            compo['mage_cic_id'] = ci.instanciates_id
+            compo['mage_deleted'] = ci.deleted
+            compo['mage_implementation_id'] = ci.implementation_id
+            compo['mage_implementation_name'] = ci.implementation.name
+            compo['mage_environments'] = ','.join([e.name for e in ci.environments.all()])
+            
+            for fi in ci.field_set.all():
+                compo[fi.field.name] = fi.value
+                
+            for fi in ci.rel_target_set.all():
+                compo[fi.field.name + '_id'] = fi.target_id
+                
+        return res
 
     ## Preload data
     if optim:

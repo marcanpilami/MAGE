@@ -1,0 +1,8 @@
+#!/bin/bash
+# untested for now
+{% load filter%}{% autoescape off %}
+{% for compo in instances %}
+declare -A COMPONENT
+{% for key,value in compo.items %}COMPONENT[{{key}}]={{value | ksh_protect_and_quote}}
+{% endfor %}MAGE_RESULTS[{{forloop.counter}}]=COMPONENT
+{% endfor %}{% endautoescape %}MAGE_RESULT_COUNT={{ instances | length}}

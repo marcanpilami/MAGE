@@ -4,7 +4,7 @@ from ref.naming_language import resolve
 from ref.demo_items import utility_create_meta, utility_create_logical
 from ref.models import ImplementationDescription, Environment
 from ref import mql
-from ref.models.models import EnvironmentType
+from ref.models.models import EnvironmentType, ComponentInstance
 
 class MCLTestCase(TestCase):
     def setUp(self):
@@ -36,6 +36,10 @@ class MCLTestCase(TestCase):
         self.i16_1 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP1', context_root='/app1', group=self.i14_1, _cic='soft1_webapp_ee6_jboss')
         self.i16_1.save()
 
+    def test_all_query(self):
+        res = mql.run("SELECT instances")
+        self.assertEqual(len(res), ComponentInstance.objects.all().count())
+
     def test_pre_query(self):
         res = mql.run("SELECT offer 'soft1_webapp_ee6_jboss' INSTANCES")
         self.assertEqual(1, len(res))
@@ -43,7 +47,7 @@ class MCLTestCase(TestCase):
         res2 = mql.run("SELECT lc 'web application EE6' INSTANCES")
         self.assertEqual(1, len(res2))
         
-        self.assertEqual(res[0].id, res2[0].id)
+        self.assertEqual(res[0]['_id'], res2[0]['_id'])
         
         res3 = mql.run("SELECT lc 'web application EE6'  offer 'soft1_webapp_ee6_jboss' 'jbossapplication' INSTANCES")
         self.assertEqual(1, len(res3))
@@ -70,17 +74,17 @@ class MCLTestCase(TestCase):
     def test_query_where_id(self):
         res = mql.run("SELECT INSTANCES where _id='%s'" % self.i15_1_1._instance.id)
         self.assertEqual(1, len(res))
-        self.assertEqual(self.i15_1_1._instance.id, res[0].id)
+        self.assertEqual(self.i15_1_1._instance.id, res[0]['_id'])
 
     def test_query_where_sub_id(self):
         res = mql.run("SELECT INSTANCES where group._id='%s'" % self.i14_2._instance.id)
         self.assertEqual(1, len(res))
-        self.assertEqual(self.i15_2_1._instance.id, res[0].id)
+        self.assertEqual(self.i15_2_1._instance.id, res[0]['_id'])
 
     def test_query_where_envt(self):
         res = mql.run("SELECT environment 'DEV1' 'jbossas' INSTANCES")
         self.assertEqual(1, len(res))
-        self.assertEqual(self.i15_1_3._instance.id, res[0].id)
+        self.assertEqual(self.i15_1_3._instance.id, res[0]['_id'])
 
     
     def test_query_selector_simple(self):
@@ -99,4 +103,4 @@ class MCLTestCase(TestCase):
     def test_query_where_subquery(self):
         res = mql.run("SELECT 'jbossas' INSTANCES where group.name=(SELECT name FROM INSTANCES WHERE name='GEP_DEV1_02')")
         self.assertEqual(1, len(res))
-        self.assertEqual(self.i15_2_1._instance.id, res[0].id)
+        self.assertEqual(self.i15_2_1._instance.id, res[0]['_id'])

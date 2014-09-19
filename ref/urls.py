@@ -10,14 +10,10 @@ import ref.views.display
 import ref.views.duplicate
 import ref.views.edit
 import ref.views.gph
-import ref.views.mcl
+import ref.views.mql
 import ref.views.misc
-import ref.views.shell
 
 urlpatterns = patterns('',
-    url(r'csv/(?P<titles>\d)/(?P<mcl>.*)/extract\.csv$', ref.views.mcl.mcl_query, name='mcl_csv'),
-    url(r'csv/(?P<url_end>[\d,]*)$', ref.views.shell.csv, name='csv'),
-
     url(r'^envt$', ref.views.display.envts, name='envts'),
     url(r'^templates$', ref.views.display.templates, name='templates'),
     url(r'^envt/(?P<envt_id>\d*)$', ref.views.display.envt, name='envt'),
@@ -26,13 +22,10 @@ urlpatterns = patterns('',
     url(r'type$', ref.views.misc.model_types, name='types'),
     url(r'types_details$', ref.views.misc.model_detail, name='types_details'),
 
-    ## MCL
-    url(r'mcltester$', ref.views.mcl.mcl_tester, name='mcltester'),
-    url(r'mcl/get_or_create_nocv/(?P<mcl>.*)/mcl\.csv$', ref.views.mcl.mcl_create_without_convention, name='mcl_create_nocv'),
-    url(r'mcl/get_or_create_cv/(?P<mcl>.*)/mcl\.csv$', ref.views.mcl.mcl_create, name='mcl_create_cv'),
-    url(r'mcl/(?P<mcl>.*)/mcl\.csv$', ref.views.mcl.mcl_query, name='mcl_query'),
-    url(r'mcl/(?P<mcl>.*)/mcl/ksh$', ref.views.mcl.mcl_query_shell, name='mcl_shell'),
-
+    ## MQL
+    url(r'mqltester$', ref.views.mql.mql_tester, name='mqltester'),
+    url(r'mql/(?P<output_format>.*)/(?P<query>.*)$', ref.views.mql.mql_query, name='mqlquery'),
+    
     ## Graphs
     url(r'gph/full$', ref.views.gph.full_pic, name='grfull'),
     url(r'gph/filter/(?P<nbRelGenerations>\d*)/(?P<collapseThr>\d*)', ref.views.gph.filter_pic, name='grfilter'),

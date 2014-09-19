@@ -1,0 +1,2 @@
+{% load filter%}{% autoescape off %}{% for compo in instances %}{% for key,value in compo.items %}MAGE_{{forloop.parentloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}
+{% endfor %}{% endfor %}{% endautoescape %}MAGE_RESULT_COUNT={{ instances | length}}

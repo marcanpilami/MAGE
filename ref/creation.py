@@ -7,7 +7,6 @@
 
 from ref.models import Environment, ComponentInstance, ExtendedParameter, \
     EnvironmentType
-from ref.mcl import parser
 from ref.models.models import ComponentInstanceField, ComponentInstanceRelation
 
 

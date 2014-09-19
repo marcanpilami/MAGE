@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block pagetitle %}Test MQL{% endblock %}
+{% block maintitle %}Tester une requête MQL{% endblock %}
+
+{% block content %}
+
+
+<form action="{% url 'ref:mqltester' %}" method="post">
+	{{ form.as_p }}
+	<input type="submit" value="Submit" />
+	{% if error %}
+		<div class='formerror'>{{error}}</div>
+	{% endif %}
+</form>
+
+<div>
+{% if results %}
+	<div>Also see results as: 
+		<a href="{% url 'ref:mqlquery' 'json' mql %}">JSON</a>,
+		<a href="{% url 'ref:mqlquery' 'csv' mql %}">CSV (Excel)</a>,
+	 	<a href="{% url 'ref:mqlquery' 'sh' mql %}">sh script</a>,
+	 	<a href="{% url 'ref:mqlquery' 'bash4' mql %}">bash 4 script</a>
+	 
+	</div>
+
+	{% regroup results|dictsort:'mage_implementation_name' by mage_implementation_name as model_list %}
+		
+	{% for modeltype in model_list %}
+		<div>{{ modeltype.grouper }}</div>
+		<table>
+		{% for compo in modeltype.list %}
+		
+			{% if forloop.first %}
+				<thead><tr> 
+				{% for key in compo.keys %}
+					<th>{{key}}</th>
+				{%endfor%}
+				</tr></thead>
+			{% endif %}
+				
+			<tr>
+			{% for val in compo.values %}
+				<td>{{val}}</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	{% endfor %}
+{% endif %}
+</div>
+
+{% endblock content %}
