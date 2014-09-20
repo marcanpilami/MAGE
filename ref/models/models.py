@@ -7,17 +7,12 @@
 
 ## Python imports
 from UserDict import DictMixin
-import inspect
 
 ## Django imports
 from django.db import models
-from django.db.models.base import ModelBase
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.core.cache import cache
 
 ## MAGE imports
-from MAGE.exceptions import MageError
 from ref.naming_language import resolve
 
 
