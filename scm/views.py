@@ -27,9 +27,8 @@ from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
 ## MAGE imports
-from ref.models import Environment, ComponentInstance, EnvironmentType, Convention, Application, LogicalComponent, \
+from ref.models import Environment, ComponentInstance, EnvironmentType, Application, LogicalComponent, \
     Project, ConventionCounter
-from ref.conventions import nc_sync_naming_convention
 from ref.old_cpn_tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
@@ -425,71 +424,3 @@ def backup_latest_age(request, ci_id):
     except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
         response.write("-1")
     return response
-
-def reset():
-    for ta in Tag.objects.all():
-        ta.delete()
-    for bi in BackupItem.objects.all():
-        bi.delete()
-    for IS in InstallableSet.objects.all():
-        IS.delete()
-    for ii in InstallableItem.objects.all():
-        ii.delete()
-    for ii in InstallationMethod.objects.all():
-        ii.delete()
-    for envt in Environment.objects.all():
-        envt.delete()
-    for ci in ComponentInstance.objects.all():
-        ci.delete()
-    for et in EnvironmentType.objects.all():
-        et.delete()
-    for lc in LogicalComponent.objects.all():
-        lc.delete()
-    for nc in Convention.objects.all():
-        nc.delete()
-    for cc in ConventionCounter.objects.all():
-        cc.delete()
-    for ap in Application.objects.all():
-        ap.delete()
-    for pr in Project.objects.all():
-        pr.delete()
-    
-@transaction.atomic
-@staff_member_required
-def demo_internal(request):
-    reset()
-    
-    is_list = create_test_is()
-    default = Convention(name='default convention')
-    default.save()
-    nc_sync_naming_convention(default)
-    
-    ref = TestHelper()
-    install_iset_envt(is_list[0], ref.envt_prd1)
-    install_iset_envt(is_list[1], ref.envt_prd1)
-    #install_iset_envt(is_list[2], ref.envt_prd1)
-    #install_iset_envt(is_list[3], ref.envt_prd1)
-    #install_iset_envt(is_list[5], ref.envt_prd1)
-    
-    bs1 = register_backup('PRD1', now(), "no descr", *ref.envt_prd1.component_instances.all())
-    register_backup_envt_default_plan('PRD1', now())
-    install_iset_envt(bs1, ref.envt_tec2)
-    
-    return HttpResponseRedirect(reverse('welcome'))
-    
-@transaction.atomic
-@staff_member_required
-def bootstrap(request):
-    reset()
-    default = Convention(name='default convention')
-    default.save()
-    nc_sync_naming_convention(default)
-    
-    from MAGE.settings import INSTALLED_APPS
-    for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
-        try:
-            importlib.import_module(app + '.bootstrap')
-        except ImportError:
-            continue
-    
-    return HttpResponseRedirect(reverse('welcome'))
