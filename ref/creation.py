@@ -8,6 +8,7 @@
 from ref.models import Environment, ComponentInstance, ExtendedParameter, \
     EnvironmentType
 from ref.models.models import ComponentInstanceField, ComponentInstanceRelation
+from ref.conventions import value_instance_fields
 
 
 def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
@@ -70,7 +71,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
                 # external, but not remapped -> leave it as it is.
                 new_target = fv.target
             if new_target:
-                t = ComponentInstanceRelation(source = new_instance, target=new_target, field=fv.field)
+                t = ComponentInstanceRelation(source=new_instance, target=new_target, field=fv.field)
                 t.save()
 
         for fv in old.rel_targeted_by_set.all():
@@ -85,7 +86,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
                 # external, but not remapped -> leave it as it is.
                 new_source = fv.source
             if new_source:
-                t = ComponentInstanceRelation(source=new_source, target = new_instance, field=fv.field)
+                t = ComponentInstanceRelation(source=new_source, target=new_instance, field=fv.field)
                 t.save()
 
         ## Extended parameters
@@ -96,25 +97,11 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
 
         ###############################
         ## Convention
-        #TODO: conventions
-        #c = instance.default_convention
-        #if c is not None:
-        #    c.value_instance(instance, force=False, respect_overwrite=True, create_missing_links=False)
+        if new_instance is not None:
+            value_instance_fields(new_instance, force=True)
 
 
         ###############################
         new_instance.save()
 
     return envt
-
-
-def create_instance(mcl, apply_convention=True, apply_convention_force=False):
-    instances = parser.get_components(mcl, allow_create=True)
-
-    if apply_convention:
-        for instance in instances:
-            c = instance.default_convention
-            if c:
-                c.value_instance(instance, force=apply_convention_force)
-
-    return instances

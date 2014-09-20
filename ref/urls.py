@@ -39,6 +39,6 @@ urlpatterns = patterns('',
     url(r'^instance/(?P<instance_id>\d+)$', ref.views.edit.edit_comp, name='instance_edit'),
     url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', ref.views.edit.edit_comp, name='instance_edit_descr'),
 
-    url(r'^instance/envt$', ref.views.edit.envt_instances, name='instance_envt'),
+    url(r'^instance/envt/(?P<envt_id>\d+)$', ref.views.edit.envt_instances, name='instance_envt'),
 )
 

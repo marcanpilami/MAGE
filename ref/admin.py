@@ -6,21 +6,18 @@
 '''
 
 ## Django imports
-from django.contrib.admin import SimpleListFilter, ModelAdmin, TabularInline
-from django.contrib.contenttypes.models import ContentType
-from django.forms.widgets import Select
+from django.contrib.admin import ModelAdmin, TabularInline
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
 ## MAGE imports
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
-    ComponentImplementationClass, Convention, ConventionField, ConventionCounter, ExtendedParameter, \
+    ComponentImplementationClass, ConventionCounter, ExtendedParameter, \
     EnvironmentType, ImplementationFieldDescription, ImplementationDescription, \
     ImplementationRelationDescription, ImplementationRelationType, \
     ImplementationComputedFieldDescription, ComponentInstanceField, \
     ComponentInstanceRelation
-from ref.conventions import nc_sync_naming_convention
 from ref.models.parameters import MageParam
 
 
@@ -136,30 +133,9 @@ site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 ## Naming conventions
 ################################################################################
 
-class ConventionFieldInline(TabularInline):
-    model = ConventionField
-    extra = 0
-    can_delete = False
-    fields = ['model', 'field', 'pattern_type', 'overwrite_copy', 'pattern', ]
-    readonly_fields = ['model', 'field', 'pattern_type']
-    ordering = ['model', 'field']
-    template = 'admin/tabular_no_title.html'
-
-class ConventionAdmin(ModelAdmin):
-    fields = ['name', ]
-    inlines = [ConventionFieldInline, ]
-    actions = ['make_refresh_nc', ]
-
-    def make_refresh_nc(self, request, queryset):
-        for nc in queryset:
-            nc_sync_naming_convention(nc)
-            self.message_user(request, "%s successfully refreshed." % nc.name)
-    make_refresh_nc.short_description = u'actualiser les champs des modèles'
-
-site.register(Convention, ConventionAdmin)
-
 class ConventionCounterAdmin(ModelAdmin):
-    list_display = ('scope_type', 'scope_param_1', 'scope_param_2', 'val')
+    list_filter = ('scope_project', 'scope_application', 'scope_environment', 'scope_type')
+    list_display = ('scope_project', 'scope_application', 'scope_environment', 'scope_type', 'val')
 
 site.register(ConventionCounter, ConventionCounterAdmin)
 

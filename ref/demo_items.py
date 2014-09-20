@@ -54,7 +54,7 @@ def utility_create_meta():
 
     ## Oracle schema
     impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name|" on "|%instance.sid', tag='oracle').\
-            add_field_simple('name', 'nom', widget_row=None).\
+            add_field_simple('name', 'nom', widget_row=None, default = "User%E%%cem~2%s%cem%").\
             add_field_simple('password', 'password', sensitive=True).\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
             add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', compulsory=False).\
@@ -289,7 +289,7 @@ def utility_create_test_instances():
 
 @atomic
 def utility_create_logical():
-    p1 = Project(name='SUPER-PROJECT', default_convention=None, description='New ERP for FIRM1. A Big Program project.', alternate_name_1='SUPERCODE', alternate_name_2='ERP')
+    p1 = Project(name='SUPER-PROJECT', description='New ERP for FIRM1. A Big Program project.', alternate_name_1='SUPERCODE', alternate_name_2='ERP')
     p1.save()
     a1 = Application(name='Soft1', description='Super New ERP')
     a1.save()

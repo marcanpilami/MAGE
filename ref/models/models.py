@@ -52,7 +52,6 @@ class Project(models.Model):
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
-    default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_projects')
 
     class Meta:
         verbose_name = u'projet'
@@ -122,7 +121,6 @@ class EnvironmentType(models.Model):
     sla = models.ForeignKey(SLA, blank=True, null=True)
     implementation_patterns = models.ManyToManyField(ComponentImplementationClass, blank=True)
     chronological_order = models.IntegerField(default=1, verbose_name='ordre d\'affichage')
-    default_convention = models.ForeignKey('Convention', null=True, blank=True, related_name='used_in_envt_types')
     default_show_sensitive_data = models.BooleanField(default=False, verbose_name="afficher les informations sensibles")
 
     def __get_cic_list(self):
@@ -593,50 +591,15 @@ class ExtendedParameter(models.Model):
 
 
 ################################################################################
-## Naming and linking norms
+## Naming norms
 ################################################################################
 
-class Convention(models.Model):
-    name = models.CharField(max_length=20)
-
-    def __unicode__(self):
-        return u'Norme %s' % self.name
-
-    class Meta:
-        verbose_name = 'norme'
-        verbose_name_plural = 'normes'
-
-    def set_field(self, model_name, field_name, pattern):
-        rel = self.fields.get(model=model_name, field=field_name)
-        rel.pattern = pattern
-        rel.save()
-
-    # def value_field() # actually monkey patched from naming.py to avoid circular imports between mcl.py and models.py
-
-class ConventionField(models.Model):
-    model = models.CharField(max_length=254, verbose_name=u'composant technique')
-    field = models.CharField(max_length=254, verbose_name=u'champ')
-    pattern = models.CharField(max_length=1023, null=True, blank=True, verbose_name=u'norme')
-    convention_set = models.ForeignKey(Convention, related_name='fields')
-    pattern_type = models.CharField(max_length=4, choices=(('MCL1', 'MCL query with only one result'),
-                                                               ('MCL0', 'MCL query with 0 to * results'),
-                                                               ('P', 'simple pattern'),
-                                                               ('CIC', 'implementation class name'),
-                                                               ('TF', 'True ou False')))
-    overwrite_copy = models.BooleanField(default=False, verbose_name=u'prioritaire sur copie')
-
-    class Meta:
-        verbose_name = u'norme de remplissage d\'un champ'
-        verbose_name_plural = u'normes de remplissage des champs'
-
-    def __unicode__(self):
-        return u'%s.%s = %s' % (self.model, self.field, self.pattern)
-
 class ConventionCounter(models.Model):
-    scope_type = models.CharField(max_length=50)
-    scope_param_1 = models.CharField(max_length=50, blank=True, null=True, default=None)
-    scope_param_2 = models.CharField(max_length=50, blank=True, null=True, default=None)
-    val = models.IntegerField(default=0, verbose_name='valeur actuelle')
+    scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None)
+    scope_project = models.ForeignKey(Project, blank=True, null=True, default=None)
+    scope_application = models.ForeignKey(Application, blank=True, null=True, default=None)
+    scope_type = models.ForeignKey(ImplementationDescription, blank=True, null=True, default=None)
+    val = models.IntegerField(default=0, verbose_name='valeur courante')
 
     class Meta:
         verbose_name = u'Compteur'

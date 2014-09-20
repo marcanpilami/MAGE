@@ -54,8 +54,8 @@ def edit_comp(request, instance_id=None, description_id=None):
     return render_to_response("ref/instance_edit.html", {'form': form})
 
 @atomic
-def envt_instances(request):
-    e = Environment.objects.get(pk=1)
+def envt_instances(request, envt_id = 1):
+    e = Environment.objects.get(pk=envt_id)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
     cics = ComponentImplementationClass.objects.all()
     #iterator = ModelChoiceIterator(forms.ModelChoiceField(None, required=False, empty_label='kkkkkk'))
