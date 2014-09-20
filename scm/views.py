@@ -29,7 +29,6 @@ from django.views.decorators.cache import cache_control
 ## MAGE imports
 from ref.models import Environment, ComponentInstance, EnvironmentType, Application, LogicalComponent, \
     Project, ConventionCounter
-from ref.old_cpn_tests import TestHelper
 from scm.models import InstallableSet, Installation, InstallationMethod, Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, Tag, \
     BackupSet, BackupItem
 from scm.install import install_iset_envt, install_ii_single_target_envt

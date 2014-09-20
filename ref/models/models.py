@@ -126,6 +126,10 @@ class EnvironmentType(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        verbose_name = u'classification des environnements'
+        verbose_name_plural = u'classifications des environnements'
+
 
 ################################################################################
 ## Description of the component instances
@@ -137,6 +141,10 @@ class ImplementationRelationType(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'classification des relations'
+        verbose_name_plural = 'classifications des relations'
 
 class ImplementationFieldBase(models.Model):
     name = models.CharField(max_length=100, verbose_name='nom court du champ')
@@ -322,7 +330,7 @@ class ImplementationDescription(models.Model):
     """ The description of a technical implementation """
     name = models.CharField(max_length=100, verbose_name='nom', db_index=True)
     description = models.CharField(max_length=500, verbose_name='description')
-    tag = models.CharField(max_length=100, verbose_name=u'étiquette libre', null=True, blank=True, db_index=True)
+    tag = models.CharField(max_length=100, verbose_name=u'catégorie', null=True, blank=True, db_index=True)
     relationships = models.ManyToManyField('ImplementationDescription', through=ImplementationRelationDescription)
     include_in_default_envt_backup = models.BooleanField(default=False, verbose_name=u'inclure dans les backups par défaut')
     self_description_pattern = models.CharField(max_length=500, verbose_name='motif d\'auto description', help_text=u'sera utilisé pour toutes les descriptions par défaut des instances de composant. Utilise les même motifs (patterns) que les champs dynamiques.')
@@ -541,7 +549,13 @@ class ComponentInstance(models.Model):
         else:
             return '%s' % self.pk
     name = property(__unicode__)
-
+    
+    ## Pretty admin deelted field
+    def active(self):
+        return not self.deleted
+    active.admin_order_field = 'deleted'
+    active.boolean = True
+    
     class Meta:
         permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)
         verbose_name = 'instance de composant'
@@ -600,5 +614,6 @@ class ConventionCounter(models.Model):
     val = models.IntegerField(default=0, verbose_name='valeur courante')
 
     class Meta:
-        verbose_name = u'Compteur'
+        verbose_name = u'Compteur convention nommage'
+        verbose_name_plural = u'Compteurs convention nommage'
 
