@@ -8,7 +8,7 @@ def build_grammar():
     expr = Forward()
     # Our identifier definition is Python's one with the added constraint of not allowing underscores as first character.
     identifier = Combine(Word(alphas, exact=1) + Optional(Word(nums + alphas + "_")))("identifier")
-    navigation = Group(Suppress(Optional("%")) + identifier + ZeroOrMore(Suppress(".") + identifier))("navigation")
+    navigation = Group(identifier + ZeroOrMore(Suppress(".") + identifier))("navigation")
     text = QuotedString('"', escQuote='""')("text")
     numeric = Word(nums)('num')
     operator = Word("?|+-/*", exact=1)("operator")
