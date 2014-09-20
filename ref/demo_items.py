@@ -90,7 +90,7 @@ def utility_create_meta():
     impl7.save()
 
 
-    #####################################################################
+    ######################################################################
     ## Batch & JQM
     ######################################################################
 
@@ -124,7 +124,7 @@ def utility_create_meta():
     impl11.save()
 
 
-    #####################################################################
+    ######################################################################
     ## JBoss 7+ (domain mode)
     ######################################################################
 
@@ -182,7 +182,7 @@ def utility_create_meta():
     impl16.save()
 
 
-    #####################################################################
+    ######################################################################
     ## WAS 8+ (network deployment mode)
     ######################################################################
 
@@ -225,6 +225,23 @@ def utility_create_meta():
             add_field_computed('url', 'access URL', 'client_url').\
             add_relationship('cluster', 'member of cell', impl18, dt2, min_cardinality=1, max_cardinality=1)
     impl21.save()
+
+
+    ######################################################################
+    ## MySQL
+    ######################################################################
+
+    impl22 = ImplementationDescription.create_or_update('mysqlinstance', 'MySQL instance', self_description_pattern='name', tag='mysql').\
+            add_field_simple('name', 'instance name').\
+            add_field_simple('port', 'remote access port', 3306).\
+            add_relationship('server', 'serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
+    impl22.save()
+
+    impl23 = ImplementationDescription.create_or_update('mysqluser', 'user inside a mysql instance', self_description_pattern='name|" on "|instance.name', tag='mysql').\
+            add_field_simple('name', 'nom', widget_row=None, default="%e%").\
+            add_field_simple('password', 'password', sensitive=True, default='%e%').\
+            add_relationship('instance', 'instance', impl22, dt2, min_cardinality=1, max_cardinality=1)
+    impl23.save()
 
 @atomic
 def utility_create_test_instances():
@@ -344,6 +361,7 @@ def utility_create_logical():
     impl_6_1 = ComponentImplementationClass(name='int_webapp_ee6_was', description='Interfaces EE6 app in a WebSphere package', implements=l6, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
     impl_6_2 = ComponentImplementationClass(name='int_webapp_ee6_jboss', description='Interfaces EE6 app in a JBoss ear/war package', implements=l6, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
     impl_7_1 = ComponentImplementationClass(name='int_database_main_oracle', description='Oracle schema for integration transit data store in potentially shared instance', implements=l7, technical_description=ImplementationDescription.objects.get(name='oracleschema'))
+    impl_7_2 = ComponentImplementationClass(name='int_database_main_mysql_dedicated', description='MySQL schema for integration transit data store in dedicated instance', implements=l7, technical_description=ImplementationDescription.objects.get(name='mysqluser'))
     impl_8_1 = ComponentImplementationClass(name='int_batch_jqm', description='JQM batch jobs insid a single jar', implements=l8, technical_description=ImplementationDescription.objects.get(name='jqmbatch'))
     impl_1_1.save()
     impl_2_1.save()
@@ -353,6 +371,7 @@ def utility_create_logical():
     impl_6_1.save()
     impl_6_2.save()
     impl_7_1.save()
+    impl_7_2.save()
     impl_8_1.save()
 
     et1.implementation_patterns.add(impl_1_1, impl_3_2, impl_7_1)
@@ -371,8 +390,8 @@ def create_full_test_data():
     duplicate_envt("DEV1", "QUA1")
     duplicate_envt("DEV1", "REC1")
     duplicate_envt("DEV1", "FOR1")
-    
-    l = Link(url= "http://www.marsupilami.com", legend = 'Link of use for your users, or important message', color = "#004D60")
+
+    l = Link(url="http://www.marsupilami.com", legend='Link of use for your users, or important message', color="#004D60")
     l.save()
-    l = Link(url= "http://www.marsupilami.com", legend = 'second Link of use for your users, or important message', color = "#1B58B8")
+    l = Link(url="http://www.marsupilami.com", legend='second Link of use for your users, or important message', color="#1B58B8")
     l.save()

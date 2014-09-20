@@ -151,9 +151,9 @@ LOGGING = {
     }
 }
 
-LOGIN_URL='login' # named URL
+LOGIN_URL = 'login' # named URL
 
-LOCAL_APPS=()
+LOCAL_APPS = ()
 try:
     from MAGE.local_settings import *
 except ImportError, e:
@@ -168,9 +168,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+
     'ref', ## Keep REF first after django internals
-    #'scm', ## Keep SCM second
+    'scm', ## Keep SCM second
 )
 
 INSTALLED_APPS += LOCAL_APPS

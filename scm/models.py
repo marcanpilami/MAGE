@@ -29,10 +29,10 @@ from MAGE.exceptions import MageError
 ################################################################################
 
 def __isetdatafilename__(iset, filename):
-        ext =  os.path.splitext(filename)[1]
+        ext = os.path.splitext(filename)[1]
         d = now().strftime("%Y%m%d_%H%M%S")
         return 'installablesets/' + slugify(d + '_' + iset.name) + ext
-     
+
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
@@ -46,18 +46,18 @@ class InstallableSet(models.Model):
     location_data_2 = models.CharField(max_length=100, blank=True, null=True)
     location_data_3 = models.CharField(max_length=100, blank=True, null=True)
     location_data_4 = models.CharField(max_length=100, blank=True, null=True)
-    datafile = models.FileField(upload_to = __isetdatafilename__, blank = True, null = True, verbose_name = 'fichier')
+    datafile = models.FileField(upload_to=__isetdatafilename__, blank=True, null=True, verbose_name='fichier')
     # Through related_name: set_content
-    
+
     removed = models.DateTimeField(null=True, blank=True)
     def is_available(self):
         return self.removed == None
     available = property(is_available)
     is_available.admin_order_field = 'removed'
-    
+
     def __unicode__(self):
         return u'%s' % (self.name)
-    
+
     def check_prerequisites(self, envt_name, ii_selection=()):
         failures = []
         if len(ii_selection) == 0:
@@ -67,36 +67,36 @@ class InstallableSet(models.Model):
                 ii.check_prerequisites(envt_name, ii_selection)
             except MageScmFailedEnvironmentDependencyCheck, e:
                 failures.extend(e.failing_dep)
-        
+
         if len(failures) == 0:
             return True
         else:
             raise MageScmFailedEnvironmentDependencyCheck(envt_name, self, failures)
-    
+
     class Meta:
         permissions = (('validate_installableset', 'can change the status of the set'),
                        ('install_installableset', 'can reference an installation'),)
-    
+
 
 class Delivery(InstallableSet):
     pass
 
 class BackupSet(InstallableSet):
     from_envt = models.ForeignKey(Environment, blank=True, null=True)
-    
+
 
 ################################################################################
 ## The version object
-################################################################################ 
-    
+################################################################################
+
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
     logical_component = models.ForeignKey(LogicalComponent, related_name='versions')
-    
+
     def __unicode__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
-    
-    def compare(self, lcv2, strict = False):
+
+    def compare(self, lcv2, strict=False):
         """
             Order relation between LCV objects
             
@@ -120,31 +120,31 @@ class LogicalComponentVersion(models.Model):
             except MageScmUnrelatedItemsError: return 0
         else:
             return lcv1.__compareWith(lcv2)
-    
+
     def __compareWith(self, lcv2, __reverseCall=False):
         """ The function actually doing the comparison. Here, equality (0) has a strict meaning, 
             and if the two LCVs are unrelated an MageScmUnrelatedItemsError is raised """
         lcv1 = self
-        
+
         ## Argument check
         if not isinstance(lcv1, LogicalComponentVersion) or not isinstance(lcv2, LogicalComponentVersion):
             raise MageError("Arguments must be component version objects")
-        
+
         ## Easy equality
         if (lcv1.logical_component == lcv2.logical_component) and (lcv1.version == lcv2.version):
             return 0
-        
+
         ## Loop on all the InstallableSets that install ctv1
         for ii in lcv1.installed_by.all():
             ## Loop on all the requirements of the installable set
-            for dep in ii.dependencies.all():      
+            for dep in ii.dependencies.all():
                 ## Terminaison condition: we have found ctv2
                 if dep.depends_on_version == lcv2:
-                    if dep.operator == '>=' or dep.operator == '==': 
+                    if dep.operator == '>=' or dep.operator == '==':
                         return 1
                     else:
                         return 0
-                
+
                 ## Recursion
                 if dep.depends_on_version == lcv1:
                     continue
@@ -152,26 +152,26 @@ class LogicalComponentVersion(models.Model):
                     tmp = dep.depends_on_version.__compareWith(lcv2, __reverseCall)
                 except MageScmUnrelatedItemsError:
                     continue  ## Nothing can be deduced from this relation - go on to the others
-                
+
                 ## Analysis of the recursion result
                 if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
                     return 1  ## Transitivity on >
                 if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
                     return -1  ## Transitivity on <
-                
+
                 ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
-                
+
         ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
         if not __reverseCall:
             return -lcv2.__compareWith(lcv1, True)
-            
+
         ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
-        raise MageScmUnrelatedItemsError(lcv1, lcv2)   
+        raise MageScmUnrelatedItemsError(lcv1, lcv2)
 
 
 ################################################################################
 ## Set contents
-################################################################################ 
+################################################################################
 
 class InstallationMethod(models.Model):
     name = models.CharField(max_length=254, verbose_name=u'nom')
@@ -179,18 +179,18 @@ class InstallationMethod(models.Model):
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods', verbose_name=u'permet d\'installer')
     available = models.BooleanField(default=True, verbose_name=u'disponible')
     restoration_only = models.BooleanField(default=False, verbose_name=u'opération purement de restauration')
-    checkers = models.ManyToManyField('PackageChecker', related_name='used_in', blank = True)
-    
+    checkers = models.ManyToManyField('PackageChecker', related_name='used_in', blank=True)
+
     def __unicode__(self):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
         return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
-    
+
     def check_package(self, package_file, logical_component):
         for checker in self.checkers.all():
             checker.check(package_file, logical_component, self)
-    
+
     class Meta:
         verbose_name = u'méthode d\'installation'
         verbose_name_plural = u'méthodes d\'installation'
@@ -202,46 +202,46 @@ class BackupItem(models.Model):
     instance = models.ForeignKey(ComponentInstance)
     related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True) # null if not SCM-tracked
     instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
-        
+
 def __iidatafilename__(ii, filename):
-        ext =  os.path.splitext(filename)[1]
+        ext = os.path.splitext(filename)[1]
         d = ii.belongs_to_set.set_date.strftime("%Y%m%d_%H%M%S")
         return 'installablesets/' + slugify(d + '_' + ii.belongs_to_set.name) + '/' + slugify(ii.what_is_installed.logical_component.name) + ext
-    
+
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
     how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='peut s\'installer avec')
     belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
     is_full = models.BooleanField(verbose_name='installation de zéro', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
-    datafile = models.FileField(verbose_name = 'fichier', upload_to = __iidatafilename__, blank = True, null = True)
-    
+    datafile = models.FileField(verbose_name='fichier', upload_to=__iidatafilename__, blank=True, null=True)
+
     def __unicode__(self):
         if self.id is not None:
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
             return u'installable item'
-        
+
     def __find_existing_file(self):
         if MEDIA_ROOT is None or MEDIA_ROOT == "":
             return
         files = glob.glob(MEDIA_ROOT + 'installablesets/*_' + slugify(self.belongs_to_set.name) + '/' + slugify(self.what_is_installed.logical_component.name) + '.*')
         if len(files) == 1:
             self.datafile = os.path.relpath(files[0], MEDIA_ROOT)
-    
+
     def save(self):
         if self.pk is None and not self.datafile.name:
             self.__find_existing_file()
         super(InstallableItem, self).save()
-    
+
     class Meta:
         permissions = (('download_ii', 'can download the installation file'),)
-    
+
     def dependsOn(self, lcv, operator='>='):
         if not self.dependencies.filter(depends_on_version_id=lcv.id, operator=operator).exists():
             ide = ItemDependency(installable_item=self, depends_on_version=lcv, operator=operator)
             ide.save()
-            
+
     def check_prerequisites(self, envt_name, installed_along_ii=()):
         installed_along_version = [i.what_is_installed for i in installed_along_ii]
 
@@ -250,14 +250,14 @@ class InstallableItem(models.Model):
             ## Check it is not installed alongside this II - in which case it is OK
             if dep.depends_on_version in installed_along_version:
                 continue
-                        
+
             ## Check history
             rs = ComponentInstance.objects.filter(environments__name=envt_name,
                                           instanciates__implements=dep.depends_on_version.logical_component)
             if rs.count() == 0:
-                failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment [Technical data: logical component [%s], method name %s]' %(dep.depends_on_version.logical_component, self.how_to_install.all())))
+                failures.append(MageScmFailedInstanceDependencyCheck(dep.depends_on_version.logical_component.name, dep, 'there is no compatible component in this environment [Technical data: logical component [%s], method name %s]' % (dep.depends_on_version.logical_component, self.how_to_install.all())))
                 continue
-            
+
             for compo in rs.all():
                 ## Retrieve current version
                 try:
@@ -265,23 +265,23 @@ class InstallableItem(models.Model):
                 except MageScmUndefinedVersionError:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'No version is defined for this component - cannot check dependency!'))
                     continue
-                
+
                 ## Check current version against dependency
                 try:
-                    compa = ver.compare(dep.depends_on_version, strict = True)
+                    compa = ver.compare(dep.depends_on_version, strict=True)
                 except MageScmUnrelatedItemsError:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'version [%s] is unrelated to the required version' % ver.version))
                     continue
-                
+
                 # print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
                 if dep.operator == '==' and compa != 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
                     continue
-                
+
                 if dep.operator == '>=' and compa < 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
                     continue
-                
+
                 if dep.operator == '<=' and compa > 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
                     continue
@@ -289,8 +289,8 @@ class InstallableItem(models.Model):
         if len(failures) == 0:
             return True
         else:
-            raise MageScmFailedEnvironmentDependencyCheck(envt_name, self, failures)       
-    
+            raise MageScmFailedEnvironmentDependencyCheck(envt_name, self, failures)
+
 
 class ItemDependency(models.Model):
     OPERATOR_CHOICES = (('>=', '>='),
@@ -299,7 +299,7 @@ class ItemDependency(models.Model):
     installable_item = models.ForeignKey(InstallableItem, related_name='dependencies')
     depends_on_version = models.ForeignKey(LogicalComponentVersion)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES, default='==')
-    
+
     def __unicode__(self):
         return u'dépendance de [%s] envers [%s en version %s %s]' % (self.installable_item.what_is_installed.logical_component.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
@@ -311,7 +311,7 @@ class SetDependency(models.Model):
     installable_set = models.ForeignKey(InstallableSet, related_name='requirements')
     depends_on_version = models.ForeignKey(LogicalComponentVersion)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES)
-    
+
     def __unicode__(self):
         return u'IS [%s] requires [%s in version %s %s]' % (self.installable_set.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
@@ -323,17 +323,17 @@ class Installation(models.Model):
 
     def __unicode__(self):
         return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
-        
+
 class ComponentInstanceConfiguration(models.Model):
     component_instance = models.ForeignKey(ComponentInstance, related_name='configurations')
     result_of = models.ForeignKey(InstallableItem)
     part_of_installation = models.ForeignKey(Installation, related_name='modified_components')
     created_on = models.DateTimeField()
     install_failure = models.BooleanField(default=False)
-    
+
     def __unicode__(self):
         return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.what_is_installed.version)
-    
+
 class Tag(models.Model):
     name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
     versions = models.ManyToManyField(LogicalComponentVersion, verbose_name=u'version des composants')
@@ -349,14 +349,19 @@ class Tag(models.Model):
 #######################################################################################
 
 class BackupRestoreMethod(models.Model):
+    """
+        BMRs are needed because there may be multiple InstallationMethods available for the same CIC. Therefore, 
+        we need a mean to know which InstallationMethod to use to restore a backup.
+        There cannot be more than one BMR per CIC (we are talking default restoration method - only one default!)
+    """
     method = models.ForeignKey(InstallationMethod)
     target = models.ForeignKey(ComponentImplementationClass, related_name='restore_methods', verbose_name='cible')
-    
+
     class Meta:
         verbose_name = u'méthode de restauration par défaut'
         verbose_name_plural = 'méthodes de restauration par défaut'
 
-#@receiver(post_save, sender=ComponentImplementationClass)
+@receiver(post_save, sender=ComponentImplementationClass)
 def create_brm(sender, instance, **kwargs):
     cic = instance
     im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True, restoration_only=True)
@@ -373,47 +378,47 @@ def create_brm(sender, instance, **kwargs):
 #######################################################################################
 
 class PackageChecker(models.Model):
-    module = models.CharField(max_length = 200, verbose_name = 'Python module containing the checker class')
-    name = models.CharField(max_length = 200, verbose_name = 'Python checker class name')
-    description = models.CharField(max_length = 200, verbose_name = 'description')
-    
-    def check(self, package_file, logical_component, installation_method):
-        checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name) 
+    module = models.CharField(max_length=200, verbose_name='Python module containing the checker class')
+    name = models.CharField(max_length=200, verbose_name='Python checker class name')
+    description = models.CharField(max_length=200, verbose_name='description')
+
+    def check_package(self, package_file, logical_component, installation_method):
+        checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name)
         checker_impl.check(checker_impl(), package_file, logical_component, installation_method)
-        
+
     def __unicode__(self):
         return self.description
-        
-    
+
+
 class PackageCheckerBaseImpl(object):
     description = None
     def check(self, fileinfo, logical_component, installation_method):
         raise NotImplemented()
-    
+
 class __PackageCheckerHandler:
     def __init__(self):
         self.this_launch = []
-    
+
     def register(self, checker):
         #if not isinstance(checker, PackageCheckerBaseImpl):
         #    raise Exception('a checker must be a subclass of PackageCheckerBaseImpl')
-        pc = PackageChecker.objects.get_or_create(module = checker.__module__ , name= checker.__name__)
+        pc = PackageChecker.objects.get_or_create(module=checker.__module__ , name=checker.__name__)
         pc[0].description = checker.description if checker.description else checker.__name__
         pc[0].save()
         self.this_launch.append(pc[0])
-    
+
     def end_sync(self):
         for pc in PackageChecker.objects.all():
             if not pc in self.this_launch:
-                pc.delete() 
-__package_checker_handler = __PackageCheckerHandler() 
+                pc.delete()
+__package_checker_handler = __PackageCheckerHandler()
 
-    
+
 #######################################################################################
 ## Update Component class with GCL objects
 #######################################################################################
 
-## Add a version properties to component objects   
+## Add a version properties to component objects
 def getLatestCIC(comp):
     """@return: the latest installed ComponentInstanceConguration (CIC) on the Component"""
     try:
@@ -449,7 +454,7 @@ def getComponentVersionObjectSafe(comp):
     except MageScmUndefinedVersionError:
         return None
 ComponentInstance.version = property(getComponentVersionText)
-ComponentInstance.version_object_safe = property(getComponentVersionObjectSafe)    
+ComponentInstance.version_object_safe = property(getComponentVersionObjectSafe)
 ComponentInstance.latest_cic = property(getLatestCIC)
 ComponentInstance.cic_at_safe = getCICAtDateSafe
 ComponentInstance.version_at = getCICAtDate
