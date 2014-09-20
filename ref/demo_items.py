@@ -44,9 +44,9 @@ def utility_create_meta():
 
     ## Oracle instance
     impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='%sid', tag='oracle').\
-            add_field_simple('sid', 'SID instance', widget_row=None).\
-            add_field_simple('admin_login', 'login DBA').\
-            add_field_simple('admin_password', 'mot de passe DBA').\
+            add_field_simple('sid', 'SID of the instance', widget_row=None).\
+            add_field_simple('admin_login', 'login DBA', default='scott').\
+            add_field_simple('admin_password', 'mot de passe DBA', default='tiger').\
             add_field_simple('port', 'port', default=1521).\
             add_field_computed('server_dns', 'DNS serveur', '%server.name').\
             add_relationship('server', 'serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
@@ -54,10 +54,10 @@ def utility_create_meta():
 
     ## Oracle schema
     impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='%name|" on "|%instance.sid', tag='oracle').\
-            add_field_simple('name', 'nom', widget_row=None, default = "User%E%%cem~2%s%cem%").\
-            add_field_simple('password', 'password', sensitive=True).\
+            add_field_simple('name', 'nom', widget_row=None, default="User%E~%%cem~2%s%cem%").\
+            add_field_simple('password', 'password', sensitive=True, default='%e%').\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
-            add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', compulsory=False).\
+            add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', default="%E%", compulsory=False).\
             add_field_computed('conn_str', 'sqlplus connection string', '%name|"/"|%password|"@"|(%service_name_to_use?%instance.sid)', sensitive=True).\
             add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(%dns_to_use?%instance.server.dns)|":"|%instance.port|"/"|(%service_name_to_use?%instance.sid)').\
             add_relationship('instance', 'sur instance', impl3, dt2, min_cardinality=1, max_cardinality=1)
@@ -76,8 +76,8 @@ def utility_create_meta():
 
     ## MQ series broker
     impl6 = ImplementationDescription.create_or_update('mqseriesmanager', 'Websphere MQ broker', self_description_pattern='%name', tag='mq').\
-            add_field_simple('name', 'nom broker', widget_row=None).\
-            add_field_simple('port', 'port listener', default=1414).\
+            add_field_simple('name', 'nom broker', default='QM.%E%', widget_row=None).\
+            add_field_simple('port', 'port listener', default='1413+%ciserver.mage_id%').\
             add_field_simple('admin_channel', 'canal connexion d\'admin', default='SYSTEM.ADMIN.SVRCONN').\
             add_relationship('server', 'tourne sur le serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl6.save()
@@ -102,23 +102,23 @@ def utility_create_meta():
 
 
     impl9 = ImplementationDescription.create_or_update('jqmcluster', 'cluster JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'cluster name', widget_row=None).\
+            add_field_simple('name', 'cluster name', default='JqmCluster%E~%', widget_row=None).\
             add_relationship('schema', 'Oracle schema of the cluster', impl4, dt2, min_cardinality=0, max_cardinality=1)
     impl9.save()
 
     impl10 = ImplementationDescription.create_or_update('jqmengine', 'moteur JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'node name', widget_row=None).\
-            add_field_simple('port', 'port HTTP').\
-            add_field_simple('jmx_registry_port', 'port registry JMX').\
-            add_field_simple('jmx_server_port', 'port serveur JMX').\
-            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits', label_short='dépôt fichiers produits', compulsory=False, widget_row=None).\
-            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur', label_short='dépôt jobs', compulsory=False, widget_row=None).\
+            add_field_simple('name', 'node name', default='%ncluster.name%_%ci2cluster.mage_id%', widget_row=None).\
+            add_field_simple('port', 'port HTTP', default='1788+%ci2server.mage_id%').\
+            add_field_simple('jmx_registry_port', 'port registry JMX', default='%nport%+1000').\
+            add_field_simple('jmx_server_port', 'port serveur JMX', default='%nport%+1000').\
+            add_field_simple('dl_repo', u'répertoire de stockage des fichiers produits', label_short='dépôt fichiers produits', default="/tmp/%e%/out", compulsory=False, widget_row=None).\
+            add_field_simple('job_repo', u'répertoire de stockage des jars utilisateur', label_short='dépôt jobs', default="/tmp/%e%/jars", compulsory=False, widget_row=None).\
             add_relationship('cluster', 'membre du cluster', impl9, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('server', 'tourne sur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl10.save()
 
     impl11 = ImplementationDescription.create_or_update('jqmbatch', 'batch JQM', self_description_pattern='%name', tag='jqm').\
-            add_field_simple('name', 'batch name', widget_row=None).\
+            add_field_simple('name', 'batch name', default='%P1%_%E%_%LC1%', widget_row=None).\
             add_relationship('cluster', 'runs on cluster', impl9, dt2, min_cardinality=1, max_cardinality=1)
     impl11.save()
 
@@ -128,49 +128,50 @@ def utility_create_meta():
     ######################################################################
 
     impl12 = ImplementationDescription.create_or_update('jbossdomain', 'domaine JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'domain name', widget_row=None).\
+            add_field_simple('name', 'domain name', default="JbossCell%cm2%", widget_row=None).\
             add_field_simple('admin_user', 'admin user', default='/').\
-            add_field_simple('admin_password', 'admin password').\
-            add_field_simple('base_http_port', 'HTTP port before shifting').\
-            add_field_simple('base_https_port', 'HTTPS port before shifting').\
-            add_field_simple('web_admin_port', 'admin WS port on DC').\
-            add_field_simple('native_admin_port', 'admin native port on DC')
+            add_field_simple('admin_password', 'admin password', sensitive=True, default='admin').\
+            add_field_simple('base_http_port', 'HTTP port before shifting', default=8080).\
+            add_field_simple('base_https_port', 'HTTPS port before shifting', default=9080).\
+            add_field_simple('web_admin_port', 'admin WS port on DC', default=9990).\
+            add_field_simple('native_admin_port', 'admin native port on DC', default=9999)
     impl12.save()
 
     impl13 = ImplementationDescription.create_or_update('jbosshost', u'processus hôte JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'application name', widget_row=None).\
+            add_field_simple('name', 'application name', default='%nserver.dns', widget_row=None).\
             add_field_computed('admin_port', 'admin port', '%domain.native_admin_port').\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('server', 'run on server', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl13.save()
 
     impl14 = ImplementationDescription.create_or_update('jbossgroup', u'groupe d\'AS JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'group name', widget_row=None).\
-            add_field_simple('profile', 'profil').\
-            add_field_simple('dedicated_admin_login', u'login admin spécifique', label_short='admin login', compulsory=False, widget_row=None).\
-            add_field_simple('dedicated_admin_password', u'mot de passe spécifique', label_short='admin password', compulsory=False, sensitive=True, widget_row=None).\
+            add_field_simple('name', 'group name', default='%P1~%%E~%_%cem2%', widget_row=None).\
+            add_field_simple('profile', 'profil', default='%E%').\
+            add_field_simple('dedicated_admin_login', u'login admin spécifique', label_short='admin login', default='%e%', compulsory=False, widget_row=None).\
+            add_field_simple('dedicated_admin_password', u'mot de passe spécifique', label_short='admin password', default='%e%', compulsory=False, sensitive=True, widget_row=None).\
             add_field_simple('dns_to_use', u'service DNS alias', compulsory=False, widget_row=None).\
             add_field_simple('max_heap_mb', 'Max Heap (Mo)', 384).\
             add_field_simple('max_permgen_mb', 'Max permgen (Mo)', 128).\
             add_field_simple('start_heap_mb', 'Start heap (Mo)', 256).\
             add_field_computed('admin_login', 'admin login', '%dedicated_admin_login?%domain.admin_user').\
-            add_field_computed('admin_password', 'admin password', '%dedicated_admin_password?%domain.admin_password').\
+            add_field_computed('admin_password', 'admin password', '%dedicated_admin_password?%domain.admin_password', sensitive=True).\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1)
     impl14.save()
 
     impl15 = ImplementationDescription.create_or_update('jbossas', u'JVM JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'JVM name', widget_row=None).\
-            add_field_simple('port_shift', 'port shift').\
+            add_field_simple('name', 'JVM name', default='%ngroup.name%_%ci2group.mage_id%', widget_row=None).\
+            add_field_simple('port_shift', 'port shift', default='%cihost.mage_id%*10').\
             add_field_simple('dns_to_use', 'service DNS entry', compulsory=False, widget_row=None).\
             add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port+%port_shift').\
             add_field_computed('dns', 'actual DNS', '%dns_to_use?%group.dns_to_use?%host.server.dns').\
+            add_field_computed('group_name', 'inside group', '%group.name').\
             add_relationship('host', 'runs on host', impl13, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('group', 'member of group', impl14, dt2, min_cardinality=1, max_cardinality=1)
     impl15.save()
 
     impl16 = ImplementationDescription.create_or_update('jbossapplication', 'application JBoss', self_description_pattern='%name', tag='jboss').\
-            add_field_simple('name', 'application name', widget_row=None).\
-            add_field_simple('context_root', 'context root', default='/').\
+            add_field_simple('name', 'application name', default='%P1%_%E%_%LC1%', widget_row=None).\
+            add_field_simple('context_root', 'context root', default='/%lc1%').\
             add_field_simple('client_url', 'access URL', compulsory=False).\
             add_relationship('group', 'member of cluster', impl14, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('schema', 'uses Oracle schema', impl4, dt1, min_cardinality=0, max_cardinality=1).\
@@ -227,8 +228,9 @@ def utility_create_meta():
 @atomic
 def utility_create_test_instances():
     ## Environments
-    e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'))
+    e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'), project=Project.objects.get(alternate_name_1='ERP'))
     e1.save()
+
 
     ## OS instances
     i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin')
@@ -242,13 +244,13 @@ def utility_create_test_instances():
 
     i4_1 = ImplementationDescription.class_for_name('oracleschema')(name='schema1', password='pass', instance=i3_1, _env=e1, _cic='soft1_database_main_oracle')
     i4_2 = ImplementationDescription.class_for_name('oracleschema')(name='schema2', password='pass', instance=i3_1, _env=e1, _cic='int_database_main_oracle')
-    i4_3 = ImplementationDescription.class_for_name('oracleschema')(name='schema3', password='pass', instance=i3_1)
+    i4_3 = ImplementationDescription.class_for_name('oracleschema')(name='schema3', password='pass', instance=i3_1, _env=e1)
     i4_1.save()
     i4_2.save()
     i4_3.save()
 
     ## MQ Series items
-    i6_1 = ImplementationDescription.class_for_name('mqseriesmanager')(name='QM.DEV1')
+    i6_1 = ImplementationDescription.class_for_name('mqseriesmanager')(name='QM.DEV1', _env=e1)
 
     ## JBoss environment
     i12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain études', admin_user='admin', admin_password='pass', \
@@ -257,43 +259,41 @@ def utility_create_test_instances():
     i13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1)
     i13_2 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost2.marsu.net', domain=i12_1, server=i1_2)
 
-    i14_1 = ImplementationDescription.class_for_name('jbossgroup')(name=u'GEP_DEV1_01', profile='DEV1', \
-               dedicated_admin_login='dev1', dedicated_admin_password='dev1', domain=i12_1, _env=e1)
-    i14_2 = ImplementationDescription.class_for_name('jbossgroup')(name=u'GEP_DEV1_02', profile='DEV1', \
-               dedicated_admin_login='dev1', dedicated_admin_password='dev1', domain=i12_1, _env=e1)
+    i14_1 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)
+    i14_2 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)
 
-    i15_1_1 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_01', port_shift=00, host=i13_1, group=i14_1, _env=e1)
-    i15_1_2 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_02', port_shift=10, host=i13_1, group=i14_1, _env=e1)
-    i15_1_3 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_03', port_shift=20, host=i13_1, group=i14_1, _env=e1)
-    i15_1_4 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_04', port_shift=30, host=i13_2, group=i14_1, _env=e1)
-    i15_1_5 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_05', port_shift=40, host=i13_2, group=i14_1, _env=e1)
+    i15_1_1 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_1, _env=e1)
+    i15_1_2 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_1, _env=e1)
+    i15_1_3 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_1, _env=e1)
+    i15_1_4 = ImplementationDescription.class_for_name('jbossas')(host=i13_2, group=i14_1, _env=e1)
+    i15_1_5 = ImplementationDescription.class_for_name('jbossas')(host=i13_2, group=i14_1, _env=e1)
 
-    i15_2_1 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_01', port_shift=50, host=i13_1, group=i14_2, _env=e1)
-    i15_2_2 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_02', port_shift=60, host=i13_1, group=i14_2, _env=e1)
-    i15_2_3 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_03', port_shift=70, host=i13_1, group=i14_2, _env=e1)
-    i15_2_4 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_04', port_shift=80, host=i13_2, group=i14_2, _env=e1)
-    i15_2_5 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_05', port_shift=90, host=i13_2, group=i14_2, _env=e1)
+    i15_2_1 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_2, _env=e1)
+    i15_2_2 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_2, _env=e1)
+    i15_2_3 = ImplementationDescription.class_for_name('jbossas')(host=i13_1, group=i14_2, _env=e1)
+    i15_2_4 = ImplementationDescription.class_for_name('jbossas')(host=i13_2, group=i14_2, _env=e1)
+    i15_2_5 = ImplementationDescription.class_for_name('jbossas')(host=i13_2, group=i14_2, _env=e1)
 
-    i16_1 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP1', context_root='/app1', group=i14_1, _cic='soft1_webapp_ee6_jboss', schema=i4_1, _env=e1)
+    i16_1 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app1', group=i14_1, _cic='soft1_webapp_ee6_jboss', schema=i4_1, _env=e1)
     i16_1.save()
-    i16_2 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP2', context_root='/app2', group=i14_2, _cic='soft1_webapp_legacy_jboss', schema=i4_2, _env=e1)
+    i16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app2', group=i14_2, _cic='soft1_webapp_legacy_jboss', schema=i4_2, _env=e1)
     i16_2.save()
-    i16_2 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP3', context_root='/app3', group=i14_1, schema=i4_1, _env=e1)
+    i16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app3', group=i14_1, schema=i4_1, _env=e1)
     i16_2.save()
 
     ## JQM items
-    i9_1 = ImplementationDescription.class_for_name('jqmcluster')(name='JqmDev1Cluster', schema=i4_3, _env=e1)
-    i10_1 = ImplementationDescription.class_for_name('jqmengine')(name='JqmDev1As_01', port=1789, jmx_registry_port=1889, jmx_server_port=1989, cluster=i9_1, server=i1_1, _env=e1)
-    i11_1 = ImplementationDescription.class_for_name('jqmbatch')(name='JqmDev1INT', cluster=i9_1, _cic='int_batch_jqm', _env=e1)
+    i9_1 = ImplementationDescription.class_for_name('jqmcluster')(schema=i4_3, _env=e1)
+    i10_1 = ImplementationDescription.class_for_name('jqmengine')(cluster=i9_1, server=i1_1, _env=e1)
+    i11_1 = ImplementationDescription.class_for_name('jqmbatch')(cluster=i9_1, _cic='int_batch_jqm', _env=e1)
     i11_1.save()
 
 @atomic
 def utility_create_logical():
-    p1 = Project(name='SUPER-PROJECT', description='New ERP for FIRM1. A Big Program project.', alternate_name_1='SUPERCODE', alternate_name_2='ERP')
+    p1 = Project(name='SUPER-PROJECT', description='New ERP for FIRM1. A Big Program project.', alternate_name_1='ERP', alternate_name_2='PROJECTCODE')
     p1.save()
-    a1 = Application(name='Soft1', description='Super New ERP')
+    a1 = Application(name='Soft1', description='Super New ERP', alternate_name_1="SFT1")
     a1.save()
-    a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems')
+    a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems', alternate_name_1="SFT2")
     a2.save()
     p1.applications.add(a1, a2)
 
@@ -369,4 +369,4 @@ def create_full_test_data():
     duplicate_envt("DEV1", "TEC2")
     duplicate_envt("DEV1", "QUA1")
     duplicate_envt("DEV1", "REC1")
-    duplicate_envt("DEV1", "FOR")
+    duplicate_envt("DEV1", "FOR1")

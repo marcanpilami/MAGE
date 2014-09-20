@@ -135,7 +135,7 @@ site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 
 class ConventionCounterAdmin(ModelAdmin):
     list_filter = ('scope_project', 'scope_application', 'scope_environment', 'scope_type')
-    list_display = ('scope_project', 'scope_application', 'scope_environment', 'scope_type', 'val')
+    list_display = ('scope_project', 'scope_application', 'scope_environment', 'scope_type', 'scope_instance', 'val')
 
 site.register(ConventionCounter, ConventionCounterAdmin)
 

@@ -21,6 +21,7 @@ from MAGE.exceptions import MageError
 from ref.naming_language import resolve
 
 
+
 ################################################################################
 ## Helpers
 ################################################################################
@@ -278,12 +279,6 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
         self._instance = ComponentInstance(implementation=self.__class__._related_impl)
         self._instance.save()
 
-        for field in self.__class__._related_impl.field_set.filter(default__isnull=False):
-            setattr(self, field.name, field.default)
-
-        for name, value in kwargs.items():
-            setattr(self, name, value)
-
     if not self.__class__._related_impl is None:
         self._descr_id = self.__class__._related_impl.pk
 
@@ -303,6 +298,13 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
         self._instance.environments.add(Environment.objects.get(name=_env))
     elif _env and type(_env) is Environment:
         self._instance.environments.add(_env)
+
+    ## Fields
+    from ref.conventions import value_instance_fields, value_instance_graph_fields
+    value_instance_fields(self._instance, force=False)
+    for name, value in kwargs.items():
+        setattr(self, name, value)
+    value_instance_graph_fields(self._instance, force=False)
 
     ## helper accessor to extended parameters
     self.extended_parameters = ExtendedParameterDict(self._instance)
@@ -599,6 +601,7 @@ class ConventionCounter(models.Model):
     scope_project = models.ForeignKey(Project, blank=True, null=True, default=None)
     scope_application = models.ForeignKey(Application, blank=True, null=True, default=None)
     scope_type = models.ForeignKey(ImplementationDescription, blank=True, null=True, default=None)
+    scope_instance = models.IntegerField(blank=True, null=True, default=None)
     val = models.IntegerField(default=0, verbose_name='valeur courante')
 
     class Meta:

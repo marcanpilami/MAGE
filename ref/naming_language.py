@@ -8,7 +8,7 @@ def build_grammar():
     expr = Forward()
     # Our identifier definition is Python's one with the added constraint of not allowing underscores as first character.
     identifier = Combine(Word(alphas, exact=1) + Optional(Word(nums + alphas + "_")))("identifier")
-    navigation = Group(Suppress("%") + identifier + ZeroOrMore(Suppress(".") + identifier))("navigation")
+    navigation = Group(Suppress(Optional("%")) + identifier + ZeroOrMore(Suppress(".") + identifier))("navigation")
     text = QuotedString('"', escQuote='""')("text")
     numeric = Word(nums)('num')
     operator = Word("?|+-/*", exact=1)("operator")
@@ -83,16 +83,27 @@ def __resolve_expr(e, instance):
 
 def __resolve_navigation(path, instance):
     ''' Will instanciate a pattern according to the value inside the given component instance'''
-    
-    # Import here to avoid circular imports
-    from ref.models.models import ComponentInstanceField
-    
-    req = {'field__name': path[-1]}
-    m = "instance__"
-    for segment in path[-2::-1]:
-        req[m + 'rel_targeted_by_set__field__name'] = segment
-        m = m + 'reverse_relationships__'
-    req[m + 'id'] = instance.id
-    res = ComponentInstanceField.objects.filter(**req).all()
 
-    return res[0].value if len(res) == 1 else None
+    # Import here to avoid circular imports
+    from ref.models.models import ComponentInstanceField, ComponentInstance
+
+    if path[-1] == 'mage_id':
+        req = {}
+        m = ""
+        for segment in path[-2::-1]:
+            req[m + 'rel_targeted_by_set__field__name'] = segment
+            m = m + 'reverse_relationships__'
+        req[m + 'id'] = instance.id
+        res = ComponentInstance.objects.filter(**req).all()
+
+        return res[0].id if len(res) == 1 else None
+    else:
+        req = {'field__name': path[-1]}
+        m = "instance__"
+        for segment in path[-2::-1]:
+            req[m + 'rel_targeted_by_set__field__name'] = segment
+            m = m + 'reverse_relationships__'
+        req[m + 'id'] = instance.id
+        res = ComponentInstanceField.objects.filter(**req).all()
+
+        return res[0].value if len(res) == 1 else None

@@ -8,7 +8,7 @@
 from ref.models import Environment, ComponentInstance, ExtendedParameter, \
     EnvironmentType
 from ref.models.models import ComponentInstanceField, ComponentInstanceRelation
-from ref.conventions import value_instance_fields
+from ref.conventions import value_instance_fields, value_instance_graph_fields
 
 
 def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
@@ -103,5 +103,9 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
 
         ###############################
         new_instance.save()
+
+    ## Apply second step of conventions to instances
+    for instance in envt.component_instances.all():
+        value_instance_graph_fields(instance)
 
     return envt
