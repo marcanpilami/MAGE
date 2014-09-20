@@ -45,6 +45,12 @@ def post_syncdb_handler(sender, **kwargs):
              description=u'valeur par défaut pour le style des composants sur les graphes',
              axis1='presentation default')
 
+    ## Welcome screen parameters
+    setOrCreateParam(key=u'LINKS_TITLE', value='Liens utiles',
+             default_value='Liens utiles',
+             description=u'titre du bloc de liens sur la page d\'accueil',
+             axis1='welcome')
+
     ## DEBUG
     #create_full_test_data()
 

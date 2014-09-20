@@ -19,6 +19,7 @@ from ref.models import Project, Environment, LogicalComponent, Application, SLA,
     ImplementationComputedFieldDescription, ComponentInstanceField, \
     ComponentInstanceRelation
 from ref.models.parameters import MageParam
+from ref.models.com import Link
 
 
 ################################################################################
@@ -92,6 +93,10 @@ class ProjectAdmin(ModelAdmin):
     list_display = ('name', 'description', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
     ordering = ('name',)
 site.register(Project, ProjectAdmin)
+
+class LinkAdmin(ModelAdmin):
+    list_display = ('url', 'legend')
+site.register(Link, LinkAdmin)
 
 
 ################################################################################

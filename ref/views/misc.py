@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from ref.models.models import ComponentInstance, ImplementationDescription
 from django.db.models.fields.related import ManyToManyField, ForeignKey
+from ref.models.com import Link
 
 
 ##############################################################################
@@ -15,21 +16,8 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 ##############################################################################
 
 def welcome(request):
-    links = [ i for i in getMyParams() if i.axis1 == 'Technical team links']
-
-    colors = getParam('LINK_COLORS').split(',')
-    i = -1
-    for link in links:
-        if i < len(colors) - 1:
-            i = i + 1
-        else:
-            i = 0
-        link.color = colors[i]
-
-        url = getParam(link.key + '_URL')
-        link.url = url
-
-    return render(request, 'ref/welcome.html', {'team_links': links, })
+    link_title = getParam('LINKS_TITLE')
+    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(), })
 
 
 ##############################################################################

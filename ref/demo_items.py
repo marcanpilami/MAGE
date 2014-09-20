@@ -10,6 +10,7 @@ from ref.models import  EnvironmentType, ImplementationRelationType, Implementat
     Environment
 from django.db.transaction import atomic
 from ref.creation import duplicate_envt
+from ref.models.com import Link
 
 @atomic
 def utility_create_meta():
@@ -58,8 +59,8 @@ def utility_create_meta():
             add_field_simple('password', 'password', sensitive=True, default='%e%').\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
             add_field_simple('service_name_to_use', 'service name', help_text='si null, le SID sera utilisé', default="%E%", compulsory=False).\
-            add_field_computed('conn_str', 'sqlplus connection string', '%name|"/"|%password|"@"|(%service_name_to_use?%instance.sid)', sensitive=True).\
-            add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(%dns_to_use?%instance.server.dns)|":"|%instance.port|"/"|(%service_name_to_use?%instance.sid)').\
+            add_field_computed('conn_str', 'sqlplus connection string', 'name|"/"|password|"@"|(service_name_to_use?instance.sid)', sensitive=True).\
+            add_field_computed('jdbc', 'JDBC connection string', '"jdbc:oracle:thin:@//"|(dns_to_use?instance.server.dns)|":"|instance.port|"/"|(service_name_to_use?instance.sid)').\
             add_relationship('instance', 'sur instance', impl3, dt2, min_cardinality=1, max_cardinality=1)
     impl4.save()
 
@@ -139,7 +140,7 @@ def utility_create_meta():
 
     impl13 = ImplementationDescription.create_or_update('jbosshost', u'processus hôte JBoss', self_description_pattern='name', tag='jboss').\
             add_field_simple('name', 'application name', default='%nserver.dns', widget_row=None).\
-            add_field_computed('admin_port', 'admin port', '%domain.native_admin_port').\
+            add_field_computed('admin_port', 'admin port', 'domain.native_admin_port').\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('server', 'run on server', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl13.save()
@@ -153,8 +154,8 @@ def utility_create_meta():
             add_field_simple('max_heap_mb', 'Max Heap (Mo)', 384).\
             add_field_simple('max_permgen_mb', 'Max permgen (Mo)', 128).\
             add_field_simple('start_heap_mb', 'Start heap (Mo)', 256).\
-            add_field_computed('admin_login', 'admin login', '%dedicated_admin_login?%domain.admin_user').\
-            add_field_computed('admin_password', 'admin password', '%dedicated_admin_password?%domain.admin_password', sensitive=True).\
+            add_field_computed('admin_login', 'admin login', 'dedicated_admin_login?domain.admin_user').\
+            add_field_computed('admin_password', 'admin password', 'dedicated_admin_password?domain.admin_password', sensitive=True).\
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1)
     impl14.save()
 
@@ -162,9 +163,9 @@ def utility_create_meta():
             add_field_simple('name', 'JVM name', default='%ngroup.name%_%ci2group.mage_id%', widget_row=None).\
             add_field_simple('port_shift', 'port shift', default='%cihost.mage_id%*10').\
             add_field_simple('dns_to_use', 'service DNS entry', compulsory=False, widget_row=None).\
-            add_field_computed('http_port', 'actual HTTP port', '%host.domain.base_http_port+%port_shift').\
-            add_field_computed('dns', 'actual DNS', '%dns_to_use?%group.dns_to_use?%host.server.dns').\
-            add_field_computed('group_name', 'inside group', '%group.name').\
+            add_field_computed('http_port', 'actual HTTP port', 'host.domain.base_http_port+port_shift').\
+            add_field_computed('dns', 'actual DNS', 'dns_to_use?group.dns_to_use?host.server.dns').\
+            add_field_computed('group_name', 'inside group', 'group.name').\
             add_relationship('host', 'runs on host', impl13, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('group', 'member of group', impl14, dt2, min_cardinality=1, max_cardinality=1)
     impl15.save()
@@ -190,7 +191,7 @@ def utility_create_meta():
             add_field_simple('manager_port', 'port of network deployment management console', default=9060).\
             add_field_simple('manager_login', 'console admin login', 'admin').\
             add_field_simple('manager_password', 'console admin password', 'password').\
-            add_field_computed('url', 'manager URL', '"http://"|%manager_server.dns|":"|%manager_port|"/ibm/console"').\
+            add_field_computed('url', 'manager URL', '"http://"|manager_server.dns|":"|manager_port|"/ibm/console"').\
             add_relationship('manager_server', 'server holding the deployment manager node', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl17.save()
 
@@ -198,8 +199,8 @@ def utility_create_meta():
             add_field_simple('name', 'application name').\
             add_field_simple('dedicated_admin_user', 'specific account for managing this cluster').\
             add_field_simple('dedicated_admmin__password', 'specific password').\
-            add_field_computed('admin_login', 'admin login to use', '%dedicated_admin_user?%cell.manager_login').\
-            add_field_computed('admin_password', 'admin password to use', '%dedicated_admin_password?%cell.manager_password').\
+            add_field_computed('admin_login', 'admin login to use', 'dedicated_admin_user?cell.manager_login').\
+            add_field_computed('admin_password', 'admin password to use', 'dedicated_admin_password?cell.manager_password').\
             add_relationship('cell', 'member of cell', impl17, dt2, min_cardinality=1, max_cardinality=1)
     impl18.save()
 
@@ -221,7 +222,7 @@ def utility_create_meta():
             add_field_simple('name', 'application name').\
             add_field_simple('context_root', 'HTTP port', '/').\
             add_field_simple('client_url', 'service URL').\
-            add_field_computed('url', 'access URL', '%client_url').\
+            add_field_computed('url', 'access URL', 'client_url').\
             add_relationship('cluster', 'member of cell', impl18, dt2, min_cardinality=1, max_cardinality=1)
     impl21.save()
 
@@ -370,3 +371,8 @@ def create_full_test_data():
     duplicate_envt("DEV1", "QUA1")
     duplicate_envt("DEV1", "REC1")
     duplicate_envt("DEV1", "FOR1")
+    
+    l = Link(url= "http://www.marsupilami.com", legend = 'Link of use for your users, or important message', color = "#004D60")
+    l.save()
+    l = Link(url= "http://www.marsupilami.com", legend = 'second Link of use for your users, or important message', color = "#1B58B8")
+    l.save()

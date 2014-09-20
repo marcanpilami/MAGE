@@ -3,3 +3,4 @@
 from parameters import *
 from logical import *
 from models import *
+from com import *
