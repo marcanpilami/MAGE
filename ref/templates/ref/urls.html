@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block pagetitle %}API web{% endblock %}
-{% block maintitle %}URL utiles pour les scripts{% endblock %}
+{% block maintitle %}URLs utiles pour tous scripts{% endblock %}
 
 
 {% block content %}
@@ -10,9 +10,10 @@ Unless stated otherwise, use GET for all calls. MAGE is always case sensitive (b
 Login (sets 'sessionid' in cookie): {% url 'script_login' "USERNAME" "PASSWORD" %}<br/>
 Logout: {% url 'script_logout' %}<br/>
 <br/>
-MCL query (query only) - CSV file : {% url 'ref:mcl_query' "MCL_QUERY" %}<br/>
-MCL get or create if not exists - CSV file : {% url 'ref:mcl_create_cv' "MCL_QUERY" %}<br/>
-MCL get or create if not exists without applying conventions - CSV file : {% url 'ref:mcl_create_nocv' "MCL_QUERY" %}<br/>
+MQL query - results as a CSV file : {% url 'ref:mqlquery' "csv" "MQL_QUERY" %}<br/>
+MQL query - results as a JSON file : {% url 'ref:mqlquery' "json" "MQL_QUERY" %}<br/>
+MQL query - results as an SH script : {% url 'ref:mqlquery' "sh" "MQL_QUERY" %}<br/>
+MQL query - results as a BASH4 script : {% url 'ref:mqlquery' "bash4" "MQL_QUERY" %}<br/>
 <br/>
 Duplicate environment : {% url 'ref:envt_duplicate' "ENVIRONMENT_NAME" %}<br/>
 <br/>
@@ -31,10 +32,6 @@ Test if prerequisites are respected for a single item (II_ID) inside a set, with
 Test if prerequisites are respected for a single item (II_ID) inside a set, considering the rest of the set will also be applied: {% url 'scm:delivery_test_ii_set' 123456789 "ENVT_NAME" %}<br/>
 Apply only one item from a delivery to an environment component instance: {% url 'scm:delivery_apply_ii_single' 123456789 "ENVT_NAME" 123456789 %} (item_id, envt_name, instance_id)<br/>
 <br/>
-Get a KSH (probably BASH compatible) file describing a delivery with variables: {% url 'scm:delivery_content_shell' 123456789 %} (installable set ID)<br/>
-(just source it in your scripts)<br/>
-Get a KSH (probably BASH compatible) file putting an MCL result in variables: {% url 'ref:mcl_shell' "MCL_QUERY" %}<br/>
-(just source it in your scripts)<br/>
 
 
 {% endblock content %}

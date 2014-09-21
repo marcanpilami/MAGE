@@ -50,7 +50,6 @@ def model_types(request):
 
 
 def model_detail(request):
-    '''Does not work any more'''
     ids = ImplementationDescription.objects.order_by('tag', 'name').prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
                                                                                      'field_set',
                                                                                      'computed_field_set')
