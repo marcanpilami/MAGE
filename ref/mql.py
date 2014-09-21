@@ -36,7 +36,7 @@ def __build_grammar():
     nl_expr = Group(navigation + ZeroOrMore(Suppress(',') + navigation) + FollowedBy(k_from))('selector')
 
     # The sum of all fears
-    select = Group(Suppress(k_select) + Optional(nl_expr + Suppress(k_from)) + pre_filter + Suppress(k_instances) + Optional(where_clause))('select')
+    select = Group(Suppress(k_select) + Optional(nl_expr + Suppress(k_from)) + pre_filter + Suppress(k_instances) + Optional(where_clause) + Optional(CaselessLiteral('WITH COMPUTATIONS')('compute')))('select')
 
     expr << select
     return expr
@@ -110,11 +110,11 @@ def __select_compo(q):
             rs = rs.filter(**r)
 
     if not q.selector:
-        return __to_dict(rs)
+        return __to_dict(rs, use_computed_fields=q.compute)
     else:
         return __to_dict(rs, q.selector)
 
-def __to_dict(rs,selector = None, optim=True):
+def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
     '''Navigations are done entirely in memory to avoid hitting too much the database'''
     res = []
 
@@ -124,24 +124,28 @@ def __to_dict(rs,selector = None, optim=True):
         rs = rs.prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field')))
         rs = rs.select_related('implementation')
         rs = rs.prefetch_related('environments')
-        
+
         for ci in rs.all():
             compo = {}
             res.append(compo)
-            
+
             compo['mage_id'] = ci.id
             compo['mage_cic_id'] = ci.instanciates_id
             compo['mage_deleted'] = ci.deleted
             compo['mage_implementation_id'] = ci.implementation_id
             compo['mage_implementation_name'] = ci.implementation.name
             compo['mage_environments'] = ','.join([e.name for e in ci.environments.all()])
-            
+
             for fi in ci.field_set.all():
                 compo[fi.field.name] = fi.value
-                
+
             for fi in ci.rel_target_set.all():
                 compo[fi.field.name + '_id'] = fi.target_id
-                
+
+            if use_computed_fields:
+                for cf in ci.implementation.computed_field_set.all():
+                    compo[cf.name] = cf.resolve(ci)
+
         return res
 
     ## Preload data

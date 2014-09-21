@@ -271,7 +271,7 @@ class ProxyRelSequence:
         ComponentInstanceRelation.objects.filter(source=self.proxy._instance, target=target_instance if isinstance(target_instance, ComponentInstance) else target_instance._instance, field=self.rel_descr).delete()
 
 
-def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
+def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, **kwargs):
     self._descr_id = None
     self._id = None
 
@@ -303,11 +303,13 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, **kwargs):
         self._instance.environments.add(_env)
 
     ## Fields
-    from ref.conventions import value_instance_fields, value_instance_graph_fields
-    value_instance_fields(self._instance, force=False)
+    if not _noconventions:
+        from ref.conventions import value_instance_fields, value_instance_graph_fields
+        value_instance_fields(self._instance, force=False)
     for name, value in kwargs.items():
         setattr(self, name, value)
-    value_instance_graph_fields(self._instance, force=False)
+    if not _noconventions:
+        value_instance_graph_fields(self._instance, force=False)
 
     ## helper accessor to extended parameters
     self.extended_parameters = ExtendedParameterDict(self._instance)
