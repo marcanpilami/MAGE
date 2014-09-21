@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Livraisons disponibles à l'installation{% endblock %}
 
@@ -19,6 +20,7 @@
 				{% endif %}
 			{% endfor %}
 			<th>Enregistré le</th>
+			<th>V</th>
 		  </tr>
 	</thead>
 	<tbody>
@@ -45,6 +47,7 @@
 				{% endfor %}
 				
 				<td>{{ is.set_date|date:"d/m/Y" }}</td>
+				<td>{% if is.status == 1 %} <img src='{% static "admin/img/icon-yes.gif" %}'></img>{% endif %}</td>
 			</tr>
 			
 		{% endfor %}
