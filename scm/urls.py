@@ -5,7 +5,6 @@
     @author: Marc-Antoine Gouillart
 '''
 
-
 from django.conf.urls import patterns, url
 from scm import views
 

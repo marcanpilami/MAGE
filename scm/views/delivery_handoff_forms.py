@@ -11,7 +11,6 @@ import re
 ## Django imports
 from django import forms
 from django.forms import ModelForm
-from django.db.models.aggregates import Count
 
 ## MAGE imports
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
@@ -128,14 +127,3 @@ class IDForm(ModelForm):
         fields = ('target', 'depends_on_version', 'operator',)
 
 
-class BackupForm(forms.Form):
-    description = forms.CharField(max_length=90, required=False)
-    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M', ])
-    instances = forms.TypedMultipleChoiceField(choices=(), widget=forms.widgets.CheckboxSelectMultiple, coerce=int)
-
-    def __init__(self, *args, **kwargs):
-        self.envt = kwargs['envt']
-        del kwargs['envt']
-        super(BackupForm, self).__init__(*args, **kwargs)
-        self.fields['instances'].choices = [(i.pk, i.__unicode__()) for i in self.envt.component_instances.all()]
-    
