@@ -9,14 +9,14 @@
 		{{error | linebreaks}}
 	</div>
 	<br/>
-	<a class='metContainer metErrorBackground' href="{% url 'scm:delivery_apply_envt_force' delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;</a>
+	<a class='metContainer metErrorBackground' href="{% url 'scm:iset_apply_envt_force' delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;</a>
 {% else %}
 	<div class='metContainer metOkBackground'>
 		L'environnement est prêt à accueillir la livraison
 	</div>
 
 	<a class='metRectList defaultHighlightBackground' style='height:auto;'
-		href="{% url 'scm:delivery_apply_envt' delivery.id envt.id %}">
+		href="{% url 'scm:iset_apply_envt' delivery.id envt.id %}">
 		Cliquez ici pour enregistrer l'application de l'ensemble de cette livraison sur tous les composants éligibles de cet environnement.
 	</a>
 {% endif %}

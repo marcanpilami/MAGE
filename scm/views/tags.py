@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 ## MAGE imports
 from ref.models import Environment
 from scm.models import Tag
+from django.http.response import HttpResponseNotFound
 
 
 @permission_required('scm.add_tag')
@@ -26,6 +27,20 @@ def tag_create(request, envt_name, tag_name):
             t.versions.add(v)
 
     return redirect('scm:tag_detail', tag_id=t.id)
+
+@permission_required('scm.add_tag')
+def tag_remove(request, tag):
+    try:
+        t = Tag.objects.get(name=tag)
+    except Tag.DoesNotExist:
+        try:
+            t = Tag.objects.get(pk=tag)
+        except Tag.DoesNotExist:
+            return HttpResponseNotFound('no tag with such a name or ID')
+
+    t.delete()
+    return redirect('scm:tag_list')
+
 
 def tag_detail(request, tag_id):
     t = Tag.objects.get(pk=tag_id)

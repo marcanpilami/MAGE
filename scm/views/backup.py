@@ -46,13 +46,13 @@ def backup_envt_manual(request, envt_name):
 def backup_script(request, envt_name, ci_id, bck_id=None):
     try:
         bs = register_backup(envt_name, now(), bck_id, ComponentInstance.objects.get(pk=ci_id), description='script backup')
-        return HttpResponse(bs.id, content_type='text/text')
+        return HttpResponse(bs.id, content_type='text/plain')
     except Exception, e:
-        return HttpResponseBadRequest(e, content_type='text/text')
+        return HttpResponseBadRequest(e, content_type='text/plain')
 
 
-def backup_latest_age(request, ci_id):
-    response = HttpResponse(content_type='text/text')
+def latest_ci_backupset_age_mn(request, ci_id):
+    response = HttpResponse(content_type='text/plain')
     try:
         ci = ComponentInstance.objects.get(pk=ci_id)
         bis = BackupSet.objects.filter(all_items__instance__id=ci.id)
@@ -65,6 +65,29 @@ def backup_latest_age(request, ci_id):
         response.write("-1")
     return response
 
+def latest_ci_backupset_id(request, ci_id):
+    response = HttpResponse(content_type='text/plain')
+    try:
+        bis = BackupSet.objects.filter(all_items__instance__id=ci_id)
+        if bis.count() == 0:
+            response.write("-1")
+        else:
+            response.write(bis.latest.pk)
+    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+        response.write("-1")
+    return response
+
+def latest_envt_backupset_id(request, envt_name):
+    response = HttpResponse(content_type='text/plain')
+    try:
+        bis = BackupSet.objects.filter(from_envt__name=envt_name)
+        if bis.count() == 0:
+            response.write("-1")
+        else:
+            response.write(bis.latest.pk)
+    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+        response.write("-1")
+    return response
 
 
 class BackupForm(forms.Form):
