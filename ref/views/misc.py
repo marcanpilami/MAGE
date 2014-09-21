@@ -6,9 +6,11 @@ from django.http.response import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
-from ref.models.models import ComponentInstance, ImplementationDescription
+from ref.models.models import ComponentInstance, ImplementationDescription, \
+    ImplementationRelationDescription
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from ref.models.com import Link
+from django.db.models.query import Prefetch
 
 
 ##############################################################################
@@ -49,37 +51,13 @@ def model_types(request):
 
 def model_detail(request):
     '''Does not work any more'''
-    res = {}
-    for ct in [i for i in ContentType.objects.all() if issubclass(i.model_class(), ComponentInstance) and i.app_label != 'ref']:
-        model = ct.model_class()
-        res[model] = {}
-        d = res[model]
+    ids = ImplementationDescription.objects.order_by('tag', 'name').prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
+                                                                                     'field_set',
+                                                                                     'computed_field_set')
 
-        d['id'] = {'name': model.__name__, 'code':ct.model, 'verbose_name': model._meta.verbose_name}
+    #for idn in ids:
 
-        d['fields'] = []
 
-        for fi in model._meta.fields:
-            if fi.attname in ('instanciates_id', 'deleted', 'include_in_envt_backup', 'model_id', 'componentinstance_ptr_id'):
-                continue
-
-            f = {'code': fi.attname, 'verbose_name':fi.verbose_name, 'default':fi.default if fi.has_default() else None, 'null': fi.null, 'unique': fi.unique}
-
-            if f.has_key('rel') and f.rel:
-                f['target'] = f.related.model
-
-            if isinstance(fi, ForeignKey) or isinstance(fi, ManyToManyField):
-                f['mcl_compat'] = 'no'
-            elif fi.model == ComponentInstance:
-                f['mcl_compat'] = 'base'
-            else:
-                f['mcl_compat'] = 'cast'
-
-            d['fields'].append(f)
-
-        for fi, descr in model.parents.items():
-            f = {'code': fi, 'target': descr.get('model'), 'verbose_name': 'depends on', 'default': None, 'card': descr.get('cardinality') or 1, 'mcl_compat': 'rel'}
-            d['fields'].append(f)
-
-    return render(request, 'ref/model_details.html', {'res' : sorted(res.iteritems(), key=lambda (k, v) :  v['id']['name']) })
+    #return render(request, 'ref/model_details.html', {'res' : sorted(ids.iteritems(), key=lambda (k, v) :  v['id']['name']) })
+    return render(request, 'ref/model_details.html', {'res' : ids })
 

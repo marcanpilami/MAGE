@@ -420,6 +420,9 @@ class ImplementationDescription(models.Model):
         self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target, min_cardinality=min_cardinality, max_cardinality=max_cardinality, link_type=link_type))
         return self
 
+    def field_count(self):
+        return self.field_set.count() + self.computed_field_set.count() + self.relationships.count()
+
 
 ################################################################################
 ## Main notion: the environment
@@ -549,13 +552,13 @@ class ComponentInstance(models.Model):
         else:
             return '%s' % self.pk
     name = property(__unicode__)
-    
+
     ## Pretty admin deelted field
     def active(self):
         return not self.deleted
     active.admin_order_field = 'deleted'
     active.boolean = True
-    
+
     class Meta:
         permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)
         verbose_name = 'instance de composant'
