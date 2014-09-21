@@ -6,7 +6,7 @@
 
 
 <form action="{% url 'ref:mqltester' %}" method="post">
-	{{ form.as_p }}
+	{{ form.as_ul }}
 	<input type="submit" value="Submit" />
 	{% if error %}
 		<div class='formerror'>{{error}}</div>
@@ -20,14 +20,13 @@
 		<a href="{% url 'ref:mqlquery' 'csv' mql %}">CSV (Excel)</a>,
 	 	<a href="{% url 'ref:mqlquery' 'sh' mql %}">sh script</a>,
 	 	<a href="{% url 'ref:mqlquery' 'bash4' mql %}">bash 4 script</a>
-	 
 	</div>
 
 	{% regroup results|dictsort:'mage_implementation_name' by mage_implementation_name as model_list %}
 		
 	{% for modeltype in model_list %}
-		<div>{{ modeltype.grouper }}</div>
-		<table>
+		<div class='t2'>{{ modeltype.grouper }}</div>
+		<table class='metContainer visibleTable'>
 		{% for compo in modeltype.list %}
 		
 			{% if forloop.first %}
