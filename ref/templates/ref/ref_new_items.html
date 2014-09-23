@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load filter %}
+{% block pagetitle %}New items{% endblock %}
+{% block maintitle %}Environnement {{envt.name}}{% endblock %}
+
+{%block navigationButtons%}
+<a href='{% url "admin:index" %}' title="Administration">A</a>
+{%endblock%}
+
+{% block content %}
+{% regroup impls by tag as tag_list %}
+<a class='metSquare' href="{% url 'ref:new_item' %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
+<a class='metSquare' href="{% url 'ref:new_item' %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
+
+
+{% for tag in tag_list|dictsort:"grouper" %}
+	<div>
+		<a class='metRectList' style='background:#7F6E94;'>{% if tag.grouper %}{{tag.grouper}}{% else %}no tag{% endif %}</a>
+		{% for desc in tag.list|dictsort:"name" %}
+			<a class='metRectList' style='background:#004D60;' href="{% url 'ref:new_item_ci' desc.id %}">Instance de {{desc.name}}<div class='metSquareLong annotation'>{{desc.description}}</div></a>
+		{% endfor %}
+	</div>
+{% endfor %}
+{% endblock content %}
+

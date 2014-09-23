@@ -168,8 +168,9 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     def __unicode__(self):
         return '%s (%s)' % (self.name, self.implementation.name)
 
-    def short_label(self):
+    def __short_label(self):
         return self.label_short or self.label
+    short_label = property(__short_label)
 
     class Meta:
         verbose_name = u'champ simple'
@@ -368,7 +369,7 @@ class ImplementationDescription(models.Model):
                 else:
                     ## Direct get/set on a field
                     getter = lambda slf, field_id = field.id: _proxy_single_rel_accessor(slf, field_id)
-                    setter = lambda slf, value, field_id = field.id:  ComponentInstanceRelation.objects.update_or_create(defaults={'target': value._instance if value._instance else value}, source=slf._instance, field_id=field_id)
+                    setter = lambda slf, value, field_id = field.id:  ComponentInstanceRelation.objects.update_or_create(defaults={'target': value._instance if not isinstance(value, ComponentInstance) else value}, source=slf._instance, field_id=field_id)
                 attrs[field.name] = property(fget=getter, fset=setter, doc=field.label)
 
             ## Other to self relationships

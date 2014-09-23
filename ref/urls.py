@@ -6,39 +6,39 @@
 '''
 
 from django.conf.urls import patterns, url
-import ref.views.display
-import ref.views.duplicate
-import ref.views.edit
-import ref.views.gph
-import ref.views.mql
-import ref.views.misc
+from ref import views
 
 urlpatterns = patterns('',
-    url(r'^envt$', ref.views.display.envts, name='envts'),
-    url(r'^templates$', ref.views.display.templates, name='templates'),
-    url(r'^envt/(?P<envt_id>\d*)$', ref.views.display.envt, name='envt'),
-    url(r'^envt/(?P<envt_name>.*)/duplicate$', ref.views.duplicate.envt_duplicate_name, name='envt_duplicate'),
+    url(r'^envt$', views.envts, name='envts'),
+    url(r'^templates$', views.templates, name='templates'),
+    url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
+    url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
 
-    url(r'type$', ref.views.misc.model_types, name='types'),
-    url(r'types_details$', ref.views.misc.model_detail, name='types_details'),
+    url(r'type$', views.model_types, name='types'),
+    url(r'types_details$', views.model_detail, name='types_details'),
+
+    ## Creation forms
+    url(r'new$', views.new_items, name='new_item'),
+    url(r'new/ci/(?P<description_id>\d*)$', views.new_ci_step1, name='new_item_ci'),
+    url(r'ci/(?P<instance_id>\d*)$', views.new_ci_step2, name='edit_ci'),
 
     ## MQL
-    url(r'mqltester$', ref.views.mql.mql_tester, name='mqltester'),
-    url(r'mql/(?P<output_format>.*)/(?P<query>.*)$', ref.views.mql.mql_query, name='mqlquery'),
-    
-    ## Graphs
-    url(r'gph/full$', ref.views.gph.full_pic, name='grfull'),
-    url(r'gph/filter/(?P<nbRelGenerations>\d*)/(?P<collapseThr>\d*)', ref.views.gph.filter_pic, name='grfilter'),
-    url(r'mplg$', ref.views.gph.view_carto, name='grmain'),
-    url(r'gph/envt/(?P<envt_id>\d*)/*$', ref.views.gph.envt_pic, name='grenvt'),
+    url(r'mqltester$', views.mql_tester, name='mqltester'),
+    url(r'mql/(?P<output_format>.*)/(?P<query>.*)$', views.mql_query, name='mqlquery'),
 
-    url(r'urls', ref.views.misc.urls, name='urls'),
+    ## Graphs
+    url(r'gph/full$', views.full_pic, name='grfull'),
+    url(r'gph/filter/(?P<nbRelGenerations>\d*)/(?P<collapseThr>\d*)', views.filter_pic, name='grfilter'),
+    url(r'mplg$', views.view_carto, name='grmain'),
+    url(r'gph/envt/(?P<envt_id>\d*)/*$', views.envt_pic, name='grenvt'),
+
+    url(r'urls', views.urls, name='urls'),
 
     ## Instances
-    url(r'^instance/new/(?P<description_id>\d+)$', ref.views.edit.edit_comp, name='instance_new'),
-    url(r'^instance/(?P<instance_id>\d+)$', ref.views.edit.edit_comp, name='instance_edit'),
-    url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', ref.views.edit.edit_comp, name='instance_edit_descr'),
+    url(r'^instance/new/(?P<description_id>\d+)$', views.edit_comp, name='instance_new'),
+    url(r'^instance/(?P<instance_id>\d+)$', views.edit_comp, name='instance_edit'),
+    url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
 
-    url(r'^instance/envt/(?P<envt_id>\d+)$', ref.views.edit.envt_instances, name='instance_envt'),
+    url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
 )
 

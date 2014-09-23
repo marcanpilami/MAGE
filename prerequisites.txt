@@ -1,0 +1,5 @@
+﻿django>=1.7,<1.8
+pyparsing
+pydot
+unicodecsv
+django-crispy-forms

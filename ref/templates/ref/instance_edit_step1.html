@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block pagetitle %}admin{% endblock %}
-{% block maintitle %}admin{% endblock %}
+{% block pagetitle %}referential admin{% endblock %}
+{% block maintitle %}nouvelle instance {{ descr.description }}{% endblock %}
 
 
 {% block content %}
@@ -8,6 +8,4 @@
 	{{form.as_p}}
 	<input type="submit">
 </form>
-
 {% endblock content %}
-
