@@ -3,7 +3,9 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" href='{% static "fav.png" %}' />
+		<link media="all" type="text/css" href="{% static "bootstrap.min.css" %}" rel="stylesheet"/>
 		<link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
 		<title>{%block pagetitle%}MAGE{%endblock pagetitle%}</title>
 		{%block scripts%}{%endblock%}
@@ -30,10 +32,12 @@
 		}</script>
 	</head>
 	<body>
-		<div id='beforeFooter'>
-			<div id='upperBar'>
-				<div class='pageTitle'>{%block maintitle%}{%endblock%}</div>
-				<div id='quickAccessButtons'>
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class='container-fluid'>
+				<div class='navbar-header'>
+					<div class='pageTitle'>{%block maintitle%}{%endblock%}</div>
+				</div>
+				<div class='collapse navbar-collapse' id='quickAccessButtons'>
 					<span id='quickAccessActionButtons'>{%block frequentActionsButtons%}{%endblock%}</span>
 					<span id='quickAccessNavigationButtons'>
 						{%block navigationButtons%}{%endblock%}
@@ -41,17 +45,16 @@
 					</span>
 				</div>
 			</div>
-			{% if messages %}
-			<div class='bloc1'>
-			    {% for message in messages %}
-			    <li>{{ message }}</li>
-			    {% endfor %}
-			</div>
-			{% endif %}
-			<div id='content'>{%block content%}{%endblock content%}</div>
-			<div id='pusher'></div>
 		</div>
-		<div id='footer'>
+		{% if messages %}
+		<div class='bloc1'>
+		    {% for message in messages %}
+		    <li>{{ message }}</li>
+		    {% endfor %}
+		</div>
+		{% endif %}
+		<div class='container-fluid'>{%block content%}{%endblock content%}</div>
+		<div class='footer'>
 			{%block footer%}
 			MAGE 6.1.0 - {%now "d/m/Y H:i"%} -
 			{% if user.is_authenticated %}

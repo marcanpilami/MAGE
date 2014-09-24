@@ -3,15 +3,19 @@
 {% block maintitle %}Version des environnements{% endblock %}
 
 {% block content %}
-{% regroup envts by typology as type_list %}
+{% regroup envts|dictsort:"typology.chronological_order" by typology as type_list %}
 
 
 {% for type in type_list %}
-<div class='column' style='min-width: 170px;'>
-	<div class='t2'>{{ type.grouper.name }}</div>
-	{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
+<div class='row'>
+	<div class='t2 col-md-12'>{{ type.grouper.name }}</div>
 	{% for envt in type.list %}	
-		<a class='metSquare metContainer' style='border-color:{{ moderncolors }};' href="{% url 'scm:envtinstallhist' envt.name %}">{{ envt.name }}<div class='metSquareLong annotation'>Dernière installation le <br/>{{envt.latest_reconfiguration}}<br/>Nombre modifications : {{ envt.configuration_modification_count }}</div></a>
+		<div class='col-md-12 row metLineHeader'>
+			<div class='col-md-2'></div>
+			<div class='col-md-2'><a href='{% url 'scm:envtinstallhistprm' envt.name 31 %}'>{{envt.name}}</a></div>
+			<div class='col-md-4'>Dernière installation le {{envt.latest_reconfiguration}}</div>
+			<div class='col-md-2'>Nombre modifications : {{ envt.configuration_modification_count }}</div>
+		</div>
 	{% endfor %}
 </div>
 {% endfor %}

@@ -391,7 +391,7 @@ def create_full_test_data():
     duplicate_envt("DEV1", "REC1")
     duplicate_envt("DEV1", "FOR1")
 
-    l = Link(url="http://www.marsupilami.com", legend='Link of use for your users, or important message', color="#004D60")
+    l = Link(url="http://www.marsupilami.com", legend='Link of use for your users, or important message', color="#1B58B8")
     l.save()
-    l = Link(url="http://www.marsupilami.com", legend='second Link of use for your users, or important message', color="#1B58B8")
+    l = Link(url="http://www.marsupilami.com", legend='Second link of use for your users, or important message', color="#1B58B8")
     l.save()

@@ -2,21 +2,34 @@
 
 /* Defaults */
 html {
-	height: 100%;
+	position: relative;
+	min-height: 100%;
 }
 
 body {
-	font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
-		"Helvetica Neue", Arial, sans-serif;
-	font-weight: 400; /* standard weight */
+	/* Margin bottom by footer height */
+	margin-bottom: 30px;
 	background-color: #F5F0F2;
-	color: black;
-	margin: 0;
-	height: 100%;
+	font-size: 10pt;
 }
 
-#content {
-	margin-top: 10px;
+/* Header & footer */
+.footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	/* Set the fixed height of the footer here */
+	height: 30px;
+	background-color: #f5f5f5;
+}
+
+body>.container-fluid {
+	padding: 60px 15px 0;
+}
+
+.navbar {
+	background-color: #094AB2;
+	color: white;
 }
 
 .ifjs {
@@ -36,7 +49,7 @@ body {
 }
 
 .t2 {
-	font-size: 16pt;
+	font-size: 14pt;
 	letter-spacing: 0.02em;
 	font-weight: 300;
 	text-transform: uppercase;
@@ -85,7 +98,7 @@ body {
 
 .annotation {
 	font-style: italic;
-	font-size: 10pt;
+	font-size: 7pt;
 	vertical-align: bottom;
 	text-align: right;
 }
@@ -142,27 +155,10 @@ body {
 	margin-right: 2px;
 }
 
-.wideInputs {
-	
-}
-
 .metSquare {
 	display: inline-block;
-	width: 150px;
-	height: 150px;
-	margin-right: 1px;
-	margin-top: 5px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	padding: 5px;
-	vertical-align: top;
-	position: relative;
-	background-color: #2E8DEF;
-}
-
-.metRect {
-	display: inline-block;
-	width: 250px;
+	overflow: hidden;
+	width: 100px;
 	height: 100px;
 	margin-right: 1px;
 	margin-top: 5px;
@@ -171,6 +167,23 @@ body {
 	padding: 5px;
 	vertical-align: top;
 	position: relative;
+	background-color: #2E8DEF;
+	width: 100px;
+}
+
+.metRect {
+	display: inline-block;
+	width: 250px;
+	height: 70px;
+	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 5px;
+	vertical-align: top;
+	position: relative;
+	color: white;
+	background-color: #094AB2;
 }
 
 .metRectList {
@@ -184,7 +197,6 @@ body {
 	padding: 5px;
 	vertical-align: top;
 	position: relative;
-	background-color: #004A00;
 }
 
 .metRectListSmall {
@@ -244,6 +256,16 @@ div.metRibbonSplashContent {
 
 .metFormSection {
 	background-color: #D6D6D6;
+}
+
+.metLineHeader {
+	background-color: #D6D6D6;
+	color: default;
+}
+
+.metDefaultColors {
+	color: white;
+	background-color: #094AB2;
 }
 
 /* Tables within modern containers */
@@ -310,7 +332,6 @@ a.metSquare {
 }
 
 a.frequentAction,a.metRectList,a.metContainer {
-	color: inherit;
 	text-decoration: inherit;
 }
 
@@ -319,7 +340,8 @@ a.frequentAction,a.metRectList,a.metContainer {
 	/*overflow-x: scroll;*/
 }
 
-.metContainer input[type=button],.metContainer input[type=submit],.metContainer button,.metButton {
+.metContainer input[type=button],.metContainer input[type=submit],.metContainer button,.metButton
+	{
 	border: none;
 	background: none;
 	background-color: #16499A;
@@ -330,7 +352,7 @@ a.frequentAction,a.metRectList,a.metContainer {
 	font-size: 10pt;
 }
 
-button.cancel, input.cancel[type='button'] {
+button.cancel,input.cancel[type='button'] {
 	background-color: #6E7E94;
 }
 
@@ -361,7 +383,7 @@ button.cancel, input.cancel[type='button'] {
 }
 
 .metErrorBackground {
-	background-color: #AD103C;	
+	background-color: #AD103C;
 }
 
 .metOkBackground {
@@ -375,7 +397,6 @@ button.cancel, input.cancel[type='button'] {
 	padding-bottom: 3px;
 	min-height: 36px;
 }
-
 
 #quickAccessButtons {
 	position: absolute;
@@ -403,28 +424,4 @@ button.cancel, input.cancel[type='button'] {
 
 #quickAccessActionButtons {
 	padding-right: 10px;
-}
-
-/* Footer */
-#beforeFooter {
-	min-height: 100%;
-	height: auto !important;
-	height: 100%;
-	margin: 0 auto -32px; /* footer + title */
-	
-}
-
-#content {
-	padding-left: 15px;
-	padding-right: 15px;
-}
-
-#pusher {
-	height: 35px;
-}
-
-#footer {
-	height: 30px;
-	border-top: solid black 1px;
-	padding-left: 5px;
 }

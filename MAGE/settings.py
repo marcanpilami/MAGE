@@ -153,6 +153,8 @@ LOGGING = {
 
 LOGIN_URL = 'login' # named URL
 
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
 LOCAL_APPS = ()
 try:
     from MAGE.local_settings import *
@@ -168,6 +170,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    
+    'crispy_forms',
 
     'ref', ## Keep REF first after django internals
     'scm', ## Keep SCM second

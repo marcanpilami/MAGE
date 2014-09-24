@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from ref.models.models import ComponentInstance, ImplementationDescription, \
-    ImplementationRelationDescription
+    ImplementationRelationDescription, Environment
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from ref.models.com import Link
 from django.db.models.query import Prefetch
@@ -19,7 +19,7 @@ from django.db.models.query import Prefetch
 
 def welcome(request):
     link_title = getParam('LINKS_TITLE')
-    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(), })
+    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(), 'envts': Environment.objects.order_by('typology', 'name').all() })
 
 
 ##############################################################################

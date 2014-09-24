@@ -14,11 +14,15 @@
 
 
 {% for tag in tag_list|dictsort:"grouper" %}
-	<div>
-		<a class='metRectList' style='background:#7F6E94;'>{% if tag.grouper %}{{tag.grouper}}{% else %}no tag{% endif %}</a>
+	<div class='container-fluid'>
+		<div class='col-md-1'>
+			<a class='metRectList metLineHeader'>{% if tag.grouper %}{{tag.grouper}}{% else %}no tag{% endif %}</a>
+		</div>
+		<div class='col-md-11'>
 		{% for desc in tag.list|dictsort:"name" %}
-			<a class='metRectList' style='background:#004D60;' href="{% url 'ref:new_item_ci' desc.id %}">Instance de {{desc.name}}<div class='metSquareLong annotation'>{{desc.description}}</div></a>
+			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' desc.id %}">Instance de {{desc.name}}<div class='metSquareLong annotation'>{{desc.description}}</div></a>
 		{% endfor %}
+		</div>
 	</div>
 {% endfor %}
 {% endblock content %}

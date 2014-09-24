@@ -5,20 +5,21 @@
 {% block content %}
 {% regroup models by tag as tag_list %}
 
-
 {% for tag in tag_list %}
-	<div class='column' style='width:auto; max-width:1000000px; '>
-		<div class='t2'>{% if tag.grouper %}{{ tag.grouper | capfirst }}{% else %}non classé{% endif %}</div>
+<div class='row'>
+	<div class='col-md-1'>
+		<div class='t2 metRect metLineHeader'>{% if tag.grouper %}{{ tag.grouper | capfirst }}{% else %}non classé{% endif %}</div>
+	</div>
+	<div class='col-md-11'>
 		{% for model in tag.list|dictsort:"name" %}
-			<div class='metRect' style='background:#004A00;'>
+			<div class='metRect'>
 				{{ model.description }}
 				<div class='metSquareLong annotation'>
-					Code {{model.name}}<br/>
-					Id {{model.id}}
+					Code {{model.name}}, ID {{model.id}}
 				</div>
 			</div>
 		{% endfor %}
 	</div>
-{% endfor %}
 </div>
+{% endfor %}
 {% endblock content %}

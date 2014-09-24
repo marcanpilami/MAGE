@@ -13,7 +13,7 @@ def templates(request):
 
 def envt(request, envt_id):
     # we don't use the decorator in order to be able to invalidate cache manually
-    a = cache.get('view_envt_%s' % envt_id)
+    a = cache.get('view_envt_%sXXX' % envt_id)
     if a:
         return a
 

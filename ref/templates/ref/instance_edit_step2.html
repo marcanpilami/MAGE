@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block pagetitle %}referential admin{% endblock %}
 {% block maintitle %}modification instance {{instance.pk}}{% endblock %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 This instance is of type {{instance.implementation.description}}. {% if instance.environments.all %}It belongs to environments {{ instance.environments.all|join:", "}}.{% else %}It does not belong to any environments.{% endif %}
-<form method="post">
-	{{form.as_p}}
-	<input type="submit">
-</form>
+	{% crispy form %}
 {% endblock content %}

@@ -153,6 +153,10 @@ class ImplementationFieldBase(models.Model):
     help_text = models.CharField(max_length=254, verbose_name='aide descriptive du champ', null=True, blank=True)
     sensitive = models.BooleanField(default=False, verbose_name='sensible')
 
+    def __short_label(self):
+        return self.label_short or self.label
+    short_label = property(__short_label)
+
     class Meta:
         abstract = True
 
@@ -167,10 +171,6 @@ class ImplementationFieldDescription(ImplementationFieldBase):
 
     def __unicode__(self):
         return '%s (%s)' % (self.name, self.implementation.name)
-
-    def __short_label(self):
-        return self.label_short or self.label
-    short_label = property(__short_label)
 
     class Meta:
         verbose_name = u'champ simple'

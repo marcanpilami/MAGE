@@ -13,10 +13,10 @@
 {%endblock%}
 
 {% block content %}
-{% regroup envt.component_instances.all by implementation_id as compotype_list %}
+{% regroup envt.component_instances.all|dictsort:"implementation" by implementation.description as compotype_list %}
 
-<div style='width:auto;'>
-	<div class='column' style="min-width: 0px; max-width: 230px;">
+<div class='row'>
+	<div class='col-md-2'>
 		<div class='t2'>Généralités</div>
 		<div class="metContainer metFreeRect defaultHighlightBackground">
 			<table>
@@ -32,47 +32,70 @@
 		<a href="{% url 'scm:tag_list' %}">Tags</a><br/>
 	</div>
 	
-	<div class='column' style='max-width:650px; min-width:300px; width=auto;'>
+	<div class='col-md-8'>
 		<div class='t2'>Composants</div>	
 		{% for compotype in compotype_list %}
-			{% cycle '#004A00' '#61292B' '#180052' '#AD103C' '#004D60' '#1B58B8' '#DE4AAD' as moderncolors silent %}
+			<div class='t4'>{{compotype.grouper}}</div>
+			<table class='visibleTable'>
 			{% for compo in compotype.list %}
+
+				{% if forloop.first %}
+					<tr><th></th><th>name</th>
+					{% if compo.implementation %}
+						{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
+							{% if field.field.widget_row >= 0 %}
+								{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+									<th>{{field.field.short_label}}</th>
+								{% endif %}
+							{% endif %}
+						{% endfor %}
+						{% for field in compo.implementation.computed_field_set.all|dictsort:"widget_row" %}
+							{% if field.widget_row >= 0 %}
+								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+									<th>{{field.short_label}}</th>
+								{% endif %}
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+					</tr>
+				{% endif %}
+			
 				{% if not compo.deleted %}
-				<div class="metContainer metFreeRect metDefaultBackground">
-					<table>
-						
+					<tr>
+						<td>
 						{% if compo.instanciates %}
-							<tr><td colspan='2' style='background-color:#B3B3B3; text-transform: uppercase;text-align: center; max-width: 9em; font-size: 8pt;'>{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}</td></tr>
+							{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}
 						{% endif %}
-						<tr><td colspan="2" style='font-style: italic;text-align: center;background-color:#B3B3B3; '>
+						</td>
+						<td>
 						{{ compo.name | capfirst }}
-						</td></tr>
+						</td>
 						
 						{% if compo.implementation %}
 							{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
 								{% if field.field.widget_row >= 0 %}
 									{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<tr><td>{{field.field.label | capfirst}}</td><td>{{field.value}}</td></tr>
+										<td>{{field.value}}</td>
 									{% endif %}
 								{% endif %}
 							{% endfor %}
 							{% for field in compo.implementation.computed_field_set.all|dictsort:"widget_row" %}
 								{% if field.widget_row >= 0 %}
 									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<tr><td>{{field.label | capfirst}}</td><td>{{compo | apply_field_template:field}}</td></tr>
+										<td>{{compo | apply_field_template:field}}</td>
 									{% endif %}
 								{% endif %}
 							{% endfor %}
 						{% endif %}
-					</table>	
-				</div>
+					</tr>	
 				{% endif%}
 			{% endfor %}
+			</table>
 		{% endfor %}
 	</div>
 	
 	
-	<div class='column' style='width=auto;'>
+	<div class='col-md-2' style='width=auto;'>
 		<div class='t2'>Représentation</div>
 		<img src="{% url 'ref:grenvt' envt.id %}" alt="environment picture"> 
 	</div>

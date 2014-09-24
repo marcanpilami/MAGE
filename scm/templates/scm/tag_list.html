@@ -8,13 +8,17 @@
 
 
 {% for envt in envt_list %}
-<div class='column'>
-	<div class='t2'>{{envt.grouper.name}}</div>
-	{% for tag in envt.list %}
-	<a class='metContainer metRectList defaultHighlightBackground' href="{% url 'scm:tag_detail' tag.id %}">
-		{{tag.name}}
-	</a>
-	{% endfor %}
+<div class='row'>
+	<div class='col-md-1'>
+		<div class='metRectFixedwidth metLineHeader'>{{envt.grouper.name}}</div>
+	</div>
+	<div class='col-md-11'>
+		{% for tag in envt.list %}
+		<a class='metContainer metRectList defaultHighlightBackground' href="{% url 'scm:tag_detail' tag.id %}">
+			{{tag.name}}
+		</a>
+		{% endfor %}
+	</div>
 </div>
 {% endfor %}
 

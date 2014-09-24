@@ -4,6 +4,8 @@ from ref.models.models import ComponentImplementationClass, \
     ImplementationDescription, ImplementationRelationDescription, Environment, \
     ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
 from django.shortcuts import render, render_to_response, redirect
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 
 
 def new_items(request):
@@ -76,9 +78,16 @@ class CiChoiceField(forms.ModelChoiceField):
 
 
 ## Forms for item creation (step 1)
-class NewRel(forms.Form):
+class NewCiStep1Form(forms.Form):
     _cic = CicChoiceField(queryset=ComponentImplementationClass.objects.order_by('implements__application__name', 'implements__name', 'name').all(), label='Offre technique implémentée', required=False)
     _env = forms.ModelChoiceField(queryset=Environment.objects.all(), label='Environnement', required=False)
+
+    helper = FormHelper()
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-lg-2'
+    helper.field_class = 'col-lg-9'
+    helper.add_input(Submit('submit', 'Submit'))
+
 
 __form_for_model_relations_cache = {}
 def form_for_model_relations(descr):
@@ -91,7 +100,7 @@ def form_for_model_relations(descr):
         f = CiChoiceField(queryset=field.target.instance_set.order_by('environments__name'), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
-    cls = type(str("__" + descr.name.lower() + "_form"), (NewRel,), attrs)
+    cls = type(str("__" + descr.name.lower() + "_form"), (NewCiStep1Form,), attrs)
     __form_for_model_relations_cache[descr.id] = cls
     return cls
 
@@ -100,6 +109,12 @@ class MiniModelForm(forms.Form):
     _id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     _deleted = forms.BooleanField(required=False)
     _instanciates = forms.ModelChoiceField(queryset=ComponentImplementationClass.objects, required=False, label='composant logique')
+
+    helper = FormHelper()
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-lg-2'
+    helper.field_class = 'col-lg-9'
+    helper.add_input(Submit('submit', 'Submit'))
 
 __model_form_cache = {}
 def form_for_model(descr):
