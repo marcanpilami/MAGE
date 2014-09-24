@@ -11,6 +11,8 @@ from ref.models.models import ComponentInstance, ImplementationDescription, \
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from ref.models.com import Link
 from django.db.models.query import Prefetch
+from django.db.models.aggregates import Max
+from scm.models import ComponentInstanceConfiguration
 
 
 ##############################################################################
@@ -19,7 +21,16 @@ from django.db.models.query import Prefetch
 
 def welcome(request):
     link_title = getParam('LINKS_TITLE')
-    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(), 'envts': Environment.objects.order_by('typology', 'name').all() })
+    latest = {}
+    envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__id'))
+    for e in envts:
+        if e.latest_reconfiguration:
+            latest[e.name] = ComponentInstanceConfiguration.objects.get(pk=e.latest_reconfiguration).result_of.belongs_to_set.name
+
+    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(),
+                            'latest': latest,
+                            'envts': Environment.objects.order_by('typology', 'name').annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
+                            annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).all() })
 
 
 ##############################################################################

@@ -8,12 +8,8 @@
 <a href="{% url 'ref:instance_envt' envt.id %}" title="Editer l'environnement">E</a>
 {% endblock %}
 
-{%block navigationButtons%}
-<a href="{% url 'ref:envts' %}" title="Liste des environnements">↑</a>
-{%endblock%}
-
 {% block content %}
-{% regroup envt.component_instances.all|dictsort:"implementation" by implementation.description as compotype_list %}
+{% regroup envt.component_instances.all|dictsort:"implementation.tag"|dictsort:"implementation.name" by implementation.description as compotype_list %}
 
 <div class='row'>
 	<div class='col-md-2'>
@@ -57,6 +53,7 @@
 							{% endif %}
 						{% endfor %}
 					{% endif %}
+					{% if perms.ref.change_component_instance %}<th></th>{% endif %}
 					</tr>
 				{% endif %}
 			
@@ -87,6 +84,7 @@
 								{% endif %}
 							{% endfor %}
 						{% endif %}
+						{% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
 					</tr>	
 				{% endif%}
 			{% endfor %}

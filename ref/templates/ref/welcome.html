@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block pagetitle %}Accueil{% endblock %}
-{% block maintitle %}Accueil utilisateur{% endblock %}
+{% block maintitle %}Accueil{% endblock %}
+{% load get_item from filter %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
@@ -16,9 +17,11 @@
 		<a class='metSquare' style='background: #423173;' href="{% url 'ref:grmain' %}">Carte interactive</a>
 		<a class='metSquare' style='background: #423173;' href="{% url 'ref:grfull' %}">Carte générale</a>
 		<a class='metSquare' style='background: #423173;' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
+		<div>
 		{% for envt in envts %}
 		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
 		{%endfor %}
+		</div>
 	</div>
 </div>
 <div class='col-sm-3'>
@@ -27,12 +30,16 @@
 	</div>
 	<div style='color: white;' class='row'>	
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes des environnements</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:envts' %}">Historique des versions des environnements</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:deliveries' %}">Liste des livraisons disponibles à l'installation</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:tag_list' %}">Tags des environnements</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:backup_list' %}">Sauvegardes des environnements</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_list' %}">Versions disponibles des composants logiques</a>
+		<div>
+		{% for envt in envts %}
+		<a class='metSquare' href="{% url 'scm:envtinstallhistprm' envt.name 31 %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>	
+		{%endfor %}
+		</div>
 	</div>
 </div>
 <div class='col-sm-3'>
@@ -41,7 +48,7 @@
 	</div>
 	<div style='color: white;' class='row'>	
 	{% for link in team_links %}
-		<a class='metSquare' style='background: {{ link.color }};' href="{{ link.url }}">{{ link.legend|safe }}</a>
+		<a class='metSquare' style='background: #423173;' href="{{ link.url }}">{{ link.legend|safe }}</a>
 	{% endfor %}
 	</div>
 </div>

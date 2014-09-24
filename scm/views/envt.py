@@ -6,19 +6,12 @@ from datetime import timedelta
 ## Django imports
 from django.utils.timezone import now
 from django.shortcuts import render
-from django.db.models.aggregates import Max, Count
 from django.utils.datastructures import SortedDict
 
 ## MAGE imports
 from ref.models import Environment, LogicalComponent
 from scm.models import Installation
 
-
-def envts(request):
-    envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
-        annotate(configuration_modification_count=Count('component_instances__configurations')).\
-        order_by('typology')
-    return render(request, 'scm/envts.html', {'envts': envts, })
 
 def all_installs(request, envt_name, limit):
     '''All installs on a given environment'''

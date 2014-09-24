@@ -6,13 +6,17 @@
 {% regroup lcs by application as applications_list %}
 
 {% for application in applications_list %}
-<div class='column' style="min-width: 10px;">
-	<div class='t2'>{{ application.grouper.name }}</div>
-	{% for lc in application.list %}
-		<a class='metSquare metContainer' href="{% url 'scm:lc_versions' lc.id %}">
-			{{ lc.name|capfirst }}
-		</a>
-	{% endfor %}
+<div class='row'>
+	<div class='col-md-1'>
+		<div class='metRectFixedwidth metLineHeader'>{{ application.grouper.name }}</div>
+	</div>
+	<div class='col-md-11'>
+		{% for lc in application.list %}
+			<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:lc_versions' lc.id %}">
+				{{ lc.name|capfirst }}
+			</a>
+		{% endfor %}
+	</div>
 </div>
 {% endfor %}
 
