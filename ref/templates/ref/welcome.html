@@ -37,7 +37,9 @@
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_list' %}">Versions disponibles des composants logiques</a>
 		<div>
 		{% for envt in envts %}
-		<a class='metSquare' href="{% url 'scm:envtinstallhistprm' envt.name 31 %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>	
+			{% if envt.managed %}
+				<a class='metSquare' href="{% url 'scm:envtinstallhistprm' envt.name 31 %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>
+			{% endif %}	
 		{%endfor %}
 		</div>
 	</div>

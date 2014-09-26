@@ -19,14 +19,14 @@ from scm.models import ComponentInstanceConfiguration
 def welcome(request):
     link_title = getParam('LINKS_TITLE')
     latest = {}
-    envts = Environment.objects.annotate(latest_reconfiguration=Max('component_instances__configurations__id'))
+    envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__id'))
     for e in envts:
         if e.latest_reconfiguration:
             latest[e.name] = ComponentInstanceConfiguration.objects.get(pk=e.latest_reconfiguration).result_of.belongs_to_set.name
 
     return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(),
                             'latest': latest,
-                            'envts': Environment.objects.order_by('typology', 'name').annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
+                            'envts': Environment.objects_active.order_by('typology', 'name').annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
                             annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).all() })
 
 
