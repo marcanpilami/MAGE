@@ -2,7 +2,7 @@
 
 from django.shortcuts import render, redirect
 from django import forms
-from ref.models.models import ComponentInstance, Environment
+from ref.models.instances import ComponentInstance, Environment
 from ref.creation import duplicate_envt
 from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import permission_required

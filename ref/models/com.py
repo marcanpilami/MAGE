@@ -1,4 +1,7 @@
 # coding: utf-8
+""" Models related to end-user communication """
+
+## Django imports
 from django.db import models
 
 class Link(models.Model):

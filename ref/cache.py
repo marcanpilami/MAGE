@@ -1,6 +1,6 @@
 # coding: utf-8
 from django.core.cache import cache
-from ref.models.models import ComponentInstance, ComponentInstanceRelation, \
+from ref.models.instances import ComponentInstance, ComponentInstanceRelation, \
     ComponentInstanceField
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver

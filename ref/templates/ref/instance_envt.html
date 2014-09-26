@@ -6,7 +6,7 @@
 {% block content %}
 <form method="post">
        {% for descr, formset in fss.items %}
-       	<div class='t3'>{{descr.description}}</div>
+       	<div class='t3'>{{descr.description}}    <a class='helptext' href='www.google.fr'>+</a></div>
    		{{formset.management_form}}
    		{{ formset.non_form_errors }}
    		<table style='border-collapse: collapse; border: 1px black; padding: 0px; margin: 0px;'>

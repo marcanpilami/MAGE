@@ -1,14 +1,11 @@
 # coding: utf-8
 
-from ref.models.parameters import getMyParams, getParam
+from ref.models.parameters import getParam
 from django.shortcuts import render
 from django.http.response import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
-from django.contrib.contenttypes.models import ContentType
-from ref.models.models import ComponentInstance, ImplementationDescription, \
-    ImplementationRelationDescription, Environment
-from django.db.models.fields.related import ManyToManyField, ForeignKey
+from ref.models import ImplementationDescription, ImplementationRelationDescription, Environment
 from ref.models.com import Link
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max

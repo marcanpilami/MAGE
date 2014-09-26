@@ -17,7 +17,7 @@ from scm.backup import register_backup
 from scm.install import install_ii_single_target_envt
 from ref.models.parameters import setOrCreateParam
 from scm.demo_items import create_test_is
-from ref.models.models import Environment
+from ref.models.instances import Environment
 
 
 

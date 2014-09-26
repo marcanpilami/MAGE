@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.shortcuts import render
-from ref.models.models import Environment
+from ref.models.instances import Environment
 from ref.models.parameters import getParam
 from django.core.cache import cache
 

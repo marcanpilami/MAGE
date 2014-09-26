@@ -2,9 +2,7 @@
 
 from django.db.transaction import atomic
 from django import forms
-from ref.models.models import ComponentImplementationClass, \
-    ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, \
-    Environment, ImplementationDescription
+from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
 from django.forms.models import ModelChoiceIterator
 from django.shortcuts import render_to_response, redirect
 from django.forms.formsets import formset_factory
@@ -54,7 +52,7 @@ def edit_comp(request, instance_id=None, description_id=None):
     return render_to_response("ref/instance_edit.html", {'form': form})
 
 @atomic
-def envt_instances(request, envt_id = 1):
+def envt_instances(request, envt_id=1):
     e = Environment.objects.get(pk=envt_id)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
     cics = ComponentImplementationClass.objects.all()
@@ -85,7 +83,7 @@ def envt_instances(request, envt_id = 1):
 
     for typ, listi in typ_items.iteritems():
         cls = form_for_model(typ)
-        InstanceFormSet = formset_factory(wraps(cls)(partial(cls, cics=cics)) , extra=2)
+        InstanceFormSet = formset_factory(wraps(cls)(partial(cls, cics=cics)) , extra=0)
         ffs[typ] = InstanceFormSet(request.POST or None, initial=listi, prefix=typ.name)
 
     if request.POST:

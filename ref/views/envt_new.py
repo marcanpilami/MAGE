@@ -1,8 +1,6 @@
 # coding: utf-8
 from django import forms
-from ref.models.models import ComponentImplementationClass, \
-    ImplementationDescription, ImplementationRelationDescription, Environment, \
-    ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
+from ref.models import ComponentImplementationClass, ImplementationDescription, Environment, ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
 from django.shortcuts import render, render_to_response, redirect
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit

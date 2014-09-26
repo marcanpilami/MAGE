@@ -1,4 +1,5 @@
 # coding: utf-8
+""" Logical component model """
 
 ## Python imports
 import json
@@ -9,7 +10,7 @@ from django.shortcuts import render
 from django.http.response import HttpResponse
 
 ## MAGE imports
-from ref.models.models import LogicalComponent
+from ref.models import LogicalComponent
 
 
 def get_lc_versions(request, lc_id):

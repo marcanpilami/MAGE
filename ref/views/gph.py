@@ -5,7 +5,7 @@ from ref.graphs_mlg import getGraph, DrawingContext
 from django.db.models import Q
 import unicodedata
 from django import forms
-from ref.models.models import Environment, ImplementationDescription
+from ref.models import Environment, ImplementationDescription
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.core.cache import cache

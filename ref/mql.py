@@ -6,7 +6,7 @@ MAGE Query Language
 
 from pyparsing import Forward, Group, Suppress, Optional, ZeroOrMore, Combine, \
     Word, alphas, nums, QuotedString, CaselessLiteral, FollowedBy
-from ref.models.models import ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
+from ref.models.instances import ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
 from django.db.models.query import Prefetch
 
 def __build_grammar():

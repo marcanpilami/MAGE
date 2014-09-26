@@ -85,7 +85,7 @@ def __resolve_navigation(path, instance):
     ''' Will instanciate a pattern according to the value inside the given component instance'''
 
     # Import here to avoid circular imports
-    from ref.models.models import ComponentInstanceField, ComponentInstance
+    from ref.models.instances import ComponentInstanceField, ComponentInstance
 
     if path[-1] == 'mage_id':
         req = {}

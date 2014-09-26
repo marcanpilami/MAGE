@@ -7,7 +7,7 @@
 
 from ref.models import Environment, ComponentInstance, ExtendedParameter, \
     EnvironmentType
-from ref.models.models import ComponentInstanceField, ComponentInstanceRelation
+from ref.models.instances import ComponentInstanceField, ComponentInstanceRelation
 from ref.conventions import value_instance_fields, value_instance_graph_fields
 
 

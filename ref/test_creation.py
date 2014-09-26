@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.test import TestCase
 from ref.demo_items import utility_create_meta
-from ref.models.models import ImplementationDescription, Environment, \
+from ref.models.instances import ImplementationDescription, Environment, \
     EnvironmentType, Project, Application
 from ref.conventions import value_instance_fields
 
