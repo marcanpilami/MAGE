@@ -59,7 +59,7 @@ def post_syncdb_handler(sender, **kwargs):
 post_syncdb.connect(post_syncdb_handler, sender=models)
 
 """
-C:\Python27\python.exe .\manage.py sqlclear ref | select-string -NotMatch dot  | C:\Python27\python.exe .\manage.py dbshell
+C:\Python27\python.exe .\manage.py sqlclear ref,scm | select-string -NotMatch dot  | C:\Python27\python.exe .\manage.py dbshell
 C:\Python27\python.exe .\manage.py migrate
 C:\Python27\python.exe .\manage.py runserver
 """

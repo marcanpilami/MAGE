@@ -77,7 +77,6 @@ class CiChoiceField(forms.ModelChoiceField):
 
 ## Forms for item creation (step 1)
 class NewCiStep1Form(forms.Form):
-    _cic = CicChoiceField(queryset=ComponentImplementationClass.objects.order_by('implements__application__name', 'implements__name', 'name').all(), label='Offre technique implémentée', required=False)
     _env = forms.ModelChoiceField(queryset=Environment.objects.all(), label='Environnement', required=False)
 
     helper = FormHelper()
@@ -92,6 +91,10 @@ def form_for_model_relations(descr):
     if __form_for_model_relations_cache.has_key(descr.id):
         return __form_for_model_relations_cache[descr.id]
     attrs = {}
+
+    # CIC
+    if descr.cic_set.count() > 0:
+        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').all(), label='Offre technique implémentée', required=False)
 
     # Relations
     for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
