@@ -2,7 +2,7 @@
 from ref.demo_items import create_full_test_data
 from scm.models import LogicalComponentVersion, InstallationMethod, Delivery, \
     InstallableItem
-from ref.models.instances import LogicalComponent, ComponentImplementationClass
+from ref.models import LogicalComponent, ComponentImplementationClass
 from django.db.transaction import atomic
 
 @atomic

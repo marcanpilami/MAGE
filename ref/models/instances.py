@@ -61,6 +61,8 @@ class Environment(models.Model):
 @receiver(pre_save, sender=Environment)
 def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
     """ mark all CI as delete when the envt is disabled """
+    if instance.pk is None:
+        return
     for ci in instance.component_instances.all():
         if not instance.active:
             ci.deleted = True

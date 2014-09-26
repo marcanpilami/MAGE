@@ -12,6 +12,7 @@ from _functools import partial
 
 @atomic
 def edit_comp(request, instance_id=None, description_id=None):
+    """ still used ?"""
     instance = None
 
     if request.POST:

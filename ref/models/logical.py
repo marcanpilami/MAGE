@@ -60,5 +60,5 @@ class ComponentImplementationClass(models.Model):
         return u'%s' % self.name
 
     class Meta:
-        verbose_name = u'déclinaison technique d\'un CL'
-        verbose_name_plural = u'déclinaisons techniques des CL'
+        verbose_name = u'offre implémentant un composant logique'
+        verbose_name_plural = u'offres implémentant des composants logiques'

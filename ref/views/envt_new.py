@@ -1,7 +1,15 @@
 # coding: utf-8
+
+## Django imports
 from django import forms
-from ref.models import ComponentImplementationClass, ImplementationDescription, Environment, ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
 from django.shortcuts import render, render_to_response, redirect
+from django.db.transaction import atomic
+from django.contrib.auth.decorators import permission_required
+
+## MAGE imports
+from ref.models import ComponentImplementationClass, ImplementationDescription, Environment, ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
+
+## Other libs imports
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
@@ -10,6 +18,8 @@ def new_items(request):
     """Hub for creating all sorts of items"""
     return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.all()})
 
+@permission_required('ref.scm_addcomponentinstance')
+@atomic
 def new_ci_step1(request, description_id):
     descr = ImplementationDescription.objects.get(pk=description_id)
     cls = form_for_model_relations(descr)
@@ -26,6 +36,8 @@ def new_ci_step1(request, description_id):
 
     return render_to_response("ref/instance_edit_step1.html", {'form': form, 'descr' : descr})
 
+@permission_required('ref.scm_addcomponentinstance')
+@atomic
 def new_ci_step2(request, instance_id):
     instance = ComponentInstance.objects.get(pk=instance_id)
     descr = instance.implementation

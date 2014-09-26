@@ -9,9 +9,9 @@
 
 {% block content %}
 {% regroup impls by tag as tag_list %}
-<a class='metSquare' href="{% url 'ref:new_item' %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
+<!-- <a class='metSquare' href="{% url 'ref:new_item' %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
 <a class='metSquare' href="{% url 'ref:new_item' %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
-
+-->
 
 {% for tag in tag_list|dictsort:"grouper" %}
 	<div class='container-fluid'>

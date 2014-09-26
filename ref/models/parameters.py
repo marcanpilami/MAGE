@@ -16,7 +16,7 @@
 ###############################################################################
 ##
 ## Minimalist parameters handling
-##    
+##
 ###############################################################################
 
 
@@ -58,25 +58,25 @@ def choice_list():
         app_name = application.split('.')[0]
         if app_name == 'django': continue
         yield (app_name, app_name)
-        
+
 class MageParam(models.Model):
     key = models.CharField(max_length=30, verbose_name=u'clé')
     app = models.CharField(max_length=5, verbose_name=u'application', choices=choice_list())
     value = models.CharField(max_length=100, verbose_name=u'valeur')
-    
+
     description = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'description')
     default_value = models.CharField(max_length=100, blank=True, null=True, verbose_name=u'valeur par défaut')
     model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné')
     axis1 = models.CharField(max_length=30, verbose_name=u'classification optionnelle', blank=True, null=True)
-    
+
     restricted = models.BooleanField(default=False)
-    
+
     def __unicode__(self):
         return u'[%s] %s : %s' % (self.app, self.key, self.value)
-    
+
     class Meta:
-        verbose_name = u'paramètre'
-        verbose_name_plural = u'paramètres'
+        verbose_name = u'paramètre global'
+        verbose_name_plural = u'paramètres globaux'
         ordering = ['app', 'key', ]
         unique_together = [('key', 'app', 'model', 'axis1'), ]
 
@@ -96,9 +96,9 @@ def getParam(key, **others):
     if others and others.has_key('app'): app = others['app']
     else: app = sys._getframe(1).f_globals['__name__'].split('.')[0]
     filters = others or {}
-    filters['app'] = app  
+    filters['app'] = app
     filters['key'] = key
-    
+
     try:
         return MageParam.objects.get(**filters).value
     except (MageParam.DoesNotExist, MageParam.MultipleObjectsReturned):
@@ -110,7 +110,7 @@ def setOrCreateParam(key, value, **others):
     args = others or {}
     args['key'] = key
     args['app'] = app
-    
+
     prm = MageParam.objects.get_or_create(**args)[0]
     prm.value = value
     prm.save()
@@ -129,10 +129,10 @@ def setParam(key, value, **others):
     args['key'] = key
     args['app'] = app
     args['value'] = value
-    
+
     try:
         prm = getParam(**args) # Compulsory, as constraints on nullable fields may not be implemented in the db.
-    except ParamNotFound:   
+    except ParamNotFound:
         p = MageParam(**args)
         p.save()
         return

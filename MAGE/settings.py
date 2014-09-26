@@ -170,7 +170,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+
     'crispy_forms',
 
     'ref', ## Keep REF first after django internals
@@ -178,4 +178,4 @@ INSTALLED_APPS = (
 )
 
 INSTALLED_APPS += LOCAL_APPS
-#INSTALLED_APPS += ('end',) # SCM should always be last
+INSTALLED_APPS += ('end',) # SCM should always be last

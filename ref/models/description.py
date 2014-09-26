@@ -119,8 +119,8 @@ class ImplementationDescription(models.Model):
         return naming_language.resolve(self.self_description_pattern, instance)
 
     class Meta:
-        verbose_name = u'paramétres d\'implémentation'
-        verbose_name_plural = u'paramétres des implémentations'
+        verbose_name = u"description instance"
+        verbose_name_plural = u"descriptions instances"
 
     def proxy_class(self):
         try:
