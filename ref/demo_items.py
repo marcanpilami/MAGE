@@ -176,9 +176,8 @@ def utility_create_meta():
             add_field_simple('client_url', 'access URL', compulsory=False).\
             add_relationship('group', 'member of cluster', impl14, dt2, min_cardinality=1, max_cardinality=1).\
             add_relationship('schema', 'uses Oracle schema', impl4, dt1, min_cardinality=0, max_cardinality=1).\
-            add_relationship('broker', 'uses MQ broker', impl6, dt1, min_cardinality=0, max_cardinality=1)
-            # add_field_computed('url', 'end-user URL', 'http://|  toto|%server.admin_password;server.admin_login').\
-            #TODO: make language recursive...
+            add_relationship('broker', 'uses MQ broker', impl6, dt1, min_cardinality=0, max_cardinality=1).\
+            add_field_computed('url', 'end-user URL', '"http://"|client_url?group.dns_to_use')
     impl16.save()
 
 
