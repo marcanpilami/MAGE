@@ -31,6 +31,10 @@ urlpatterns = patterns('',
     url(r'mplg$', views.view_carto, name='grmain'),
     url(r'gph/envt/(?P<envt_id>\d*)/*$', views.envt_pic, name='grenvt'),
 
+    url(r'mplg2$', views.carto_form, name='cartoform'),
+    url(r'mplgdata$', views.carto_content, name='cartodata'),
+
+
     url(r'urls', views.urls, name='urls'),
 
     ## Instances

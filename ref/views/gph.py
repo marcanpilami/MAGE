@@ -9,6 +9,8 @@ from ref.models import Environment, ImplementationDescription
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
+import json
+from ref.graph_mlg2 import getNetwork
 
 
 def full_pic(request):
@@ -98,4 +100,12 @@ class CartoForm(forms.Form):
                     min_value=0,
                     initial=4)
 
+
+def carto_form(request):
+    return render_to_response('ref/view_carto2.html')
+
+def carto_content(request):
+    response = HttpResponse(content_type='text/json; charset=utf-8')
+    json.dump(getNetwork(Environment.objects.get(name='DEV1').component_instances.all()), fp=response, ensure_ascii=False, indent=4)
+    return response
 
