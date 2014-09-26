@@ -52,7 +52,7 @@ site.register(SLA)
 
 class EnvironmentAdmin(ModelAdmin):
     fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active', 'managed', 'show_sensitive_data' ]
-    list_display = ('name', 'description', 'template_only', 'managed', 'show_sensitive_data')
+    list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
     list_filter = ['template_only', 'managed', 'typology']

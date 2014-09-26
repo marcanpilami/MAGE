@@ -11,6 +11,8 @@ from UserDict import DictMixin
 ## Django imports
 from django.db import models
 from django.core.cache import cache
+from django.dispatch.dispatcher import receiver
+from django.db.models.signals import pre_save
 
 
 ################################################################################
@@ -55,6 +57,14 @@ class Environment(models.Model):
     class Meta:
         verbose_name = 'environnement'
         verbose_name_plural = 'environnements'
+
+@receiver(pre_save, sender=Environment)
+def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
+    """ mark all CI as delete when the envt is disabled """
+    for ci in instance.component_instances.all():
+        if not instance.active:
+            ci.deleted = True
+            ci.save()
 
 
 ################################################################################

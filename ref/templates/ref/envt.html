@@ -68,7 +68,7 @@
 						{{ compo.name | capfirst }}
 						</td>
 						
-						{% if compo.implementation %}
+						{% if compo.implementation and not compo.deleted %}
 							{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
 								{% if field.field.widget_row >= 0 %}
 									{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}

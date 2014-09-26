@@ -56,7 +56,7 @@ def __run(q):
 
 def __select_compo(q):
 
-    rs = ComponentInstance.objects.all()
+    rs = ComponentInstance.objects.filter(deleted=False)
 
     if q.lc:
         rs = rs.filter(instanciates__implements__name=q.lc)
