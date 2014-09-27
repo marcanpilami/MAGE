@@ -9,7 +9,6 @@ from django.conf.urls import patterns, url
 from ref import views
 
 urlpatterns = patterns('',
-    url(r'^templates$', views.templates, name='templates'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
 

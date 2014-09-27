@@ -55,15 +55,19 @@
 	</div>
 </div>
 <div class='col-sm-3'>
-<div style='color: white;' class='row'>
+	<div style='color: white;' class='row'>
 		<div class='t2' style='color: black;'>Aides scripting</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare' style='background: #004A00;' href="{% url 'ref:types' %}">Types de composants installés</a>
-		<a class='metSquare' style='background: #004A00;' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
-		<a class='metSquare' style='background: #004A00;' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
-		<a class='metSquare' style='background: #004A00;' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
-		<a class='metSquare' style='background: #004A00;' href="{% url 'ref:templates' %}">Liste et contenu des templates d'environnement</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:types' %}">Types de composants installés</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
+	</div>
+	<div class='row'>
+	{% for envt in templates %}
+		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">Template {{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
+	{%endfor %}
 	</div>
 </div>
 </div>

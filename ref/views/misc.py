@@ -27,7 +27,8 @@ def welcome(request):
     return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(),
                             'latest': latest,
                             'envts': Environment.objects_active.order_by('typology', 'name').annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
-                            annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).all() })
+                            annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).all(),
+                            'templates': Environment.objects.filter(template_only=True) })
 
 
 ##############################################################################
