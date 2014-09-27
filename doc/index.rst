@@ -6,7 +6,7 @@ MAGE
 Introduction
 *****************
 
-MAGE is an assistant for managing the different environments all big IT projects will eventually end up with (development, acceptance, integration, preproduction, etc). It will never *do* any action on the environments by itself, such as installing a patch, but will provide many tools to help script these actions (the list of which is specific to each project) and to keep tabs on the environments (this was installed at that time, etc).
+MAGE is an assistant for managing the different environments all big IT projects will eventually end up with (development, user acceptance, integration, preproduction, etc). It will never *do* any action on the environments by itself, such as installing a patch, but will provide many tools to help script these actions (the list of which is specific to each project) and to keep tabs on the environments (this was installed at that time, etc).
 
 Basically, it's a scripting toolbox with some kind of CMDB and DSL designed for out-of-production environments, as well as a publishing portal for all these data.
 
