@@ -109,3 +109,5 @@ def carto_content(request):
     json.dump(getNetwork(Environment.objects.get(name='DEV1').component_instances.all()), fp=response, ensure_ascii=False, indent=4)
     return response
 
+def temp(request):
+    return render_to_response('ref/temp.html', {'json':getNetwork(Environment.objects.get(name='DEV1').component_instances.all())})

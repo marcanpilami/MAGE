@@ -33,6 +33,7 @@ urlpatterns = patterns('',
 
     url(r'mplg2$', views.carto_form, name='cartoform'),
     url(r'mplgdata$', views.carto_content, name='cartodata'),
+    url(r'temp', views.temp, name='temp'),
 
 
     url(r'urls', views.urls, name='urls'),

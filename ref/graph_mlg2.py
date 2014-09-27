@@ -27,6 +27,9 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
             rel_level = 0
             rel_type = None
 
+        ## Only use CIs from the cache with preloaded relationships
+        ci = all_instances[ci.pk]
+
         nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name, 'truc': 'R%MLKR%ML'}}
         types[ci.pk] = ci.implementation.name
         targets[ci.pk] = []
@@ -47,11 +50,10 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
 
     ## Everything is done in memory to avoid hitting the db too much - but this means the whole referential is loaded!
     rs = ComponentInstance.objects.select_related('implementation').prefetch_related('environments').\
-        prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field'))).\
-        prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field')))
+        prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field__link_type', 'target')))
 
     all_instances = {}
-    for ci in rs:
+    for ci in rs.all():
         all_instances[ci.pk] = ci
 
     for ci in instances_to_draw:
@@ -90,7 +92,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
                 nodes.pop(tr['id'])
                 removed_nodes.append(tr['id'])
             # change first node title to reflect collapse
-            n1['value']['label'] = "% instances of %s" % (len(nodes_to_remove) + 1, types[n1['id']])
+            n1['value']['label'] = "% instances de %s" % (len(nodes_to_remove) + 1, types[n1['id']])
 
 
     ## Done
