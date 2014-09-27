@@ -1,5 +1,4 @@
 ﻿django>=1.7,<1.8
-pyparsing
-pydot
-unicodecsv
-django-crispy-forms
+pyparsing==2.0.2
+unicodecsv==0.9.4
+django-crispy-forms>=1.4,<1.5

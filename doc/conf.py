@@ -10,8 +10,8 @@ exlude_dirnames = ['.git',]
 
 ## Project data
 project = 'MAGE'
-copyright = '2008-2013, Marc-Antoine Gouillart'
-release = '5.0'
+copyright = '2008-2014, Marc-Antoine Gouillart'
+release = '6.1'
 language = 'en'
 
 ## HTML options

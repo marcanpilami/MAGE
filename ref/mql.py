@@ -26,10 +26,10 @@ def __build_grammar():
     where_clause = Group(Suppress(k_where) + filter_predicate + ZeroOrMore(Suppress(k_and) + filter_predicate))('where')
 
     # Pre filters
-    impl = Optional(Suppress("implementation")) + qs('impl')
-    cic = Suppress("offer") + qs('cic')
-    lc = Suppress("lc") + qs('lc')
-    envt = Suppress("environment") + qs('envt')
+    impl = Optional(Suppress(CaselessLiteral("implementation"))) + qs('impl')
+    cic = Suppress(CaselessLiteral("offer")) + qs('cic')
+    lc = Suppress(CaselessLiteral("lc")) + qs('lc')
+    envt = Suppress(CaselessLiteral("environment")) + qs('envt')
     pre_filter = Optional(envt) + Optional(lc) + Optional(cic) + Optional(impl) + FollowedBy(k_instances)
 
     # Dict query (only select some elements and navigate)

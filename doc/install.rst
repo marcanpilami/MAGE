@@ -4,21 +4,12 @@
 Prerequisites
 ********************
 
-
 * OS: every OS with a supported Python 2.7 distribution. (Windows, most Linux distributions, Solaris, ...)
 * Python 2.7.x (not Python 3.x)
-* Python easy install (may be included in your Python distribution, otherwise download http://peak.telecommunity.com/dist/ez_setup.py and run python ez_setup.py)
-* Graphviz (latest available version on your platform,. The 'dot' executable must be in the PATH)
-* A git client (on Windows, the recommended distribution is github's http://msysgit.github.io/)
-* Optionaly, a database (Oracle >= 10g, PostgresQL, mysql). Default is sqlite 3 - it is bundled with Python, so nothing special is required. In other databases, you will need an account with the permission to create tables, sequences and indexes (or their equivalent in your database).
-
-Django: install these through easy_install :
-
-* django==1.5.1
-* pyparsing==1.5.7
-* pydot
-* ipython
-* Sphinx
+* Python easy install (may be included in your Python distribution, otherwise download https://bootstrap.pypa.io/get-pip.py and run python get-pip.py)
+* A git client (on Windows, the recommended distribution is GitHub's http://msysgit.github.io/)
+* Optionally, a database (Oracle >= 10g, PostgresQL, mysql). Default is sqlite 3 - it is bundled with Python, so nothing special is required. In other databases, you will 
+  need an account with the permission to create tables, sequences and indexes (or their equivalent in your database).
 
 
 MAGE itself
@@ -27,10 +18,23 @@ MAGE itself
 Checkout
 =============
 
-Choose a directory in which to install MAGE. This directory will not be accessible to users. It will be refered to as ${MAGE_INSTALL_ROOT} in this document. ::
+Choose a directory in which to install MAGE. This directory will not be accessible to users. It will be referred to as ${MAGE_INSTALL_ROOT} in this document. ::
 
 	git clone git://github.com/marcanpilami/MAGE.git
+    
+Libraries
+==============
 
+These are installed with PIP::
+
+    ## Linux (sh, bash & similar)
+    cd $MAGE_INSTALL_ROOT
+    pip install -r requirements.txt
+    
+    ## Windows (posh)
+    cd $MAGE_INSTALL_ROOT
+    C:\Python\Scripts\pip.exe install -r requirements.txt
+    
 Settings
 ==============
 
@@ -48,11 +52,11 @@ Sync
 
 In the ${MAGE_INSTALL_ROOT} directory, create the database objects by running::
 
-	python manage.py syncdb
+	python manage.py migrate
+    python manage.py collectstatic
+    python manage.py createsuperuser
 	
-You will be asked to create a root account. Accept, and do not forget the password you specify. Then run::
-
-	python manage.py collectstatic
+You will be asked to create a root account. Accept and do not forget the password you specify.
 
 Test
 ===============
@@ -61,17 +65,25 @@ Run::
 
 	python manage.py runserver
 
-This will launch a small web server listening on an address printed on the standard output. With a browser, try this address. You should access MAGE's homepage.
+This will launch a small web server listening on an address printed on the standard output. With a browser, try this address (note that 
+it only works on loop back, so no remote access possible). You should then access MAGE's homepage.
 
 Initial data
 =======================
 
-MAGE module authors may provide intiial data with a hook. So just call in your internet browser the page ${ROOT_MAGE_URL}/scm/demo (this will redirect to the home page).
+If you just want to play with demo data, run the following commands::
 
-This will delete every last bit of data from the database, and fill it with the data provided by the modules. In case there is no such data, you can still get some demo data with ${ROOT_MAGE_URL}/scm/demointernal
+    python manage.py shell
+    from scm.demo_items import create_test_is
+    create_test_is()
+    exit
+    
+Otherwise, the database is yours to populate through the GUI and scripts. For writing bootstrap script, inspiration should be taken from the one used above.
 
 
-OSGI/FastCGI/SCGI/AJP integration
-=====================================
+WSGI/OSGI/FastCGI/SCGI/AJP integration
+===========================================
 
-It is now possible - as an option - to have a fully-featured web server serve our web pages. For this, follow the instructions at https://docs.djangoproject.com/en/1.5/howto/deployment/
+For deploying MAGE inside a full-fledged web server, please follow the instructions at https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/.
+
+Please note that all new deployments should use WSGI and NOT FastCGI which is deprecated.
