@@ -256,6 +256,11 @@ div.metRibbonSplashContent {
 	color: default;
 }
 
+.metSubLineHeader {
+	background-color: #BCBCBC;
+	color: default;
+}
+
 .metDefaultColors {
 	color: white;
 	background-color: #094AB2;

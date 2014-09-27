@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load filter %}
 {% block pagetitle %}New items{% endblock %}
-{% block maintitle %}Environnement {{envt.name}}{% endblock %}
+{% block maintitle %}Ajout élément de référentiel{% endblock %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
@@ -13,17 +13,51 @@
 <a class='metSquare' href="{% url 'ref:new_item' %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
 -->
 
-{% for tag in tag_list|dictsort:"grouper" %}
-	<div class='container-fluid'>
+
+<div class='container-fluid'>
+	<div class='col-md-1'>
+		<a class='metRectList metLineHeader'>1 - Méta référentiel</a>
+	</div>
+	<div class='col-md-11'>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_implementationrelationtype_add' %}">Types de liens<div class='metSquareLong annotation'>familles de liens entre composant pour classification</div></a>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_implementationdescription_add' %}">Description technique<div class='metSquareLong annotation'>comment les instances vont être décrites dans le référentiel</div></a>		
+	</div>
+	
+	<div class='col-md-1'>
+		<a class='metRectList metLineHeader'>2 - Offres</a>
+	</div>
+	<div class='col-md-11'>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_project_add' %}">Projet<div class='metSquareLong annotation'>Regroupement d'applications</div></a>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_application_add' %}">Application<div class='metSquareLong annotation'>Regroupement de composants logiques, d'environnements</div></a>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_logicalcomponent_add' %}">Composant logique<div class='metSquareLong annotation'>ce que réprésentent réellement les instances</div></a>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_componentimplementationclass_add' %}">Offres d'implémentation<div class='metSquareLong annotation'>façon d'implémenter les composants logiques</div></a>
+	</div>
+	
+	<div class='col-md-1'>
+		<a class='metRectList metLineHeader'>3 - Environnements</a>
+	</div>
+	<div class='col-md-11'>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_environmenttype_add' %}">Type d'environnement<div class='metSquareLong annotation'>sert à classer les environnements</div></a>
+		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_environment_add' %}">Environnement<div class='metSquareLong annotation'>regroupement d'instances pour faciliter leur gestion</div></a>
+	</div>
+	
+	<div class='col-md-1'>
+		<a class='metRectList metLineHeader'>4 - Instances</a>
+	</div>	
+	{% for tag in tag_list|dictsort:"grouper" %}
+		{% if forloop.first %}
 		<div class='col-md-1'>
-			<a class='metRectList metLineHeader'>{% if tag.grouper %}{{tag.grouper}}{% else %}no tag{% endif %}</a>
+		{% else %}
+		<div class='col-md-1 col-md-offset-1'>
+		{% endif %}
+			<a class='metRectList metSubLineHeader'>{% if tag.grouper %}{{tag.grouper}}{% else %}non classé{% endif %}</a>
 		</div>
-		<div class='col-md-11'>
+		<div class='col-md-10'>
 		{% for desc in tag.list|dictsort:"name" %}
-			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' desc.id %}">Instance de {{desc.name}}<div class='metSquareLong annotation'>{{desc.description}}</div></a>
+			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' desc.id %}">{{desc.description|capfirst}}<div class='metSquareLong annotation'>code {{desc.name}}</div></a>
 		{% endfor %}
 		</div>
-	</div>
-{% endfor %}
+	{% endfor %}
+</div>
 {% endblock content %}
 

@@ -25,17 +25,17 @@ def utility_create_meta():
     ######################################################################
 
     ## OS Server
-    impl1 = ImplementationDescription.create_or_update('osserver', 'a server with an installed OS', self_description_pattern='"server "|dns', tag='os').\
+    impl1 = ImplementationDescription.create_or_update('osserver', 'serveur avec un OS', self_description_pattern='"server "|dns', tag='os').\
             add_field_simple('dns', 'dns d\'administration', widget_row=None).\
             add_field_simple('admin_login', 'login admin', default='root').\
             add_field_simple('admin_password', 'password admin', sensitive=True)
     impl1.save()
 
     ## OS account
-    impl2 = ImplementationDescription.create_or_update('osaccount', 'account for login on a server', self_description_pattern='login', tag='os').\
+    impl2 = ImplementationDescription.create_or_update('osaccount', 'compte de connexion au shell', self_description_pattern='login', tag='os').\
             add_field_simple('login', 'login du compte', widget_row=None).\
             add_field_simple('password', 'mot de passe', sensitive=True).\
-            add_relationship('server', 'sur le serveur', impl1, dt2, 1, 1)
+            add_relationship('server', 'sur le serveur', impl1, dt2, 0, 1)
     impl2.save()
 
 
@@ -44,7 +44,7 @@ def utility_create_meta():
     ######################################################################
 
     ## Oracle instance
-    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'an oracle instance', self_description_pattern='sid', tag='oracle').\
+    impl3 = ImplementationDescription.create_or_update('oracleinstance', 'instance Oracle', self_description_pattern='sid', tag='oracle').\
             add_field_simple('sid', 'SID of the instance', widget_row=None).\
             add_field_simple('admin_login', 'login DBA', default='scott').\
             add_field_simple('admin_password', 'mot de passe DBA', default='tiger').\
@@ -54,7 +54,7 @@ def utility_create_meta():
     impl3.save()
 
     ## Oracle schema
-    impl4 = ImplementationDescription.create_or_update('oracleschema', 'schema on an Oracle instance', self_description_pattern='name|" on "|instance.sid', tag='oracle').\
+    impl4 = ImplementationDescription.create_or_update('oracleschema', 'schéma dans une instance Oracle', self_description_pattern='name|" on "|instance.sid', tag='oracle').\
             add_field_simple('name', 'nom', widget_row=None, default="User%E~%%cem~2%s%cem%").\
             add_field_simple('password', 'password', sensitive=True, default='%e%').\
             add_field_simple('dns_to_use', 'overload of the server DNS (service address)', label_short='DNS de service', compulsory=False).\
@@ -65,7 +65,7 @@ def utility_create_meta():
     impl4.save()
 
     ## Oracle package
-    impl5 = ImplementationDescription.create_or_update('oraclepackage', 'package inside an Oracle schema', self_description_pattern='name', tag='oracle').\
+    impl5 = ImplementationDescription.create_or_update('oraclepackage', 'package dans un schéma Oracle', self_description_pattern='name', tag='oracle').\
             add_field_simple('name', 'package name', widget_row=None).\
             add_relationship('schema', 'schema holding the package', impl4, dt2, min_cardinality=1, max_cardinality=1)
     impl5.save()
@@ -94,7 +94,7 @@ def utility_create_meta():
     ## Batch & JQM
     ######################################################################
 
-    impl8 = ImplementationDescription.create_or_update('applicationfile', 'an application file', self_description_pattern='name').\
+    impl8 = ImplementationDescription.create_or_update('applicationfile', 'fichier applicatif', self_description_pattern='name').\
             add_field_simple('name', 'nom fichier', widget_row=None).\
             add_field_simple('path', 'chemin').\
             add_relationship('belongs_to', 'compte propriétaire', impl2, dt2, min_cardinality=0, max_cardinality=1).\
@@ -159,7 +159,7 @@ def utility_create_meta():
             add_relationship('domain', 'member of domain', impl12, dt2, min_cardinality=1, max_cardinality=1)
     impl14.save()
 
-    impl15 = ImplementationDescription.create_or_update('jbossas', u'JVM JBoss', self_description_pattern='name', tag='jboss').\
+    impl15 = ImplementationDescription.create_or_update('jbossas', u'JVM AS JBoss', self_description_pattern='name', tag='jboss').\
             add_field_simple('name', 'JVM name', default='%ngroup.name%_%ci2group.mage_id%', widget_row=None).\
             add_field_simple('port_shift', 'port shift', default='%cihost.mage_id%*10').\
             add_field_simple('dns_to_use', 'service DNS entry', compulsory=False, widget_row=None).\
@@ -217,7 +217,7 @@ def utility_create_meta():
             add_relationship('cluster', 'member of cell', impl18, dt2, min_cardinality=1, max_cardinality=1)
     impl20.save()
 
-    impl21 = ImplementationDescription.create_or_update('wasapplication', 'WebSphere Application Server Application', self_description_pattern='name', tag='was').\
+    impl21 = ImplementationDescription.create_or_update('wasapplication', 'Application WebSphere Application Server', self_description_pattern='name', tag='was').\
             add_field_simple('name', 'application name').\
             add_field_simple('context_root', 'HTTP port', '/').\
             add_field_simple('client_url', 'service URL').\
@@ -230,13 +230,13 @@ def utility_create_meta():
     ## MySQL
     ######################################################################
 
-    impl22 = ImplementationDescription.create_or_update('mysqlinstance', 'MySQL instance', self_description_pattern='name', tag='mysql').\
+    impl22 = ImplementationDescription.create_or_update('mysqlinstance', 'instance MySQL', self_description_pattern='name', tag='mysql').\
             add_field_simple('name', 'instance name').\
             add_field_simple('port', 'remote access port', 3306).\
             add_relationship('server', 'serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
     impl22.save()
 
-    impl23 = ImplementationDescription.create_or_update('mysqluser', 'user inside a mysql instance', self_description_pattern='name|" on "|instance.name', tag='mysql').\
+    impl23 = ImplementationDescription.create_or_update('mysqluser', 'compte MySQL', self_description_pattern='name|" on "|instance.name', tag='mysql').\
             add_field_simple('name', 'nom', widget_row=None, default="%e%").\
             add_field_simple('password', 'password', sensitive=True, default='%e%').\
             add_relationship('instance', 'instance', impl22, dt2, min_cardinality=1, max_cardinality=1)
