@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load filter %}
+{% load staticfiles %}
 {% block pagetitle %}{{envt.name}}{% endblock %}
 {% block maintitle %}Environnement {{envt.name}}{% endblock %}
 
@@ -7,6 +8,12 @@
 {% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
 <a href="{% url 'ref:instance_envt' envt.id %}" title="Editer l'environnement">E</a>
 {% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src='{% static "d3.min.js" %}'></script>
+<script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
+<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+{% endblock scripts %}
 
 {% block content %}
 {% regroup envt.component_instances.all|dictsort:"implementation.tag"|dictsort:"implementation.name" by implementation.description as compotype_list %}
@@ -36,7 +43,7 @@
 			{% for compo in compotype.list %}
 
 				{% if forloop.first %}
-					<tr><th></th><th>name</th>
+					<tr><th>Composant</th><th>name</th>
 					{% if compo.implementation %}
 						{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
 							{% if field.field.widget_row >= 0 %}
@@ -93,9 +100,28 @@
 	</div>
 	
 	
-	<div class='col-md-2' style='width=auto;'>
+	<div class='col-md-2'>
 		<div class='t2'>Représentation</div>
-		<img src="{% url 'ref:grenvt' envt.id %}" alt="environment picture"> 
+		<script type="text/javascript">
+$(document).ready(function()
+{	
+	$.ajax(
+			{
+				url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
+				type : "GET",
+				dataType : "json",
+			}).done(function(json)
+			{
+				var digraph = dagreD3.json.decode(json['nodes'], json['edges']);
+				
+				var renderer = new dagreD3.Renderer();
+				renderer.run(digraph, d3.select("svg g"));
+			});
+});
+</script>
+		<svg width='2048' height='2048'>
+		    <g transform="translate(20,20) scale(0.7)"/>
+		</svg>
 	</div>
 </div>
 {% endblock content %}

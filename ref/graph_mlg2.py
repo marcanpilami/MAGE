@@ -1,15 +1,13 @@
 # coding: utf-8
 
 ## Python imports
-import unicodedata
+
+## Django imports
+from django.db.models.query import Prefetch
 
 ## MAGE imports
 from ref.models import ComponentInstance
-from ref.models.parameters import getMyParams
-from ref.graphs_helpers import MageDC
-from ref.models.instances import ComponentInstanceField, \
-    ComponentInstanceRelation
-from django.db.models.query import Prefetch
+from ref.models.instances import ComponentInstanceRelation
 
 
 def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_threshold=2):
@@ -75,20 +73,16 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
             if types[n1['id']] == types[n2['id']] and targets[n1['id']] == targets[n2['id']] and not n2['id'] in removed_nodes:
                 nodes_to_remove.append(n2)
 
-        print len(nodes_to_remove)
         if len(nodes_to_remove) >= collapse_threshold - 1: # -1 because first node n1 is not in the list
             for tr in nodes_to_remove:
                 for key, value in edges.items():
                     # remove the now duplicate outgoing edges
                     if value['u'] == tr['id']:
-                        print 'removing link'
                         edges.pop(key)
                     # redirect the incoming edges to the collapsed node
                     if value['v'] == tr['id']:
-                        print 'redirecting link'
                         value['v'] = n1['id']
                 # remove node as it is collapsed into the first one
-                print 'removing node %s' % tr['id']
                 nodes.pop(tr['id'])
                 removed_nodes.append(tr['id'])
             # change first node title to reflect collapse

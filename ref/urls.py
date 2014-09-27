@@ -26,16 +26,13 @@ urlpatterns = patterns('',
     url(r'mql/(?P<output_format>.*)/(?P<query>.*)$', views.mql_query, name='mqlquery'),
 
     ## Graphs
-    url(r'gph/full$', views.full_pic, name='grfull'),
-    url(r'gph/filter/(?P<nbRelGenerations>\d*)/(?P<collapseThr>\d*)', views.filter_pic, name='grfilter'),
-    url(r'mplg$', views.view_carto, name='grmain'),
-    url(r'gph/envt/(?P<envt_id>\d*)/*$', views.envt_pic, name='grenvt'),
+    url(r'gph/full$', views.carto_full, name='grfull'),
+    url(r'gph/marsupilamographe$', views.carto_form, name='cartoform'),
+    url(r'gph/mplgdata$', views.carto_content_form, name='cartoformdata'),
+    url(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)$', views.carto_content_full, name='cartofulldata'),
+    url(r'gph/mplgdatasimple/(?P<ci_id_list>[\d,]+)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
 
-    url(r'mplg2$', views.carto_form, name='cartoform'),
-    url(r'mplgdata$', views.carto_content, name='cartodata'),
-    url(r'temp', views.temp, name='temp'),
-
-
+    ## Misc
     url(r'urls', views.urls, name='urls'),
 
     ## Instances

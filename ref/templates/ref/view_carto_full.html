@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block pagetitle %}GE{% endblock %}
-{% block maintitle %}Carte interactive{% endblock %}
+{% block maintitle %}Carte complète{% endblock %}
 {% block scripts %}
 <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
@@ -10,43 +10,30 @@
 <script type="text/javascript">
 function refresh_graph()
 {
-	$.ajax(
-	{
-		url : '{% url "ref:cartoformdata" %}',
-		type : "POST",
-		dataType : "json",
-		data: $("#ff").serialize(),
-	}).done(function(json)
-	{
-		digraph = dagreD3.json.decode(json['nodes'], json['edges']);
-		
-		var renderer = new dagreD3.Renderer();
-		$("svg g").empty();
-		renderer.run(digraph, d3.select("svg g"));
-	});
+	
 }
 
 $(document).ready(function()
 {
-	$('#refresh').on('click', function() { refresh_graph(); });
+	$.ajax(
+	{
+		url : '{% url "ref:cartofulldata" "3" %}',
+		type : "GET",
+		dataType : "json",
+	}).done(function(json)
+	{
+		digraph = dagreD3.json.decode(json['nodes'], json['edges']);		
+		var renderer = new dagreD3.Renderer();
+		renderer.run(digraph, d3.select("svg g"));
+	});
 });
 </script>
 {% endblock scripts %}
 
 {% block content %}
 
-<div class='container-fluid'>
-	<div class='col-md-1 bulletLessList'>
-		<button id='refresh'>Refresh</button>
-		<form id='ff'>
-		{{form.as_p}}
-		</form>
-		
-	</div>
-	<div class='col-md-11'>
-		<svg width=5024 height=5024>
-		    <g transform="translate(20,20) scale(0.7)"/>
-		</svg>
-	</div>	
-</div>
+<svg width=5024 height=5024>
+    <g transform="translate(20,20) scale(0.7)"/>
+</svg>
+
 {% endblock content %}

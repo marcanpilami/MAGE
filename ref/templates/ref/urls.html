@@ -31,7 +31,6 @@ Also, MAGE is always case sensitive (both in URL and arguments). Finaly, all CSV
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Environment referential misc.</td></tr>
 		<tr><td>Duplicate environment</td><td>{% url 'ref:envt_duplicate' "ENVIRONMENT_NAME" %}</td><td>none</td><td>ge</td><td></td></tr>
-		<tr><td>Full PNG of all environments</td><td>{% url 'ref:grfull' %}</td><td>image/png</td><td>public</td><td></td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Backups</td></tr>
 		<tr><td>Register new default backupset</td><td>{% url 'scm:backup_envt' "ENVIRONMENT_NAME" %}</td><td>text/plain</td><td>ge</td><td>a default backupset contains all component instances marked as 'include in default backup'</td></tr>

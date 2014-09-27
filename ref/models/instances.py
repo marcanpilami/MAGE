@@ -51,6 +51,9 @@ class Environment(models.Model):
     def __unicode__(self):
         return "%s" % (self.name,)
 
+    def ci_id_list(self):
+        return ','.join([str(ci.id) for ci in self.component_instances.all()])
+
     objects = models.Manager()
     objects_active = EnvironmentManagerStd()
 
