@@ -445,3 +445,10 @@ svg {
 	stroke-width: 1.5px;
 	fill: none;
 }
+
+/*********** Bootstrap tables **************/
+
+.table-condensed>tbody>tr>td {
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
