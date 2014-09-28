@@ -29,7 +29,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
         ci = all_instances[ci.pk]
 
         nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name, 'truc': 'R%MLKR%ML'}}
-        types[ci.pk] = ci.implementation.name
+        types[ci.pk] = ci.description.name
         targets[ci.pk] = []
 
         for rel in ci.rel_target_set.all():
@@ -47,7 +47,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
     types = {}
 
     ## Everything is done in memory to avoid hitting the db too much - but this means the whole referential is loaded!
-    rs = ComponentInstance.objects.select_related('implementation').prefetch_related('environments').\
+    rs = ComponentInstance.objects.select_related('description').prefetch_related('environments').\
         prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field__link_type', 'target')))
 
     all_instances = {}

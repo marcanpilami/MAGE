@@ -40,7 +40,7 @@ def new_ci_step1(request, description_id):
 @atomic
 def new_ci_step2(request, instance_id):
     instance = ComponentInstance.objects.get(pk=instance_id)
-    descr = instance.implementation
+    descr = instance.description
     cls = form_for_model(descr)
 
     if request.POST:
@@ -60,7 +60,7 @@ def new_ci_step2(request, instance_id):
                 instance.save()
 
     else:
-        di = {'_id': instance.pk, '__descr_id': instance.implementation_id, '_deleted': instance.deleted, '_instanciates' : instance.instanciates_id}
+        di = {'_id': instance.pk, '__descr_id': instance.description_id, '_deleted': instance.deleted, '_instanciates' : instance.instanciates_id}
 
         for field_instance in instance.field_set.all():
             di[field_instance.field.name] = field_instance.value

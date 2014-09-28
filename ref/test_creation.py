@@ -1,9 +1,7 @@
 # coding: utf-8
 from django.test import TestCase
 from ref.demo_items import utility_create_meta
-from ref.models.instances import ImplementationDescription, Environment, \
-    EnvironmentType, Project, Application
-from ref.conventions import value_instance_fields
+from ref.models import ImplementationDescription, Environment, EnvironmentType, Project, Application
 
 class Creation(TestCase):
     def setUp(self):
@@ -26,7 +24,7 @@ class Creation(TestCase):
 
         self.i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin')
         self.i1_2 = ImplementationDescription.class_for_name('osserver')(dns='server2.marsu.net', admin_login='test admin')
-        
+
         self.i2_1 = ImplementationDescription.class_for_name('oracleinstance')(sid='TEST1', admin_login='admin', admin_password='password', server=self.i1_1)
 
 

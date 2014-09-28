@@ -70,7 +70,7 @@ def carto_content_form(request):
                 rs = rs.filter(environments__pk_in=form.cleaned_data['envts'])
 
             if len(form.cleaned_data['models']) > 0:
-                rs = rs.filter(implementation_id__in=form.cleaned_data['models'])
+                rs = rs.filter(description_id__in=form.cleaned_data['models'])
 
             te = {}
             for lt in form.cleaned_data['reltypes']:

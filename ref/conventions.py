@@ -179,11 +179,11 @@ def __value_pattern_field(instance, pattern, envt=None, counter_simulation=False
     for match in reversed([i for i in re_counter_tyev.finditer(res)]):
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=instance.implementation)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=instance.description)[0]
         res = __counter(match, res, c, counter_simulation)
 
     for match in reversed([i for i in re_counter_type.finditer(res)]):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.implementation)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.description)[0]
         res = __counter(match, res, c, counter_simulation)
 
     ## Maths?
@@ -213,9 +213,9 @@ def __counter(match, res, counter, counter_simulation):
 
 def value_instance_graph_fields(instance, force=False):
     """Only values fields depending on another instance. Should be called once the instance relations are set"""
-    if not instance.implementation:
+    if not instance.description:
         raise Exception ('cannot value an instance without structure')
-    impl = instance.implementation
+    impl = instance.description
 
     for field in impl.field_set.all():
         if not field.default:
@@ -226,7 +226,7 @@ def value_instance_graph_fields(instance, force=False):
         if field.default and (existing is None or force or existing.value == field.default or re_counter_item.search(existing.value)):
             for match in reversed([i for i in re_counter_item.finditer(new_val)]):
                 scope_pivot = resolve(match.groups()[3], instance)
-                c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.implementation, scope_instance=scope_pivot)[0]
+                c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.description, scope_instance=scope_pivot)[0]
                 new_val = __counter(match, new_val, c, False)
 
         if field.default and (existing is None or not existing.value or force or re_navigation.search(existing.value)):
@@ -257,9 +257,9 @@ def value_instance_fields(instance, force=False, create_missing_links=True, coun
         @param create_missing_links: ? - future use
     """
 
-    if not instance.implementation:
+    if not instance.description:
         raise Exception ('cannot value an instance without structure')
-    impl = instance.implementation
+    impl = instance.description
 
     for field in impl.field_set.all():
         existing = ComponentInstanceField.objects.get_or_none(instance_id=instance.id, field_id=field.id)
@@ -282,7 +282,7 @@ def create_counters(sender, instance, raw=False, **kwargs):
         return
     if re_counter_tyev.search(str(field_def.default)):
         for envt in Environment.objects.all():
-            c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=field_def.implementation)
+            c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=field_def.description)
             if c[1]:
                 c[0].save()
 
@@ -304,7 +304,7 @@ def create_counters(sender, instance, raw=False, **kwargs):
             c[0].save()
 
     if re_counter_type.search(str(field_def.default)):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=field_def.implementation)
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=field_def.description)
         if c[1]:
             c[0].save()
 

@@ -63,7 +63,7 @@ def __select_compo(q):
     if q.cic:
         rs = rs.filter(instanciates__name=q.cic)
     if q.impl:
-        rs = rs.filter(implementation__name=q.impl)
+        rs = rs.filter(description__name=q.impl)
     if q.envt:
         rs = rs.filter(environments__name=q.envt)
 
@@ -75,7 +75,7 @@ def __select_compo(q):
             if len(predicate.navigation) == 1 and predicate.navigation[0].startswith('_'):
                 key = predicate.navigation[0]
                 if key == "_type":
-                    rs = rs.filter(implementation__name=predicate.value)
+                    rs = rs.filter(description__name=predicate.value)
                 if key == "_id":
                     rs = rs.filter(id=predicate.value)
                 if key == "_envt":
@@ -122,7 +122,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
     if not selector:
         rs = rs.prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field')))
         rs = rs.prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field')))
-        rs = rs.select_related('implementation')
+        rs = rs.select_related('description')
         rs = rs.prefetch_related('environments')
 
         for ci in rs.all():
@@ -132,8 +132,8 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
             compo['mage_id'] = ci.id
             compo['mage_cic_id'] = ci.instanciates_id
             compo['mage_deleted'] = ci.deleted
-            compo['mage_implementation_id'] = ci.implementation_id
-            compo['mage_implementation_name'] = ci.implementation.name
+            compo['mage_description_id'] = ci.description_id
+            compo['mage_description_name'] = ci.description.name
             compo['mage_environments'] = ','.join([e.name for e in ci.environments.all()])
 
             for fi in ci.field_set.all():
@@ -143,7 +143,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
                 compo[fi.field.name + '_id'] = fi.target_id
 
             if use_computed_fields:
-                for cf in ci.implementation.computed_field_set.all():
+                for cf in ci.description.computed_field_set.all():
                     compo[cf.name] = cf.resolve(ci)
 
         return res

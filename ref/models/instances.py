@@ -115,7 +115,7 @@ class ComponentInstance(models.Model):
 
     ## Base data for all components
     instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
-    implementation = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation')
+    description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation')
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
 
@@ -129,10 +129,10 @@ class ComponentInstance(models.Model):
     ## Proxy object for easier handling
     __proxy = None
     def build_proxy(self, force=False):
-        if self.implementation_id is None:
+        if self.description_id is None:
             return
         if self.__proxy is None or force:
-            self.__proxy = self.implementation.proxy_class()(base_instance=self)
+            self.__proxy = self.description.proxy_class()(base_instance=self)
         return self.__proxy
     proxy = property(build_proxy)
 
@@ -150,15 +150,15 @@ class ComponentInstance(models.Model):
         cached = cache.get(key)
         if cached:
             return cached
-        if self.implementation:
-            val = self.implementation.resolve_self_description(self)
+        if self.description:
+            val = self.description.resolve_self_description(self)
             cache.set(key, val, None)
             return val
         else:
             return '%s' % self.pk
     name = property(__unicode__)
 
-    ## Pretty admin deelted field
+    ## Pretty admin deleted field
     def active(self):
         return not self.deleted
     active.admin_order_field = 'deleted'

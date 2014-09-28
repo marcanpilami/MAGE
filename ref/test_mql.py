@@ -1,10 +1,9 @@
 # coding: utf-8
 from django.test import TestCase
-from ref.naming_language import resolve
 from ref.demo_items import utility_create_meta, utility_create_logical
-from ref.models import ImplementationDescription, Environment
+from ref.models import ImplementationDescription, Environment, EnvironmentType, ComponentInstance
 from ref import mql
-from ref.models.instances import EnvironmentType, ComponentInstance
+
 
 class MQLTestCase(TestCase):
     def setUp(self):

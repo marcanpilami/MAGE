@@ -77,9 +77,9 @@ c.server_name
 
 ''' 
 from ref.models import  *
-c = ComponentInstance.objects.filter(implementation__name='jbossapplication')[0]
+c = ComponentInstance.objects.filter(description__name='jbossapplication')[0]
 p = c.proxy
-s = ComponentInstance.objects.filter(implementation__name='oracleschema')[0]
+s = ComponentInstance.objects.filter(description__name='oracleschema')[0]
 p.schema.append(s)
 p.schema[0]
 '''

@@ -21,7 +21,7 @@ def envt(request, envt_id):
                     select_related('typology').\
                     prefetch_related('component_instances__field_set__field').\
                     prefetch_related('component_instances__rel_target_set').\
-                    prefetch_related('component_instances__implementation__computed_field_set').\
+                    prefetch_related('component_instances__description__computed_field_set').\
                     prefetch_related('component_instances__instanciates__implements__application').\
                     get(pk=envt_id)
     a = render(request, 'ref/envt.html', {'envt': envt, })

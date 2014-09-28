@@ -2,8 +2,7 @@
 from django.test import TestCase
 from ref.naming_language import resolve
 from ref.demo_items import utility_create_meta
-from ref.models.instances import ImplementationDescription, Project, Application, \
-    EnvironmentType, Environment, LogicalComponent, ComponentImplementationClass
+from ref.models import ImplementationDescription, Project, Application, EnvironmentType, Environment, LogicalComponent, ComponentImplementationClass
 
 class NLTestCase(TestCase):
     def setUp(self):

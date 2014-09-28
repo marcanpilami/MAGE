@@ -62,10 +62,10 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier')), verbose_name=u'type')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    implementation = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
+    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
 
     def __unicode__(self):
-        return '%s (%s)' % (self.name, self.implementation.name)
+        return '%s (%s)' % (self.name, self.description.name)
 
     class Meta:
         verbose_name = u'champ simple'
@@ -76,7 +76,7 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
     pattern = models.CharField(max_length=500, verbose_name='chaîne de calcul')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    implementation = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
+    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
 
     def __unicode__(self):
         return '%s' % (self.name)
@@ -186,11 +186,11 @@ class ImplementationDescription(models.Model):
             return idn
 
     def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0):
-        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, implementation=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
+        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, description=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
         return self
 
     def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0):
-        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, implementation=self, widget_row=widget_row))
+        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row))
         return self
 
     def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1):
@@ -278,7 +278,7 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
         self._instance = base_instance
         self._id = self._instance.pk
     elif not self.__class__._related_impl is None:
-        self._instance = ComponentInstance(implementation=self.__class__._related_impl)
+        self._instance = ComponentInstance(description=self.__class__._related_impl)
         self._instance.save()
 
     if not self.__class__._related_impl is None:
@@ -315,7 +315,7 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
 
 def _proxy_single_rel_accessor(instance, field_id):
     try:
-        return instance._instance.rel_target_set.select_related('target__implementation').get(field_id=field_id).target
+        return instance._instance.rel_target_set.select_related('target__description').get(field_id=field_id).target
     except ComponentInstanceRelation.DoesNotExist:
         return None
 

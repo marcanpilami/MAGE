@@ -23,7 +23,7 @@ def edit_comp(request, instance_id=None, description_id=None):
     if not request.POST and instance_id:
         instance = ComponentInstance.objects.get(pk=instance_id)
 
-    form = form_for_model(instance.implementation if instance else ImplementationDescription.objects.get(pk=description_id))(request.POST or (instance.proxy if instance else None))
+    form = form_for_model(instance.description if instance else ImplementationDescription.objects.get(pk=description_id))(request.POST or (instance.proxy if instance else None))
 
     if request.POST and form.is_valid():
         ## Save fields
@@ -63,12 +63,12 @@ def envt_instances(request, envt_id=1):
 
     ffs = {}
     typ_items = {}
-    for instance in e.component_instances.prefetch_related('implementation__field_set').prefetch_related('implementation__target_set').\
+    for instance in e.component_instances.prefetch_related('description__field_set').prefetch_related('description__target_set').\
             prefetch_related('field_set__field', 'rel_target_set').\
             prefetch_related('rel_target_set__field').\
-            order_by('implementation__tag'):
+            order_by('description__tag'):
         # for each instance, crate a dict containing all the values
-        di = {'_id': instance.pk, '__descr_id': instance.implementation_id, '_deleted': instance.deleted, '_instanciates' : instance.instanciates_id}
+        di = {'_id': instance.pk, '__descr_id': instance.description_id, '_deleted': instance.deleted, '_instanciates' : instance.instanciates_id}
 
         for field_instance in instance.field_set.all():
             di[field_instance.field.name] = field_instance.value
@@ -76,11 +76,11 @@ def envt_instances(request, envt_id=1):
         for field_instance in instance.rel_target_set.all():
             di[field_instance.field.name] = field_instance.target_id
 
-        # add the dict to a list of instances with the same implementation
-        if typ_items.has_key(instance.implementation):
-            typ_items[instance.implementation].append(di)
+        # add the dict to a list of instances with the same description
+        if typ_items.has_key(instance.description):
+            typ_items[instance.description].append(di)
         else:
-            typ_items[instance.implementation] = [di, ]
+            typ_items[instance.description] = [di, ]
 
     for typ, listi in typ_items.iteritems():
         cls = form_for_model(typ)
@@ -108,7 +108,7 @@ def envt_instances(request, envt_id=1):
                             if instance_id:
                                 instance = ComponentInstance.objects.get(pk=instance_id)
                             else:
-                                instance = ComponentInstance(implementation=typ)
+                                instance = ComponentInstance(description=typ)
                                 instance.save()
                                 instance.environments.add(e)
 
