@@ -325,6 +325,11 @@ a {
 	text-decoration: underline;
 }
 
+a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus
+	{
+	color: #C0BCB8;
+}
+
 a.metSquare {
 	text-decoration: inherit;
 }
@@ -393,7 +398,7 @@ button.cancel,input.cancel[type='button'] {
 	background-color: #0000CC;
 	color: white;
 	padding-bottom: 3px;
-	min-height: 36px;	
+	min-height: 36px;
 }
 
 #quickAccessButtons {
@@ -426,7 +431,6 @@ button.cancel,input.cancel[type='button'] {
 }
 
 /* ************* Graphs *************/
-
 svg {
 	overflow: hidden;
 }
@@ -448,7 +452,6 @@ svg {
 }
 
 /*********** Bootstrap tables **************/
-
 .table-condensed>tbody>tr>td {
 	padding-top: 1px;
 	padding-bottom: 1px;
