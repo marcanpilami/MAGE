@@ -46,7 +46,6 @@ __grammar = __build_grammar()
 
 def run(query):
     expr = __grammar.parseString(query)
-    print expr.dump()
     return __run(expr)
     #return  __grammar.parseString(query)
 
@@ -69,8 +68,6 @@ def __select_compo(q):
 
     if q.where:
         for predicate in q.where:
-            print predicate
-
             ## Special keys begin with '_', normal keys without '_' are CI attributes
             if len(predicate.navigation) == 1 and predicate.navigation[0].startswith('_'):
                 key = predicate.navigation[0]
@@ -190,6 +187,4 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
                     if not found:
                         raise Exception("'%s' is not a valid relationship attribute" % idn)
 
-
-    print res
     return res

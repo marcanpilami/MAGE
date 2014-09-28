@@ -37,10 +37,8 @@ def ksh_protect_and_quote(value):
 @register.filter
 def apply_field_template(component_instance, computed_field):
     a = computed_field.resolve(component_instance)
-    print a.__class__
-    print a
     if (isinstance(a, str) or isinstance(a, unicode)) and a.startswith('http'):
-        return ('<a href="%s">cliquez ici</a>' %a)
+        return ('<a href="%s">cliquez ici</a>' % a)
     else:
         return a
 

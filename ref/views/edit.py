@@ -27,8 +27,6 @@ def edit_comp(request, instance_id=None, description_id=None):
 
     if request.POST and form.is_valid():
         ## Save fields
-        print form.cleaned_data
-
         ci = None
         if form.cleaned_data.has_key('_id'):
             cid = form.cleaned_data.pop('_id')
@@ -40,9 +38,7 @@ def edit_comp(request, instance_id=None, description_id=None):
             ci = descr()
         form.cleaned_data.pop('_descr_id')
 
-
         for key, value in form.cleaned_data.iteritems():
-            print 'setting %s on %s' % (key , ci._instance.id)
             setattr(ci, key, value)
 
         ci.save()
@@ -93,10 +89,6 @@ def envt_instances(request, envt_id=1):
             if not formset.is_valid():
                 valid = False
                 break
-        if valid:
-            print 'ok'
-        else:
-            print 'ko'
 
         if valid:
             for typ, formset in ffs.iteritems():

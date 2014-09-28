@@ -62,8 +62,6 @@ class MQLTestCase(TestCase):
 
     def test_query_where_two_levels_one_predicate(self):
         res = mql.run("SELECT 'jbossas' INSTANCES where group.name='GEP_DEV1_01'")
-        #print res
-        #print [p.id for p in res]
         self.assertEqual(3, len(res))
 
     def test_query_where_three_levels_two_predicates(self):

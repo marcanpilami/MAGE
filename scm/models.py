@@ -273,7 +273,6 @@ class InstallableItem(models.Model):
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'version [%s] is unrelated to the required version' % ver.version))
                     continue
 
-                # print '%s compare %s: %s' % (ver, dep.depends_on_version, compa)
                 if dep.operator == '==' and compa != 0:
                     failures.append(MageScmFailedInstanceDependencyCheck(compo, dep, 'incorrect version - it\'s [%s]' % ver.version))
                     continue

@@ -90,7 +90,6 @@ def iset_unarchive(request, is_id):
     i_s = InstallableSet.objects.get(pk=is_id)
     i_s.removed = None
     i_s.save()
-    print request
     return redirect('welcome')
 
 @permission_required('scm.validate_installableset')

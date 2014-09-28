@@ -25,7 +25,6 @@ class DeliveryCheckerSql(PackageCheckerBaseImpl):
 
         ## Must contain only SQL files either inside a 'scripts-sql' directory or at the root.
         for f in zf.namelist():
-            print f
             s = f.strip('/').split('/') # zipfile read by Python's lib => always "/"
             if          (len(s) > 2) or \
                         (len(s) == 2 and s[0] != "scripts-sql") or \

@@ -20,13 +20,10 @@ def post_syncdb_handler(sender, **kwargs):
     from MAGE.settings import INSTALLED_APPS
     for app in [ i for i in INSTALLED_APPS if not i.startswith('django.')]:
         try:
-            print app
             module = importlib.import_module(app + '.checkers')
             for value in module.__dict__.values():
-                print value.__class__
                 try:
                     if value.__class__ is type and value.__base__ is PackageCheckerBaseImpl:
-                        print 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
                         __package_checker_handler.register(value)
                 except AttributeError:
                     continue
