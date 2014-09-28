@@ -3,6 +3,7 @@
 from pyparsing import alphas, Group, nums, ZeroOrMore, Forward, QuotedString, \
     Word, Suppress, Optional, Combine
 
+from django.core.cache import cache
 
 def build_grammar():
     expr = Forward()
@@ -22,13 +23,25 @@ def build_grammar():
 
 __grammar = build_grammar()  #.setDebug()
 
-def resolve(pattern, instance):
+def resolve(pattern, instance, field_id=None):
+    # Always use the true Django object
     try:
         instance = instance._instance
     except:
         pass
+
+    # Cache?
+    if field_id:
+        key = 'computed_%s_%s' % (field_id, instance.pk)
+        cached = cache.get(key)
+        if cached:
+            return cached
+
     expression = parse(pattern)
-    return __resolve_expr(expression.expr, instance)
+    res = __resolve_expr(expression.expr, instance)
+    if field_id:
+        cache.set(key, res)
+    return res
 
 def parse(pattern):
     """Parses the given pattern and throws an exception if it is wrong. Used to check patterns."""

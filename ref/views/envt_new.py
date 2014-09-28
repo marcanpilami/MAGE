@@ -39,7 +39,7 @@ def new_ci_step1(request, description_id):
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
 def new_ci_step2(request, instance_id):
-    instance = ComponentInstance.objects.get(pk=instance_id)
+    instance = ComponentInstance.objects.select_related('description', 'implements').prefetch_related('field_set', 'rel_target_set', 'environments').get(pk=instance_id)
     descr = instance.description
     cls = form_for_model(descr)
 
@@ -106,11 +106,12 @@ def form_for_model_relations(descr):
 
     # CIC
     if descr.cic_set.count() > 0:
-        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').all(), label='Offre technique implémentée', required=False)
+        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').select_related('implements__application').all(),
+                                       label='Offre technique implémentée', required=False)
 
     # Relations
     for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
-        f = CiChoiceField(queryset=field.target.instance_set.order_by('environments__name'), label=field.label, required=field.min_cardinality == 1)
+        f = CiChoiceField(queryset=field.target.instance_set.order_by('environments__name').prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
     cls = type(str("__" + descr.name.lower() + "_form"), (NewCiStep1Form,), attrs)

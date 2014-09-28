@@ -82,7 +82,7 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
         return '%s' % (self.name)
 
     def resolve(self, instance):
-        return naming_language.resolve(self.pattern, instance)
+        return naming_language.resolve(self.pattern, instance, self.pk)
 
     class Meta:
         verbose_name = u'champ calculé'
@@ -116,7 +116,7 @@ class ImplementationDescription(models.Model):
         return self.name
 
     def resolve_self_description(self, instance):
-        return naming_language.resolve(self.self_description_pattern, instance)
+        return naming_language.resolve(self.self_description_pattern, instance, 'id_%s' %self.pk)
 
     class Meta:
         verbose_name = u"description instance"

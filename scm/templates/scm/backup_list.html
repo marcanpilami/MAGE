@@ -25,7 +25,7 @@
 		<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' bckset.id %}">
 			{{bckset.set_date}}
 			<div>
-				<div class='annotation'>{{ bckset.all_items.count }} éléments sauvegardés</div>
+				<div class='annotation'>{{ bckset.item_count }} éléments sauvegardés</div>
 			</div>
 		</a>
 		{% endfor %}

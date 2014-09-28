@@ -22,7 +22,7 @@ def get_lc_versions(request, lc_id):
     return HttpResponse(json.dumps(res))
 
 def lc_list(request):
-    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True).order_by('application', 'name')
+    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True).order_by('application', 'name').select_related('application')
     return render(request, 'scm/lc_versions.html', {'lcs': lcs})
 
 @cache_control(must_revalidate=True)

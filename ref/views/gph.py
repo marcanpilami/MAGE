@@ -6,7 +6,7 @@ import json
 ## Django imports
 from django import forms
 from django.http.response import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 
 ## MAGE imports
 from ref.models import Environment, ImplementationDescription
@@ -94,3 +94,11 @@ def carto_content_full(request, collapse_threshold=3):
 
 def carto_full(request):
     return render_to_response('ref/view_carto_full.html')
+
+def carto_debug(request):
+    response = HttpResponse(content_type='text/json; charset=utf-8')
+    json.dump(getNetwork(Environment.objects.get(name='DEV1').component_instances.all(),
+                         select_related=dict((t.name, 2) for t in ImplementationRelationType.objects.all()),
+                         collapse_threshold=3),
+              fp=response, ensure_ascii=False, indent=4)
+    return render(request, 'ref/debug_mlgdata.html', {'json': response, })

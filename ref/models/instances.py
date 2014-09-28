@@ -146,14 +146,8 @@ class ComponentInstance(models.Model):
 
     ## Pretty print
     def __unicode__(self):
-        key = "selfdescr_%s" % self.pk
-        cached = cache.get(key)
-        if cached:
-            return cached
         if self.description:
-            val = self.description.resolve_self_description(self)
-            cache.set(key, val, None)
-            return val
+            return self.description.resolve_self_description(self)
         else:
             return '%s' % self.pk
     name = property(__unicode__)

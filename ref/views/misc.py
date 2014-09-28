@@ -10,12 +10,14 @@ from ref.models.com import Link
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
 from scm.models import ComponentInstanceConfiguration
+from django.views.decorators.cache import cache_page
 
 
 ##############################################################################
 ## Home screen
 ##############################################################################
 
+@cache_page(30)
 def welcome(request):
     link_title = getParam('LINKS_TITLE')
     latest = {}

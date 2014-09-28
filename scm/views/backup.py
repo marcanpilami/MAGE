@@ -13,10 +13,12 @@ from django.http.response import HttpResponse, HttpResponseBadRequest
 ## MAGE imports
 from scm.backup import register_backup_envt_default_plan, register_backup
 from scm.models import BackupSet, Environment, ComponentInstance
+from django.db.models.aggregates import Count
 
 
 def backup_list(request, archive=False):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive).order_by('from_envt', 'set_date').select_related('all_items'), 'archive' : archive})
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive).annotate(item_count = Count('all_items')).order_by('from_envt', 'set_date').\
+                                                    select_related('from_envt'), 'archive' : archive})
 
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
