@@ -384,11 +384,15 @@ def create_full_test_data():
     utility_create_logical()
     utility_create_test_instances()
 
-    duplicate_envt("DEV1", "TEC1")
-    duplicate_envt("DEV1", "TEC2")
-    duplicate_envt("DEV1", "QUA1")
-    duplicate_envt("DEV1", "REC1")
-    duplicate_envt("DEV1", "FOR1")
+    dev2 = duplicate_envt("DEV1", "DEV2")
+    tec1 = duplicate_envt("DEV1", "TEC1")
+    tec2 = duplicate_envt("DEV1", "TEC2")
+    qua1 = duplicate_envt("DEV1", "QUA1")
+    rec1 = duplicate_envt("DEV1", "REC1")
+    for1 = duplicate_envt("DEV1", "FOR1")
+    
+    dev2.managed = False
+    dev2.save()
 
     l = Link(url="http://www.marsupilami.com", legend='Link of use for your users, or important message', color="#1B58B8")
     l.save()

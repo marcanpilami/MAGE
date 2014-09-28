@@ -35,10 +35,10 @@ def create_test_is():
     rdbms2_v6.save()
 
     # Installation methods (independent of IS)
-    rdbms1_meth1 = InstallationMethod(name='Scripts SQL Oracle', halts_service=True)
+    rdbms1_meth1 = InstallationMethod(name='Scripts SQL Oracle v1.0', halts_service=True)
     rdbms1_meth1.save()
     rdbms1_meth1.method_compatible_with.add(ComponentImplementationClass.objects.get(name='soft1_database_main_oracle'), ComponentImplementationClass.objects.get(name='int_database_main_oracle'))
-    rdbms1_meth2 = InstallationMethod(name='Scripts SQL MySQL', halts_service=True)
+    rdbms1_meth2 = InstallationMethod(name='Scripts SQL MySQL v1.0', halts_service=True)
     rdbms1_meth2.save()
     rdbms1_meth2.method_compatible_with.add(ComponentImplementationClass.objects.get(name='int_database_main_mysql_dedicated'))
 

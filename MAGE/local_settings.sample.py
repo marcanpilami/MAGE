@@ -9,7 +9,7 @@ ADMINS = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # You may replace 'sqlite3' with 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': /path/to/private/directory/db.sqlite'),  # Or database name if not using sqlite3.
+        'NAME': /path/to/private/directory/db.sqlite',  # Or database name if not using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',

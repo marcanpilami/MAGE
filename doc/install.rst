@@ -20,7 +20,7 @@ Checkout
 
 Choose a directory in which to install MAGE. This directory will not be accessible to users. It will be referred to as ${MAGE_INSTALL_ROOT} in this document. ::
 
-	git clone git://github.com/marcanpilami/MAGE.git
+	git clone https://github.com/marcanpilami/MAGE.git
     
 Libraries
 ==============
@@ -33,7 +33,7 @@ These are installed with PIP::
     
     ## Windows (posh)
     cd $MAGE_INSTALL_ROOT
-    C:\Python\Scripts\pip.exe install -r requirements.txt
+    C:\Python27\Scripts\pip.exe install -r prerequisites.txt
     
 Settings
 ==============
@@ -52,7 +52,7 @@ Sync
 
 In the ${MAGE_INSTALL_ROOT} directory, create the database objects by running::
 
-	python manage.py migrate
+    python manage.py migrate
     python manage.py collectstatic
     python manage.py createsuperuser
 	
