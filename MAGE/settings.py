@@ -152,6 +152,7 @@ LOGGING = {
 }
 
 LOGIN_URL = 'login' # named URL
+LOGIN_REDIRECT_URL = 'welcome'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 

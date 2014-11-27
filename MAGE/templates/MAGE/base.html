@@ -58,9 +58,9 @@
 			{%block footer%}
 			MAGE 6.1.0 - {%now "d/m/Y H:i"%} -
 			{% if user.is_authenticated %}
-			    {{ user.username }} - <a href="{% url 'logout' %}">se déconnecter</a>
+			    {{ user.username }} - <a href="{% url 'logout' %}">Se déconnecter</a>
 			{% else %}
-			    Utilisateur anonyme
+			    <a href="{% url 'login' %}">S'authentifier</a>
 			{% endif %}
 			{%endblock footer%}
 		</div>
