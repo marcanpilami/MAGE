@@ -2,12 +2,14 @@
 {% block pagetitle %}Accueil{% endblock %}
 {% block maintitle %}Accueil{% endblock %}
 {% load get_item from filter %}
+{% load cache %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
 {% endblock %}
 
 {% block content %}
+{% cache 30 welcome_all %}
 <div style='color: white;' class='row'>
 <div class='col-sm-3'>
 	<div style='color: white;' class='row'>
@@ -71,4 +73,5 @@
 	</div>
 </div>
 </div>
+{% endcache %}
 {% endblock content %}
