@@ -50,6 +50,13 @@ def script_login(request, username, password):
     else:
         raise PermissionDenied # will return a 403 (HTTP forbidden)
 
+def script_login_post(request):
+    if request.method == 'POST' and request.POST.has_key('username') and request.POST.has_key('password'):
+        name = request.POST['username']
+        passwd = request.POST['password']
+        return script_login(request, name, passwd)
+    raise PermissionDenied # will return a 403 (HTTP forbidden)
+
 def script_logout(request):
     logout(request)
     return HttpResponse("<html><body>User logged out</body></html>")
