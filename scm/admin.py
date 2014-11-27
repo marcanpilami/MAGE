@@ -25,7 +25,7 @@ class BackupRestoreMethodAdmin(admin.ModelAdmin):
 admin.site.register(BackupRestoreMethod, BackupRestoreMethodAdmin)
 
 class InstallationMethodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'halts_service', 'available')
+    list_display = ('name', 'halts_service', 'available', 'restoration_only')
     ordering = ('name',)
     list_filter = ('available', 'restoration_only')
     filter_horizontal = ('method_compatible_with', 'checkers',)
