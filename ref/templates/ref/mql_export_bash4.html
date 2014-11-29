@@ -1,8 +1,10 @@
-#!/bin/bash
-# untested for now
 {% load filter%}{% autoescape off %}
+declare -xa MAGE_RESULTS=({% for compo in instances %}{{compo.mage_id}}{% if not forloop.last %} {% endif %}{% endfor %})
+
+unset MAGE_RESULTS_DATA
+declare -xA MAGE_RESULTS_DATA
 {% for compo in instances %}
-declare -A COMPONENT
-{% for key,value in compo.items %}COMPONENT[{{key}}]={{value | ksh_protect_and_quote}}
-{% endfor %}MAGE_RESULTS[{{forloop.counter}}]=COMPONENT
-{% endfor %}{% endautoescape %}MAGE_RESULT_COUNT={{ instances | length}}
+{% for key,value in compo.items %}MAGE_RESULTS_DATA[{{compo.mage_id}}_{{key}}]={{value | ksh_protect_and_quote}}
+{% endfor %}{% endfor %}{% endautoescape %}
+MAGE_RESULTS_COUNT={{ instances | length}}
+export MAGE_RESULTS

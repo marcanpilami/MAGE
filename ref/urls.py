@@ -41,5 +41,8 @@ urlpatterns = patterns('',
     url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
 
     url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
+    
+    ## Script helpers
+    url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash')
 )
 

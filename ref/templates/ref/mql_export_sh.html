@@ -1,2 +1,5 @@
-{% load filter%}{% autoescape off %}{% for compo in instances %}{% for key,value in compo.items %}MAGE_{{forloop.parentloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}
-{% endfor %}{% endfor %}{% endautoescape %}MAGE_RESULT_COUNT={{ instances | length}}
+{% load filter%}{% autoescape off %}{% for compo in instances %}
+{% for key,value in compo.items %}MAGE_{{forloop.parentloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}
+{% endfor %}MAGE_{{forloop.counter}}_MAGE_FIELDS="{% for key,value in compo.items %}{{key  | upper}}{% if not forloop.last %} {% endif %}{% endfor %}"
+{% endfor %}{% endautoescape %}
+MAGE_RESULT_COUNT={{ instances | length}}

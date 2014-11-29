@@ -105,3 +105,23 @@ def iset_invalidate(request, iset_id):
     delivery.status = 3
     delivery.save()
     return redirect('scm:delivery_detail', iset_id=iset_id)
+
+def ii_test_applicable_to_ci(request, ci_id, ii_id):
+    ii = InstallableItem.objects.get(pk=ii_id)
+    ci = ComponentInstance.objects.get(pk=ci_id)
+
+    compat = False
+    methods = []
+    for meth in ii.how_to_install.all():
+        for cic in meth.method_compatible_with.all():
+            if ci.instanciates_id == cic.id:
+                compat = True
+                methods.append(meth)
+
+    if compat:
+        txt = ""
+        for meth in methods:
+            txt = "%s%s;%s;%s\n" %(txt, meth.pk, meth.name, meth.halts_service)
+        return HttpResponse(txt, content_type="text/csv")
+    else:
+        return HttpResponse('no methods available to apply this II on this CI', content_type='text/plain', status=424)

@@ -1,4 +1,4 @@
 {% load filter%}{% autoescape off %}{% for ii in res %}{% for key, value in ii.items %}
-MAGE_IS_II{{forloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}{% endfor %}
+MAGE_IS_II_{{forloop.parentloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}{% endfor %}
 {% endfor %}{% endautoescape %}
 MAGE_II_COUNT={{ res | length}}

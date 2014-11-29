@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     url(r'delivery/(?P<iset_id>\d*)/edit$', views.delivery_edit, name='delivery_edit'),
     url(r'delivery/(?P<iset_id>\d*)/editdep$', views.delivery_edit_dep, name='delivery_edit_dep'),
 
-    # Applying installable sets/items
+    # Applying installable sets/items    
     url(r'is/(?P<iset_id>\d*)/testonenvtform/(?P<envt_id_or_name>.+)$', views.iset_test, name='delivery_prereqs_test'),
     url(r'is/(?P<iset_id>\d*)/testonenvtscript/(?P<envt_id_or_name>.+)$', views.iset_test_script, name='delivery_prereqs_test_script'),
     url(r'is/(?P<iset_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)/force$', views.iset_apply_envt, {'force_prereqs' : True}, name='iset_apply_envt_force'),
@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'ii/(?P<ii_id>\d+)/apply/(?P<envt_name>.+)/(?P<instance_id>\d+)$', views.delivery_ii_apply_envt, name='delivery_apply_ii_single'),
     url(r'ii/(?P<ii_id>\d+)/testonenvtscriptfull/(?P<envt_name>.+)$', views.delivery_ii_test_envt, {'full_delivery': True}, name='delivery_test_ii_set'),
     url(r'ii/(?P<ii_id>\d+)/testonenvtscriptsingle/(?P<envt_name>.+)$', views.delivery_ii_test_envt, name='delivery_test_ii_single'),
+    url(r'ii/(?P<ii_id>\d+)/installmethod/(?P<ci_id>\d+)$', views.ii_test_applicable_to_ci, name='ii_test_compat_ci'),
 
     # Retrieving current version of elements
     url(r'version/summary$', views.lc_versions_per_environment, name='lc_installs_envts'),

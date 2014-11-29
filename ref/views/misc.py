@@ -83,3 +83,6 @@ def model_detail(request):
     #return render(request, 'ref/model_details.html', {'res' : sorted(ids.iteritems(), key=lambda (k, v) :  v['id']['name']) })
     return render(request, 'ref/model_details.html', {'res' : ids })
 
+
+def shelllib_bash(request):
+    return render(request, 'ref/helper_bash.sh', content_type='text/plain')
