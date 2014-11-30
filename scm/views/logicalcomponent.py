@@ -11,6 +11,8 @@ from django.http.response import HttpResponse
 
 ## MAGE imports
 from ref.models import LogicalComponent
+from django.db.models.query import Prefetch
+from scm.models import LogicalComponentVersion, InstallableSet, InstallableItem
 
 
 def get_lc_versions(request, lc_id):
@@ -27,7 +29,9 @@ def lc_list(request):
 
 @cache_control(must_revalidate=True)
 def lc_versions(request, lc_id):
-    lc = LogicalComponent.objects.get(pk=lc_id)
+    lc = LogicalComponent.objects.select_related('application').prefetch_related(
+               Prefetch('versions', queryset=LogicalComponentVersion.objects.prefetch_related(Prefetch('installed_by', queryset=InstallableItem.objects.select_related('belongs_to_set'))))
+           ).get(pk=lc_id)
     return render(request, 'scm/lc_versions_detail.html', {'lc': lc})
 
 
