@@ -63,5 +63,26 @@
 {% else %}
 	<div class='metRectList metErrorBackground'>Livraison non disponible - non installable</div>
 {% endif %}
+<br/><br/>
+<table class='table table-condensed table-bordered table-hover'>
+    <thead>
+        <tr>
+            <th>Environnement</th>
+            <th>Dernière installation d'un élément de cette livraison</th>
+        </tr>        
+    </thead>
+    <tbody>
+        {% for e in envts %}
+            <tr>
+                <td><a href="{% url 'scm:envtinstallhist' e.name %}">{{e.name}}</a></td>
+                <td>
+                {% for ee in installs %}
+                    {% if ee.id == e.id %}{{ee.dd}}{%endif%}
+                {% endfor %}
+                </td>
+            </tr>
+        {%endfor%}
+    </tbody>
+</table>
 
 {% endblock content %}
