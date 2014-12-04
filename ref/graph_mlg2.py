@@ -8,6 +8,7 @@ from django.db.models.query import Prefetch
 ## MAGE imports
 from ref.models import ComponentInstance
 from ref.models.instances import ComponentInstanceRelation
+from ref.models.parameters import getParam
 
 
 def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_threshold=2):
@@ -28,7 +29,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
         ## Only use CIs from the cache with preloaded relationships
         ci = all_instances[ci.pk]
 
-        nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name, 'truc': 'R%MLKR%ML'}}
+        nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name, 'style': "fill: " + colourGen.getNodeColour(ci), 'labelStyle': 'stroke: white; fill: white; stroke-width: 0; kerning: 2'}}
         types[ci.pk] = ci.description.name
         targets[ci.pk] = []
 
@@ -40,11 +41,30 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
                     edges[rel.id] = {'id': rel.id, 'u': ci.pk, 'v': rel.target_id, 'value': {'label': rel.field.name} }
                     targets[ci.pk].append(rel.target_id)
 
+    class ColourCounter:
+        def __init__(self):
+            self.colours = getParam('LINK_COLORS').split(',')
+            self.colour_index = 0
+            self.colour_envt = {}
+
+        def getNodeColour(self, ci):
+            if ci.first_environment() != None:
+                if not self.colour_envt.has_key(ci.first_environment().id):
+                    self.colour_index = self.colour_index + 1
+                    if self.colour_index > len(self.colours) - 1:
+                        self.colour_index = -1
+                    self.colour_envt[ci.first_environment().id] = self.colours[self.colour_index]
+                return self.colour_envt[ci.first_environment().id]
+            elif ci.environments.count() > 1:
+                return '#333'
+            return '#AAA'
+
     ## result fields
     nodes = {}
     edges = {}
     targets = {}
     types = {}
+    colourGen = ColourCounter()
 
     ## Everything is done in memory to avoid hitting the db too much - but this means the whole referential is loaded!
     rs = ComponentInstance.objects.select_related('description').prefetch_related('environments').\
@@ -86,7 +106,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
                 nodes.pop(tr['id'])
                 removed_nodes.append(tr['id'])
             # change first node title to reflect collapse
-            n1['value']['label'] = "% instances de %s" % (len(nodes_to_remove) + 1, types[n1['id']])
+            n1['value']['label'] = "%s instances de %s" % (len(nodes_to_remove) + 1, types[n1['id']])
 
 
     ## Done
