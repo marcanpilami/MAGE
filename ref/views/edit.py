@@ -3,12 +3,19 @@
 from django.db.transaction import atomic
 from django import forms
 from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
-from django.forms.models import ModelChoiceIterator
+from django.forms.models import ModelChoiceIterator, ModelForm, \
+    modelform_factory, modelformset_factory
 from django.shortcuts import render_to_response, redirect
 from django.forms.formsets import formset_factory
 from functools import wraps
 from _functools import partial
 from django.contrib.auth.decorators import permission_required
+from django.forms.widgets import Textarea, NumberInput, Select, \
+    CheckboxSelectMultiple
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.encoding import force_text
+from django.utils.functional import curry
 
 
 @atomic
@@ -163,7 +170,7 @@ def form_for_model(descr):
 
     # deleted checkbox is last
     attrs['_deleted'] = forms.BooleanField(required=False, label="effacé")
-    
+
     cls = type(str("__" + descr.name.lower() + "_form"), (MiniModelForm,), attrs)
     __model_form_cache[descr.id] = cls
     return cls
@@ -177,3 +184,50 @@ class InstanceForm(forms.Form):
         for field in descr.field_set.all():
             self.fields[field.name] = forms.CharField(label=field.label)
 
+
+#####################################################
+## Debug form for changing types
+#####################################################
+
+class HorizontalCSM(CheckboxSelectMultiple.renderer):
+    def render(self):
+        id_ = self.attrs.get('id', None)
+        start_tag = format_html('<div id="{0}">', id_) if id_ else '<div>'
+        output = [start_tag]
+        for widget in self:
+            output.append(format_html(u'<span>{0}</span>', force_text(widget)))
+        output.append('</span>')
+        return mark_safe('\n'.join(output))
+
+class CIForm(ModelForm):
+    def __init__(self, descriptions, envts, **kwargs):
+        super(CIForm, self).__init__(**kwargs)
+        iterator = ModelChoiceIterator(self.fields['description'])
+        choices = [iterator.choice(obj) for obj in descriptions]
+        choices.append(("", self.fields['description'].empty_label))
+        self.fields['description'].choices = choices
+
+        iterator = ModelChoiceIterator(self.fields['environments'])
+        choices = [iterator.choice(obj) for obj in envts]
+        self.fields['environments'].choices = choices
+
+
+    class Meta:
+        model = ComponentInstance
+        fields = ['description', 'environments', 'deleted']
+        widgets = {'environments' : CheckboxSelectMultiple(renderer=HorizontalCSM)}
+
+def edit_all_comps_meta(request):
+    CIFormSet = modelformset_factory(ComponentInstance, form=CIForm, extra=0)
+    CIFormSet.form = staticmethod(curry(CIForm, descriptions=ImplementationDescription.objects.all(),
+                                        envts=Environment.objects.all()))
+
+    if request.method == 'POST':
+        formset = CIFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            return redirect("ref:instance_all")
+    else:
+        formset = CIFormSet(queryset=ComponentInstance.objects.all().select_related('description').prefetch_related('environments'))
+
+    return render_to_response("ref/instance_all.html", {"formset": formset, })

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block pagetitle %}admin{% endblock %}
+{% block maintitle %}Modification structure des instances{% endblock %}
+
+
+{% block content %}
+<form method="post">
+	<table class='table table-condensed table-bordered table-hover'>
+	{{ formset.management_form }}
+	{% for form in formset %}
+	
+		{% if forloop.first %}
+		<tr>
+			<th>ID</th>
+			{% for field in form %}
+				{% if not field.label == "Id" %}
+				<th>{{ field.label| capfirst}}</th>
+				{% endif %}
+			{% endfor %}			
+		</tr>
+		{% endif %}
+		
+		<tr>
+			<td>{{form.id.value}}{{form.id}}</td>
+			{% for field in form %}
+				{% if not field.label == "Id" %}
+				<td>{{field.errors}}{{field}}</td>
+				{% endif %}
+			{% endfor %}
+		</tr>
+	{% endfor %}
+    </table>
+	<input type="submit" value="Enregistrer" class="btn btn-primary">
+</form>
+
+{% endblock content %}
+
