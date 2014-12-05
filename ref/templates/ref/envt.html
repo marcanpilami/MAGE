@@ -111,6 +111,24 @@
 			</table>
 			</div>
 		{% endfor %}
+		
+		{% if perms.ref.change_component_instance %}
+		<div>
+			<div class='t4'>Composants supprimés</div>
+			<div class='table-responsive'>
+				<table class='table table-condensed table-bordered table-hover'>
+					<tr><th>ID</th><th>Type</th><th></th></tr>
+					{% for compotype in compotype_list %}
+						{% for compo in compotype.list %}
+							{% if compo.description and compo.deleted %}
+								<tr><td>{{compo.id}}</td><td>{{compotype.grouper}}</td><td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td></tr>
+							{% endif %}
+						{% endfor %}
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		{% endif %}
 	</div>
 	
 	
