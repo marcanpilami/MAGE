@@ -24,11 +24,12 @@
 		<div class='t2'>Généralités</div>
 		<div class="metContainer metFreeRect defaultHighlightBackground" style="min-width: 100%;">
 			<table>
-				<tr><td>Nom de code</td><td>: {{envt.name}}</td></tr>
+				<tr><td>Code</td><td>: {{envt.name}}</td></tr>
 				<tr><td>Responsable</td><td>: {{envt.manager}}</td></tr>
-				<tr><td>Référencé le</td><td>: {{envt.buildDate}}</td></tr>
-				<tr><td>Sera détruit le</td><td>: {% if envt.destructionDate %}{{envt.destructionDate}}{% else %}non plannifié{% endif %}</td></tr>
+				<tr><td>Référencé le</td><td>: {{envt.buildDate|date:'d/m/y'}}</td></tr>
+				<tr><td>Détruit le</td><td>: {% if envt.destructionDate %}{{envt.destructionDate}}{% else %}à plannifier{% endif %}</td></tr>
 				<tr><td>Catégorie</td><td>: {{envt.typology.name}}</td></tr>
+				<tr><td>Géré en version</td><td>: {% if envt.managed %}oui{% else %}non{% endif %}</td></tr>
 		</table>	
 		</div><br/><br/>
 		<div class='t2'>Liens GCL</div>
