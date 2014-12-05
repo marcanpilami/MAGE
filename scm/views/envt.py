@@ -7,10 +7,11 @@ from datetime import timedelta
 from django.utils.timezone import now
 from django.shortcuts import render
 from django.utils.datastructures import SortedDict
+from django.db.models.query import Prefetch
 
 ## MAGE imports
 from ref.models import Environment, LogicalComponent
-from scm.models import Installation
+from scm.models import Installation, ComponentInstanceConfiguration
 
 
 def all_installs(request, envt_name, limit):
@@ -20,9 +21,11 @@ def all_installs(request, envt_name, limit):
     envt = Environment.objects.get(name=envt_name)
     envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
     dlimit = now() - timedelta(days=limit)
-    installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk')
-    # logical_components = envt.component_instances.all().instanciates.implements;
-    logical_components = LogicalComponent.objects.filter(scm_trackable=True, active=True, implemented_by__instances__environments=envt).distinct()
+    
+    installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk').\
+            prefetch_related(Prefetch('modified_components', queryset=ComponentInstanceConfiguration.objects.all().select_related('component_instance__instanciates')))
+    logical_components = LogicalComponent.objects.filter(scm_trackable=True, active=True, implemented_by__instances__environments=envt).distinct()\
+                            .select_related('application')
 
     versions = {}
     for compo in envt.component_instances.filter(deleted=False, instanciates__isnull=False, instanciates__implements__scm_trackable=True):
