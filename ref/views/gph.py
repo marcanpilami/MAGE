@@ -13,6 +13,7 @@ from ref.models import Environment, ImplementationDescription
 from ref.graph_mlg2 import getNetwork
 from ref.models.description import ImplementationRelationType
 from ref.models.instances import ComponentInstance
+from ref.graph_struct import getStructureTree
 
 
 class CartoForm(forms.Form):
@@ -91,6 +92,14 @@ def carto_content_full(request, collapse_threshold=3):
     response = HttpResponse(content_type='text/json; charset=utf-8')
     json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
+
+def carto_description_content(request):
+    response = HttpResponse(content_type='text/json; charset=utf-8')
+    json.dump(getStructureTree(), fp=response, ensure_ascii=False, indent=4)
+    return response
+
+def carto_description(request):
+    return render_to_response('ref/view_carto_struct.html')
 
 def carto_full(request):
     return render_to_response('ref/view_carto_full.html')

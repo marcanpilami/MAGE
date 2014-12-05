@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %}GE{% endblock %}
+{% block maintitle %}Relations entre composants{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src='{% static "d3.min.js" %}'></script>
+<script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
+<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+<script type="text/javascript">
+
+$(document).ready(function()
+{
+	$.ajax(
+	{
+		url : '{% url "ref:cartostructuredata" %}',
+		type : "GET",
+		dataType : "json",
+	}).done(function(json)
+	{
+		digraph = dagreD3.json.decode(json['nodes'], json['edges']);		
+		var renderer = new dagreD3.Renderer();
+		renderer.run(digraph, d3.select("svg g"));
+	});
+});
+</script>
+{% endblock scripts %}
+
+{% block content %}
+
+<svg width=5024 height=5024>
+    <g transform="translate(20,20) scale(0.7)"/>
+</svg>
+
+{% endblock content %}

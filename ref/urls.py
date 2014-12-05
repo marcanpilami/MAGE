@@ -31,6 +31,8 @@ urlpatterns = patterns('',
     url(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)$', views.carto_content_full, name='cartofulldata'),
     url(r'gph/mplgdatasimple/(?P<ci_id_list>[\d,]+)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
     url(r'gph/mplgdatadebug$', views.carto_debug, name='cartodebugdata'),
+    url(r'gph/structuredata$', views.carto_description_content, name='cartostructuredata'),
+    url(r'gph/structure$', views.carto_description, name='cartostructure'),
 
     ## Misc
     url(r'urls', views.urls, name='urls'),
@@ -41,7 +43,7 @@ urlpatterns = patterns('',
     url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
 
     url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
-    
+
     ## Script helpers
     url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash')
 )
