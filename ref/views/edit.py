@@ -8,6 +8,7 @@ from django.shortcuts import render_to_response, redirect
 from django.forms.formsets import formset_factory
 from functools import wraps
 from _functools import partial
+from django.contrib.auth.decorators import permission_required
 
 
 @atomic
@@ -49,6 +50,7 @@ def edit_comp(request, instance_id=None, description_id=None):
     return render_to_response("ref/instance_edit.html", {'form': form})
 
 @atomic
+@permission_required('ref.scm_addcomponentinstance')
 def envt_instances(request, envt_id=1):
     e = Environment.objects.get(pk=envt_id)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
@@ -141,7 +143,6 @@ class MiniModelForm(forms.Form):
 
     _id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     _descr_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    _deleted = forms.BooleanField(required=False)
     _instanciates = forms.ModelChoiceField(queryset=ComponentImplementationClass.objects, required=False, label='composant logique')
 
 __model_form_cache = {}
@@ -160,6 +161,9 @@ def form_for_model(descr):
         f = forms.ModelChoiceField(queryset=field.target.instance_set, label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
+    # deleted checkbox is last
+    attrs['_deleted'] = forms.BooleanField(required=False, label="effacé")
+    
     cls = type(str("__" + descr.name.lower() + "_form"), (MiniModelForm,), attrs)
     __model_form_cache[descr.id] = cls
     return cls

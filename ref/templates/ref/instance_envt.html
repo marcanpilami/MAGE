@@ -15,7 +15,7 @@
     				<thead>  			
 	    				<tr>
 		    				{% for field in form %}
-		    					<th>{% if not field.is_hidden %}{{ field.label| capfirst}}{%if not field.field.required %}*{% endif %}{% endif %}</th>
+		    					<th {% if not field.field.required %}style="font-weight: normal;"{%endif %}>{% if not field.is_hidden %}{{ field.label| capfirst}}{% endif %}</th>
 		    				{% endfor %}
 	    				</tr>
     				</thead>
@@ -30,10 +30,10 @@
     				    			
    			{% endfor %}
    			</tbody>
-		</table>    
+		</table>   <br/> 
        {% endfor %}
     </table>
-	<input type="submit">
+	<input type="submit" value="Enregistrer">
 </form>
 
 {% endblock content %}
