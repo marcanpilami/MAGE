@@ -8,7 +8,7 @@ from _functools import partial
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms.models import ModelChoiceIterator, ModelForm, modelformset_factory
-from django.forms.widgets import CheckboxSelectMultiple
+from django.forms.widgets import CheckboxSelectMultiple, CheckboxInput
 from django.shortcuts import render_to_response, redirect
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -241,7 +241,7 @@ def edit_all_comps_meta(request):
 ############################################################
 
 class ReinitModelForm(ModelForm):
-    mage_retemplate = forms.BooleanField(label='T', required=False)
+    mage_retemplate = forms.BooleanField(label='T', required=False, widget = CheckboxInput(attrs = {'class': 't'}))
     
     class Meta:
         model = ComponentInstance
@@ -313,7 +313,7 @@ def descr_instances_reinit(request, descr_id=4):
         formset = InstanceFormSet(request.POST, request.FILES)
         if formset.is_valid():
             formset.save()
-            return redirect("ref:instance_descr_reinit")      
+            return redirect("ref:instance_descr_reinit", descr_id)      
     else:
         instances = ComponentInstance.objects.filter(description_id=descr_id).\
                 prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field'))).\

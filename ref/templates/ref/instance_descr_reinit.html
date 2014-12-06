@@ -30,6 +30,26 @@
     </table>
 	<input type="submit" value="Enregistrer" class="btn btn-primary">
 </form>
+<script type="text/javascript">
+var c = true;
+function toggle()
+{
+    var elements = document.getElementsByClassName("t");
+    for(var i=0; i<elements.length; i++) 
+    {
+    	if (c)
+	    {
+    	    elements[i].checked = 'checked';    
+	    }
+    	else
+	    {
+    	    elements[i].checked = null;
+	    }
+    }
+    c= !c;
+}
+</script>
 <span class='helptext'>Cocher T pour que le template soit réappliqué au composant lors de l'enregistrement.</span>
+<span class='helptext' onclick='toggle();' style='text-decoration: underline;'>Tout cocher/décocher.</span>
 {% endblock content %}
 
