@@ -13,6 +13,8 @@ from scm.models import ComponentInstanceConfiguration
 from django.views.decorators.cache import cache_page
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
+from ref.models.logical import ComponentImplementationClass
+from django.contrib.auth.decorators import permission_required
 
 
 ##############################################################################
@@ -86,3 +88,7 @@ def model_detail(request):
 
 def shelllib_bash(request):
     return render(request, 'ref/helper_bash.sh', content_type='text/plain')
+
+@permission_required('ref.scm_addcomponentinstance')
+def debug(request):
+    return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'cics' : ComponentImplementationClass.objects.all()}) 

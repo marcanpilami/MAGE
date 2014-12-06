@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block pagetitle %}debug{% endblock %}
+{% block maintitle %}Debug{% endblock %}
+
+
+{% block content %}
+<div class='col-sm-3'>
+    <div style='color: white;' class='row'>
+        <div class='t2' style='color: black;'>Modifications dangereuses</div>
+    </div>
+    <div style='color: white;' class='row'> 
+        <a class='metSquare' style='background: #423173;' href="{% url 'ref:instance_all' %}">Recast des instances</a>
+        <div>
+        {% for cic in cics %}
+        <a class='metSquare' href="{% url 'ref:instance_descr_reinit' cic.id %}">Retemplating des <div class='metSquareLong annotation'>{{cic.description}}</div></a>  
+        {%endfor %}
+        </div>
+    </div>
+</div>
+
+<div class='col-sm-3'>
+    <div style='color: white;' class='row'>
+        <div class='t2' style='color: black;'>Modifications normales des CI</div>
+    </div>
+    <div style='color: white;' class='row'> 
+        {% for envt in envts %}
+        <a class='metSquare' href="{% url 'ref:instance_envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>  
+        {%endfor %}
+    </div>
+</div>
+
+<div class='col-sm-3'>
+    <div style='color: white;' class='row'>
+        <div class='t2' style='color: black;'>Contrôles</div>
+    </div>
+    <div style='color: white;' class='row'> 
+
+    </div>
+</div>
+{% endblock content %}
+

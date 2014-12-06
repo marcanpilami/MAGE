@@ -43,8 +43,10 @@ urlpatterns = patterns('',
     url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
 
     url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
+    
+    url(r'^debug$', views.debug, name='debug'),
     url(r'^instance/debug/all$', views.edit_all_comps_meta, name='instance_all'),
-    url(r'^instance/debug/descr/1$', views.descr_instances_reinit, name='instance_descr_reinit'),
+    url(r'^instance/debug/descr/(?P<descr_id>\d+)$', views.descr_instances_reinit, name='instance_descr_reinit'),
 
     ## Script helpers
     url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash')
