@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block pagetitle %}admin{% endblock %}
+{% block maintitle %}Réapplication des défauts sur {{descr.description}}{% endblock %}
+
+
+{% block content %}
+<form method="post">
+	<table class='table table-condensed table-bordered table-hover'>
+	{{ formset.management_form }}
+	{% for form in formset %}
+	
+		{% if forloop.first %}
+    		<tr>
+    			<th>ID</th>
+                <th>Environnements</th>
+    			{% for field in form.visible_fields %}
+    				<th>{{ field.label| capfirst}}</th>
+    			{% endfor %}			
+    		</tr>
+		{% endif %}
+		
+		<tr>
+			<td>{{form.id.value}}{{form.id}}</td>
+            <td>{{form.mage_instance.environments_str}}</td>
+			{% for field in form.visible_fields %}
+				<td>{{field.errors}}{{field}}</td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+    </table>
+	<input type="submit" value="Enregistrer" class="btn btn-primary">
+</form>
+<span class='helptext'>Cocher T pour que le template soit réappliqué au composant lors de l'enregistrement.</span>
+{% endblock content %}
+

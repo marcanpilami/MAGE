@@ -144,6 +144,12 @@ class ComponentInstance(models.Model):
     first_environment.short_description = u'notamment dans'
     first_environment.admin_order_field = 'environments__name'
 
+    def _environments_str(self):
+        if not self.environments or self.environments.count() == 0:
+            return ""
+        return ','.join([e.name for e in self.environments.all()])
+    environments_str = property(_environments_str)
+
     ## Pretty print
     def __unicode__(self):
         if self.description:

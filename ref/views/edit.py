@@ -1,22 +1,26 @@
 # coding: utf-8
 
-from django.db.transaction import atomic
-from django import forms
-from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
-from django.forms.models import ModelChoiceIterator, ModelForm, \
-    modelform_factory, modelformset_factory
-from django.shortcuts import render_to_response, redirect
-from django.forms.formsets import formset_factory
+## Python imports
 from functools import wraps
 from _functools import partial
-from django.contrib.auth.decorators import permission_required
-from django.forms.widgets import Textarea, NumberInput, Select, \
-    CheckboxSelectMultiple
+
+## Django imports
+from django import forms
+from django.forms.formsets import formset_factory
+from django.forms.models import ModelChoiceIterator, ModelForm, modelformset_factory
+from django.forms.widgets import CheckboxSelectMultiple
+from django.shortcuts import render_to_response, redirect
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_text
 from django.utils.functional import curry
+from django.db.models.query import Prefetch
+from django.db.transaction import atomic
+from django.contrib.auth.decorators import permission_required
 
+## MAGE imports
+from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
+from ref.conventions import value_instance_fields
 
 @atomic
 def edit_comp(request, instance_id=None, description_id=None):
@@ -176,15 +180,6 @@ def form_for_model(descr):
     return cls
 
 
-class InstanceForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        descr = kwargs.pop('description')
-        super(InstanceForm, self).__init__(*args, **kwargs)
-
-        for field in descr.field_set.all():
-            self.fields[field.name] = forms.CharField(label=field.label)
-
-
 #####################################################
 ## Debug form for changing types
 #####################################################
@@ -200,7 +195,7 @@ class HorizontalCSM(CheckboxSelectMultiple.renderer):
         return mark_safe('\n'.join(output))
 
 class CIForm(ModelForm):
-    def __init__(self, descriptions, envts, **kwargs):
+    def __init__(self, descriptions, envts, cics, **kwargs):
         super(CIForm, self).__init__(**kwargs)
         iterator = ModelChoiceIterator(self.fields['description'])
         choices = [iterator.choice(obj) for obj in descriptions]
@@ -210,17 +205,25 @@ class CIForm(ModelForm):
         iterator = ModelChoiceIterator(self.fields['environments'])
         choices = [iterator.choice(obj) for obj in envts]
         self.fields['environments'].choices = choices
+        
+        iterator = ModelChoiceIterator(self.fields['instanciates'])
+        choices = [iterator.choice(obj) for obj in cics]
+        choices.append(("", self.fields['instanciates'].empty_label))
+        self.fields['instanciates'].choices = choices
 
 
     class Meta:
         model = ComponentInstance
-        fields = ['description', 'environments', 'deleted']
+        fields = ['description', 'instanciates', 'environments', 'deleted']
         widgets = {'environments' : CheckboxSelectMultiple(renderer=HorizontalCSM)}
 
+@atomic
+@permission_required('ref.scm_addcomponentinstance')
 def edit_all_comps_meta(request):
     CIFormSet = modelformset_factory(ComponentInstance, form=CIForm, extra=0)
-    CIFormSet.form = staticmethod(curry(CIForm, descriptions=ImplementationDescription.objects.all(),
-                                        envts=Environment.objects.all()))
+    CIFormSet.form = staticmethod(curry(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
+                                        envts=Environment.objects.all().order_by('name'),
+                                        cics=ComponentImplementationClass.objects.all().order_by('implements__application__name', 'name')))
 
     if request.method == 'POST':
         formset = CIFormSet(request.POST, request.FILES)
@@ -231,3 +234,91 @@ def edit_all_comps_meta(request):
         formset = CIFormSet(queryset=ComponentInstance.objects.all().select_related('description').prefetch_related('environments'))
 
     return render_to_response("ref/instance_all.html", {"formset": formset, })
+
+
+############################################################
+## Debug form for changing all elements of a description
+############################################################
+
+class ReinitModelForm(ModelForm):
+    mage_retemplate = forms.BooleanField(label='T', required=False)
+    
+    class Meta:
+        model = ComponentInstance
+        fields = ['instanciates', ]        
+        
+    def __init__(self, cics, **kwargs):
+        super(ReinitModelForm, self).__init__(**kwargs)
+        
+        iterator = ModelChoiceIterator(self.fields['instanciates'])
+        choices = [iterator.choice(obj) for obj in cics]
+        choices.append(("", self.fields['instanciates'].empty_label))
+        self.fields['instanciates'].choices = choices
+        
+        if self.instance:
+            # Stupid: self.instance can be overridden by a field named instance... So we store it inside another field (with a forbidden name) 
+            self.mage_instance = self.instance
+            
+            for field_instance in self.instance.rel_target_set.all():
+                self.fields[field_instance.field.name].initial = field_instance.target_id
+                
+            for field_instance in self.instance.field_set.all():
+                self.fields[field_instance.field.name].initial = field_instance.value
+                
+    def save(self, commit=True):
+        for field in self.mage_instance.description.field_set.all():
+            if not field.name in self.changed_data:
+                    continue
+            new_data = self.cleaned_data[field.name]
+            ComponentInstanceField.objects.update_or_create(defaults={'value': new_data} , field=field, instance=self.mage_instance)
+        
+        for field in self.mage_instance.description.target_set.all():
+            if not field.name in self.changed_data:
+                continue
+            new_data = self.cleaned_data[field.name]
+            ComponentInstanceRelation.objects.update_or_create(defaults={'target': new_data}, source=self.mage_instance, field=field)
+            
+        super(ReinitModelForm, self).save(commit=commit)
+        
+        ## Template application can only occur after everything is saved, so is at the end of save()
+        if self.cleaned_data['mage_retemplate']:
+            value_instance_fields(self.instance, force=True)
+
+def reinit_form_for_model(descr):    
+    attrs = {}
+
+    # Relations
+    for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
+        f = forms.ModelChoiceField(queryset=field.target.instance_set, label=field.label, required=field.min_cardinality == 1)
+        attrs[field.name] = f
+        
+    # Simple fields
+    for field in descr.field_set.all():
+        f = forms.CharField(label=field.short_label, required=field.compulsory)
+        attrs[field.name] = f
+
+    return type(str("__" + descr.name.lower() + "_reinitform"), (ReinitModelForm,), attrs)
+
+@atomic
+@permission_required('ref.scm_addcomponentinstance')
+def descr_instances_reinit(request, descr_id=4):
+    cics = ComponentImplementationClass.objects.all()
+    descr = ImplementationDescription.objects.get(pk=descr_id)
+   
+    cls = reinit_form_for_model(descr)
+    InstanceFormSet = modelformset_factory(ComponentInstance, form=cls, extra=0)
+    InstanceFormSet.form = staticmethod(curry(cls, cics=cics))
+    
+    if request.POST:
+        formset = InstanceFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            return redirect("ref:instance_descr_reinit")      
+    else:
+        instances = ComponentInstance.objects.filter(description_id=descr_id).\
+                prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field'))).\
+                prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field'))).\
+                prefetch_related('environments')
+        formset = InstanceFormSet(queryset=instances)
+
+    return render_to_response("ref/instance_descr_reinit.html", {'formset': formset, 'descr': descr})
