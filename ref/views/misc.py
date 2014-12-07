@@ -1,20 +1,22 @@
 # coding: utf-8
 
-from ref.models.parameters import getParam
+## Python imports
+
+## Django imports
 from django.shortcuts import render
 from django.http.response import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
-from ref.models import ImplementationDescription, ImplementationRelationDescription, Environment
-from ref.models.com import Link
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
-from scm.models import ComponentInstanceConfiguration
-from django.views.decorators.cache import cache_page
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
-from ref.models.logical import ComponentImplementationClass
 from django.contrib.auth.decorators import permission_required
+
+## MAGE imports
+from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, ComponentImplementationClass
+from ref.models.parameters import getParam
+from scm.models import ComponentInstanceConfiguration
 
 
 ##############################################################################
@@ -50,14 +52,14 @@ def script_login(request, username, password):
         login(request, user)
         return HttpResponse("<html><body>User authenticated</body></html>")
     else:
-        raise PermissionDenied # will return a 403 (HTTP forbidden)
+        raise PermissionDenied  # will return a 403 (HTTP forbidden)
 
 def script_login_post(request):
     if request.method == 'POST' and request.POST.has_key('username') and request.POST.has_key('password'):
         name = request.POST['username']
         passwd = request.POST['password']
         return script_login(request, name, passwd)
-    raise PermissionDenied # will return a 403 (HTTP forbidden)
+    raise PermissionDenied  # will return a 403 (HTTP forbidden)
 
 def script_logout(request):
     logout(request)
@@ -91,4 +93,54 @@ def shelllib_bash(request):
 
 @permission_required('ref.scm_addcomponentinstance')
 def debug(request):
-    return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'cics' : ComponentImplementationClass.objects.all()}) 
+    return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'cics' : ComponentImplementationClass.objects.all()})
+
+def control(request):
+    descrs = ImplementationDescription.objects.all().prefetch_related(
+          Prefetch('instance_set', queryset=ComponentInstance.objects.all().prefetch_related('rel_target_set', 'field_set', 'environments').select_related('implements')), \
+           'target_set', 'field_set')
+    
+    many_envts = []
+    missing_field = {}
+    missing_rel = {}
+    
+    for d in descrs:
+        for i in d.instance_set.all():
+            
+            ## Check simple fields
+            for f in d.field_set.all():
+                if not f.compulsory:
+                    continue
+                
+                found = False
+                for inf in i.field_set.all():
+                    if inf.field_id == f.id:
+                        found = True
+                        break
+                if not found:
+                    if missing_field.has_key(i):
+                        missing_field[i].append(f)
+                    else:
+                        missing_field[i] = [f, ]
+            
+            ## Check relationships
+            for f in d.target_set.all():
+                if f.min_cardinality == 0:
+                    continue
+                
+                found = False
+                for inf in i.rel_target_set.all():
+                    if inf.field_id == f.id:
+                        found = True
+                        break
+                if not found:
+                    if missing_rel.has_key(i):
+                        missing_rel[i].append(f)
+                    else:
+                        missing_rel[i] = [f, ]
+                        
+            ## Check envts
+            if i.environments.count() > 1:
+                many_envts.append(i)
+            
+    return render(request, 'ref/control.html', {'many_envts': many_envts, 'missing_field': missing_field, 'missing_rel': missing_rel})

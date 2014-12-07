@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block pagetitle %}debug{% endblock %}
+{% block maintitle %}Contrôles du référentiel{% endblock %}
+
+
+{% block content %}
+<div class='t3 metFormSection'>Manques de valeurs (à corriger obligatoirement)</div>
+<table class='table table-condensed table-bordered table-hover'>
+    <tr><th></th><th>ID</th><th>Type</th><th>Environnements</th><th>Champ manquant ou vide</th></tr>
+	{% for ci, errors in missing_field.items %}  
+	   {% for error in errors %}
+	       <tr>
+	           <td><a href="{% url 'ref:edit_ci' ci.id %}" target="_blank">Corriger</a></td>
+               <td>{{ ci.id }}</td>
+               <td><a href="{% url 'ref:instance_descr_reinit' ci.description_id %}" target="_blank">{{ci.description.name}}</a></td>
+               <td>{{ci.environments_str}}</td>
+               <td>{{error.name}}</td>
+           </tr>
+        {% endfor %}
+    {% endfor %}
+</table>
+
+<div class='t3 metFormSection'>Manques de relations (à corriger obligatoirement)</div>
+<table class='table table-condensed table-bordered table-hover'>
+    <tr><th>ID</th><th>Type</th><th>Environnements</th><th>Relation manquante ou incomplète</th></tr>
+    {% for ci, errors in missing_rel.items %}  
+        {% for error in errors %}
+           <tr>
+	           <td>{{ ci.id }}</td>
+               <td><a href="{% url 'ref:instance_descr_reinit' ci.description_id %}" target="_blank">{{ci.description.name}}</a></td>
+               <td>{{ci.environments_str}}</td>
+               <td>{{error.name}}</td>
+           </tr>
+        {% endfor %}
+    {% endfor %}
+</table>
+
+<div class='t3 metFormSection'>Multiples environnements (potentiellement normal)</div>
+<table class='table table-condensed table-bordered table-hover'>
+    <tr><th>ID</th><th>Type</th><th>Environnements</th></tr>
+    {% for ci in many_envts %}  
+       <tr><td>{{ ci.id }}</td><td>{{ci.description.name}}</td><td>{{ci.environments_str}}</td></tr>
+    {% endfor %}
+</table>
+{% endblock content %}
+
