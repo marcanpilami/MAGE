@@ -11,8 +11,8 @@
     <div style='color: white;' class='row'> 
         <a class='metSquare' style='background: #423173;' href="{% url 'ref:instance_all' %}">Recast des instances</a>
         <div>
-        {% for cic in cics %}
-        <a class='metSquare' href="{% url 'ref:instance_descr_reinit' cic.id %}">Retemplating des <div class='metSquareLong annotation'>{{cic.description}}</div></a>  
+        {% for d in descrs %}
+        <a class='metSquare' href="{% url 'ref:instance_descr_reinit' d.id %}">Retemplating des <div class='metSquareLong annotation'>{{d.name}}</div></a>  
         {%endfor %}
         </div>
     </div>

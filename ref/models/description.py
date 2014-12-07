@@ -70,6 +70,7 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     class Meta:
         verbose_name = u'champ simple'
         verbose_name_plural = u'champs simples'
+        unique_together = (('name', 'description'),)
 
 class ImplementationComputedFieldDescription(ImplementationFieldBase):
     """ The description of a calculated field inside a technical implementation """
@@ -87,6 +88,7 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
     class Meta:
         verbose_name = u'champ calculé'
         verbose_name_plural = u'champs calculés'
+        unique_together = (('name', 'description'),)
 
 class ImplementationRelationDescription(ImplementationFieldBase):
     source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source')
@@ -101,6 +103,7 @@ class ImplementationRelationDescription(ImplementationFieldBase):
     class Meta:
         verbose_name = u'relation'
         verbose_name_plural = u'relations'
+        unique_together = (('name', 'source'),)
 
 _classes = {}
 class ImplementationDescription(models.Model):

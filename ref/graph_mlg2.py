@@ -29,7 +29,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
         ## Only use CIs from the cache with preloaded relationships
         ci = all_instances[ci.pk]
 
-        nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name, 'style': "fill: " + colourGen.getNodeColour(ci), 'labelStyle': 'stroke: white; fill: white; stroke-width: 0; kerning: 2'}}
+        nodes[ci.pk] = {'id': ci.pk, 'value':{'label': ci.name or "null", 'style': "fill: " + colourGen.getNodeColour(ci), 'labelStyle': 'stroke: white; fill: white; stroke-width: 0; kerning: 2'}}
         types[ci.pk] = ci.description.name
         targets[ci.pk] = []
 
@@ -93,7 +93,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
             if types[n1['id']] == types[n2['id']] and targets[n1['id']] == targets[n2['id']] and not n2['id'] in removed_nodes:
                 nodes_to_remove.append(n2)
 
-        if len(nodes_to_remove) >= collapse_threshold - 1: # -1 because first node n1 is not in the list
+        if len(nodes_to_remove) >= collapse_threshold - 1:  # -1 because first node n1 is not in the list
             for tr in nodes_to_remove:
                 for key, value in edges.items():
                     # remove the now duplicate outgoing edges

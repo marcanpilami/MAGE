@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import permission_required
 
 ## MAGE imports
 from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
-from ref.conventions import value_instance_fields
+from ref.conventions import value_instance_fields, value_instance_graph_fields
 
 @atomic
 def edit_comp(request, instance_id=None, description_id=None):
@@ -241,7 +241,7 @@ def edit_all_comps_meta(request):
 ############################################################
 
 class ReinitModelForm(ModelForm):
-    mage_retemplate = forms.BooleanField(label='T', required=False, widget = CheckboxInput(attrs = {'class': 't'}))
+    mage_retemplate = forms.BooleanField(label='T', required=False, widget=CheckboxInput(attrs={'class': 't'}))
     
     class Meta:
         model = ComponentInstance
@@ -283,6 +283,7 @@ class ReinitModelForm(ModelForm):
         ## Template application can only occur after everything is saved, so is at the end of save()
         if self.cleaned_data['mage_retemplate']:
             value_instance_fields(self.instance, force=True)
+            value_instance_graph_fields(self.instance, force=True)
 
 def reinit_form_for_model(descr):    
     attrs = {}
@@ -294,7 +295,7 @@ def reinit_form_for_model(descr):
         
     # Simple fields
     for field in descr.field_set.all():
-        f = forms.CharField(label=field.short_label, required=field.compulsory)
+        f = forms.CharField(label=field.short_label, required=False)
         attrs[field.name] = f
 
     return type(str("__" + descr.name.lower() + "_reinitform"), (ReinitModelForm,), attrs)

@@ -93,7 +93,7 @@ def shelllib_bash(request):
 
 @permission_required('ref.scm_addcomponentinstance')
 def debug(request):
-    return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'cics' : ComponentImplementationClass.objects.all()})
+    return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'descrs' : ImplementationDescription.objects.all().order_by('tag', 'name')})
 
 def control(request):
     descrs = ImplementationDescription.objects.all().prefetch_related(

@@ -163,27 +163,29 @@ def __value_pattern_field(instance, pattern, envt=None, counter_simulation=False
     for match in reversed([i for i in re_counter_envt.finditer(res)]):
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=None)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=None, scope_instance=None)[0]
         res = __counter(match, res, c, counter_simulation)
 
     for match in reversed([i for i in re_counter_prjt.finditer(res)]):
         if envt is None or envt.project is None:
             raise MageError('a counter within a project scope can only be used if the instance is associated to an environment belonging to a project')
-        c = ConventionCounter.objects.get_or_create(scope_project=envt.project, scope_application=None, scope_environment=None, scope_type=None)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=envt.project, scope_application=None, scope_environment=None, scope_type=None, scope_instance=None)[0]
         res = __counter(match, res, c, counter_simulation)
 
     for match in reversed([i for i in re_counter_glob.finditer(res)]):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=None)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=None, scope_instance=None)[0]
         res = __counter(match, res, c, counter_simulation)
 
     for match in reversed([i for i in re_counter_tyev.finditer(res)]):
         if envt is None:
             raise MageError('a counter within an environment scope can only be used if the instance is associated to an environment')
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=instance.description)[0]
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=instance.description, scope_instance=None)[0]
         res = __counter(match, res, c, counter_simulation)
 
     for match in reversed([i for i in re_counter_type.finditer(res)]):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.description)[0]
+        if instance.description_id is None:
+            raise MageError('a counter within a description scope can only be used if the instance is correctly associated to a description')
+        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=instance.description, scope_instance=None)[0]
         res = __counter(match, res, c, counter_simulation)
 
     ## Maths?
