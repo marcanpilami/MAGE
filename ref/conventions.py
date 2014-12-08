@@ -275,38 +275,3 @@ def value_instance_fields(instance, force=False, create_missing_links=True, coun
         else:
             n = ComponentInstanceField(value=new_val, field=field, instance=instance)
             n.save()
-
-@receiver(pre_save, sender=ImplementationFieldDescription)
-def create_counters(sender, instance, raw=False, **kwargs):
-    field_def = instance
-
-    if raw or not field_def.default:
-        return
-    if re_counter_tyev.search(str(field_def.default)):
-        for envt in Environment.objects.all():
-            c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=field_def.description)
-            if c[1]:
-                c[0].save()
-
-    if re_counter_envt.search(str(field_def.default)):
-        for envt in Environment.objects.all():
-            c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=envt, scope_type=None)
-            if c[1]:
-                c[0].save()
-
-    if re_counter_prjt.search(str(field_def.default)):
-        for prj in Project.objects.all():
-            c = ConventionCounter.objects.get_or_create(scope_project=prj, scope_application=None, scope_environment=None, scope_type=None)
-            if c[1]:
-                c[0].save()
-
-    if re_counter_glob.search(str(field_def.default)):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=None)
-        if c[1]:
-            c[0].save()
-
-    if re_counter_type.search(str(field_def.default)):
-        c = ConventionCounter.objects.get_or_create(scope_project=None, scope_application=None, scope_environment=None, scope_type=field_def.description)
-        if c[1]:
-            c[0].save()
-
