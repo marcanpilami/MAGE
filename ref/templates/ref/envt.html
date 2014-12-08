@@ -92,14 +92,14 @@
 							{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
 								{% if field.field.widget_row >= 0 %}
 									{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<td>{{field.value}}</td>
+										<td>{{field.value | urlify}}</td>
 									{% endif %}
 								{% endif %}
 							{% endfor %}
 							{% for field in compo.description.computed_field_set.all|dictsort:"widget_row" %}
 								{% if field.widget_row >= 0 %}
 									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<td>{{compo | apply_field_template:field | safe}}</td>
+										<td>{{compo | apply_field_template:field | urlify}}</td>
 									{% endif %}
 								{% endif %}
 							{% endfor %}
