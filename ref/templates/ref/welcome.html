@@ -31,12 +31,12 @@
 		<div class='t2' style='color: black;'>Gestion de configuration</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes des environnements</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:deliveries' %}">Liste des livraisons disponibles à l'installation</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:deliveries' %}">Livraisons disponibles à l'installation</a>
 		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:tag_list' %}">Tags des environnements</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:backup_list' %}">Sauvegardes des environnements</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_list' %}">Versions disponibles des composants logiques</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:tag_list' %}">Tags</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:backup_list' %}">Sauvegardes disponibles</a>
+		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_list' %}">Versions disponibles</a>
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}

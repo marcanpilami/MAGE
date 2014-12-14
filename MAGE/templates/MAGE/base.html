@@ -35,15 +35,32 @@
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class='container-fluid'>
 				<div class='navbar-header'>
-					<div class='pageTitle'>{%block maintitle%}{%endblock%}</div>
+                    <a class="navbar-brand" href="{% url 'welcome' %}">MAGE</a>
 				</div>
-				<div class='collapse navbar-collapse' id='quickAccessButtons'>
-					<span id='quickAccessActionButtons'>{%block frequentActionsButtons%}{%endblock%}</span>
-					<span id='quickAccessNavigationButtons'>
-						{%block navigationButtons%}{%endblock%}
-						<a href="{% url 'welcome' %}" title="Home"><img src='{% static "home.svg" %}' style="width: 20px; height: 20px; position: absolute; top: 5px; right: 5px;"/></a>
-					</span>
-				</div>
+                
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-left">
+                        <li><p class="navbar-text caps pageTitle">{%block maintitle%}{%endblock%}</p></li>
+                    </ul>               
+                
+                    <ul class="nav navbar-nav navbar-right" id='inout'>
+                        {% if user.is_authenticated %}
+                        <li>
+                            <p class="navbar-text">{{ user.username }}</p>
+                        </li>
+                        {% endif %}
+                        <li>
+                            {% if user.is_authenticated %}<a href="{% url 'logout' %}">Se déconnecter</a>
+                            {% else %}<a href="{% url 'login' %}">S'authentifier</a>{% endif %}
+                        </li>
+                        <li id='quickAccessButtons'>
+                            <span id='quickAccessActionButtons'>{%block frequentActionsButtons%}{%endblock%}</span>
+                            <span id='quickAccessNavigationButtons'>
+                                {%block navigationButtons%}{%endblock%}
+                            </span>
+                        </li>
+                    </ul>	
+                </div>			
 			</div>
 		</div>
 		{% if messages %}
@@ -53,16 +70,6 @@
 		    {% endfor %}
 		</div>
 		{% endif %}
-		<div class='container-fluid'>{%block content%}{%endblock content%}</div>
-		<div class='footer'>
-			{%block footer%}
-			MAGE 6.1.0 - {%now "d/m/Y H:i"%} -
-			{% if user.is_authenticated %}
-			    {{ user.username }} - <a href="{% url 'logout' %}">Se déconnecter</a>
-			{% else %}
-			    <a href="{% url 'login' %}">S'authentifier</a>
-			{% endif %}
-			{%endblock footer%}
-		</div>
+		<div class='container-fluid'>{%block content%}{%endblock content%}</div>		
 	</body>
 </html>

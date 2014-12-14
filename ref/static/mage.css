@@ -7,29 +7,11 @@ html {
 }
 
 body {
-	/* Margin bottom by footer height */
-	margin-bottom: 30px;
 	background-color: #F5F0F2;
-	font-size: 10pt;
-}
-
-/* Header & footer */
-.footer {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	/* Set the fixed height of the footer here */
-	height: 30px;
-	background-color: #f5f5f5;
 }
 
 body>.container-fluid {
 	padding: 60px 15px 0;
-}
-
-.navbar {
-	background-color: #094AB2;
-	color: white;
 }
 
 .ifjs {
@@ -38,14 +20,10 @@ body>.container-fluid {
 
 /* Titles */
 .pageTitle {
-	display: inline-block;
-	font-size: 20pt;
-	font-weight: normal;
-	letter-spacing: 0.01em;
+	/*font-size: 18px;*/
+	font-weight: bolder;
+	letter-spacing: 0.02em;
 	text-transform: uppercase;
-	padding: 0;
-	margin: 0;
-	font-size: 20pt;
 }
 
 .t2 {
@@ -322,7 +300,7 @@ div.metContainer select,div.metContainer span {
 
 a {
 	color: inherit;
-	text-decoration: underline;
+	text-decoration: none;
 }
 
 a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus
@@ -393,18 +371,25 @@ button.cancel,input.cancel[type='button'] {
 	background-color: #004A00;
 }
 
-/* Toolbar */
-#upperBar {
-	background-color: #0000CC;
+/* Menu & Toolbar */
+.navbar {
+	background-color: #094AB2;
 	color: white;
-	padding-bottom: 3px;
-	min-height: 36px;
 }
 
-#quickAccessButtons {
-	position: absolute;
-	right: 5px;
-	top: 6px;
+#quickAccessButtons, #quickAccessButtons>span {
+	height: 50px;
+}
+
+.navbar,.navbar-inverse a,.navbar-inverse .navbar-text,.navbar-inverse .navbar-brand, .navbar-inverse .navbar-nav>li>a 
+{
+	color: white;
+	word-wrap: break-word;
+	vertical-align: middle;
+}
+
+ .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse > div > .navbar-header > a.navbar-brand:hover, #quickAccessButtons > span > a:hover  {
+	background-color: rgb(200,200,200);
 }
 
 #quickAccessButtons a {
@@ -419,6 +404,7 @@ button.cancel,input.cancel[type='button'] {
 	font-weight: bold;
 	text-decoration: inherit;
 	font-size: 13pt;
+	margin-top: 8px;
 }
 
 #quickAccessButtons a img {
