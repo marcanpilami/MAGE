@@ -30,7 +30,7 @@ def lc_list(request):
 @cache_control(must_revalidate=True)
 def lc_versions(request, lc_id):
     lc = LogicalComponent.objects.select_related('application').prefetch_related(
-               Prefetch('versions', queryset=LogicalComponentVersion.objects.prefetch_related(Prefetch('installed_by', queryset=InstallableItem.objects.select_related('belongs_to_set'))))
+               Prefetch('versions', queryset=LogicalComponentVersion.objects.prefetch_related(Prefetch('installed_by', queryset=InstallableItem.objects.all().select_related('belongs_to_set__backupset'))))
            ).get(pk=lc_id)
     return render(request, 'scm/lc_versions_detail.html', {'lc': lc})
 

@@ -9,16 +9,20 @@
 {% block content %}
 
 {% for v in lc.versions.all|dictsortreversed:"pk" %}
-	<div class='metRectList defaultHighlightBackground'>
-		{{ v.version }}
+<div class='row'>
+    <div class='col-md-1'>
+	   <div class='metRectList defaultHighlightBackground'>{{ v.version }}</div>
 	</div>
-	{% for ii in v.installed_by.all %}
-		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">
-			<div class='smallContent'>Livré dans</div>{{ ii.belongs_to_set.name }}
-		</a>
-	{% endfor %}
-
-	<br/>
+	<div class='col-md-11'>
+    	{% for ii in v.installed_by.all %}
+            {% if not ii.belongs_to_set.backupset %}
+        		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">
+        			<div class='smallContent'>Livré dans</div>{{ ii.belongs_to_set.name }}
+        		</a>
+            {% endif %}
+    	{% endfor %}
+    </div>
+</div>
 {% endfor %}
 
 {% endblock content %}
