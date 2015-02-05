@@ -3,7 +3,8 @@
 {% block maintitle %}Progression des composants{% endblock %}
 
 {% block content %}
-<table class='visibleTable'>
+<div class='table-responsive'>
+<table class='table table-condensed table-bordered table-hover'>
 	<thead>
 		<tr>
 			<th></th>
@@ -13,12 +14,16 @@
 	</thead>
 
 
-	{% for lc,version_list in res.items %}
+	{% for lc,envt_dic in res.items %}
 	<tr>
 		<td>{{lc.application.name}}</td>
 		<td><a href="{% url 'scm:lc_versions' lc.id %}">{{lc.name | capfirst}}</a></td>
-		{% for v in version_list %}
-			<td>{% if v %} {{v.version}} {% endif %}</td>
+		{% for e, version_list in envt_dic.items %}
+            <td>
+	           {% for lcv in version_list %}
+	               {{lcv.version}}
+	           {% endfor %}
+            </td>
 		{% endfor %}
 	
 	</tr>
@@ -26,4 +31,5 @@
 	{% endfor %}
 
 </table>
+</div>
 {% endblock content %}

@@ -8,10 +8,12 @@ from django.utils.timezone import now
 from django.shortcuts import render
 from django.utils.datastructures import SortedDict
 from django.db.models.query import Prefetch
+from django.db.models import Max
 
 ## MAGE imports
 from ref.models import Environment, LogicalComponent
-from scm.models import Installation, ComponentInstanceConfiguration
+from scm.models import Installation, ComponentInstanceConfiguration, \
+    ComponentInstance
 
 
 def all_installs(request, envt_name, limit):
@@ -42,19 +44,31 @@ def all_installs(request, envt_name, limit):
 
 
 def lc_versions_per_environment(request):
-    Installation.objects.filter()
-    envts = Environment.objects_active.filter(managed=True).order_by('typology__chronological_order', 'name')
-    res = SortedDict()
-    for lc in LogicalComponent.objects.filter(scm_trackable=True, active=True).select_related('application').order_by('application__name', 'name') :
-        lc_list = []
-        for envt in envts:
-            compo_instances = envt.component_instances.filter(instanciates__implements__id=lc.id)
-            versions = [i.latest_cic for i in compo_instances if i.version_object_safe]
-            if len(versions) > 0:
-                versions.sort(key=lambda x : x.created_on, reverse=True)
-                lc_list.append(versions[0].result_of.what_is_installed)
-            else:
-                lc_list.append(None)
-        res[lc] = lc_list
-
-    return render(request, 'scm/lc_installs_envt.html', {'res': res, 'envts': envts})
+    envts = Environment.objects_active.filter(managed=True, active=True).order_by('typology__chronological_order', 'name')
+    
+    cics = ComponentInstance.objects.annotate(latest_change_id=Max('configurations__id'))\
+            .filter(latest_change_id__isnull=False).values_list('latest_change_id', flat=True)   
+    cics = ComponentInstanceConfiguration.objects.filter(pk__in=cics, component_instance__instanciates__implements__isnull=False)\
+            .filter(component_instance__deleted=False)\
+            .filter(component_instance__instanciates__active=True)\
+            .filter(component_instance__instanciates__implements__active=True)\
+            .select_related('component_instance__instanciates__implements__application', 'result_of__what_is_installed')\
+            .prefetch_related('component_instance__environments')
+    
+    res = {}
+    for cic in cics:
+        if not res.has_key(cic.component_instance.instanciates.implements):
+            res[cic.component_instance.instanciates.implements] = SortedDict()
+            for e in envts:
+                res[cic.component_instance.instanciates.implements][e] = []
+        
+        for e in cic.component_instance.environments.all():
+            # only add different versions
+            try:
+                if not cic.result_of.what_is_installed in res[cic.component_instance.instanciates.implements][e]:
+                    res[cic.component_instance.instanciates.implements][e].append(cic.result_of.what_is_installed)
+            except KeyError:
+                pass  # happens for unmanaged, deleted... envts & the like            
+    
+    return render(request, 'scm/lc_installs_envt.html', {'res': SortedDict(sorted( res.items(), key = lambda t : t[0].application_id)), 'envts': envts})
+    
