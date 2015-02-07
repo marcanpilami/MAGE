@@ -4,6 +4,6 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-This instance is of type {{instance.description.description}}. {% if instance.environments.all %}It belongs to environments {{ instance.environments.all|join:", "}}.{% else %}It does not belong to any environments.{% endif %}
+Cette instance est du type "{{instance.description.description}}". {% if instance.environments.all %}Elle appartient à {{ instance.environments.all|join:", "}}.{% else %}Elle n'appartient à aucun environnement.{% endif %}
 	{% crispy form %}
 {% endblock content %}
