@@ -10,7 +10,7 @@ from scm import views
 
 urlpatterns = patterns('',
     url(r'envt/hist/(?P<envt_name>.*)/(?P<limit>\d+)', views.all_installs, name='envtinstallhistprm'),
-    url(r'envt/hist/(?P<envt_name>.*)', views.all_installs, {'limit': 31}, name='envtinstallhist'),
+    url(r'envt/hist/(?P<envt_name>.*)', views.all_installs, {'limit': 90}, name='envtinstallhist'),
 
     url(r'delivery$', views.delivery_list, name='deliveries'),
     url(r'delivery/(?P<iset_id>\d*)$', views.delivery, name='delivery_detail'),

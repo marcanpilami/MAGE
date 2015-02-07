@@ -24,10 +24,13 @@ def all_installs(request, envt_name, limit):
     envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
     dlimit = now() - timedelta(days=limit)
     
-    installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().order_by('-pk').\
-            prefetch_related(Prefetch('modified_components', queryset=ComponentInstanceConfiguration.objects.all().select_related('component_instance__instanciates')))
+    installs = Installation.objects.filter(install_date__gt=dlimit).filter(modified_components__component_instance__environments=envt).distinct().\
+            order_by('-pk').\
+            select_related('installed_set').\
+            prefetch_related(Prefetch('modified_components', 
+                    queryset=ComponentInstanceConfiguration.objects.all().select_related('component_instance__instanciates', 'result_of__what_is_installed')))
     logical_components = LogicalComponent.objects.filter(scm_trackable=True, active=True, implemented_by__instances__environments=envt).distinct()\
-                            .select_related('application')
+                            .order_by('application__name', 'name').select_related('application')
 
     versions = {}
     for compo in envt.component_instances.filter(deleted=False, instanciates__isnull=False, instanciates__implements__scm_trackable=True):
