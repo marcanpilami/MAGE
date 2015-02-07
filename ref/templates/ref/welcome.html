@@ -40,7 +40,7 @@
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}
-				<a class='metSquare' href="{% url 'scm:envtinstallhistprm' envt.name 31 %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>
+				<a class='metSquare' href="{% url 'scm:envtinstallhist' envt.name %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>
 			{% endif %}	
 		{%endfor %}
 		</div>
