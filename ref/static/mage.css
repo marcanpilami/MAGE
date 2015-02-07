@@ -107,6 +107,22 @@ body>.container-fluid {
 	padding: 2px;
 }
 
+.dottedTable {
+	border-collapse: collapse;
+}
+
+.dottedTable td,.dottedTable th {
+	border: 1px dotted black;
+}
+
+.dottedTable div,.dottedTable a {
+	padding: 4px;
+}
+
+.dottedTable th a {
+	display: inline-block;
+}
+
 /* Modern components containers */
 .metContainer {
 	padding: 5px;
@@ -377,19 +393,20 @@ button.cancel,input.cancel[type='button'] {
 	color: white;
 }
 
-#quickAccessButtons, #quickAccessButtons>span {
+#quickAccessButtons,#quickAccessButtons>span {
 	height: 50px;
 }
 
-.navbar,.navbar-inverse a,.navbar-inverse .navbar-text,.navbar-inverse .navbar-brand, .navbar-inverse .navbar-nav>li>a 
-{
+.navbar,.navbar-inverse a,.navbar-inverse .navbar-text,.navbar-inverse .navbar-brand,.navbar-inverse .navbar-nav>li>a
+	{
 	color: white;
 	word-wrap: break-word;
 	vertical-align: middle;
 }
 
- .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse > div > .navbar-header > a.navbar-brand:hover, #quickAccessButtons > span > a:hover  {
-	background-color: rgb(200,200,200);
+.navbar-inverse .navbar-nav>li>a:hover,.navbar-inverse>div>.navbar-header>a.navbar-brand:hover,#quickAccessButtons>span>a:hover
+	{
+	background-color: rgb(200, 200, 200);
 }
 
 #quickAccessButtons a {

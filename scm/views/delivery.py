@@ -14,7 +14,7 @@ from django.db.models.aggregates import Max
 @cache_control(must_revalidate=True, max_age=600)
 def delivery_list(request):
     deliveries = Delivery.objects.order_by('set_date').reverse().prefetch_related(Prefetch('set_content', InstallableItem.objects.select_related('what_is_installed__logical_component').prefetch_related('how_to_install')))
-    lis = LogicalComponent.objects.filter(scm_trackable=True, active=True).order_by('pk').prefetch_related('versions', 'application')
+    lis = LogicalComponent.objects.filter(scm_trackable=True, active=True).order_by('application__name', 'name').prefetch_related('versions', 'application')
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries, 'lis': lis})
 
 @cache_control(no_cache=True)

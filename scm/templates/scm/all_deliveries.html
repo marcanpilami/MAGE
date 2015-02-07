@@ -9,25 +9,27 @@
 
 {% block content %}
 
-<div class='metContainer'>
-<table>
+<div>
+<table class="dottedTable">
 	<thead>
-		<tr>
-			<th></th>
-			{% for li in lis %}
-				{% if li.versions.count != 0 %}
-					<th><a style='height:40px;' class='metRectListSmall defaultHighlightBackground' href="{% url 'scm:lc_versions' li.id %}">{{li.application.name}} - {{li.name}}</a></th>
-				{% endif %}
-			{% endfor %}
-			<th>Enregistré le</th>
-			<th>V</th>
-		  </tr>
+	   <tr style="vertical-align: top;">
+	       <th style="border-style: none;"></th>
+           {% for li in lis %}
+	           {% if li.versions.count != 0 %}
+	               <th style="max-width: 9em;">
+                       <a href="{% url 'scm:lc_versions' li.id %}">{{li.application.name | capfirst }}<br/>{{li.name | capfirst}}</a>
+                   </th>
+	           {% endif %}
+	       {% endfor %}
+	       <th style="border-style: none;"></th>
+           <th style="border-style: none;"></th>
+	   </tr>
 	</thead>
 	<tbody>
 		{% for is in deliveries %}
 			<tr>
 				<td>
-					<a class='defaultHighlightBackground metRectListSmall' href="{% url 'scm:delivery_detail' is.id %}">
+					<a  href="{% url 'scm:delivery_detail' is.id %}">
 						{{ is.name }}
 					</a>
 				</td>
@@ -37,7 +39,7 @@
 						<td>
 							{% for ii in is.set_content.all %}
 								{% if li.id == ii.what_is_installed.logical_component_id %}
-									<div class='metRectListSmall {% if ii.is_full %} metInMet {% else %} metDefaultBackground {% endif %}'>
+									<div class='{% if ii.is_full %} metInMet {% else %} metDefaultBackground {% endif %}'>
 										{{ ii.what_is_installed.version }}
 									</div>
 								{% endif %}
@@ -46,8 +48,8 @@
 					{% endif %}
 				{% endfor %}
 				
-				<td>{{ is.set_date|date:"d/m/Y" }}</td>
-				<td>{% if is.status == 1 %} <img src='{% static "admin/img/icon-yes.gif" %}'></img>{% endif %}</td>
+				<td><div>{{ is.set_date|date:"d/m/Y" }}</div></td>
+				<td style="border-style: none;"><div>{% if is.status == 1 %} <img src='{% static "admin/img/icon-yes.gif" %}'></img>{% endif %}</div></td>
 			</tr>
 			
 		{% endfor %}
