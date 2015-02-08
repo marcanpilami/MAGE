@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-{% cache 30 welcome_all %}
+{% cache 60 welcome_all %}
 <div style='color: white;' class='row'>
 <div class='col-sm-5'>
 	<div style='color: white;' class='row'>
@@ -40,7 +40,7 @@
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}
-				<a class='metSquare' href="{% url 'scm:envtinstallhist' envt.name %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest|get_item:envt.name}}<br/>{{envt.latest_reconfiguration|date:"d/m H:i"}}</div></a>
+				<a class='metSquare' href="{% url 'scm:envtinstallhist' envt.name %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest_setname|get_item:envt.name}}<br/>{{latest_date|get_item:envt.name|date:"d/m H:i"}}</div></a>
 			{% endif %}	
 		{%endfor %}
 		</div>

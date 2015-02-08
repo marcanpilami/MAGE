@@ -14,7 +14,7 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required
 
 ## MAGE imports
-from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, ComponentImplementationClass
+from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link
 from ref.models.parameters import getParam
 from scm.models import ComponentInstanceConfiguration
 
@@ -24,22 +24,27 @@ from scm.models import ComponentInstanceConfiguration
 ##############################################################################
 
 def welcome(request):
-    latest = {}
+    latest_setname = {}
+    latest_date = {}
+    envts = []
     link_title = None
     ck = make_template_fragment_key('welcome_all')
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__id'))
+        envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
-                latest[e.name] = ComponentInstanceConfiguration.objects.get(pk=e.latest_reconfiguration).result_of.belongs_to_set.name
+                cic = ComponentInstanceConfiguration.objects.select_related('result_of__belongs_to_set').get(pk=e.latest_reconfiguration)
+                latest_setname[e.name] = cic.result_of.belongs_to_set.name
+                latest_date[e.name] = cic.created_on
 
-    return render(request, 'ref/welcome.html', {'team_links_title': link_title, 'team_links': Link.objects.all(),
-                            'latest': latest,
-                            'envts': Environment.objects_active.order_by('typology', 'name').annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).\
-                            annotate(latest_reconfiguration=Max('component_instances__configurations__created_on')).all(),
-                            'templates': Environment.objects.filter(template_only=True) })
+    return render(request, 'ref/welcome.html', {    'team_links_title': link_title,
+                                                    'team_links': Link.objects.all(),
+                                                    'latest_setname': latest_setname,
+                                                    'latest_date': latest_date,
+                                                    'envts': envts,
+                                                    'templates': Environment.objects.filter(template_only=True) })
 
 
 ##############################################################################
