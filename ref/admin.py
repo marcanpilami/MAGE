@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
 ## MAGE imports
-from ref.models import Project, Environment, LogicalComponent, Application, SLA, ComponentInstance, \
+from ref.models import Project, Environment, LogicalComponent, Application, SLA, \
     ComponentImplementationClass, ConventionCounter, ExtendedParameter, \
     EnvironmentType, ImplementationFieldDescription, ImplementationDescription, \
     ImplementationRelationDescription, ImplementationRelationType, \
@@ -40,7 +40,7 @@ site.register(User, UserAdmin)
 class MageParamAdmin(ModelAdmin):
     list_display = ['app', 'key', 'value', 'model', 'axis1', 'description', ]
     search_fields = ['app', 'key', 'value', 'axis1', ]
-    list_filter = ['app', ]#'model',]
+    list_filter = ['app', ]  #'model',]
 
 site.register(MageParam, MageParamAdmin)
 

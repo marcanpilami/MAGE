@@ -10,7 +10,6 @@ from UserDict import DictMixin
 
 ## Django imports
 from django.db import models
-from django.core.cache import cache
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
 
