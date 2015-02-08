@@ -167,4 +167,4 @@ class ComponentInstanceAdmin(ModelAdmin):
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
-site.register(ComponentInstance, ComponentInstanceAdmin)
+#site.register(ComponentInstance, ComponentInstanceAdmin)
