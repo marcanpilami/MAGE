@@ -17,7 +17,7 @@
 {% endblock scripts %}
 
 {% block content %}
-{% regroup envt.component_instances.all|dictsort:"description.tag"|dictsort:"description.name" by description.description as compotype_list %}
+{% regroup cis|dictsort:"description.tag"|dictsort:"description.name" by description.description as compotype_list %}
 
 <div class='row'>
 	<div class='col-md-2'>
@@ -51,9 +51,9 @@
 			<div class='table-responsive'>
 			<table class='table table-condensed table-bordered table-hover'>
 			{% for compo in compotype.list %}
-
 				{% if forloop.first %}
-					<tr><th>Composant</th><th>Nom</th>
+					<tr>
+                    <th>Livré dans</th><th>Nom</th>
 					{% if compo.description %}
 						{% comment %} Title row {% endcomment %} 
 						{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
@@ -118,12 +118,8 @@
 			<div class='table-responsive'>
 				<table class='table table-condensed table-bordered table-hover'>
 					<tr><th>ID</th><th>Type</th><th></th></tr>
-					{% for compotype in compotype_list %}
-						{% for compo in compotype.list %}
-							{% if compo.description and compo.deleted %}
-								<tr><td>{{compo.id}}</td><td>{{compotype.grouper}}</td><td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td></tr>
-							{% endif %}
-						{% endfor %}
+					{% for ci in deleted %}						
+						<tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
 					{% endfor %}
 				</table>
 			</div>
