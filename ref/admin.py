@@ -73,6 +73,7 @@ class EnvironmentTypeAdmin(ModelAdmin):
     list_display = ('name', 'short_name', 'description', 'chronological_order',)
     ordering = ('chronological_order', 'name')
     filter_horizontal = ('implementation_patterns',)
+    search_fields = ('name', 'short_name')
 
 site.register(EnvironmentType, EnvironmentTypeAdmin)
 
@@ -84,7 +85,7 @@ class LogicalComponentAdmin(ModelAdmin):
 site.register(LogicalComponent, LogicalComponentAdmin)
 
 class ApplicationAdmin(ModelAdmin):
-    list_display = ('name', 'description', 'project', 'alternate_name_1')
+    list_display = ('name', 'description', 'project', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
     ordering = ('name',)
     list_filter = ('project',)
 site.register(Application, ApplicationAdmin)
@@ -105,11 +106,13 @@ site.register(Link, LinkAdmin)
 
 class CICAdmin(ModelAdmin):
     list_display = ('name', 'implements', 'technical_description', 'description')
-    list_filter = ('implements__application', 'implements')
+    list_filter = ('active', 'implements__application', 'implements', 'description')
 
 site.register(ComponentImplementationClass, CICAdmin)
 
-site.register(ImplementationRelationType)
+class ImplementationRelationTypeAdmin(ModelAdmin):
+    list_display=('name', 'label')
+site.register(ImplementationRelationType, ImplementationRelationTypeAdmin)
 
 class ImplementationFieldDescriptionInline(TabularInline):
     model = ImplementationFieldDescription
