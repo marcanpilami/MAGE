@@ -22,43 +22,6 @@ from django.contrib.auth.decorators import permission_required
 from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
 from ref.conventions import value_instance_fields, value_instance_graph_fields
 
-@atomic
-def edit_comp(request, instance_id=None, description_id=None):
-    """ still used ?"""
-    instance = None
-
-    if request.POST:
-        cd = MiniModelForm(request.POST)
-        if cd.is_valid() and cd.cleaned_data['_id']:
-            instance = ComponentInstance.objects.get(pk=cd.cleaned_data['_id'])
-
-    if not request.POST and instance_id:
-        instance = ComponentInstance.objects.get(pk=instance_id)
-
-    form = form_for_model(instance.description if instance else ImplementationDescription.objects.get(pk=description_id))(request.POST or (instance.proxy if instance else None))
-
-    if request.POST and form.is_valid():
-        ## Save fields
-        ci = None
-        if form.cleaned_data.has_key('_id'):
-            cid = form.cleaned_data.pop('_id')
-            if cid:
-                ci = ComponentInstance.objects.get(pk=cid).proxy
-        if not ci:
-            impl_id = form.cleaned_data['_descr_id'] or description_id
-            descr = ImplementationDescription.class_for_id(impl_id)
-            ci = descr()
-        form.cleaned_data.pop('_descr_id')
-
-        for key, value in form.cleaned_data.iteritems():
-            setattr(ci, key, value)
-
-        ci.save()
-
-        ## Done
-        return redirect("ref:instance_edit", instance_id=ci._instance.id)
-
-    return render_to_response("ref/instance_edit.html", {'form': form})
 
 @atomic
 @permission_required('ref.scm_addcomponentinstance')
@@ -205,7 +168,7 @@ class CIForm(ModelForm):
         iterator = ModelChoiceIterator(self.fields['environments'])
         choices = [iterator.choice(obj) for obj in envts]
         self.fields['environments'].choices = choices
-        
+
         iterator = ModelChoiceIterator(self.fields['instanciates'])
         choices = [iterator.choice(obj) for obj in cics]
         choices.append(("", self.fields['instanciates'].empty_label))
@@ -242,57 +205,57 @@ def edit_all_comps_meta(request):
 
 class ReinitModelForm(ModelForm):
     mage_retemplate = forms.BooleanField(label='T', required=False, widget=CheckboxInput(attrs={'class': 't'}))
-    
+
     class Meta:
         model = ComponentInstance
-        fields = ['instanciates', ]        
-        
+        fields = ['instanciates', ]
+
     def __init__(self, cics, **kwargs):
         super(ReinitModelForm, self).__init__(**kwargs)
-        
+
         iterator = ModelChoiceIterator(self.fields['instanciates'])
         choices = [iterator.choice(obj) for obj in cics]
         choices.append(("", self.fields['instanciates'].empty_label))
         self.fields['instanciates'].choices = choices
-        
+
         if self.instance:
-            # Stupid: self.instance can be overridden by a field named instance... So we store it inside another field (with a forbidden name) 
+            # Stupid: self.instance can be overridden by a field named instance... So we store it inside another field (with a forbidden name)
             self.mage_instance = self.instance
-            
+
             for field_instance in self.instance.rel_target_set.all():
                 self.fields[field_instance.field.name].initial = field_instance.target_id
-                
+
             for field_instance in self.instance.field_set.all():
                 self.fields[field_instance.field.name].initial = field_instance.value
-                
+
     def save(self, commit=True):
         for field in self.mage_instance.description.field_set.all():
             if not field.name in self.changed_data:
                     continue
             new_data = self.cleaned_data[field.name]
             ComponentInstanceField.objects.update_or_create(defaults={'value': new_data} , field=field, instance=self.mage_instance)
-        
+
         for field in self.mage_instance.description.target_set.all():
             if not field.name in self.changed_data:
                 continue
             new_data = self.cleaned_data[field.name]
             ComponentInstanceRelation.objects.update_or_create(defaults={'target': new_data}, source=self.mage_instance, field=field)
-            
+
         super(ReinitModelForm, self).save(commit=commit)
-        
+
         ## Template application can only occur after everything is saved, so is at the end of save()
         if self.cleaned_data['mage_retemplate']:
             value_instance_fields(self.instance, force=True)
             value_instance_graph_fields(self.instance, force=True)
 
-def reinit_form_for_model(descr):    
+def reinit_form_for_model(descr):
     attrs = {}
 
     # Relations
     for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
         f = forms.ModelChoiceField(queryset=field.target.instance_set, label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
-        
+
     # Simple fields
     for field in descr.field_set.all():
         f = forms.CharField(label=field.short_label, required=False)
@@ -305,16 +268,16 @@ def reinit_form_for_model(descr):
 def descr_instances_reinit(request, descr_id=4):
     cics = ComponentImplementationClass.objects.all()
     descr = ImplementationDescription.objects.get(pk=descr_id)
-   
+
     cls = reinit_form_for_model(descr)
     InstanceFormSet = modelformset_factory(ComponentInstance, form=cls, extra=0)
     InstanceFormSet.form = staticmethod(curry(cls, cics=cics))
-    
+
     if request.POST:
         formset = InstanceFormSet(request.POST, request.FILES)
         if formset.is_valid():
             formset.save()
-            return redirect("ref:instance_descr_reinit", descr_id)      
+            return redirect("ref:instance_descr_reinit", descr_id)
     else:
         instances = ComponentInstance.objects.filter(description_id=descr_id).\
                 prefetch_related(Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field'))).\

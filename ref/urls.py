@@ -15,10 +15,11 @@ urlpatterns = patterns('',
     url(r'type$', views.model_types, name='types'),
     url(r'types_details$', views.model_detail, name='types_details'),
 
-    ## Creation forms
+    ## CI creation and edit forms
     url(r'new$', views.new_items, name='new_item'),
     url(r'new/ci/(?P<description_id>\d*)$', views.new_ci_step1, name='new_item_ci'),
     url(r'ci/(?P<instance_id>\d*)$', views.new_ci_step2, name='edit_ci'),
+    url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
 
     ## MQL
     url(r'mqltester$', views.mql_tester, name='mqltester'),
@@ -37,13 +38,6 @@ urlpatterns = patterns('',
     ## Misc
     url(r'urls', views.urls, name='urls'),
 
-    ## Instances
-    url(r'^instance/new/(?P<description_id>\d+)$', views.edit_comp, name='instance_new'),
-    url(r'^instance/(?P<instance_id>\d+)$', views.edit_comp, name='instance_edit'),
-    url(r'^instance/(?P<instance_id>\d+)/(?P<description_id>\d+)$', views.edit_comp, name='instance_edit_descr'),
-
-    url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
-    
     ## Referential debug/migration
     url(r'^debug$', views.debug, name='debug'),
     url(r'^instance/debug/all$', views.edit_all_comps_meta, name='instance_all'),
