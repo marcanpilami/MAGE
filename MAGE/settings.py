@@ -1,21 +1,20 @@
-# Django settings for MAGE project.
-import os
+# THIS FILE SHOULD NEVER BE EDITED.
+# Parameters should go inside a file named local_settings.py in the same directory.
+# A sample file named local_settings.sample.py is provided in this directory.
 
-DEBUG = True
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
+ADMINS = ()
 MANAGERS = ADMINS
-
-BASE_MAGE_PATH = os.path.expanduser('~/Documents/Github/MAGE')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_MAGE_PATH, r'tmp\db.sqlite'),  # Or path to database file if using sqlite3.
+        'NAME': os.path.join(BASE_DIR, r'tmp\db.sqlite'),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -55,46 +54,37 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(BASE_DIR, 'tmp/media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = ''
+MEDIA_URL = '/magefiles/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, 'tmp/static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'
-
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '#=5(8#a$k011z6v)=x_ahfc0c8j_k8puhw9hwa_-*io!zj_e)0'
+# Make this unique, and don't share it with anybody. (overloaded in local settings)
+SECRET_KEY = 'your_own_here'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -117,9 +107,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(BASE_MAGE_PATH, r'MAGE/templates/MAGE'),
+    os.path.join(BASE_DIR, 'MAGE/templates'),
 )
-
 
 
 # A sample logging configuration. The only tangible logging
@@ -156,6 +145,13 @@ LOGIN_REDIRECT_URL = 'welcome'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'houba-hop'
+    }
+}
+
 LOCAL_APPS = ()
 try:
     from MAGE.local_settings import *
@@ -168,7 +164,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
 
