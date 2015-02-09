@@ -26,7 +26,7 @@ class Environment(models.Model):
     """ 
         A set of component instances forms an environment
     """
-    name = models.CharField(max_length=100, verbose_name='Nom')
+    name = models.CharField(max_length=100, verbose_name='Nom', unique=True)
     buildDate = models.DateField(verbose_name=u'Date de création', auto_now_add=True)
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
@@ -99,7 +99,7 @@ class ComponentInstanceRelation(models.Model):
 class ComponentInstanceField(models.Model):
     objects = RichManager()
 
-    value = models.CharField(max_length=255, verbose_name='valeur')
+    value = models.CharField(max_length=255, verbose_name='valeur', db_index=True)
     field = models.ForeignKey('ImplementationFieldDescription', verbose_name=u'champ implémenté')
     instance = models.ForeignKey('ComponentInstance', verbose_name=u'instance de composant', related_name='field_set')
 

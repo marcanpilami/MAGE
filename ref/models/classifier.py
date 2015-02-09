@@ -36,9 +36,9 @@ class Application(models.Model):
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
-    name = models.CharField(max_length=100, verbose_name='Nom')
+    name = models.CharField(max_length=100, verbose_name='Nom', unique=True)
     description = models.CharField(max_length=500, verbose_name='description')
-    short_name = models.CharField(max_length=10, verbose_name='code')
+    short_name = models.CharField(max_length=10, verbose_name='code', db_index=True)
     sla = models.ForeignKey('SLA', blank=True, null=True)
     implementation_patterns = models.ManyToManyField('ComponentImplementationClass', blank=True)
     chronological_order = models.IntegerField(default=1, verbose_name='ordre d\'affichage')
