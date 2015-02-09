@@ -108,10 +108,7 @@ class NewCiStep1Form(forms.Form):
     helper.add_input(Submit('submit', 'Submit'))
 
 
-__form_for_model_relations_cache = {}
 def form_for_model_relations(descr):
-    if __form_for_model_relations_cache.has_key(descr.id):
-        return __form_for_model_relations_cache[descr.id]
     attrs = {}
 
     # CIC
@@ -125,7 +122,6 @@ def form_for_model_relations(descr):
         attrs[field.name] = f
 
     cls = type(str("__" + descr.name.lower() + "_form"), (NewCiStep1Form,), attrs)
-    __form_for_model_relations_cache[descr.id] = cls
     return cls
 
 ## Forms for single item edition (also 2nd step of creation)
