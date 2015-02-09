@@ -100,6 +100,7 @@ def shelllib_bash(request):
 def debug(request):
     return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'descrs' : ImplementationDescription.objects.all().order_by('tag', 'name')})
 
+@permission_required('ref.scm_addcomponentinstance')
 def control(request):
     descrs = ImplementationDescription.objects.all().prefetch_related(
           Prefetch('instance_set', queryset=ComponentInstance.objects.all().prefetch_related('rel_target_set', 'field_set', 'environments').select_related('implements')), \
