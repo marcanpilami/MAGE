@@ -179,4 +179,3 @@ INSTALLED_APPS = (
 )
 
 INSTALLED_APPS += LOCAL_APPS
-INSTALLED_APPS += ('end',) # SCM should always be last

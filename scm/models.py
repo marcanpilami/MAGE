@@ -394,24 +394,6 @@ class PackageCheckerBaseImpl(object):
     def check(self, fileinfo, logical_component, installation_method):
         raise NotImplemented()
 
-class __PackageCheckerHandler:
-    def __init__(self):
-        self.this_launch = []
-
-    def register(self, checker):
-        #if not isinstance(checker, PackageCheckerBaseImpl):
-        #    raise Exception('a checker must be a subclass of PackageCheckerBaseImpl')
-        pc = PackageChecker.objects.get_or_create(module=checker.__module__ , name=checker.__name__)
-        pc[0].description = checker.description if checker.description else checker.__name__
-        pc[0].save()
-        self.this_launch.append(pc[0])
-
-    def end_sync(self):
-        for pc in PackageChecker.objects.all():
-            if not pc in self.this_launch:
-                pc.delete()
-__package_checker_handler = __PackageCheckerHandler()
-
 
 #######################################################################################
 ## Update Component class with GCL objects
