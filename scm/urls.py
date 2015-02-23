@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     url(r'delivery/(?P<iset_id>\d*)/edit$', views.delivery_edit, name='delivery_edit'),
     url(r'delivery/(?P<iset_id>\d*)/editdep$', views.delivery_edit_dep, name='delivery_edit_dep'),
 
-    # Applying installable sets/items    
+    # Applying installable sets/items
     url(r'is/(?P<iset_id>\d*)/testonenvtform/(?P<envt_id_or_name>.+)$', views.iset_test, name='delivery_prereqs_test'),
     url(r'is/(?P<iset_id>\d*)/testonenvtscript/(?P<envt_id_or_name>.+)$', views.iset_test_script, name='delivery_prereqs_test_script'),
     url(r'is/(?P<iset_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)/force$', views.iset_apply_envt, {'force_prereqs' : True}, name='iset_apply_envt_force'),
@@ -56,9 +56,11 @@ urlpatterns = patterns('',
     url(r'bck/archive$', views.backup_list, {'archive': True}, name='backup_list_archive'),
     url(r'bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
 
-    # Queries on IS
+    # Queries on IS & II
     url(r'is/(?P<iset>.*)/export/(?P<output_format>.*)$', views.iset_export, name='iset_export'),
     url(r'is/(?P<iset_name>.*)/id$', views.iset_id, name='iset_id'),
+    url(r'is/(?P<iset_id>.+)/ii/iicompatlist/(?P<ci_id>\d+)$', views.iset_get_applicable_ii, name='iset_ii_ii_compat'),
+    url(r'ii/(?P<ii_id>\d+)/export/sh$', views.ii_export, name='ii_export'),
 
     # IS life cycle
     url(r'is/(?P<iset_id>\d*)/validate$', views.iset_validate, name='iset_validate'),

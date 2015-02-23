@@ -1,4 +1,11 @@
-{% load filter%}{% autoescape off %}{% for ii in res %}{% for key, value in ii.items %}
+{% load filter%}{% autoescape off %}MAGE_IS_ID={{iset.id}}
+MAGE_IS_NAME={{iset.name | ksh_protect_and_quote}}
+MAGE_IS_DESCRIPTION={{iset.description | ksh_protect_and_quote}}
+MAGE_IS_LOCATION_DATA_1={{iset.location_data_1 | ksh_protect_and_quote}}
+MAGE_IS_LOCATION_DATA_2={{iset.location_data_2 | ksh_protect_and_quote}}
+MAGE_IS_LOCATION_DATA_3={{iset.location_data_3 | ksh_protect_and_quote}}
+MAGE_IS_LOCATION_DATA_4={{iset.location_data_4 | ksh_protect_and_quote}}
+{% for ii in res %}{% for key, value in ii.items %}
 MAGE_IS_II_{{forloop.parentloop.counter}}_{{key | upper}}={{value | ksh_protect_and_quote}}{% endfor %}
 {% endfor %}{% endautoescape %}
 MAGE_II_COUNT={{ res | length}}
