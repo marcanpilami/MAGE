@@ -154,7 +154,7 @@ body>.container-fluid {
 	padding: 5px;
 	vertical-align: top;
 	position: relative;
-	background-color: #2E8DEF;
+	background-color: #1B58B8;
 	width: 100px;
 }
 
@@ -381,6 +381,14 @@ button.cancel,input.cancel[type='button'] {
 
 .metErrorBackground {
 	background-color: #AD103C;
+}
+
+.homeCoulour1 {
+	background-color: #4C2C66;	
+}
+
+.homeCoulour2 {
+	background-color: #003E00;
 }
 
 .metOkBackground {

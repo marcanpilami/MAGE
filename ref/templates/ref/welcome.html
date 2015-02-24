@@ -16,9 +16,9 @@
 		<div class='t2' style='color: black;'>Les environnements</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare' style='background: #423173;' href="{% url 'ref:cartoform' %}">Carte interactive</a>
-		<a class='metSquare' style='background: #423173;' href="{% url 'ref:grfull' %}">Carte générale</a>
-		<a class='metSquare' style='background: #423173;' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' %}">Carte interactive</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:grfull' %}">Carte générale</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
 		<div>
 		{% for envt in envts %}
 		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
@@ -31,12 +31,12 @@
 		<div class='t2' style='color: black;'>Gestion de configuration</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:deliveries' %}">Livraisons disponibles à l'installation</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:tag_list' %}">Tags</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:backup_list' %}">Sauvegardes disponibles</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'scm:lc_list' %}">Versions disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:deliveries' %}">Livraisons disponibles à l'installation</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:tag_list' %}">Tags</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:backup_list' %}">Sauvegardes disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_list' %}">Versions disponibles</a>
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}
@@ -52,7 +52,7 @@
 	</div>
 	<div style='color: white;' class='row'>	
 	{% for link in team_links %}
-		<a class='metSquare' style='background: #423173;' href="{{ link.url }}">{{ link.legend|safe }}</a>
+		<a class='metSquare homeCoulour1' href="{{ link.url }}">{{ link.legend|safe }}</a>
 	{% endfor %}
 	</div>
 </div>
@@ -61,11 +61,11 @@
 		<div class='t2' style='color: black;'>Aides scripting</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:types' %}">Types de composants installés</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
-		<a class='metSquare' style='background: #004D60;' href="{% url 'ref:cartostructure' %}">Graphe des types de composants</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types' %}">Types de composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:cartostructure' %}">Graphe des types de composants</a>
 	</div>
 	<div class='row'>
 	{% for envt in templates %}
