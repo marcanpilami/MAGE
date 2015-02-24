@@ -54,6 +54,7 @@ def new_ci_step2(request, instance_id):
             instance.deleted = form.cleaned_data['_deleted']
             instance.environments = form.cleaned_data['_envts']
             instance.instanciates = form.cleaned_data['_instanciates']
+            instance.include_in_envt_backup = form.cleaned_data['_backup']
             
             for field in descr.field_set.all():
                 if not field.name in form.changed_data:
@@ -69,7 +70,7 @@ def new_ci_step2(request, instance_id):
                 
             instance.save()
     else:
-        di = {'_id': instance.pk, '__descr_id': instance.description_id, '_deleted': instance.deleted,
+        di = {'_id': instance.pk, '__descr_id': instance.description_id, '_deleted': instance.deleted, '_backup': instance.include_in_envt_backup,
               '_instanciates' : instance.instanciates_id, '_envts' : [e.id for e in instance.environments.all()]}
 
         for field_instance in instance.field_set.all():
@@ -132,8 +133,9 @@ class ModelChoiceFieldCIC(forms.ModelChoiceField):
 class MiniModelForm(forms.Form):
     _id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     _deleted = forms.BooleanField(required=False, label='effacé')
+    _backup = forms.BooleanField(required = False, label='inclus dans backup')
     _instanciates = ModelChoiceFieldCIC(queryset=ComponentImplementationClass.objects, required=False, label='offre implémentée')
-    _envts = forms.ModelMultipleChoiceField(queryset=Environment.objects.order_by('name').filter(template_only=False, active=True), required=False, label='environnements')
+    _envts = forms.ModelMultipleChoiceField(queryset=Environment.objects.order_by('name').filter(template_only=False, active=True), required=False, label='environnements')    
 
     helper = FormHelper()
     helper.form_class = 'form-horizontal'
