@@ -2,12 +2,12 @@
 
 function mage_query
 {
-    typeset query s arg ok tmpHeaders http_code
+    typeset query s arg ok tmpHeaders http_code headers
     OPTIND=1
     while getopts "q:s:" arg
     do
         case ${arg} in
-            q) # query
+            q) # HTTP query. If relative, will be appended to $MAGE_BASE_URL
                 query="$OPTARG"
                 ;;
             s) # session id
@@ -20,23 +20,40 @@ function mage_query
     done
 
     ## Checks
+    if [[ "$s" == "" ]]
+    then
+        echo "ERROR: a session must be provided. Use mage_login to create a session object"
+        return 1
+    fi
     if [[ ! -r $s ]]
     then
         echo "session does not exist" >&2
         return 1
     fi
+    
+    ## Full or not? Happens for files which may be hosted on another server than base url.
+    if [[ ${query:0:4} != "http" ]]
+    then
+        if [[ ${query:0:1} == "/" ]]
+        then
+            query="${MAGE_BASE_URL}${query}"
+        else
+            query="${MAGE_BASE_URL}/${query}"
+        fi
+    fi
 
     tmpHeaders=/tmp/t1_$$_$RANDOM
     rm -f $tmpHeaders >/dev/null 2>&1
 
-    wget -q -S --load-cookies=$s -O - "${MAGE_BASE_URL}/${query}" 2>${tmpHeaders}
+    wget -q -S --load-cookies=$s -O - "${query}" 2>${tmpHeaders}
     ok=$?
 
-    http_code=$(($(grep "HTTP/1" ${tmpHeaders} | cut -d' ' -f4)))
+    http_code=$(($(cat $tmpHeaders | grep -v "302" | grep "HTTP/1" | cut -d' ' -f4)))
+    headers=(cat $tmpHeaders)
     rm -f $tmpHeaders >/dev/null 2>&1
     if [[ $http_code -ne 200 ]] || [[ $ok -ne 0 ]]
     then
-        echo "query did not complete correctly (code 200). HTTP code will be returned on stdout. HTTP code $http_code - WGET code $ok - Query was ${MAGE_BASE_URL}/$query" >&2		
+        echo "ERROR query did not complete correctly. HTTP code $http_code - WGET code $ok - Query was $query" >&2
         echo ${http_code}
         return 1
     fi
@@ -275,6 +292,39 @@ function mage_get_delivery_content
     return 0
 }
 
+function mage_get_installable_item_detail
+{
+    typeset s ii arg tmpFile ok
+    OPTIND=1
+    while getopts "s:i:" arg
+    do
+        case $arg in
+            s) # session token
+                s="$OPTARG"
+                ;;
+            i) # item ID
+                ii=$OPTARG
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    done
+
+    tmpFile="/tmp/tmpQuery_$$_$RANDOM"
+    mage_query -q "scm/ii/${ii}/export/sh" -s $s > $tmpFile
+    ok=$?
+    if [[ $ok -ne 0 ]]
+    then
+        echo "Could not retrieve description of installable item ${ii}" >&2
+        return $ok
+    fi
+
+    . $tmpFile
+    rm -f $tmpFile
+    return 0
+}
+
 function mage_get_install_methods
 {   
     # also for testing compatibility: if no install method, not compatible.
@@ -372,9 +422,9 @@ function mage_helper_test_before_install
     #   * the installable set only contains one item which is compatible with the component instance.
     #   * the CI belongs to one and only one environment
     
-    typeset s q d del_id ci_id iis nb e ci_envt ii_id
+    typeset s q d del_id ci_id iis nb e ci_envt ii_id f
     OPTIND=1
-    while getopts "s:d:q:e:" arg
+    while getopts "s:d:q:e:f:" arg
     do
         case $arg in
             s) # session token
@@ -385,6 +435,9 @@ function mage_helper_test_before_install
                 ;;
             d) # name of the delivery
                 d="$OPTARG"
+                ;;
+            f) # path of the file to download - if not given, no download will take place
+                f="$OPTARG"
                 ;;
             *) 
                 return 1
@@ -435,6 +488,30 @@ function mage_helper_test_before_install
     then
         echo "ERROR the component is not in a version compatible with this delivery"
         return 16
+    fi
+    
+    # Perhaps download the file
+    if [[ "$f" != "" ]]
+    then
+        mage_get_installable_item_detail -s $s -i ${iis}
+        if [[ $? -ne 0 ]]
+        then
+            return 18
+        fi
+        
+        if [[ "${MAGE_IS_II_1_URL}" == "" ]]
+        then
+            echo "ERROR asked to download a file but there is no file associated to the delivery item" >&2
+            return 19
+        fi
+        
+        if [[ ! -w $(dirname $f) ]]
+        then
+            echo "ERROR no permissions to create file at $f"
+            return 20
+        fi
+        
+        mage_get_file -s $s -u ${MAGE_IS_II_1_URL} >$f
     fi
     
     ## If here, everything exist and there is one compatible (in type and version) II inside the delivery => can proceeed
@@ -508,64 +585,90 @@ function mage_helper_register_standard_install
     mage_register_install -s $s -i ${ii_id}  -e ${ci_envt} -t ${ci_id}
     if [[ $? -ne 0 ]]
     then    
-        echo "ERROR could not register install"
+        echo "ERROR could not register install" >&2
         return 100
     fi
 }
 
-
-## TODO BELOW THIS POINT
 function mage_get_file
 {
-	typeset iifile
-	OPTIND=1
-	while getopts "u:" arg
-	do
-		case $arg in
-			u) # URL
-				iifile=$(echo $OPTARG | sed "s|^/mage/||p")
-				;;
-			*)
-				return 1
-				;;
-		esac
-	done
-	
-	mage_query -q $iifile -s $$
-	return $?
-}
+    typeset iifile s
+    OPTIND=1
+    while getopts "s:u:" arg
+    do
+        case $arg in
+            s) # session token
+                s="$OPTARG"
+                ;;
+            u) # URL. The full URL given by MAGE itself inside the II description
+                iifile="$OPTARG"
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    done
 
+    mage_query -s $s -q $iifile
+    return $?
+}
 
 function mage_register_backup_ci
 {
-	typeset instance_id envt_name arg ok
+	typeset instance_id envt_name arg ok s q
 	OPTIND=1
-	while getopts "i:e:" arg
+	while getopts "s:i:e:q:" arg
 	do
 		case $arg in
+            s) # session token
+                s="$OPTARG"
+                ;;
 			i) # COMPONENT INSTANCE ID
 				instance_id=$OPTARG
 				;;
 			e) # ENVT NAME
 				envt_name=$OPTARG
 				;;
+            q) # Query to find the component instance (ignored if -i is used)
+                q="$OPTARG"
+                ;;
 			*)
 				return 1
 				;;
 		esac
 	done
 
-	mage_query -q "scm/bck/create/envtscript/${envt_name}/${instance_id}" -s $$
+    if [[ "${instance_id}" == "" ]] && [[ "$q" == "" ]]
+    then
+        echo "ERROR either give an instance id  with -i or a query to find the instance with -q" >&2
+        return 1
+    fi
+    
+    if [[ "${instance_id}" == "" ]] && [[ "$q" != "" ]]
+    then
+        mage_run_query -s $s -u -q "$q"
+        if [[ $? -ne 0 ]]
+        then
+            return 1
+        fi
+        
+        instance_id=$(mage_get_result -a mage_id)
+    fi
+    
+	mage_query -s $s -q "scm/bck/create/script/${envt_name}/${instance_id}"
 	return $?
 }
 
-function mage_archive_backupset
+function mage_archive_set
 {
-	typeset bid arg ok
+	typeset bid arg ok s
 	OPTIND=1
-	while getopts "i:" arg
+	while getopts "i:s:" arg
 	do
 		case $arg in
+            s) # session token
+                s="$OPTARG"
+                ;;
 			i) # BACKUP SET ID
 				bid="$OPTARG"
 				;;
@@ -575,17 +678,20 @@ function mage_archive_backupset
 		esac
 	done
 
-	mage_query -q "scm/bck/${bid}/archive" -s $$	
+	mage_query -s $s -q "scm/is/${bid}/archive" >/dev/null
 	return $?
 }
 
 function mage_latest_backup_age
 {
-	typeset cid arg ok
+	typeset cid arg ok s
 	OPTIND=1
-	while getopts "i:" arg
+	while getopts "i:s:" arg
 	do
 		case $arg in
+            s) # session token
+                s="$OPTARG"
+                ;;
 			i) # COMPONENT INSTANCE ID
 				cid="$OPTARG"
 				;;
@@ -595,7 +701,7 @@ function mage_latest_backup_age
 		esac
 	done
 
-	mage_query -q "scm/bck/api/ci/${cid}/latest" -s $$
+	mage_query -q "scm/bck/latest/ci/${cid}/age" -s $s
 	return $?
 }
 

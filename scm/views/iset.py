@@ -76,6 +76,7 @@ def __ii_to_dict(ii):
     a['target_application'] = ii.what_is_installed.logical_component.application.name
     a['ii_id'] = ii.pk
     a['data_loss'] = ii.data_loss
+    a['url'] = ii.datafile.url
     return a
 
 def iset_id(request, iset_name):

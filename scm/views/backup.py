@@ -1,7 +1,6 @@
 # coding: utf-8
 
 ## Python imports
-from time import timezone
 
 ## Django imports
 from django import forms
@@ -62,7 +61,7 @@ def latest_ci_backupset_age_mn(request, ci_id):
             response.write("-1")
         else:
             bis = bis.latest('set_date')
-            response.write(int(round((timezone.now() - bis.set_date).seconds / 60, 0)))
+            response.write(int(round((now() - bis.set_date).seconds / 60, 0)))
     except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
         response.write("-1")
     return response
