@@ -20,7 +20,7 @@ from django.db.models.signals import pre_save
 
 class EnvironmentManagerStd(models.Manager):
     def get_queryset(self):
-        return super(EnvironmentManagerStd, self).get_query_set().filter(template_only=False, active=True)
+        return super(EnvironmentManagerStd, self).get_queryset().filter(template_only=False, active=True)
 
 class Environment(models.Model):
     """ 
