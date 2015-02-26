@@ -58,7 +58,7 @@ LANGUAGE_CODE = 'fr-fr'
 # MEDIA_URL = '/magefiles/'
 
 # Add your applications here (comma separated list)
-# Example: LOCAL_APPS = ('debug_toolbar.apps.DebugToolbarConfig', 'django.contrib.staticfiles')
+# Example: LOCAL_APPS = ('debug_toolbar.apps.DebugToolbarConfig', )
 LOCAL_APPS=()
 
 # Cache setings. Default is an in process memory cache.
