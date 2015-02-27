@@ -8,7 +8,7 @@
 <script type="text/javascript" src='{% static "delivery.js" %}'></script>
 <script type="text/javascript">
 	lc_im = {};
-	{% for key, values in lc_im.items %}lc_im[{{key}}] = {{values}};{% endfor %}
+	{% for key, values in lc_im.items %}lc_im[{{key}}] = [{% for value in values%}{{value}},{%endfor%}];{% endfor %}
 </script>
 {% endblock %}
 
