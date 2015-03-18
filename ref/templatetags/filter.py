@@ -33,7 +33,7 @@ def ksh_protect_and_quote(value):
     if isinstance(value, models.Model):
         return '"%s"' % value.pk
 
-    return '"' + value.replace('"', '\\"') + '"'
+    return '"' + str(value).replace('"', '\\"') + '"'
 
 @register.filter
 def apply_field_template(component_instance, computed_field):
