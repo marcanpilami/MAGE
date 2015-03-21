@@ -165,7 +165,12 @@ def form_for_model(descr):
 
     # Simple fields
     for field in descr.field_set.all():  #.order_by('widget_row', 'name').all():
-        f = forms.CharField(label=field.short_label, required=field.compulsory)
+        if field.datatype == 'bool':
+            f = forms.BooleanField(label=field.short_label, required=False)
+        elif field.datatype == 'int':
+            f = forms.IntegerField(label=field.short_label, required=field.compulsory)
+        else:
+            f = forms.CharField(label=field.short_label, required=field.compulsory, max_length=255)
         attrs[field.name] = f
 
     # Relations

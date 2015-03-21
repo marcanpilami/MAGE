@@ -59,7 +59,7 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     """ The description of a standard (i.e. that must be completed by the user) field inside a technical implementation """
     compulsory = models.BooleanField(default=True)
     default = models.CharField(max_length=500, verbose_name='défaut', null=True, blank=True)
-    datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier')), verbose_name=u'type')
+    datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier'), ('bool', 'booléen')), verbose_name=u'type')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
     description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
@@ -119,7 +119,7 @@ class ImplementationDescription(models.Model):
         return self.name
 
     def resolve_self_description(self, instance):
-        return naming_language.resolve(self.self_description_pattern, instance, 'id_%s' %self.pk)
+        return naming_language.resolve(self.self_description_pattern, instance, 'id_%s' % self.pk)
 
     class Meta:
         verbose_name = u"description instance"
