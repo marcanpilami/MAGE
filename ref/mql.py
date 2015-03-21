@@ -105,7 +105,19 @@ def __select_compo(q):
                 r[ prefix + 'id'] = val
             else:
                 r[ prefix + 'field_set__field__name'] = predicate.navigation[-1]
-                r[ prefix + 'field_set__value'] = val
+                
+                ## MQL supports % as a wildcard in first and last position only.
+                ## Because we don't want dependency on an external Django LIKE module.
+                escaped_val=val.replace("\%", "")
+                if escaped_val.endswith("%") and escaped_val.startswith("%"):
+                    r[ prefix + 'field_set__value__contains'] = val[1:-1]
+                elif escaped_val.endswith("%"):
+                    r[ prefix + 'field_set__value__startswith'] = val[:-1]
+                    print r
+                elif escaped_val.startswith("%"):
+                    r[ prefix + 'field_set__value__endswith'] = val[1:]
+                else:
+                    r[ prefix + 'field_set__value'] = val
             rs = rs.filter(**r)
 
     if not q.selector:
