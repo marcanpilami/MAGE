@@ -153,7 +153,7 @@ class ComponentInstance(models.Model):
     ## Pretty print
     def __unicode__(self):
         if self.description:
-            return self.description.resolve_self_description(self)
+            return '%s' % self.description.resolve_self_description(self)
         else:
             return '%s' % self.pk
     name = property(__unicode__)
