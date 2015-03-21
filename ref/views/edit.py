@@ -17,11 +17,22 @@ from django.utils.functional import curry
 from django.db.models.query import Prefetch
 from django.db.transaction import atomic
 from django.contrib.auth.decorators import permission_required
+from django.core.cache import cache
 
 ## MAGE imports
 from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
 from ref.conventions import value_instance_fields, value_instance_graph_fields
 
+
+'''
+    This file contains all views and forms related to modifying component instances
+    (exception: standard creation and modification are in envt_new.py)
+'''
+
+
+#####################################################################
+## Edit all CI related to an environment
+#####################################################################
 
 @atomic
 @permission_required('ref.scm_addcomponentinstance')
@@ -55,7 +66,8 @@ def envt_instances(request, envt_id=1):
             typ_items[instance.description] = [di, ]
 
     for typ, listi in typ_items.iteritems():
-        cls = form_for_model(typ)
+        cls = form_for_model(typ)        
+            
         InstanceFormSet = formset_factory(wraps(cls)(partial(cls, cics=cics)) , extra=0)
         ffs[typ] = InstanceFormSet(request.POST or None, initial=listi, prefix=typ.name)
 
@@ -103,10 +115,7 @@ def envt_instances(request, envt_id=1):
     return render_to_response("ref/instance_envt.html", {'fss': ffs, 'envt': e})
 
 
-#########################################
 ## Forms
-#########################################
-
 class MiniModelForm(forms.Form):
     def __init__(self, cics, **kwargs):
         super(MiniModelForm, self).__init__(**kwargs)
@@ -119,11 +128,12 @@ class MiniModelForm(forms.Form):
     _descr_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     _instanciates = forms.ModelChoiceField(queryset=ComponentImplementationClass.objects, required=False, label='composant logique')
 
-__model_form_cache = {}
+descr_terseform_cache = {}
 def form_for_model(descr):
-    if __model_form_cache.has_key(descr.id):
-        return __model_form_cache[descr.id]
     attrs = {}
+    key = 'descr_terseformset_%s' % descr.id
+    if cache.get(key) and descr_terseform_cache.has_key(key):
+        return descr_terseform_cache[key]
 
     # Simple fields
     for field in descr.field_set.all():
@@ -139,7 +149,8 @@ def form_for_model(descr):
     attrs['_deleted'] = forms.BooleanField(required=False, label="effacé")
 
     cls = type(str("__" + descr.name.lower() + "_form"), (MiniModelForm,), attrs)
-    __model_form_cache[descr.id] = cls
+    descr_terseform_cache[key] = cls
+    cache.set(key, key)
     return cls
 
 
