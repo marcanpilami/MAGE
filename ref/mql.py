@@ -68,18 +68,17 @@ def __select_compo(q):
 
     if q.where:
         for predicate in q.where:
-            ## Special keys begin with '_', normal keys without '_' are CI attributes
-            if len(predicate.navigation) == 1 and predicate.navigation[0].startswith('mage_'):
+            ## Special keys begin with 'mage_', normal keys without 'mage_' are CI attributes
+            if len(predicate.navigation) == 1 and predicate.navigation[0].lower().startswith('mage_'):
                 key = predicate.navigation[0]
-                if key == "mage_type":
+                if key.lower() == "mage_type":
                     rs = rs.filter(description__name=predicate.value)
-                if key == "mage_id":
+                if key.lower() == "mage_id":
                     rs = rs.filter(id=predicate.value)
-                if key == "mage_envt":
+                if key.lower() == "mage_envt":
                     rs = rs.filter(environments__name=predicate.value)
-                if key == "mage_backup":
-                    rs = rs.filter(include_in_envt_backup= (predicate.value.upper() == 'TRUE') )
-
+                if key.lower() == "mage_backup":
+                    rs = rs.filter(include_in_envt_backup=(predicate.value.upper() == 'TRUE'))
 
                 continue
 
