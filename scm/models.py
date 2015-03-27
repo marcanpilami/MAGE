@@ -189,7 +189,7 @@ class InstallationMethod(models.Model):
 
     def check_package(self, package_file, logical_component):
         for checker in self.checkers.all():
-            checker.check(package_file, logical_component, self)
+            checker.check_package(package_file, logical_component, self)
 
     class Meta:
         verbose_name = u'méthode d\'installation'
@@ -404,7 +404,7 @@ def getLatestCIC(comp):
     """@return: the latest installed ComponentInstanceConguration (CIC) on the Component"""
     try:
         return comp.configurations.latest('pk')
-    except:
+    except ComponentInstanceConfiguration.DoesNotExist:
         raise MageScmUndefinedVersionError(comp)
 def getCICAtDate(comp, date):
     try:
