@@ -56,3 +56,21 @@ class DeliveryCheckerEar(PackageCheckerBaseImpl):
 
         ## Done
         return
+
+class DeliveryCheckerEarWar(PackageCheckerBaseImpl):
+    description = 'Sample EAR or WAR delivery checker'
+
+    def check(self, fileinfo, logical_component, installation_method):
+        ## Must be a zip file
+        try:
+            zf = ZipFile(fileinfo)
+            zf.testzip()
+        except BadZipfile, e:
+            raise forms.ValidationError('File is not an EAR or WAR archive or is corrupted: ' + str(e))
+
+        ## Must end with 'ear'
+        if os.path.splitext(fileinfo.name)[1] != '.ear' and os.path.splitext(fileinfo.name)[1] != '.war':
+            raise forms.ValidationError('Not an ear or war file')
+
+        ## Done
+        return
