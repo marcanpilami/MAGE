@@ -120,7 +120,7 @@ def control(request):
                 
                 found = False
                 for inf in i.field_set.all():
-                    if inf.field_id == f.id:
+                    if inf.field_id == f.id and inf.value:
                         found = True
                         break
                 if not found:
