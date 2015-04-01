@@ -309,7 +309,8 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
         from ref.conventions import value_instance_fields, value_instance_graph_fields
         value_instance_fields(self._instance, force=False)
     for name, value in kwargs.items():
-        setattr(self, name, value)
+        if value is not None:
+            setattr(self, name, value)
     if not _noconventions:
         value_instance_graph_fields(self._instance, force=False)
 
