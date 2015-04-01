@@ -94,5 +94,5 @@ def iset_id(request, iset_name):
 def ii_export(request, ii_id, output_format='sh'):
     ii = InstallableItem.objects.get(pk=ii_id)
     di = __ii_to_dict(ii)
-    return render(request, 'scm/iset_export_sh.html', {'res': [di, ], 'iset': ii.belongs_to_set}, content_type="text/plain")
+    return render(request, 'scm/iset_export_sh.html', {'res': [di, ], 'iset': ii.belongs_to_set}, content_type="text/plain;charset=utf-8")
 

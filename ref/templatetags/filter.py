@@ -22,7 +22,7 @@ def ksh_protect_and_quote(value):
         return value
 
     if isinstance(value, ExtendedParameterDict):
-        return '"' + str(value) + '"'
+        return '"%s"' % value
 
     if type(value).__name__ == 'ManyRelatedManager':
         return '"' + ','.join([a.name for a in value.all()]) + '"'
@@ -33,11 +33,12 @@ def ksh_protect_and_quote(value):
     if isinstance(value, models.Model):
         return '"%s"' % value.pk
 
-    return '"' + str(value).replace('"', '\\"') + '"'
+    res = ("%s" % value).replace('"', '\\"')
+    return ('"%s"' % res)
 
 @register.filter
 def apply_field_template(component_instance, computed_field):
-    return computed_field.resolve(component_instance)   
+    return computed_field.resolve(component_instance)
 
 @register.filter()
 def urlify(value):
