@@ -22,6 +22,7 @@ from ref.models import ComponentInstance, LogicalComponent, ComponentImplementat
 from exceptions import MageScmUndefinedVersionError
 from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
 from MAGE.exceptions import MageError
+from django.db.models.query import Prefetch
 
 
 ################################################################################
@@ -121,52 +122,66 @@ class LogicalComponentVersion(models.Model):
         else:
             return lcv1.__compareWith(lcv2)
 
-    def __compareWith(self, lcv2, __reverseCall=False):
-        """ The function actually doing the comparison. Here, equality (0) has a strict meaning, 
-            and if the two LCVs are unrelated an MageScmUnrelatedItemsError is raised """
-        lcv1 = self
+    def __compareWith(self, lcv2, __reverseCall=False, __alreadydone=None, before=None, level=0):
+        """ 
+            The function actually doing the comparison. 
+        
+            Here, equality (0) has a strict meaning, and if the two LCVs are unrelated an MageScmUnrelatedItemsError is raised 
+            
+            before == True => A <= chain (comes before)
+            before == False => A >= or == chain (comes after)
+        """
 
         ## Argument check
+        lcv1 = self
         if not isinstance(lcv1, LogicalComponentVersion) or not isinstance(lcv2, LogicalComponentVersion):
-            raise MageError("Arguments must be component version objects")
+            raise MageError("Arguments must be logical component version objects")
 
-        ## Easy equality
-        if (lcv1.logical_component == lcv2.logical_component) and (lcv1.version == lcv2.version):
+        ## No more than <param> recursion levels. Give up as if no relations existed between the two (which is likely).
+        #if level > 20:
+        #    raise MageScmUnrelatedItemsError(lcv1, lcv2)
+
+        ## Loop guard & failure termination condition
+        c = (lcv1.pk, lcv2.pk)
+        if not __alreadydone:
+            __alreadydone = []
+        if c in __alreadydone:
+            raise MageScmUnrelatedItemsError(lcv1, lcv2)
+        __alreadydone.append(c)
+
+        ## Trivial equality condition (success termination condition too)
+        if (lcv1.logical_component_id == lcv2.logical_component_id) and (lcv1.version == lcv2.version):
             return 0
 
-        ## Loop on all the InstallableSets that install ctv1
-        for ii in lcv1.installed_by.all():
+        ## Loop on all the InstallableItems that install lcv1
+        for ii in lcv1.installed_by.all().prefetch_related(Prefetch('dependencies', ItemDependency.objects.select_related('depends_on_version'))):
             ## Loop on all the requirements of the installable set
-            for dep in ii.dependencies.all():
-                ## Terminaison condition: we have found ctv2
+            for dep in ii.dependencies.all() :
+                ## Only use compatible dependencies that are part of an unbroken chain
+                if before is not None:
+                    if not __reverseCall and not ((before and dep.operator in ('<=',)) or (not before and dep.operator in ('==', '>='))):
+                        continue
+                    if __reverseCall and not ((before and dep.operator in ('==', '>=')) or (not before and dep.operator in ('<=',))):
+                        continue
+                else:
+                    newbefore = dep.operator == '<='
+                    if __reverseCall:
+                        newbefore = not newbefore
+
+                ## Success termination condition: we have found lcv2
                 if dep.depends_on_version == lcv2:
-                    if dep.operator == '>=' or dep.operator == '==':
-                        return 1
-                    else:
-                        return 0
+                    return (-1 if dep.operator == '<=' else 1)
 
                 ## Recursion
-                if dep.depends_on_version == lcv1:
-                    continue
                 try:
-                    tmp = dep.depends_on_version.__compareWith(lcv2, __reverseCall)
+                    return dep.depends_on_version.__compareWith(lcv2, __reverseCall, __alreadydone, before if before is not None else newbefore, level + 1)
                 except MageScmUnrelatedItemsError:
                     continue  ## Nothing can be deduced from this relation - go on to the others
 
-                ## Analysis of the recursion result
-                if (tmp == 1 or tmp == 0) and (dep.operator == '>=' or dep.operator == '=='):
-                    return 1  ## Transitivity on >
-                if (tmp == -1 or tmp == 0) and (dep.operator == '<='):
-                    return -1  ## Transitivity on <
-
                 ## If here : the dependency that was analysed does not provide any useful relationship. Let's loop to the next one!
 
-        ## If here : no relationship has given fruit. Let's try the reverse relationship analysis.
-        if not __reverseCall:
-            return -lcv2.__compareWith(lcv1, True)
-
-        ## If here : there is really nothing to say between ctv1 and ctv2, so say it : no order relationship
-        raise MageScmUnrelatedItemsError(lcv1, lcv2)
+        ## If here : no relationship has given fruit. Let's try the reverse relationship analysis (loop is stopped by the loop guard)
+        return -lcv2.__compareWith(lcv1, not __reverseCall, __alreadydone, before)
 
 
 ################################################################################

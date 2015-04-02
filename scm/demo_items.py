@@ -20,6 +20,12 @@ def create_test_is():
     rdbms1_v2.save()
     rdbms1_v3 = LogicalComponentVersion(version='v1.3', logical_component=lc_rdbms_module1)
     rdbms1_v3.save()
+    rdbms1_vr1 = LogicalComponentVersion(version='v-1', logical_component=lc_rdbms_module1)
+    rdbms1_vr1.save()
+    rdbms1_vr2 = LogicalComponentVersion(version='v-2', logical_component=lc_rdbms_module1)
+    rdbms1_vr2.save()
+    rdbms1_vr3 = LogicalComponentVersion(version='v-3', logical_component=lc_rdbms_module1)
+    rdbms1_vr3.save()
 
     rdbms2_v1 = LogicalComponentVersion(version='a', logical_component=lc_rdbms_module2)
     rdbms2_v1.save()
@@ -70,7 +76,6 @@ def create_test_is():
     is2_ii2.dependsOn(rdbms2_v1, '==')
 
     res.append(is2)
-
 
     # Third IS
     is3 = Delivery(name='SYSTEM1_3', description='blah.')
@@ -138,5 +143,38 @@ def create_test_is():
     is7_ii1.dependsOn(rdbms1_v2, '==')
 
     res.append(is6)
+
+    # Reverse chain IS 1 (version -1)
+    isr1 = Delivery(name='SYSTEM1_RV1', description='blah.')
+    isr1.save()
+
+    isr1_ii1 = InstallableItem(what_is_installed=rdbms1_vr1, belongs_to_set=isr1)
+    isr1_ii1.save()
+    isr1_ii1.how_to_install.add(rdbms1_meth1)
+
+    isr1_ii1.dependsOn(rdbms1_v1, '<=')
+
+    res.append(isr1)
+
+    # Reverse chain IS 2 (version -2)
+    isr2 = Delivery(name='SYSTEM1_RV2', description='blah.')
+    isr2.save()
+
+    isr2_ii1 = InstallableItem(what_is_installed=rdbms1_vr2, belongs_to_set=isr2)
+    isr2_ii1.save()
+    isr2_ii1.how_to_install.add(rdbms1_meth1)
+
+    isr2_ii1.dependsOn(rdbms1_vr1, '<=')
+
+    # Reverse chain IS 3 (version -3)
+    isr3 = Delivery(name='SYSTEM1_RV3', description='blah.')
+    isr3.save()
+
+    isr3_ii1 = InstallableItem(what_is_installed=rdbms1_vr3, belongs_to_set=isr3)
+    isr3_ii1.save()
+    isr3_ii1.how_to_install.add(rdbms1_meth1)
+
+    isr2_ii1.dependsOn(rdbms1_vr2, '>=')
+
 
     return res

@@ -41,6 +41,9 @@ class SimpleTest(TestCase):
     def test_ver_compare(self):
         rdbms1_v1 = LogicalComponentVersion.objects.get(version='v1')
         rdbms1_v2 = LogicalComponentVersion.objects.get(version='v1.2')
+        rdbms1_vr1 = LogicalComponentVersion.objects.get(version='v-1')
+        rdbms1_vr2 = LogicalComponentVersion.objects.get(version='v-2')
+        rdbms1_vr3 = LogicalComponentVersion.objects.get(version='v-3')
         rdbms2_v1 = LogicalComponentVersion.objects.get(version='a')
         rdbms2_v2 = LogicalComponentVersion.objects.get(version='b')
         rdbms2_v3 = LogicalComponentVersion.objects.get(version='c')
@@ -50,7 +53,9 @@ class SimpleTest(TestCase):
         self.assertEqual(rdbms2_v3.compare(rdbms2_v1), 1)
         self.assertEqual(rdbms2_v3.compare(rdbms1_v2), 0)
         self.assertEqual(rdbms2_v3.compare(rdbms2_v2), 0)
-
+        self.assertEqual(rdbms2_v3.compare(rdbms1_vr1), 1)
+        self.assertEqual(rdbms2_v3.compare(rdbms1_vr2), 1)
+        self.assertEqual(rdbms2_v3.compare(rdbms1_vr3), 0)
 
     def test_dep(self):
         # No version data -> error
