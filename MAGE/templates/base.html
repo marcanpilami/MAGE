@@ -5,11 +5,13 @@
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" href='{% static "fav.png" %}' />
-		<link media="all" type="text/css" href="{% static "bootstrap.min.css" %}" rel="stylesheet"/>
-		<link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
+		
 		<title>{%block pagetitle%}MAGE{%endblock pagetitle%}</title>
 		{%block scripts%}{%endblock%}
 		{%block other_css%}{%endblock%}
+		
+		<link media="all" type="text/css" href="{% static "bootstrap-3.3.4/css/bootstrap.min.css" %}" rel="stylesheet"/>
+		<link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
 		
 		<script type="text/javascript">function back() 
 		{

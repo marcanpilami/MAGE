@@ -467,3 +467,7 @@ svg {
 	padding-top: 1px;
 	padding-bottom: 1px;
 }
+
+.table-responsive {
+	overflow-x: inherit; 
+}

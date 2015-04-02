@@ -13,7 +13,21 @@
 {% block scripts %}
 <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery-1.9.1.js" %}'></script>
+<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+<script type="text/javascript" src='{% static "datatables-1.10.5/js/jquery.dataTables.min.js" %}'></script>
+<script type="text/javascript" src='{% static "datatables-1.10.5/js/dataTables.bootstrap.min.js" %}'></script>
+<link rel="stylesheet" type="text/css" href='{% static "datatables-1.10.5/css/dataTables.bootstrap.css" %}'>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.dt').DataTable({
+    	'paging': false,
+    	'searching': false,
+    	'info': false,
+    	'order': [[1,"asc"]],
+    	'columnDefs': [{'orderable': false, 'targets': [0,-1]}],
+    });
+} );
+</script>
 {% endblock scripts %}
 
 {% block content %}
@@ -49,7 +63,8 @@
 		{% for compotype in compotype_list %}
 			<div class='t4'>{{compotype.grouper}}</div>
 			<div class='table-responsive'>
-			<table class='table table-condensed table-bordered table-hover'>
+			<table class='table table-condensed table-bordered table-hover dt'>
+			<thead>
 			{% for compo in compotype.list %}
 				{% if forloop.first %}
 					<tr>
@@ -74,7 +89,7 @@
 						{% endfor %}
 					{% endif %}
 					{% if perms.ref.change_component_instance %}<th></th>{% endif %}
-					</tr>
+					</tr></thead>
 				{% endif %}
 			
 				{% if not compo.deleted %}
