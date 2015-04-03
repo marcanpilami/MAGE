@@ -44,6 +44,10 @@ def apply_field_template(component_instance, computed_field):
 def urlify(value):
     if (isinstance(value, str) or isinstance(value, unicode)) and value.startswith('http'):
         return mark_safe(("<a href='%s'>cliquez ici</a>" % value))
+    elif (isinstance(value, str) or isinstance(value, unicode)) and value == 'True':
+        return mark_safe("<span class='glyphicon glyphicon-ok' aria-hidden='true'></span>")
+    elif (isinstance(value, str) or isinstance(value, unicode)) and value == 'False':
+        return mark_safe("<span class='glyphicon glyphicon-remove' aria-hidden='true'></span>")
     else:
         return value
 
