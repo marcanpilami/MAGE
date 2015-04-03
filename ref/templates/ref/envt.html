@@ -98,6 +98,7 @@ $(document).ready(function() {
 						{% if compo.instanciates %}
 							{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}
 						{% endif %}
+                        {% if compo.include_in_envt_backup %}<span class='glyphicon glyphicon-hdd' aria-hidden='true' title='sauvegardé'></span>{% endif %}
 						</td>
 						<td>
 						{{ compo.name }}
