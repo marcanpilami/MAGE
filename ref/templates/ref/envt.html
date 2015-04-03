@@ -71,10 +71,10 @@ $(document).ready(function() {
                     <th>Livré dans</th><th>Nom</th>
 					{% if compo.description %}
 						{% comment %} Title row {% endcomment %} 
-						{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
-							{% if field.field.widget_row >= 0 %}
-								{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-									<th>{{field.field.short_label|capfirst}}</th>
+						{% for field in compo.description.field_set.all|dictsort:"widget_row" %}
+							{% if field.widget_row >= 0 %}
+								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+									<th>{{field.short_label|capfirst}}</th>
 								{% endif %}
 							{% endif %}
 						{% endfor %}
@@ -104,13 +104,15 @@ $(document).ready(function() {
 						</td>
 						
 						{% if compo.description and not compo.deleted %}
-							{% for field in compo.field_set.all|dictsort:"field.widget_row" %}
-								{% if field.field.widget_row >= 0 %}
-									{% if not field.field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<td>{{field.value | urlify}}</td>
+                            {% with values=compo.field_set.all|dictsort:"field.widget_row" %}
+							{% for field, value in compo.description.field_set.all|dictsort:"widget_row"|project_ci_fields:values %}
+								{% if field.widget_row >= 0 %}
+									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
+										<td>{{value | urlify}}</td>
 									{% endif %}
 								{% endif %}
 							{% endfor %}
+                            {% endwith %}
 							{% for field in compo.description.computed_field_set.all|dictsort:"widget_row" %}
 								{% if field.widget_row >= 0 %}
 									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}

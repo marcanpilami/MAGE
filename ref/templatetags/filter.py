@@ -40,6 +40,18 @@ def ksh_protect_and_quote(value):
 def apply_field_template(component_instance, computed_field):
     return computed_field.resolve(component_instance)
 
+''' Returns (field_descr, field_value_or_None). Single pass method. Both lists must be sorted beforehand. '''
+@register.filter
+def project_ci_fields(descriptions, instances):
+    i = instances.__iter__()
+    n = next(i, None)
+    for field_descr in descriptions:
+        if n is not None and n.field_id == field_descr.pk:
+            yield (field_descr, n.value)
+            n = next(i, None)
+        else:
+            yield (field_descr, None)
+
 @register.filter()
 def urlify(value):
     if (isinstance(value, str) or isinstance(value, unicode)) and value.startswith('http'):
@@ -48,6 +60,8 @@ def urlify(value):
         return mark_safe("<span class='glyphicon glyphicon-ok' aria-hidden='true'></span>")
     elif (isinstance(value, str) or isinstance(value, unicode)) and value == 'False':
         return mark_safe("<span class='glyphicon glyphicon-remove' aria-hidden='true'></span>")
+    elif value is None:
+        return ''
     else:
         return value
 

@@ -18,9 +18,10 @@ def envt(request, envt_id):
     deleted = ComponentInstance.objects.filter(environments__id=envt_id, deleted=True).select_related('description').order_by('description__name', 'id')
     cis = ComponentInstance.objects.filter(environments__id=envt_id, deleted=False).\
                     select_related('description').\
-                    prefetch_related('field_set__field').\
+                    prefetch_related('field_set').\
                     prefetch_related('rel_target_set').\
                     prefetch_related('description__computed_field_set').\
-                    prefetch_related('instanciates__implements__application')   
+                    prefetch_related('description__field_set').\
+                    select_related('instanciates__implements__application')   
     
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
