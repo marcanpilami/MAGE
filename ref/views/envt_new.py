@@ -133,7 +133,11 @@ class FullCIEditFormBase(forms.ModelForm):
             self.fields[field_instance.field.name].initial = field_instance.target_id
 
         for field_instance in self.instance.field_set.all():
-            self.fields[field_instance.field.name].initial = field_instance.value
+            print field_instance.value
+            if field_instance.field.datatype == 'bool':
+                self.fields[field_instance.field.name].initial = field_instance.value == 'True'
+            else:
+                self.fields[field_instance.field.name].initial = field_instance.value
     
     def save(self, commit=True):
         if len(self.changed_data) == 0:

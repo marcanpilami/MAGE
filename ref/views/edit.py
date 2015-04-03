@@ -54,7 +54,10 @@ def envt_instances(request, envt_id=1):
         di = {'_id': instance.pk, '__descr_id': instance.description_id, '_deleted': instance.deleted, '_instanciates' : instance.instanciates_id}
 
         for field_instance in instance.field_set.all():
-            di[field_instance.field.name] = field_instance.value
+            if field_instance.field.datatype == 'bool':
+                di[field_instance.field.name] = field_instance.value == 'True'
+            else:
+                di[field_instance.field.name] = field_instance.value
 
         for field_instance in instance.rel_target_set.all():
             di[field_instance.field.name] = field_instance.target_id
@@ -137,7 +140,12 @@ def form_for_model(descr):
 
     # Simple fields
     for field in descr.field_set.all():
-        f = forms.CharField(label=field.short_label, required=field.compulsory)
+        if field.datatype == 'bool':
+            f = forms.BooleanField(label=field.short_label, required=False)
+        elif field.datatype == 'int':
+            f = forms.IntegerField(label=field.short_label, required=field.compulsory)
+        else:
+            f = forms.CharField(label=field.short_label, required=field.compulsory, max_length=255)
         attrs[field.name] = f
 
     # Relations
