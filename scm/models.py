@@ -200,7 +200,7 @@ class InstallationMethod(models.Model):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
-        return u'%s%s' % (a, self.name)#, ",".join([ i.name for i in self.method_compatible_with.all()]))
+        return u'%s%s' % (a, self.name)  #, ",".join([ i.name for i in self.method_compatible_with.all()]))
 
     def check_package(self, package_file, logical_component):
         for checker in self.checkers.all():
@@ -215,7 +215,7 @@ class BackupItem(models.Model):
         This object represents these contents """
     backupset = models.ForeignKey(BackupSet, related_name='all_items')
     instance = models.ForeignKey(ComponentInstance)
-    related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True) # null if not SCM-tracked
+    related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True)  # null if not SCM-tracked
     instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
 
 def __iidatafilename__(ii, filename):
@@ -376,7 +376,10 @@ class BackupRestoreMethod(models.Model):
         verbose_name_plural = 'méthodes de restauration par défaut'
 
 @receiver(post_save, sender=ComponentImplementationClass)
-def create_brm(sender, instance, **kwargs):
+def create_brm(sender, instance, raw, **kwargs):
+    if raw:
+        # loading fixtures - this means the BRM will also be loaded, so no need to create it.
+        return
     cic = instance
     im, created = InstallationMethod.objects.get_or_create(name='restore operation for ' + cic.name, halts_service=True, restoration_only=True)
     if created:
