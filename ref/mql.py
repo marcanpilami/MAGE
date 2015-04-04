@@ -108,7 +108,7 @@ def __select_compo(q):
                 
                 ## MQL supports % as a wildcard in first and last position only.
                 ## Because we don't want dependency on an external Django LIKE module.
-                escaped_val=val.replace("\%", "")
+                escaped_val = val.replace("\%", "")
                 if escaped_val.endswith("%") and escaped_val.startswith("%"):
                     r[ prefix + 'field_set__value__contains'] = val[1:-1]
                 elif escaped_val.endswith("%"):
@@ -183,13 +183,28 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
             for idn in navigation:
                 if navigation.asList().index(idn) == len(navigation) - 1:
                     # the end of the line is always a value field
+                    key = '_'.join(navigation.asList())
                     found = False
                     for fi in tmp.field_set.all():
                         if fi.field.name == idn:
                             found = True
-                            compo['_'.join(navigation.asList())] = fi.value
+                            compo[key] = fi.value
                     if not found:
-                        raise Exception("'%s' is not a valid value attribute" % idn)
+                        ## Special field?
+                        if idn == 'mage_id':
+                            compo[key] = ci.pk
+                        elif idn == 'mage_cic_id':
+                            compo[key] = ci.instanciates_id
+                        elif idn == 'mage_deleted':
+                            compo[key] = ci.deleted
+                        elif idn == 'mage_description_id':
+                            compo[key] = ci.description_id
+                        elif idn == 'mage_description_name':
+                            compo[key] = ci.description.name
+                        elif idn == 'mage_environments':
+                            compo[key] = ','.join([e.name for e in ci.environments.all()])
+                        else:
+                            raise Exception("'%s' is not a valid value attribute" % idn)
                 else:
                     # navigation
                     found = False
