@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block pagetitle %}ref{% endblock %}
+{% block maintitle %}Instances de composant sauvegardées{% endblock %}
+
+{% block content %}
+
+<div class="table-responsive">
+	<table class='table table-condensed table-bordered table-hover'>
+        <thead>
+            <tr>
+                <th>Environnements</th>
+                <th>Type</th>
+                <th>Nom</th>
+            </tr>
+        </thead>
+    
+        <tbody>        
+    	{% for ci in cis|dictsort:'environments_str'|dictsort:'description.description'|dictsort:'name' %}
+    	   <tr>
+            <td>{{ci.environments.all|join:','}}</td>
+            <td>{{ci.description.description|capfirst}}</td>
+            <td>{{ci.name}}</td>
+           </tr>
+        {% endfor %}
+        
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}
+

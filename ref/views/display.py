@@ -25,3 +25,10 @@ def envt(request, envt_id):
                     select_related('instanciates__implements__application')   
     
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
+
+def backuped(request):
+    cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False).\
+            select_related('instanciates__implements__application').\
+            select_related('description').\
+            prefetch_related('environments')
+    return render(request, 'ref/instance_backup.html', {'cis': cis})

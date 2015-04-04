@@ -37,6 +37,7 @@ urlpatterns = patterns('',
 
     ## Misc
     url(r'urls', views.urls, name='urls'),
+    url(r'ci/backuped', views.backuped, name='backuped'),
 
     ## Referential debug/migration
     url(r'^debug$', views.debug, name='debug'),
