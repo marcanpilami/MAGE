@@ -54,7 +54,7 @@ def new_ci_step1(request, description_id):
 
 ## Forms
 class NewCiStep1Form(forms.Form):
-    _env = forms.ModelChoiceField(queryset=Environment.objects.all(), label='Environnement', required=False)
+    _env = forms.ModelChoiceField(queryset=Environment.objects.order_by('name').filter(template_only=False, active=True), label='Environnement', required=False)
 
     helper = FormHelper()
     helper.form_class = 'form-horizontal'
