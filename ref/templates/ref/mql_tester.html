@@ -23,8 +23,30 @@
 	</div>
 
 	{% regroup results|dictsort:'mage_description_name' by mage_description_name as model_list %}
-		
+        
+    {% if not model_list %}
+        {% comment %} For navigation queries - a dict without predictable structure is returned {% endcomment %}
+        <table class='metContainer visibleTable'>
+        {% for compo in results %}
+            {% if forloop.first %}
+                <thead><tr> 
+                {% for key in compo.keys %}
+                    <th>{{key}}</th>
+                {%endfor%}
+                </tr></thead>
+            {% endif %}
+                
+            <tr>
+            {% for val in compo.values %}
+                <td>{{val}}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+        
 	{% for modeltype in model_list %}
+        {% comment %} For queries without navigation - a dict with predictable structure is returned {% endcomment %}
 		<div class='t2'>{{ modeltype.grouper }}</div>
 		<table class='metContainer visibleTable'>
 		{% for compo in modeltype.list %}
