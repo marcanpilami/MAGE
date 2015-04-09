@@ -120,7 +120,7 @@ class ComponentInstance(models.Model):
     include_in_envt_backup = models.BooleanField(default=False)
 
     ## Environments
-    environments = models.ManyToManyField(Environment, blank=True, null=True, verbose_name='environnements ', related_name='component_instances')
+    environments = models.ManyToManyField(Environment, verbose_name='environnements ', related_name='component_instances')
 
     ## Connections
     #TODO: symmetrical
