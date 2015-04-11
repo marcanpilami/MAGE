@@ -95,7 +95,7 @@ def form_for_model_relations(descr):
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
 def new_ci_step2(request, instance_id):  # always edit an existing CI - to create a CI use step 1.
-    instance = ComponentInstance.objects.select_related('description', 'implements')\
+    instance = ComponentInstance.objects.select_related('description', 'instanciates')\
             .prefetch_related(
                   Prefetch('field_set', ComponentInstanceField.objects.order_by('field__widget_row', 'field__name').select_related('field')),
                   Prefetch('rel_target_set', ComponentInstanceRelation.objects.order_by('field__name').select_related('field')))\
