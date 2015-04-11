@@ -27,9 +27,9 @@ def envt(request, envt_id):
     cis = ComponentInstance.objects.filter(environments__id=envt_id, deleted=False).\
                     select_related('description').\
                     select_related('instanciates__implements__application').\
-                    prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.filter(field__widget_row__gte=0, field__sensitive__in=sec).order_by('field__widget_row'))).\
-                    prefetch_related(Prefetch('description__field_set', queryset=ImplementationFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row'))).\
-                    prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row'))).\
+                    prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.filter(field__widget_row__gte=0, field__sensitive__in=sec).order_by('field__widget_row', 'field__id'))).\
+                    prefetch_related(Prefetch('description__field_set', queryset=ImplementationFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
+                    prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
                     order_by('description__tag', 'description__name')
 
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
