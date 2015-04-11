@@ -5,16 +5,9 @@ from django.db.models.query import Prefetch
 
 from ref.models.instances import Environment, ComponentInstance, \
     ComponentInstanceField
-from ref.models.parameters import getParam
 from ref.models.description import ImplementationFieldDescription, \
     ImplementationComputedFieldDescription
 
-
-def envts(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects_active.filter(template_only=False).order_by('typology__chronological_order', 'typology__name'), 'colors': getParam('MODERN_COLORS').split(',')})
-
-def templates(request):
-    return render(request, 'ref/envts.html', {'envts': Environment.objects.filter(template_only=True).order_by('typology'), 'colors': getParam('MODERN_COLORS').split(',')})
 
 def envt(request, envt_id):
     envt = Environment.objects.\
