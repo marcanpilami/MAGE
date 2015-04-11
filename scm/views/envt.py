@@ -73,5 +73,5 @@ def lc_versions_per_environment(request):
             except KeyError:
                 pass  # happens for unmanaged, deleted... envts & the like
 
-    return render(request, 'scm/lc_installs_envt.html', {'res': SortedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts})
+    return render(request, 'scm/lc_installs_envt.html', {'res': OrderedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts})
 
