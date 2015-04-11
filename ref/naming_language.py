@@ -35,12 +35,18 @@ def resolve(pattern, instance, field_id=None):
         key = 'computed_%s_%s' % (field_id, instance.pk)
         cached = cache.get(key)
         if cached:
-            return cached
+            if cached == 'NonePpokiGFVGH':
+                return None
+            else:
+                return cached
 
     expression = parse(pattern)
     res = __resolve_expr(expression.expr, instance)
     if field_id:
-        cache.set(key, res)
+        if res is None:
+            cache.set(key, 'NonePpokiGFVGH')
+        else:
+            cache.set(key, res)
     return res
 
 def parse(pattern):
