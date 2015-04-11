@@ -28,7 +28,9 @@ from ref.models.com import Link
 
 site = AdminSite()
 site.login_template = 'login.html'
-#site.logout_template = 'MAGE'
+site.site_header = "Administration MAGE"
+site.site_title = 'MAGE'
+site.index_title = None
 site.register(Group, GroupAdmin)
 site.register(User, UserAdmin)
 
