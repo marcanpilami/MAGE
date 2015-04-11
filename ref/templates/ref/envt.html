@@ -20,155 +20,131 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $('.dt').DataTable({
-    	'paging': false,
-    	'searching': false,
-    	'info': false,
-    	'order': [[1,"asc"]],
-    	'columnDefs': [{'orderable': false, 'targets': [0,-1]}],
-    });
+        'paging': false,
+        'searching': false,
+        'info': false,
+        'order': [[1,"asc"]],
+        'columnDefs': [{'orderable': false, 'targets': [0,-1]}],
+	});
 } );
 </script>
 {% endblock scripts %}
 
 {% block content %}
-{% regroup cis|dictsort:"description.tag"|dictsort:"description.name" by description.description as compotype_list %}
+{% regroup cis by description as compotype_list %}
 
 <div class='row'>
-	<div class='col-md-2'>
-		<div class='t2'>Généralités</div>
-		<div class="metContainer metFreeRect defaultHighlightBackground" style="min-width: 100%;">
-			<table>
-				<tr><td>Code</td><td>: {{envt.name}}</td></tr>
-				<tr><td>Responsable</td><td>: {{envt.manager}}</td></tr>
-				<tr><td>Référencé le</td><td>: {{envt.buildDate|date:'d/m/y'}}</td></tr>
-				<tr><td>Détruit le</td><td>: {% if envt.destructionDate %}{{envt.destructionDate}}{% else %}à plannifier{% endif %}</td></tr>
-				<tr><td>Catégorie</td><td>: {{envt.typology.name}}</td></tr>
-				<tr><td>Géré en version</td><td>: {% if envt.managed %}oui{% else %}non{% endif %}</td></tr>
-		</table>	
-		</div><br/><br/>
-		<div class='t2'>Liens GCL</div>
-		<a  href="{% url 'scm:envtinstallhist' envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-			<img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Historique des installations</div>
-		</a>
-		<a  href="{% url 'scm:backup_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-			<img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Sauvegardes disponibles</div>
-		</a>
-		<a  href="{% url 'scm:tag_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-			<img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
-		</a>
-	</div>
-	
-	<div class='col-md-8'>
-		<div class='t2'>Composants</div>	
-		{% for compotype in compotype_list %}
-			<div class='t4'>{{compotype.grouper}}</div>
-			<div class='table-responsive'>
-			<table class='table table-condensed table-bordered table-hover dt'>
-			<thead>
-			{% for compo in compotype.list %}
-				{% if forloop.first %}
-					<tr>
-                    <th>Livré dans</th><th>Nom</th>
-					{% if compo.description %}
-						{% comment %} Title row {% endcomment %} 
-						{% for field in compo.description.field_set.all|dictsort:"widget_row" %}
-							{% if field.widget_row >= 0 %}
-								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-									<th>{{field.short_label|capfirst}}</th>
-								{% endif %}
-							{% endif %}
-						{% endfor %}
-						
-						{% comment %} Data rows {% endcomment %}
-						{% for field in compo.description.computed_field_set.all|dictsort:"widget_row" %}
-							{% if field.widget_row >= 0 %}
-								{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-									<th>{{field.short_label|capfirst}}</th>
-								{% endif %}
-							{% endif %}
-						{% endfor %}
-					{% endif %}
-					{% if perms.ref.change_component_instance %}<th></th>{% endif %}
-					</tr></thead>
-				{% endif %}
-			
-				{% if not compo.deleted %}
-					<tr>
-						<td>
-						{% if compo.instanciates %}
-							{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}
-						{% endif %}
-                        {% if compo.include_in_envt_backup %}<span class='glyphicon glyphicon-hdd' aria-hidden='true' title='sauvegardé'></span>{% endif %}
-						</td>
-						<td>
-						{{ compo.name }}
-						</td>
-						
-						{% if compo.description and not compo.deleted %}
-                            {% with values=compo.field_set.all|dictsort:"field.widget_row" %}
-							{% for field, value in compo.description.field_set.all|dictsort:"widget_row"|project_ci_fields:values %}
-								{% if field.widget_row >= 0 %}
-									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<td>{{value | urlify}}</td>
-									{% endif %}
-								{% endif %}
-							{% endfor %}
-                            {% endwith %}
-							{% for field in compo.description.computed_field_set.all|dictsort:"widget_row" %}
-								{% if field.widget_row >= 0 %}
-									{% if not field.sensitive or perms.ref.allfields_componentinstance or not envt.protected %}
-										<td>{{compo | apply_field_template:field | urlify}}</td>
-									{% endif %}
-								{% endif %}
-							{% endfor %}
-						{% endif %}
-						{% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
-					</tr>	
-				{% endif%}
-			{% endfor %}
-			</table>
-			</div>
-		{% endfor %}
-		
-		{% if perms.ref.change_component_instance %}
-		<div>
-			<div class='t4'>Composants supprimés</div>
-			<div class='table-responsive'>
-				<table class='table table-condensed table-bordered table-hover'>
-					<tr><th>ID</th><th>Type</th><th></th></tr>
-					{% for ci in deleted %}						
-						<tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
-					{% endfor %}
-				</table>
-			</div>
-		</div>
-		{% endif %}
-	</div>
-	
-	
-	<div class='col-md-2'>
-		<div class='t2'>Représentation</div>
-		<script type="text/javascript">
-$(document).ready(function()
-{	
-	$.ajax(
-			{
-				url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
-				type : "GET",
-				dataType : "json",
-			}).done(function(json)
-			{
-				var digraph = dagreD3.json.decode(json['nodes'], json['edges']);
-				
-				var renderer = new dagreD3.Renderer();
-				renderer.run(digraph, d3.select("svg g"));
-			});
-});
-</script>
-		<svg width='2048' height='2048'>
-		    <g transform="translate(20,20) scale(0.7)"/>
-		</svg>
-	</div>
-</div>
-{% endblock content %}
 
+<div class='col-md-2'>
+    <div class='t2'>Généralités</div>
+    <div class="metContainer metFreeRect defaultHighlightBackground" style="min-width: 100%;">
+        <table>
+            <tr><td>Code</td><td>: {{envt.name}}</td></tr>
+            <tr><td>Responsable</td><td>: {{envt.manager}}</td></tr>
+            <tr><td>Référencé le</td><td>: {{envt.buildDate|date:'d/m/y'}}</td></tr>
+            <tr><td>Détruit le</td><td>: {% if envt.destructionDate %}{{envt.destructionDate}}{% else %}à plannifier{% endif %}</td></tr>
+            <tr><td>Catégorie</td><td>: {{envt.typology.name}}</td></tr>
+            <tr><td>Géré en version</td><td>: {% if envt.managed %}oui{% else %}non{% endif %}</td></tr>
+        </table>   
+    </div><br/><br/>
+    <div class='t2'>Liens GCL</div>
+    <a  href="{% url 'scm:envtinstallhist' envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+        <img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Historique des installations</div>
+    </a>
+    <a  href="{% url 'scm:backup_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+        <img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Sauvegardes disponibles</div>
+    </a>
+    <a  href="{% url 'scm:tag_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+        <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
+    </a>
+</div>
+
+<div class='col-md-8'>
+    <div class='t2'>Composants</div>   
+    {% for compotype in compotype_list %}
+        <div class='t4'>{{compotype.grouper.description}}</div>
+        <div class='table-responsive'>
+            <table class='table table-condensed table-bordered table-hover dt'>
+                {% comment %} Table Header {% endcomment %}
+	            <thead>
+                    <tr>
+                        <th>Livré dans</th>
+                        <th>Nom</th>
+                        {% for field in compotype.grouper.field_set.all %}
+                            <th>{{field.short_label|capfirst}}</th>
+                        {% endfor %}
+                        
+                        {% for field in compotype.grouper.computed_field_set.all %}
+                            <th>{{field.short_label|capfirst}}</th>
+                        {% endfor %}
+                    
+                        {% if perms.ref.change_component_instance %}<th></th>{% endif %}
+                    </tr>
+	           </thead>
+
+	           {% comment %} Data rows {% endcomment %}
+                <tbody>
+                {% for compo in compotype.list %}                
+                   <tr>
+                       <td>
+                           {% if compo.instanciates %}{{compo.instanciates.implements.application.name}} - {{compo.instanciates.implements.name}}{% endif %}
+                           {% if compo.include_in_envt_backup %}<span class='glyphicon glyphicon-hdd' aria-hidden='true' title='sauvegardé'></span>{% endif %}
+                       </td>
+                       <td>{{compo.name}}</td>
+                
+                       {% for field, value in compo.description.field_set.all|project_ci_fields:compo.field_set.all %}
+                           <td>{{value | urlify}}</td>
+                       {% endfor %}
+                       
+                       {% for field in compo.description.computed_field_set.all %}
+                           <td>{{compo | apply_field_template:field | urlify}}</td>
+                       {% endfor %}
+                        
+                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                   </tr>
+                {% endfor %}
+                </tbody>
+	       </table>
+        </div>
+    {% endfor %}
+   
+    {% if perms.ref.change_component_instance %}
+    <div>
+        <div class='t4'>Composants supprimés</div>
+            <div class='table-responsive'>
+            <table class='table table-condensed table-bordered table-hover'>
+                <tr><th>ID</th><th>Type</th><th></th></tr>
+                {% for ci in deleted %}                  
+                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class='col-md-2'>
+   <div class='t2'>Représentation</div>
+   <script type="text/javascript">
+$(document).ready(function()
+{   
+	$.ajax(
+    {
+        url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
+        type : "GET",
+        dataType : "json",
+    }).done(function(json)
+    {
+    	var digraph = dagreD3.json.decode(json['nodes'], json['edges']);
+    	var renderer = new dagreD3.Renderer();
+    	renderer.run(digraph, d3.select("svg g"));
+    });
+});
+	</script>
+	<svg width='2048' height='2048'>
+	   <g transform="translate(20,20) scale(0.7)"/>
+	</svg>
+</div>
+
+</div> <!-- Main row div -->
+{% endblock content %}
