@@ -68,7 +68,7 @@ class CicChoiceField(forms.ModelChoiceField):
 
 class CiChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return ' %s - %s (%s)' % (obj.first_environment(), obj.name, obj.instanciates.name if obj.instanciates else 'none')
+        return ' %s %s %s' % (obj.environments_str + " -" if obj.environments_str else '', obj.name, "(" + obj.instanciates.name + ")" if obj.instanciates_id else '')
 
 def form_for_model_relations(descr):
     attrs = {}

@@ -1,7 +1,59 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
 {% block pagetitle %}referential admin{% endblock %}
 {% block maintitle %}nouvelle instance {{ descr.description }}{% endblock %}
-{% load crispy_forms_tags %}
+
+{% block scripts %}
+<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+<script type="text/javascript">
+$(document).ready(function()
+{
+    $('#id__env').change(function()
+    {
+        var env_id=$(this).val();
+		var env_name=$('option:selected', this).text();
+		$("select[id^=id_]").each(function(e)
+		{
+           if (this.id === 'id__env' || this.id === 'id__cic')
+           {
+       			return true;        
+           }
+          
+           var select = $(this);
+           var selected = select.val();
+           var same_envt = $("option:contains('" + env_name + "')", this).sort(function(a,b){return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());});
+           var others = $("option:not(:contains('" + env_name + "'))", this).sort(function(a,b){return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());});
+           
+           select.empty();
+           if (same_envt.length > 0)
+           {
+               	var gr1 = select.append("<optgroup label='Belonging to selected environment " + env_name + "' >");
+                same_envt.each(function()
+                {
+                   gr1.append(this);
+                });
+           }
+           var gr2 = select.append("<optgroup label='Shared or from other environments'>");
+           others.each(function()
+           {
+               if ($(this).text().indexOf("----") > -1)
+               {
+               		return true;
+               }
+               gr2.append(this); 
+           });
+           
+           if (selected)
+           {
+               select.val(selected);
+           }
+       });
+    });
+});
+</script>
+{% endblock scripts %}
 
 {% block content %}
 	{% crispy form %}
