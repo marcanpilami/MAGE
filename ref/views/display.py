@@ -2,6 +2,8 @@
 
 from django.shortcuts import render
 from django.db.models.query import Prefetch
+from django.db.models import Q
+from django.db.models.aggregates import Count
 
 from ref.models.instances import Environment, ComponentInstance, \
     ComponentInstanceField
@@ -40,3 +42,25 @@ def backuped(request):
             select_related('description').\
             prefetch_related('environments')
     return render(request, 'ref/instance_backup.html', {'cis': cis})
+
+
+def shared_ci(request):
+    deleted = []
+    if request.user.is_authenticated() and request.user.has_perm('ref.change_component_instance'):
+        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True).\
+                    select_related('description').\
+                    order_by('description__name', 'id')
+    
+    sec = (False,)
+    if request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'):
+        sec = (True, False)
+        
+    cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=False).\
+                    select_related('description').\
+                    prefetch_related('environments').\
+                    prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.filter(field__widget_row__gte=0, field__sensitive__in=sec).order_by('field__widget_row', 'field__id'))).\
+                    prefetch_related(Prefetch('description__field_set', queryset=ImplementationFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
+                    prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
+                    order_by('description__tag', 'description__name')
+
+    return render(request, 'ref/envt_shared.html', {'deleted': deleted, 'cis' : cis})

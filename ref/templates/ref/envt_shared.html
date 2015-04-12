@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load filter %}
+{% load staticfiles %}
+{% block pagetitle %}Composant mutualisés{% endblock %}
+{% block maintitle %}Composant mutualisés{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+<script type="text/javascript" src='{% static "datatables-1.10.5/js/jquery.dataTables.min.js" %}'></script>
+<script type="text/javascript" src='{% static "datatables-1.10.5/js/dataTables.bootstrap.min.js" %}'></script>
+<link rel="stylesheet" type="text/css" href='{% static "datatables-1.10.5/css/dataTables.bootstrap.css" %}'>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.dt').DataTable({
+        'paging': false,
+        'searching': false,
+        'info': false,
+        'order': [[0,"asc"]],
+        'columnDefs': [{'orderable': false, 'targets': [-1,]}],
+	});
+} );
+</script>
+{% endblock scripts %}
+
+{% block content %}
+{% regroup cis by description as compotype_list %}
+
+<div class='row'>
+
+<div class='col-md-12'>
+    {% for compotype in compotype_list %}
+        <div class='t4'>{{compotype.grouper.description}}</div>
+        <div class='table-responsive'>
+            <table class='table table-condensed table-bordered table-hover dt'>
+                {% comment %} Table Header {% endcomment %}
+	            <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Environnements</th>
+                        {% for field in compotype.grouper.field_set.all %}
+                            <th>{{field.short_label|capfirst}}</th>
+                        {% endfor %}
+                        
+                        {% for field in compotype.grouper.computed_field_set.all %}
+                            <th>{{field.short_label|capfirst}}</th>
+                        {% endfor %}
+                    
+                        {% if perms.ref.change_component_instance %}<th></th>{% endif %}
+                    </tr>
+	           </thead>
+
+	           {% comment %} Data rows {% endcomment %}
+                <tbody>
+                {% for compo in compotype.list %}                
+                   <tr>
+                       <td>{{compo.name}}</td>
+                       <td>{{compo.environments_str}}</td>
+                
+                       {% for field, value in compo.description.field_set.all|project_ci_fields:compo.field_set.all %}
+                           <td>{{value | urlify}}</td>
+                       {% endfor %}
+                       
+                       {% for field in compo.description.computed_field_set.all %}
+                           <td>{{compo | apply_field_template:field | urlify}}</td>
+                       {% endfor %}
+                        
+                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                   </tr>
+                {% endfor %}
+                </tbody>
+	       </table>
+        </div>
+    {% endfor %}
+   
+    {% if perms.ref.change_component_instance %}
+    <div>
+        <div class='t4'>Composants supprimés</div>
+            <div class='table-responsive'>
+            <table class='table table-condensed table-bordered table-hover'>
+                <tr><th>ID</th><th>Type</th><th></th></tr>
+                {% for ci in deleted %}                  
+                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+</div> <!-- Main row div -->
+{% endblock content %}

@@ -20,6 +20,7 @@
 		<a class='metSquare homeCoulour1' href="{% url 'ref:grfull' %}">Carte générale</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
         <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' %}">Eléments sauvegardés</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' %}">Composants mutualisés</a>
 		<div>
 		{% for envt in envts %}
 		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
