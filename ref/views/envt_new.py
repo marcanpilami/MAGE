@@ -75,7 +75,8 @@ def form_for_model_relations(descr):
 
     # CIC
     if descr.cic_set.count() > 0:
-        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').select_related('implements__application').all(),
+        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').\
+                                       select_related('implements__application').filter(active=True, implements__active=True),
                                        label='Offre technique implémentée', required=False)
 
     # Relations
