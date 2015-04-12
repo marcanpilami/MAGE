@@ -8,7 +8,6 @@ from ref.models.description import ImplementationComputedFieldDescription, \
 
 
 @receiver(post_save, sender=ComponentInstanceField)
-@receiver(post_save, sender=ImplementationComputedFieldDescription)
 def empty_computed_cache(sender, instance, created, raw, using, update_fields, **kwargs):
     if not instance.pk or created or raw:
         return
@@ -21,6 +20,14 @@ def empty_computed_cache(sender, instance, created, raw, using, update_fields, *
             cache.delete('computed_%s_%s' % (compf.pk, ci.pk))
 
 
+@receiver(post_save, sender=ImplementationComputedFieldDescription)
+def empty_commuted_cache_on_description(sender, instance, created, raw, using, update_fields, **kwargs):
+    if not instance.pk or created or raw:
+        return
+    for ci in ComponentInstance.objects.filter(description_id=instance.description_id):
+        cache.delete('computed_%s_%s' % (instance.pk, ci.pk))
+        
+    
 @receiver(post_save, sender=ImplementationFieldDescription)
 @receiver(post_save, sender=ImplementationRelationDescription)
 def empty_form_cache(sender, instance, created, raw, using, update_fields, **kwargs):
