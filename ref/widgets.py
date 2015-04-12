@@ -14,7 +14,6 @@ from django.utils.html import conditional_escape, format_html
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
-
 class ClearableFileInputPretty(ClearableFileInput):
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -22,9 +21,10 @@ class ClearableFileInputPretty(ClearableFileInput):
             'input_text': self.input_text,
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
+            'initial_url': value.url if value else None,
         }
         template = '%(input)s'
-        substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs) # we totally bypass ClearableFileInput's render
+        substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs)
 
         if value and hasattr(value, "url"):
             template = self.template_with_initial
@@ -40,3 +40,4 @@ class ClearableFileInputPretty(ClearableFileInput):
                 substitutions['clear_template'] = self.template_with_clear % substitutions
 
         return mark_safe(template % substitutions)
+    
