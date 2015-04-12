@@ -39,10 +39,6 @@ from ref.conventions import value_instance_fields, value_instance_graph_fields
 def envt_instances(request, envt_id=1):
     e = Environment.objects.get(pk=envt_id)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
-    cics = ComponentImplementationClass.objects.all()
-    #iterator = ModelChoiceIterator(forms.ModelChoiceField(None, required=False, empty_label='kkkkkk'))
-    #choices = [iterator.choice(obj) for obj in ComponentImplementationClass.objects.all()]
-    #choices.append(iterator.choice(""))
 
     ffs = {}
     typ_items = {}
@@ -69,9 +65,9 @@ def envt_instances(request, envt_id=1):
             typ_items[instance.description] = [di, ]
 
     for typ, listi in typ_items.iteritems():
-        cls = form_for_model(typ)        
-            
-        InstanceFormSet = formset_factory(wraps(cls)(partial(cls, cics=cics)) , extra=0)
+        cls = form_for_model(typ)
+        InstanceFormSet = formset_factory(wraps(cls)(partial(cls,
+                 cics=ComponentImplementationClass.objects.filter(technical_description_id=typ.id).order_by('name'))) , extra=0)
         ffs[typ] = InstanceFormSet(request.POST or None, initial=listi, prefix=typ.name)
 
     if request.POST:
