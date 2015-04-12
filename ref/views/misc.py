@@ -12,6 +12,7 @@ from django.db.models.aggregates import Max
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required
+from django.core.cache import cache
 
 ## MAGE imports
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link
@@ -150,3 +151,11 @@ def control(request):
                 many_envts.append(i)
             
     return render(request, 'ref/control.html', {'many_envts': many_envts, 'missing_field': missing_field, 'missing_rel': missing_rel})
+
+@permission_required('ref.scm_addcomponentinstance')
+def clear_cache(request):
+    try:
+        cache.clear()
+    except NotImplementedError:
+        pass
+    return HttpResponse('')

@@ -1,8 +1,9 @@
 # coding: utf-8
 from django.core.cache import cache
-from ref.models.instances import ComponentInstance, ComponentInstanceField
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
+
+from ref.models.instances import ComponentInstance, ComponentInstanceField
 from ref.models.description import ImplementationComputedFieldDescription, \
     ImplementationRelationDescription, ImplementationFieldDescription
 
@@ -11,14 +12,34 @@ from ref.models.description import ImplementationComputedFieldDescription, \
 def empty_computed_cache(sender, instance, created, raw, using, update_fields, **kwargs):
     if not instance.pk or created or raw:
         return
-    # key is 'computed_%s_%s' % (field_id, instance.pk)
-    for ci in ComponentInstance.objects.prefetch_related('description__computed_field_set').all():
-        key = 'computed_id_%s_%s' % (ci.description_id, ci.pk)
-        cache.delete(key)
+    ci_id = instance.instance_id
+    cis = ComponentInstance.objects.prefetch_related('reverse_relationships__reverse_relationships__reverse_relationships').get(pk=ci_id)
+    computed_fields = ImplementationComputedFieldDescription.objects.all()
+    d = {}
+    for cf in computed_fields:
+        try:
+            d[cf.description_id].append(cf.id)
+        except KeyError:
+            d[cf.description_id] = [cf.id, ]
+    
+    clean_ci(cis, d, 3)
 
-        for compf in ci.description.computed_field_set.all():
-            cache.delete('computed_%s_%s' % (compf.pk, ci.pk))
-
+def clean_ci(ci, d, rec_level):
+    i = 0
+    try:
+        for field_id in d[ci.description_id]:
+            cache.delete('computed_%s_%s' % (field_id, ci.pk))
+            i += 1
+    except KeyError:
+        # Types without computed fields
+        pass
+    
+    cache.delete('computed_id_%s_%s' % (ci.description_id, ci.pk))
+    
+    if rec_level > 0:
+        for cc in ci.reverse_relationships.all():
+            i += clean_ci(cc, d, rec_level - 1)
+    return i
 
 @receiver(post_save, sender=ImplementationComputedFieldDescription)
 def empty_commuted_cache_on_description(sender, instance, created, raw, using, update_fields, **kwargs):
