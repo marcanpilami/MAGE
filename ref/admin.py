@@ -107,7 +107,7 @@ site.register(Link, LinkAdmin)
 ################################################################################
 
 class CICAdmin(ModelAdmin):
-    list_display = ('name', 'implements', 'technical_description', 'description')
+    list_display = ('name', 'implements', 'technical_description', 'description', 'active')
     list_filter = ('active', 'implements__application', 'implements', 'description')
 
 site.register(ComponentImplementationClass, CICAdmin)
