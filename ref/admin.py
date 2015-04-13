@@ -43,6 +43,7 @@ class MageParamAdmin(ModelAdmin):
     list_display = ['app', 'key', 'value', 'model', 'axis1', 'description', ]
     search_fields = ['app', 'key', 'value', 'axis1', ]
     list_filter = ['app', ]  #'model',]
+    readonly_fields = ['default_value', ]
 
 site.register(MageParam, MageParamAdmin)
 
@@ -113,7 +114,7 @@ class CICAdmin(ModelAdmin):
 site.register(ComponentImplementationClass, CICAdmin)
 
 class ImplementationRelationTypeAdmin(ModelAdmin):
-    list_display=('name', 'label')
+    list_display = ('name', 'label')
 site.register(ImplementationRelationType, ImplementationRelationTypeAdmin)
 
 class ImplementationFieldDescriptionInline(TabularInline):
