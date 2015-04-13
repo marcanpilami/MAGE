@@ -156,6 +156,10 @@ LOGIN_URL = 'login' # named URL
 LOGIN_REDIRECT_URL = 'welcome'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
+AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
+AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
+AZURE_CONTAINER = os.getenv('AZURE_CONTAINER', 'mage-media')
 
 CACHES = {
     'default': {
