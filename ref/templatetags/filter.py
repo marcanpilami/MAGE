@@ -55,7 +55,12 @@ def project_ci_fields(descriptions, instances):
 @register.filter()
 def urlify(value):
     if (isinstance(value, str) or isinstance(value, unicode)) and value.startswith('http'):
-        return mark_safe(("<a href='%s'>cliquez ici</a>" % value))
+        if len(value.split('|')) == 2:
+            link = value.split('|')[1]
+            value = value.split('|')[0]
+        else:
+            link = 'cliquez ici'
+        return mark_safe(("<a href='%s'>%s</a>" % (value, link)))
     elif (isinstance(value, str) or isinstance(value, unicode)) and value == 'True':
         return mark_safe("<span class='glyphicon glyphicon-ok' aria-hidden='true'></span>")
     elif (isinstance(value, str) or isinstance(value, unicode)) and value == 'False':
