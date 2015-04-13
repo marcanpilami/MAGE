@@ -5,13 +5,9 @@
     @author: Marc-Antoine Gouillart
 '''
 
-## Python imports
-import os
-
 ## Django imports
 from django.forms.widgets import ClearableFileInput, CheckboxInput
 from django.utils.html import conditional_escape, format_html
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 class ClearableFileInputPretty(ClearableFileInput):
@@ -28,9 +24,8 @@ class ClearableFileInputPretty(ClearableFileInput):
 
         if value and hasattr(value, "url"):
             template = self.template_with_initial
-            substitutions['initial'] = format_html('<a href="{0}">{1}</a>',
-                                                   value.url,
-                                                   force_text(os.path.basename(value.url)))
+            substitutions['initial'] = format_html('<a href="{0}">click here</a>',
+                                                   value.url,)
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
                 checkbox_id = self.clear_checkbox_id(checkbox_name)
