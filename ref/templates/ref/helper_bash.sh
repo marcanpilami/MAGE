@@ -31,17 +31,10 @@ function mage_query
         return 1
     fi
     
-    ## Full or not? Happens for files which may be hosted on another server than base url.
-    if [[ ${query:0:4} != "http" ]]
-    then
-        if [[ ${query:0:1} == "/" ]]
-        then
-            query="${MAGE_BASE_URL}${query}"
-        else
-            query="${MAGE_BASE_URL}/${query}"
-        fi
-    fi
+    ## Create absolute URL
+    query=$(mage_url -q "${query}")
 
+    ## Run command
     tmpHeaders=/tmp/t1_$$_$RANDOM
     rm -f $tmpHeaders >/dev/null 2>&1
 
@@ -63,7 +56,7 @@ function mage_query
 
 function mage_login
 {
-    typeset tmpFile session_id
+    typeset tmpFile tmpHeaders session_id query
 
     if [[ "${MAGE_USER}" == "" ]] || [[ ${MAGE_PASSWORD} == "" ]] ||  [[ ${MAGE_BASE_URL} == "" ]] 
     then
@@ -78,21 +71,28 @@ function mage_login
         fi	
     fi
 
+    query=$(mage_url -q "accounts/scriptlogin")
     session_id="/tmp/cookie_$$_$RANDOM"
-    res=$(wget -q -S --keep-session-cookies --save-cookies=${session_id} --post-data="username=${MAGE_USER}&password=${MAGE_PASSWORD}" ${MAGE_BASE_URL}{% url 'script_login_post' %} 2>&1)
+    tmpHeaders=/tmp/t1_$$_$RANDOM
+    rm -f ${tmpHeaders} ${session_id} >/dev/null 2>&1
+        
+    wget -q -S --keep-session-cookies --save-cookies=${session_id} --load-cookies=$s --post-data="username=${MAGE_USER}&password=${MAGE_PASSWORD}" -O /dev/null "${query}" 2>${tmpHeaders}
     ok=$?
-    if [[ $ok -ne 0 ]]
+    http_code=$(($(cat $tmpHeaders | grep -v "302" | grep "HTTP/1" | cut -d' ' -f4)))
+    headers=(cat $tmpHeaders)
+    rm -f $tmpHeaders >/dev/null 2>&1
+    if [[ $http_code -ne 200 ]] || [[ $ok -ne 0 ]]
     then
-        if [[ "$res" == "401" ]]
+        if [[ "${http_code}" -eq "401" ]]
         then
             echo "ERROR wrong MAGE login/password" >&2
         else
-            echo "ERROR generic error in MAGE connection" >&2
+            echo "ERROR login query did not complete correctly. HTTP code $http_code - WGET code $ok - Query was $query" >&2
         fi
-        return $ok
     fi
-    
+
     echo ${session_id}
+    return $ok
 }
 
 function mage_logout
@@ -221,7 +221,7 @@ function mage_get_result
         
         eval "echo \$MAGE_${i}_${a}"
     else
-        o=0
+        o=1
         while [[ $o -le ${MAGE_RESULT_COUNT} ]]
         do
             eval "echo \"\$MAGE_${o}_${a}\""
@@ -241,8 +241,8 @@ function mage_get_delivery_id
             s) # session token
                 s="$OPTARG"
                 ;;
-            d) # delivery name
-                delivery=$OPTARG
+            d) # delivery name (or ID!)
+                delivery="$OPTARG"
                 ;;
             *)
                 return 1
@@ -253,6 +253,13 @@ function mage_get_delivery_id
     then
         echo "ERROR delivery name must be specified" >&2
         return 1
+    fi
+    # This is a test for being a numeral...
+    printf "%d" $delivery >/dev/null 2>&1
+    if [[ $? -eq 0 ]]
+    then
+        echo $delivery
+        return 0
     fi
 
     mage_query -q "scm/is/${delivery}/id" -s $s
@@ -424,7 +431,7 @@ function mage_helper_test_before_install
     
     typeset s q d del_id ci_id iis nb e ci_envt ii_id f
     OPTIND=1
-    while getopts "s:d:q:e:f:" arg
+    while getopts "s:d:q:e:f:?" arg
     do
         case $arg in
             s) # session token
@@ -433,7 +440,7 @@ function mage_helper_test_before_install
             q) # query to identify the Component Instance (CI) that the package will be applied to
                 q="$OPTARG"
                 ;;
-            d) # name of the delivery
+            d) # name or ID of the delivery.
                 d="$OPTARG"
                 ;;
             f) # path of the file to download - if not given, no download will take place
@@ -444,20 +451,26 @@ function mage_helper_test_before_install
                 ;;
         esac
     done
+    
+    if [[ "$q" == "" ]]
+    then
+        echo "ERROR: no query given" >&2
+        return 1
+    fi
 
-    # check delivery exists
-    del_id=$(mage_get_delivery_id -s $s -d $d)
+    # check delivery exists if given by name
+    del_id=$(mage_get_delivery_id -s $s -d "$d")
     if [[ $? -ne 0 ]]
     then
-        echo "error: delivery could not be found in the repository (name [$d])"
+        echo "error: delivery could not be found in the repository (name [$d])" >&2
         return 11
-    fi    
+    fi
     
     # check the CI exists
     mage_run_query -s $s -q "$q" -u
     if [[ $? -ne 0 ]]
     then
-        echo "component instance could not be found in the repository with query [$q]"
+        echo "component instance could not be found in the repository with query [$q]" >&2
         return 12
     fi
     ci_id=$(mage_get_result -a mage_id)
@@ -467,27 +480,20 @@ function mage_helper_test_before_install
     iis=$(mage_get_compatible_installable_items -s $s -c ${ci_id} -i ${del_id})
     if [[ $? -ne 0 ]]
     then
-        echo "could not retrieve compatible items inside delivery"
+        echo "Error: could not retrieve compatible items inside delivery" >&2
         return 13
     fi
+    
     nb=$(($(echo "$iis" | wc -l)))
-    if [[ $nb -eq 0 ]]
+    if [[ $nb -eq 0 ]] || [[ "$iis" == "" ]]
     then
-        echo "Error: there are no compatible items inside this delivery"
+        echo "Error: there are no compatible items inside this delivery" >&2
         return 14
     fi
     if [[ $nb -gt 1 ]]
     then    
-        echo "Error: there are more than one items which are compatible with the component instance. This helper method cannot choose by itself - use more granular API method instead"
+        echo "Error: there are more than one items which are compatible with the component instance. This helper method cannot choose by itself - use more granular API method instead" >&2
         return 15
-    fi
-    
-    # Check version...
-    mage_test_ii_dependencies -s $s -i ${iis} -e ${ci_envt} 2>/dev/null
-    if [[ $? -ne 0 ]]
-    then
-        echo "ERROR the component is not in a version compatible with this delivery"
-        return 16
     fi
     
     # Perhaps download the file
@@ -507,11 +513,19 @@ function mage_helper_test_before_install
         
         if [[ ! -w $(dirname $f) ]]
         then
-            echo "ERROR no permissions to create file at $f"
+            echo "ERROR no permissions to create file at $f" >&2
             return 20
         fi
         
         mage_get_file -s $s -u ${MAGE_IS_II_1_URL} >$f
+    fi
+    
+    # Check version...
+    mage_test_ii_dependencies -s $s -i ${iis} -e ${ci_envt} 2>/dev/null
+    if [[ $? -ne 0 ]]
+    then
+        echo "ERROR the component is not in a version compatible with this delivery" >&2
+        return 16
     fi
     
     ## If here, everything exist and there is one compatible (in type and version) II inside the delivery => can proceeed
@@ -562,7 +576,7 @@ function mage_helper_register_standard_install
             q) # query to identify the Component Instance (CI) that the package will be applied to
                 q="$OPTARG"
                 ;;
-            d) # name of the delivery
+            d) # name or ID of the delivery
                 d="$OPTARG"
                 ;;
             *) 
@@ -572,8 +586,10 @@ function mage_helper_register_standard_install
     done
     
     ## Checks (once again, it may not have been called before the install)
-    mage_helper_test_before_install -s $s -q "$q" -d "$d"
-    if [[ $? -ne 0 ]]
+    mage_helper_test_before_install -s "$s" -q "$q" -d "$d"
+    ok=$?
+    ## 16 is OK - we consider a prerequisite failure is already accepted
+    if [[ $ok -ne 0 ]] && [[ $ok -ne 16 ]]
     then
         return 99
     fi
@@ -705,20 +721,32 @@ function mage_latest_backup_age
 	return $?
 }
 
+function mage_url
+{
+    typeset query s arg
+    OPTIND=1
+    while getopts "q:" arg
+    do
+        case ${arg} in
+            q) # HTTP query. If relative, will be appended to $MAGE_BASE_URL
+                query="$OPTARG"
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    done
 
-###############################################################################
-## Samples
-# export MAGE_BASE_URL="http://192.168.56.1:8000"
-# s=$(mage_login ${MAGE_BASE_URL} a a)
-
-# mage_run_query -s $s -q "SELECT 'jbossas' INSTANCES"
-# mage_get_result -a name -l
-
-# del_id=$(mage_get_delivery_id -s $s -d "Sprint_115")
-# mage_get_delivery_content -s $s -i ${del_id}
-
-# Is the delivery appliable to the component?
-# mage_helper_test_before_install -s $s -q "SELECT ENVIRONMENT 'QUA1' OFFER 'padua_jqm_batch' 'jqmbatch' INSTANCES" -d "Sprint_115"
-
-# Apply it (also checks as above)
-# mage_helper_register_standard_install -s $s -q "SELECT ENVIRONMENT 'QUA1' OFFER 'padua_jqm_batch' 'jqmbatch' INSTANCES" -d "Sprint_115"
+    ## Full or not? Happens for files which may be hosted on another server than base url.
+    if [[ ${query:0:4} != "http" ]]
+    then
+        if [[ ${query:0:1} == "/" ]]
+        then
+            query="${MAGE_BASE_URL}${query}"
+        else
+            query="${MAGE_BASE_URL}/${query}"
+        fi
+    fi
+    
+    echo $query
+}
