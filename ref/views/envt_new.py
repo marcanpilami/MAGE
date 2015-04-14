@@ -13,6 +13,7 @@ from ref.models import ComponentImplementationClass, ImplementationDescription, 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.db.models.query import Prefetch
+from django.forms.models import ModelChoiceIterator
 
 ''' 
     This file contains views and form for the standard component instance creation and update. (unitary forms)
@@ -20,7 +21,7 @@ from django.db.models.query import Prefetch
     Creation is divided in two forms so as to be able to apply naming conventions during creation:
     * first step asks for the environment and linked items, for these could be used in convention
     * naming convention is applied and component instance is created with only this data 
-      (may result in an incorrect CI for compulsory fields may still be null after applying conventions)
+      (may result in an incorrect CI as compulsory fields may still be null after applying conventions)
     * second step allows to edit the same data, plus all fields
 '''
 
@@ -114,14 +115,37 @@ def new_ci_step2(request, instance_id):  # always edit an existing CI - to creat
 
 
 # Forms
+class ModelMultipleChoiceFieldWithTitle(forms.ModelMultipleChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(ModelMultipleChoiceFieldWithTitle, self).__init__(*args, **kwargs)
+        iterator = ModelChoiceIterator(self)
+        choices = [iterator.choice(obj) for obj in kwargs['queryset'].all()]
+        choices.append(("", self.empty_label))
+        self.choices = choices
+
+    def label_from_instance(self, obj):
+        return ' %s %s' % (obj.name, '(' + obj.environments_str + ')' if obj.environments_str else '')
+
+class ModelChoiceFieldWithTitle(forms.ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(ModelChoiceFieldWithTitle, self).__init__(*args, **kwargs)
+        iterator = ModelChoiceIterator(self)
+        choices = [iterator.choice(obj) for obj in kwargs['queryset'].all()]
+        choices.append(("", self.empty_label))
+        self.choices = choices
+
+    def label_from_instance(self, obj):
+        return ' %s %s' % (obj.name, '(' + obj.environments_str + ')' if obj.environments_str else '')
+
+
 class FullCIEditFormBase(forms.ModelForm):
     class Meta:
         model = ComponentInstance
         fields = ['deleted', 'include_in_envt_backup', 'instanciates', 'environments', ]
-        
+
     def __init__(self, *args, **kwargs):
         super(FullCIEditFormBase, self).__init__(*args, **kwargs)
-        
+
         ## Restrict some choices
         self.fields["environments"].queryset = Environment.objects.order_by('name').filter(template_only=False, active=True)
         self.fields["instanciates"].queryset = ComponentImplementationClass.objects.order_by('implements__application__name', 'name').filter(active=True, implements__active=True)
@@ -131,18 +155,23 @@ class FullCIEditFormBase(forms.ModelForm):
 
         ## Init dynamic fields values
         for field_instance in self.instance.rel_target_set.all():
-            self.fields[field_instance.field.name].initial = field_instance.target_id
+            if field_instance.field.max_cardinality > 1:
+                if self.fields[field_instance.field.name].initial is None:
+                    self.fields[field_instance.field.name].initial = []
+                self.fields[field_instance.field.name].initial.append(field_instance.target_id)
+            else:
+                self.fields[field_instance.field.name].initial = field_instance.target_id
 
         for field_instance in self.instance.field_set.all():
             if field_instance.field.datatype == 'bool':
                 self.fields[field_instance.field.name].initial = field_instance.value == 'True'
             else:
                 self.fields[field_instance.field.name].initial = field_instance.value
-    
+
     def save(self, commit=True):
         if len(self.changed_data) == 0:
             return
-        
+
         for field in self.mage_instance.description.field_set.all():
             if not field.name in self.changed_data:
                     continue
@@ -152,12 +181,16 @@ class FullCIEditFormBase(forms.ModelForm):
         for field in self.mage_instance.description.target_set.all():
             if not field.name in self.changed_data:
                 continue
+            ComponentInstanceRelation.objects.filter(source=self.mage_instance, field=field).delete()
             new_data = self.cleaned_data[field.name]
-            ComponentInstanceRelation.objects.update_or_create(defaults={'target': new_data}, source=self.mage_instance, field=field)
+            if isinstance(new_data, ComponentInstance):
+                new_data = [new_data, ]
+            for ci in new_data:
+                ComponentInstanceRelation.objects.update_or_create(target=ci, source=self.mage_instance, field=field)
 
         super(FullCIEditFormBase, self).save(commit=commit)
 
-            
+
     helper = FormHelper()
     helper.form_class = 'form-horizontal'
     helper.label_class = 'col-lg-2'
@@ -180,8 +213,9 @@ def form_for_model(descr):
     # Relations
     for field in descr.target_set.all():
         if field.max_cardinality > 1:
-            continue
-        f = forms.ModelChoiceField(queryset=field.target.instance_set, label=field.label, required=field.min_cardinality == 1)
+            f = ModelMultipleChoiceFieldWithTitle(queryset=field.target.instance_set.prefetch_related('environments'), required=field.min_cardinality == 1, label=field.label)
+        else:
+            f = ModelChoiceFieldWithTitle(queryset=field.target.instance_set.prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
     return type(str("__" + descr.name.lower() + "_form"), (FullCIEditFormBase,), attrs)
