@@ -151,7 +151,11 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
                 compo[fi.field.name] = fi.value
 
             for fi in ci.rel_target_set.all():
-                compo[fi.field.name + '_id'] = fi.target_id
+                key = fi.field.name + '_id'
+                if compo.has_key(key):
+                    compo[key] = '%s,%s' %(compo[key], fi.target_id)
+                else:
+                    compo[key] = fi.target_id
 
             if use_computed_fields:
                 for cf in ci.description.computed_field_set.all():
