@@ -238,6 +238,8 @@ class ReinitModelForm(ModelForm):
             self.mage_instance = self.instance
 
             for field_instance in self.instance.rel_target_set.all():
+                if field_instance.field.max_cardinality > 1:
+                    continue
                 self.fields[field_instance.field.name].initial = field_instance.target_id
 
             for field_instance in self.instance.field_set.all():
@@ -281,8 +283,8 @@ def reinit_form_for_model(descr):
 @atomic
 @permission_required('ref.scm_addcomponentinstance')
 def descr_instances_reinit(request, descr_id=4):
-    cics = ComponentImplementationClass.objects.all()
     descr = ImplementationDescription.objects.get(pk=descr_id)
+    cics = ComponentImplementationClass.objects.filter(technical_description_id=descr_id)
 
     cls = reinit_form_for_model(descr)
     InstanceFormSet = modelformset_factory(ComponentInstance, form=cls, extra=0)
