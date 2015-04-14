@@ -27,7 +27,7 @@ from django.forms.models import ModelChoiceIterator
 
 def new_items(request):
     """Hub for creating all sorts of items"""
-    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.all()})
+    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all()})
 
 
 #####################################################################
