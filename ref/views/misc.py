@@ -104,7 +104,7 @@ def debug(request):
 @permission_required('ref.scm_addcomponentinstance')
 def control(request):
     descrs = ImplementationDescription.objects.all().prefetch_related(
-          Prefetch('instance_set', queryset=ComponentInstance.objects.all().prefetch_related('rel_target_set', 'field_set', 'environments').select_related('implements')), \
+          Prefetch('instance_set', queryset=ComponentInstance.objects.all().prefetch_related('rel_target_set', 'field_set', 'environments').select_related('instanciates')), \
            'target_set', 'field_set')
     
     many_envts = []
