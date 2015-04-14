@@ -108,6 +108,15 @@ def new_ci_step2(request, instance_id):  # always edit an existing CI - to creat
         form = cls(request.POST, instance=instance)
         if form.is_valid():
             form.save()
+            
+            # To where should we redirect?
+            if 'submit_stay' in request.POST:
+                return redirect('ref:edit_ci', instance_id=instance_id)
+            if 'submit_toenvt' in request.POST:
+                if len(form.cleaned_data['environments']) >= 1:
+                    return redirect('ref:envt', envt_id=form.cleaned_data['environments'][0].id)
+                else:
+                    return redirect('ref:shared_ci')
     else:
         form = cls(instance=instance)
 
@@ -188,14 +197,15 @@ class FullCIEditFormBase(forms.ModelForm):
             for ci in new_data:
                 ComponentInstanceRelation.objects.update_or_create(target=ci, source=self.mage_instance, field=field)
 
-        super(FullCIEditFormBase, self).save(commit=commit)
+        return super(FullCIEditFormBase, self).save(commit=commit)
 
 
     helper = FormHelper()
     helper.form_class = 'form-horizontal'
     helper.label_class = 'col-lg-2'
     helper.field_class = 'col-lg-9'
-    helper.add_input(Submit('submit', 'Submit'))
+    helper.add_input(Submit('submit_stay', 'Enregistrer et continuer à éditer'))
+    helper.add_input(Submit('submit_toenvt', 'Enregistrer et revenir à l\'environnement'))
 
 def form_for_model(descr):
     attrs = {}
