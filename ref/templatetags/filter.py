@@ -33,7 +33,7 @@ def ksh_protect_and_quote(value):
     if isinstance(value, models.Model):
         return '"%s"' % value.pk
 
-    res = ("%s" % value).replace('"', '\\"')
+    res = ("%s" % value).replace('"', '\\"').replace('$', '\$')
     return ('"%s"' % res)
 
 @register.filter
