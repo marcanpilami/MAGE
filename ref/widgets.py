@@ -17,7 +17,7 @@ class ClearableFileInputPretty(ClearableFileInput):
             'input_text': self.input_text,
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
-            'initial_url': value.url if value else None,
+            'initial_url': value.url if value and hasattr(value, 'url') else None,
         }
         template = '%(input)s'
         substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs)
