@@ -3,9 +3,13 @@ tmp/*
 .project
 .pydevproject
 *.pyc
+*.json
 MAGE/local_settings.py
 doc/html
 geo
 *.db
 sqlite3.exe
 d17
+d18
+.idea
+env
