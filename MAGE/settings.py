@@ -3,6 +3,7 @@
 # A sample file named local_settings.sample.py is provided in this directory.
 
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = False
@@ -87,7 +88,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-LOCAL_MIDDLEWARE_CLASSES=()
+LOCAL_MIDDLEWARE_CLASSES = ()
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -152,7 +153,7 @@ LOGGING = {
     }
 }
 
-LOGIN_URL = 'login' # named URL
+LOGIN_URL = 'login'  # named URL
 LOGIN_REDIRECT_URL = 'welcome'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -186,8 +187,8 @@ INSTALLED_APPS = (
 
     'crispy_forms',
 
-    'ref', ## Keep REF first after django internals
-    'scm', ## Keep SCM second
+    'ref',  ## Keep REF first after django internals
+    'scm',  ## Keep SCM second
 )
 
 INSTALLED_APPS += LOCAL_APPS
