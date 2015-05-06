@@ -208,7 +208,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False):
                         elif idn == 'mage_environments':
                             compo[key] = ','.join([e.name for e in ci.environments.all()])
                         else:
-                            raise Exception("'%s' is not a valid value attribute" % idn)
+                            compo[key] = None
                 else:
                     # navigation
                     found = False
