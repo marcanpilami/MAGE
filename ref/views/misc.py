@@ -3,7 +3,7 @@
 ## Python imports
 
 ## Django imports
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
@@ -11,7 +11,7 @@ from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 
 ## MAGE imports
@@ -71,6 +71,13 @@ def script_logout(request):
     logout(request)
     return HttpResponse("<html><body>User logged out</body></html>")
 
+@login_required
+def force_login(request):
+    try:
+        next = request.GET.get('next')
+    except:
+        next = '/'
+    return redirect(next)
 
 
 def urls(request):
