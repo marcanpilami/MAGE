@@ -13,6 +13,21 @@
 	{% endif %}
 </form>
 
+{% if not results %}
+<div>
+    <a href="http://mage.readthedocs.org/en/master/mql.html">Click here for the full MQL documentation.</a><br>
+    <span>Quick examples:</span>
+    <ul>
+        <li>All component instances: SELECT INSTANCES</li>
+        <li>All component instances inside a given environment: SELECT ENVIRONMENT 'DEV1' INSTANCES</li>
+        <li>All component instances of a certain technical type: SELECT 'jbossas' INSTANCES</li>
+        <li>All component instances of a certain fonctional type: SELECT LC 'web application EE6' 'jbossapplication' INSTANCES</li>
+        <li>Only select a few fields, as well as fields from linked instances: SELECT name, jboss_host.name FROM 'jbossas' INSTANCES</li>
+        <li>Filter (here on a linked component attribute): SELECT mage_id, name FROM 'jbossas' INSTANCES WHERE jboss_host.name='RWP100109'</li>
+    </ul>
+</div>
+{%  endif %}
+
 <div>
 {% if results %}
 	<div>Also see results as: 
