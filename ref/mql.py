@@ -176,22 +176,15 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
         return res
 
     else:
-        ## Preload data
         if optim:
-            for navigation in selector:
-                for idn in navigation:
-                    pass
-
-            # rs = rs.prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field')))
-            # rs.prefetch_related('rel_target_set')
-            # return {}
-
+            ## Preload two levels of data
+            rs = rs.prefetch_related(
+                Prefetch('field_set', queryset=ComponentInstanceField.objects.select_related('field')))
             rs = rs.prefetch_related(Prefetch('rel_target_set',
                                               queryset=ComponentInstanceRelation.objects.select_related('field',
                                                                                                         'target')))
             rs = rs.prefetch_related(Prefetch('rel_target_set__target__field_set',
                                               queryset=ComponentInstanceField.objects.select_related('field')))
-        # rs = rs.prefetch_related('rel_target_set__target__field_set__field')
 
         ## Fetch!
         for ci in rs.all():
@@ -211,7 +204,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                                 found = True
                                 compo[key] = fi.value
                                 if not return_sensitive_data and fi.field.sensitive:
-                                    raise Exception('logged-in user has no access to field %s' %idn)
+                                    raise Exception('logged-in user has no access to field %s' % idn)
                         if not found:
                             ## Special field?
                             if idn == 'mage_id':
@@ -236,7 +229,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                                 tmp = rel.target
                                 found = True
                                 if not return_sensitive_data and rel.field.sensitive:
-                                    raise Exception('logged-in user has no access to field %s' %idn)
+                                    raise Exception('logged-in user has no access to field %s' % idn)
                                 break
                         if not found:
                             raise Exception("'%s' is not a valid relationship attribute" % idn)
