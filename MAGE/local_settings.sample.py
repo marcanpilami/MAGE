@@ -124,6 +124,9 @@ LOCAL_MIDDLEWARE_CLASSES = ()
 #    }
 #}
 
+# Uncomment to force authentication on all pages (default is public read access)
+# LOCAL_MIDDLEWARE_CLASSES += ('MAGE.force_login_middleware.ForceLoginMiddleware',)
+
 # If True, detailed exception will be displayed on errors. Performance and security impact.
 DEBUG = False
 

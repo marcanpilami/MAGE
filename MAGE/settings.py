@@ -155,6 +155,8 @@ LOGGING = {
 
 LOGIN_URL = 'login'  # named URL
 LOGIN_REDIRECT_URL = 'welcome'
+# Only used when force logging middleware is enabled (off by default):
+FORCE_LOGIN_EXCEPTIONS = ('login', 'logout', 'script_logout', 'script_login', 'script_login_post', 'force_login', 'openid', )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
