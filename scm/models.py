@@ -338,6 +338,14 @@ class Installation(models.Model):
     def __unicode__(self):
         return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
 
+@receiver(post_save, sender=Installation)
+def check_validation_on_install(sender, instance, raw, **kwargs):
+    if raw:
+        return
+    if instance.installed_set.status == 3:
+        instance.installed_set.status = 1
+        instance.installed_set.save()
+
 class ComponentInstanceConfiguration(models.Model):
     component_instance = models.ForeignKey(ComponentInstance, related_name='configurations')
     result_of = models.ForeignKey(InstallableItem)
