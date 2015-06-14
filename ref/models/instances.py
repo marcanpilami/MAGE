@@ -51,7 +51,7 @@ class Environment(models.Model):
         return "%s" % (self.name,)
 
     def ci_id_list(self):
-        return ','.join([str(ci.id) for ci in self.component_instances.all()])
+        return ','.join([str(ci.id) for ci in self.component_instances.filter(deleted=False)])
 
     objects = models.Manager()
     objects_active = EnvironmentManagerStd()
