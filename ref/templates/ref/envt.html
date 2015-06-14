@@ -56,13 +56,18 @@ $(document).ready(function() {
     </a>
     <a  href="{% url 'scm:tag_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
-    </a>
+    </a><br/><br/>
+    <div class='t2'>Accès rapide</div>
+    {% for compotype in compotype_list %}
+        <a href="#{{ compotype.grouper.id }}">{{ compotype.grouper.description | capfirst}}</a><br/>
+    {%  endfor %}
 </div>
 
 <div class='col-md-8'>
     <div class='t2'>Composants</div>   
     {% for compotype in compotype_list %}
         <div class='t4'>{{compotype.grouper.description}}</div>
+        <a name="{{ compotype.grouper.id }}" style="position:relative; display: block; top: -70px"></a>
         <div class='table-responsive'>
             <table class='table table-condensed table-bordered table-hover dt'>
                 {% comment %} Table Header {% endcomment %}
