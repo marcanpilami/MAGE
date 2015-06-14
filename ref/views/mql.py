@@ -19,7 +19,7 @@ def mql_tester(request):
         form = MqlTesterForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
-                res = mql.run(form.cleaned_data['mql'])
+                res = mql.run(form.cleaned_data['mql'], return_sensitive_data = request.user.has_perm('ref.allfields_componentinstance'))
                 return render(request, 'ref/mql_tester.html', {'mql': form.cleaned_data['mql'], 'form': form, 'results': res, 'base': base})
             except Exception, e:
                 error = e.__str__()
@@ -29,7 +29,7 @@ def mql_tester(request):
     return render(request, 'ref/mql_tester.html', {'form': form, 'base': base, 'error': error})
 
 def mql_query(request, output_format, query):
-    res = mql.run(query)
+    res = mql.run(query, return_sensitive_data = request.user.has_perm('ref.allfields_componentinstance'))
 
     if output_format == 'csv':
         response = HttpResponse(content_type='text/csv; charset=utf-8')
