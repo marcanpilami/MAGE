@@ -61,7 +61,7 @@ def latest_ci_backupset_age_mn(request, ci_id):
             response.write("-1")
         else:
             bis = bis.latest('set_date')
-            response.write(int(round((now() - bis.set_date).seconds / 60, 0)))
+            response.write(int(round((now() - bis.set_date).total_seconds() / 60, 0)))
     except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
         response.write("-1")
     return response
@@ -73,7 +73,7 @@ def latest_ci_backupset_id(request, ci_id):
         if bis.count() == 0:
             response.write("-1")
         else:
-            response.write(bis.latest.pk)
+            response.write(bis.latest('set_date').pk)
     except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
         response.write("-1")
     return response
@@ -85,7 +85,7 @@ def latest_envt_backupset_id(request, envt_name):
         if bis.count() == 0:
             response.write("-1")
         else:
-            response.write(bis.latest.pk)
+            response.write(bis.latest('set_date').pk)
     except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
         response.write("-1")
     return response
