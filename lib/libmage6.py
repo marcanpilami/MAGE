@@ -76,9 +76,9 @@ class MageClient(object):
         pass
 
 
-    def run_query(self, query, uniq=False):
+    def run_query(self, query, unique=False):
         """Execute a query on mage. Return results as json like dict
-        @:param uniq: if True, assume that query return only one. It raises if stricly less or more that 1 response it returned. Default is False
+        @:param unique: if True, assume that query return only one. It raises if stricly less or more that 1 response it returned. Default is False
         @:return list of responses. If uniq=True, returns only one response object instead of a list of response.. """
         base_query = "/ref/mql/json/"
         url = urljoin(self.base_url, base_query)
@@ -94,7 +94,17 @@ class MageClient(object):
             self.logger.critical(msg)
             raise LibMageException(msg)
         self.logger.debug("Query answer: %s" % request.json())
-        return request.json()
+        if unique:
+            response = request.json()
+            if len(response) == 1:
+                return response[0]
+            else:
+                msg = "Unique query did not return exactly one result. Got %s" % len(response)
+                self.logger.critical(msg)
+                raise LibMageException(msg)
+        else:
+            response = request.json()
+        return response
 
 
     def mage_get_delivery_id(self):
