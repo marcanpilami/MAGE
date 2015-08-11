@@ -329,3 +329,8 @@ def _proxy_simple_accessor(proxy, field_id):
     except ComponentInstanceField.DoesNotExist:
         return None
     return field.value
+
+def clear_classes_cache():
+    """Clear ImplementationDesscription classes cache. Only useful in test context"""
+    global _classes
+    _classes.clear()

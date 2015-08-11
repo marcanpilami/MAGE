@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 import requests
 
 from ref.demo_items import utility_create_logical, utility_create_meta, utility_create_test_instances
+from ref.models.description import clear_classes_cache
 
 from libmage6 import MageClient, LibMageException
 
@@ -81,6 +82,7 @@ class TestQuerying(LiveServerTestCase):
         utility_create_meta()
         utility_create_logical()
         utility_create_test_instances()
+        clear_classes_cache()
         create_admin_login()
 
 
@@ -93,9 +95,6 @@ class TestQuerying(LiveServerTestCase):
 
 
     def test_single_result_query(self):
-        import time
-        time.sleep(3)
-
         m = MageClient()
         m.login()
         m_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"
