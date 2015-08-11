@@ -24,6 +24,9 @@ class MageClient(object):
         self.password = password
         self._session = None
 
+        if not self.base_url.endswith("/"):
+            self.base_url += "/"
+
         self.logger = logging.getLogger("libmage")
         if setup_log and len(self.logger.handlers) == 0:
             self.logger.setLevel(logging.DEBUG)
@@ -38,7 +41,7 @@ class MageClient(object):
 
     def login(self):
         """Log to mage and return an http session with proper credential"""
-        login = urljoin(self.base_url, "/accounts/scriptlogin")
+        login = urljoin(self.base_url, "accounts/scriptlogin")
 
         # Sanity checks
         if not login.startswith("http"):
@@ -80,7 +83,7 @@ class MageClient(object):
         """Execute a query on mage. Return results as json like dict
         @:param unique: if True, assume that query return only one. It raises if stricly less or more that 1 response it returned. Default is False
         @:return list of responses. If uniq=True, returns only one response object instead of a list of response.. """
-        base_query = "/ref/mql/json/"
+        base_query = "ref/mql/json/"
         url = urljoin(self.base_url, base_query)
         url = urljoin(url, query)
         if self._session is None:

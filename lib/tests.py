@@ -70,6 +70,12 @@ class TestLoginLogout(LiveServerTestCase):
         pass
 
 
+    def test_prefix(self):
+        # Add tests with mage running with prefix
+        # we should ensure that base_url ends with / for proper urljoin
+        pass
+
+
 class TestQuerying(LiveServerTestCase):
     def setUp(self):
         utility_create_meta()
@@ -77,9 +83,6 @@ class TestQuerying(LiveServerTestCase):
         utility_create_test_instances()
         create_admin_login()
 
-    def test_query_without_login(self):
-        # should fail
-        pass
 
     def test_multiple_result_query(self):
         m = MageClient()
@@ -90,6 +93,9 @@ class TestQuerying(LiveServerTestCase):
 
 
     def test_single_result_query(self):
+        import time
+        time.sleep(3)
+
         m = MageClient()
         m.login()
         m_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"
