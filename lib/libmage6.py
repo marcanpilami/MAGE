@@ -77,8 +77,19 @@ class MageClient(object):
 
     def logout(self):
         """Be a good citizen, close session"""
-        #TODO: call mage logout URL
-        pass
+        logout = urljoin(self.base_url, "accounts/scriptlogout")
+        if self._session is None:
+            msg = "You must login before before trying to logout"
+            self.logger.fatal(msg)
+            raise LibMageException(msg)
+
+        request = self._session.get(logout)
+        if request.status_code != 200:
+            msg = "Cannot logout from Mage. Response was %s: %s" % (request.status_code, request.reason)
+            self.logger.critical(msg)
+            raise LibMageException(msg)
+
+        self.logger.info("Logout from MAGE")
 
 
     def run_mql_query(self, query, unique=False):
