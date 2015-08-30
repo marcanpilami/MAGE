@@ -18,7 +18,9 @@ import requests
 class MageClient(object):
     """Mage client that connect to Mage server though HTTP(S) REST web services"""
 
-    def __init__(self, base_url="http://127.0.0.1:8081", username= "root", password = "secret", setup_log=True):
+    def __init__(self, base_url, username, password, setup_log=True):
+        if not (base_url and username and password):
+            raise LibMageException("base_url, user and password must defined")
         self.base_url = base_url
         self.username = username
         self.password = password

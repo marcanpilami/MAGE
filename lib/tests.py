@@ -17,10 +17,13 @@ from ref.models.description import clear_classes_cache
 
 from libmage6 import MageClient, LibMageException
 
+USERNAME = "root"
+PASSWORD = "secret"
 
-def create_admin_login():
+
+def create_admin_login(url):
     """Create superuser in test database with default credentials"""
-    m = MageClient()
+    m = MageClient(url, USERNAME, PASSWORD)
     root = User.objects.create_user(username = m.username, email = None, password = m.password)
     root.is_superuser = True
     root.save()
@@ -28,18 +31,28 @@ def create_admin_login():
 
 class TestLoginLogout(LiveServerTestCase):
     def setUp(self):
-        create_admin_login()
+        create_admin_login(self.live_server_url)
+
+
+    def test_invalid_mage_client(self):
+        params = (("http://localhost", None, "secret"),
+                  ("http://localhost", "", "secret"),
+                  ("", "", ""),
+                  (None, None, None),)
+        for param in params:
+            self.assertRaises(LibMageException, MageClient, *param)
+
 
 
     def test_login(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         m.login()
         self.assertIsInstance(m._session, requests.Session)
         m.logout()
 
 
     def test_bad_login(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         url = m.base_url
 
         m.base_url = "localhost:8080"  # missing sheme
@@ -57,7 +70,7 @@ class TestLoginLogout(LiveServerTestCase):
 
 
     def test_login_twice(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         m.login()
         m.login()
         self.assertIsInstance(m._session, requests.Session)
@@ -83,11 +96,11 @@ class TestQuerying(LiveServerTestCase):
         utility_create_logical()
         utility_create_test_instances()
         clear_classes_cache()
-        create_admin_login()
+        create_admin_login(self.live_server_url)
 
 
     def test_multiple_result_query(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         m.login()
         query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"# WITH COMPUTATIONS"
         r = m.run_query(query)
@@ -95,7 +108,7 @@ class TestQuerying(LiveServerTestCase):
 
 
     def test_single_result_query(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         m.login()
         m_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"
         s_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES where name='schema1'"
@@ -106,5 +119,5 @@ class TestQuerying(LiveServerTestCase):
 
 
     def test_query_without_login(self):
-        m = MageClient()
+        m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         self.assertRaises(LibMageException, m.run_query, "query")
