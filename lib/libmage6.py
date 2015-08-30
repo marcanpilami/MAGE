@@ -47,7 +47,7 @@ class MageClient(object):
 
         # Sanity checks
         if not login.startswith("http"):
-            msg = "Bad MAGE_BASE_URL. It should starts with http://... or (bette) https://..."
+            msg = "Bad MAGE_BASE_URL. It should starts with http://... or (better) https://..."
             self.logger.fatal(msg)
             raise LibMageException(msg)
         if not login.startswith("https://"):
@@ -83,8 +83,10 @@ class MageClient(object):
 
     def run_mql_query(self, query, unique=False):
         """Execute a query on mage. Return results as json like dict
-        @:param unique: if True, assume that query return only one. It raises if stricly less or more that 1 response it returned. Default is False
-        @:return list of responses. If uniq=True, returns only one response object instead of a list of response.. """
+        @:param unique: if True, assume that query return only one. It raises if strictly less or more that 1 response
+         is returned. Default is False
+        @:return list of component instance description. If unique=True, returns only one component instance description
+         object instead of a list of component instance description. """
         base_query = "ref/mql/json/"
         url = urljoin(self.base_url, base_query)
         url = urljoin(url, query)
