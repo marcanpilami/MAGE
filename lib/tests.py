@@ -103,7 +103,7 @@ class TestQuerying(LiveServerTestCase):
         m = MageClient(self.live_server_url, USERNAME, PASSWORD)
         m.login()
         query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"# WITH COMPUTATIONS"
-        r = m.run_query(query)
+        r = m.run_mql_query(query)
         self.assertEqual(len(r), 3)
 
 
@@ -112,12 +112,12 @@ class TestQuerying(LiveServerTestCase):
         m.login()
         m_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES"
         s_query = "SELECT ENVIRONMENT 'DEV1' 'oracleschema' INSTANCES where name='schema1'"
-        self.assertRaises(LibMageException, m.run_query, m_query, unique=True)
-        r = m.run_query(s_query, unique=True)
+        self.assertRaises(LibMageException, m.run_mql_query, m_query, unique=True)
+        r = m.run_mql_query(s_query, unique=True)
         self.assertDictContainsSubset( {u'name': u'schema1'}, r)
         #BUG: fail with django live test server, but works when runs as the only test or against previously launched mage. Bug in MAGE server or django ?
 
 
     def test_query_without_login(self):
         m = MageClient(self.live_server_url, USERNAME, PASSWORD)
-        self.assertRaises(LibMageException, m.run_query, "query")
+        self.assertRaises(LibMageException, m.run_mql_query, "query")

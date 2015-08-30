@@ -81,7 +81,7 @@ class MageClient(object):
         pass
 
 
-    def run_query(self, query, unique=False):
+    def run_mql_query(self, query, unique=False):
         """Execute a query on mage. Return results as json like dict
         @:param unique: if True, assume that query return only one. It raises if stricly less or more that 1 response it returned. Default is False
         @:return list of responses. If uniq=True, returns only one response object instead of a list of response.. """
