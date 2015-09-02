@@ -83,6 +83,9 @@ SECRET_KEY='a_random_string'
 # If using Azure blob storage, this must be one of the access keys
 # AZURE_ACCOUNT_KEY = 'Ldkjf886+skdchnv=='
 
+# If using Azure blob storage, this is the container name. Default is 'mage-media'
+# AZURE_CONTAINER = 'containername'
+
 
 ###############################################################################
 ## Default language

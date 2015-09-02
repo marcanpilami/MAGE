@@ -5,7 +5,7 @@ unicodecsv==0.9.4
 django-crispy-forms-ng
 
 ## Cloud provider dependencies (can be removed if not used, no harm if left present but unused)
-azure
+azure-storage==0.20.0
 
 ## Following libraries are not used in normal operations, the are just present for debugging in case of problem.
 ipython

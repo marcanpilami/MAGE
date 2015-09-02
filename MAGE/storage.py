@@ -13,9 +13,9 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 try:
-    from azure import WindowsAzureMissingResourceError
+    from azure.common import  AzureMissingResourceHttpError
     from azure.storage import AccessPolicy
-    from azure.storage.blobservice import BlobService
+    from azure.storage.blob import BlobService
     from azure.storage.sharedaccesssignature import SharedAccessPolicy, SharedAccessSignature
 except ImportError:
     raise ImproperlyConfigured("Could not load Azure bindings. See https://github.com/WindowsAzure/azure-sdk-for-python")
@@ -55,7 +55,7 @@ class AzureStorage(Storage):
     def exists(self, name):
         try:
             self.connection.get_blob_properties(self.azure_container, name)
-        except WindowsAzureMissingResourceError:
+        except AzureMissingResourceHttpError:
             return False
         else:
             return True
@@ -79,4 +79,4 @@ class AzureStorage(Storage):
         sas = SharedAccessSignature(self.account_name, self.account_key)
         url = sas.generate_signed_query_string(path=self.azure_container + '/' + name, resource_type='b', shared_access_policy=sap)
         
-        return self.connection.make_blob_url(self.azure_container, name) + "?" + sas._convert_query_string(url)
+        return self.connection.make_blob_url(self.azure_container, name) + "?" + url
