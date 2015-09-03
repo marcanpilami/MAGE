@@ -7,8 +7,11 @@
 
 from django.conf.urls import patterns, url
 from ref import views
+from ref.views.misc import project_home
 
 urlpatterns = patterns('',
+    url(r'project/(?P<project_id>\d+)$', project_home, name='project_home'),
+
     url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),

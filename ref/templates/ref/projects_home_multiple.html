@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block pagetitle %}MAGE{% endblock %}
+{% block maintitle %}Accueil{% endblock %}
+
+
+{%block navigationButtons%}
+<a href='{% url "admin:index" %}' title="Administration">A</a>
+{% endblock %}
+
+{% block content %}
+    <div class='t2' style='color: black;'>Accéder aux environnements de...</div>
+    <div  style='color: white;'>
+    {% for project in projects %}
+        <a class='metSquare' href="{% url 'ref:project_home' project.id %}">{{project.name}}<div class='metSquareLong annotation'>{{project.description}}</div></a>
+    {% endfor %}
+    </div>
+{% endblock %}

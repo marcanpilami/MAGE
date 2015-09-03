@@ -9,7 +9,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.admin import autodiscover
 from ref.admin import site 
 autodiscover()
-from ref.views.misc import welcome
+from ref.views import home
 
 urlpatterns = patterns('',
     # core applications 
@@ -31,5 +31,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(site.urls)),
     
     # Welcome screen (slash mapping)
-    url(r'^$', welcome, name='welcome'),
+    url(r'^$', home, name='home'),
 )

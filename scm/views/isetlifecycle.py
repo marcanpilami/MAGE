@@ -83,7 +83,7 @@ def iset_archive(request, is_id):
     i_s = InstallableSet.objects.get(pk=is_id)
     i_s.removed = now()
     i_s.save()
-    return redirect('welcome')
+    return redirect('home')
 
 @permission_required('scm.del_backupset')
 def iset_unarchive(request, is_id):
@@ -91,7 +91,7 @@ def iset_unarchive(request, is_id):
     i_s = InstallableSet.objects.get(pk=is_id)
     i_s.removed = None
     i_s.save()
-    return redirect('welcome')
+    return redirect('home')
 
 @permission_required('scm.validate_installableset')
 def iset_validate(request, iset_id):

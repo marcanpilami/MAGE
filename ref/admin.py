@@ -58,7 +58,7 @@ class EnvironmentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
-    list_filter = ['template_only', 'managed', 'typology']
+    list_filter = ['template_only', 'managed', 'typology', 'project']
     search_fields = ('name',)
 
 
