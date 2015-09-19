@@ -14,18 +14,18 @@ from ref.models.description import ImplementationFieldDescription, \
 def envt(request, envt_id):
     envt = Environment.objects.\
                     select_related('typology').\
-                    get(pk=envt_id)   
-    
+                    get(pk=envt_id)
+
     deleted = []
     if request.user.is_authenticated() and request.user.has_perm('ref.change_component_instance'):
         deleted = ComponentInstance.objects.filter(environments__id=envt_id, deleted=True).\
                     select_related('description').\
                     order_by('description__name', 'id')
-    
+
     sec = (False,)
     if not envt.protected or (request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance')):
         sec = (True, False)
-        
+
     cis = ComponentInstance.objects.filter(environments__id=envt_id, deleted=False).\
                     select_related('description').\
                     select_related('instanciates__implements__application').\
@@ -50,11 +50,11 @@ def shared_ci(request):
         deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True).\
                     select_related('description').\
                     order_by('description__name', 'id')
-    
+
     sec = (False,)
     if request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'):
         sec = (True, False)
-        
+
     cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=False).\
                     select_related('description').\
                     prefetch_related('environments').\

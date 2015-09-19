@@ -13,14 +13,18 @@ from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
 
+## MAGE imports
+from ref.models.classifier import AdministrationUnit
+
 
 ################################################################################
 ## Main notion: the environment
-################################################################################
+################################################################################=
 
 class EnvironmentManagerStd(models.Manager):
     def get_queryset(self):
         return super(EnvironmentManagerStd, self).get_queryset().filter(template_only=False, active=True)
+
 
 class Environment(models.Model):
     """ 
@@ -31,11 +35,13 @@ class Environment(models.Model):
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
-    project = models.ForeignKey('Project')
+    project = models.ForeignKey(AdministrationUnit)
     typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie')
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
-    show_sensitive_data = models.NullBooleanField(verbose_name="afficher les informations sensibles", null=True, blank=True, choices=((None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
+    show_sensitive_data = models.NullBooleanField(verbose_name="afficher les informations sensibles", null=True,
+                                                  blank=True, choices=(
+            (None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
     managed = models.BooleanField(default=True, verbose_name=u'administré')
 
     def __protected(self):
@@ -45,6 +51,7 @@ class Environment(models.Model):
             return not self.typology.default_show_sensitive_data
         else:
             return True
+
     protected = property(__protected)
 
     def __unicode__(self):
@@ -59,6 +66,7 @@ class Environment(models.Model):
     class Meta:
         verbose_name = 'environnement'
         verbose_name_plural = 'environnements'
+
 
 @receiver(pre_save, sender=Environment)
 def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
@@ -78,16 +86,19 @@ def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
 
 class RichManager(models.Manager):
     """ Standard manager with a few helper methods"""
+
     def get_or_none(self, *args, **kwargs):
         try:
             return self.get(*args, **kwargs)
         except self.model.DoesNotExist:
             return None
 
+
 class ComponentInstanceRelation(models.Model):
     source = models.ForeignKey('ComponentInstance', related_name='rel_target_set', verbose_name='instance source')
     target = models.ForeignKey('ComponentInstance', related_name='rel_targeted_by_set', verbose_name='instance cible')
-    field = models.ForeignKey('ImplementationRelationDescription', verbose_name=u'champ implémenté', related_name='field_set')
+    field = models.ForeignKey('ImplementationRelationDescription', verbose_name=u'champ implémenté',
+                              related_name='field_set')
 
     class Meta:
         verbose_name = u'valeur de relation'
@@ -95,6 +106,7 @@ class ComponentInstanceRelation(models.Model):
 
     def __unicode__(self):
         return 'valeur de %s' % self.field.name
+
 
 class ComponentInstanceField(models.Model):
     objects = RichManager()
@@ -110,30 +122,38 @@ class ComponentInstanceField(models.Model):
     def __unicode__(self):
         return 'valeur de %s' % self.field.name
 
+
 class ComponentInstance(models.Model):
     """Instances! Usually used through its proxy object"""
 
     ## Base data for all components
-    instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
-    description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation')
+    instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True,
+                                     verbose_name=u'implémentation de ', related_name='instances')
+    description = models.ForeignKey('ImplementationDescription', related_name='instance_set',
+                                    verbose_name=u'décrit par l\'implémentation')
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
 
     ## Environments
-    environments = models.ManyToManyField(Environment, blank=True, verbose_name='environnements ', related_name='component_instances')
+    environments = models.ManyToManyField(Environment, blank=True, verbose_name='environnements ',
+                                          related_name='component_instances')
+    project = models.ForeignKey(AdministrationUnit, null=True, blank=True, verbose_name='si hors environnement classer dans')
 
     ## Connections
-    #TODO: symmetrical
-    relationships = models.ManyToManyField('self', verbose_name='relations', through=ComponentInstanceRelation, symmetrical=False, related_name='reverse_relationships')
+    # TODO: symmetrical
+    relationships = models.ManyToManyField('self', verbose_name='relations', through=ComponentInstanceRelation,
+                                           symmetrical=False, related_name='reverse_relationships')
 
     ## Proxy object for easier handling
     __proxy = None
+
     def build_proxy(self, force=False):
         if self.description_id is None:
             return
         if self.__proxy is None or force:
             self.__proxy = self.description.proxy_class()(base_instance=self)
         return self.__proxy
+
     proxy = property(build_proxy)
 
     ## First environment (helper)
@@ -141,6 +161,7 @@ class ComponentInstance(models.Model):
         if self.environments.count() > 0:
             return self.environments.all()[0]
         return None
+
     first_environment.short_description = u'notamment dans'
     first_environment.admin_order_field = 'environments__name'
 
@@ -148,6 +169,7 @@ class ComponentInstance(models.Model):
         if not self.environments or self.environments.count() == 0:
             return ""
         return ','.join([e.name for e in self.environments.all()])
+
     environments_str = property(_environments_str)
 
     ## Pretty print
@@ -156,11 +178,13 @@ class ComponentInstance(models.Model):
             return '%s' % self.description.resolve_self_description(self)
         else:
             return '%s' % self.pk
+
     name = property(__unicode__)
 
     ## Pretty admin deleted field
     def active(self):
         return not self.deleted
+
     active.admin_order_field = 'deleted'
     active.boolean = True
 
@@ -200,6 +224,7 @@ class ExtendedParameterDict(DictMixin):
     def values(self):
         return self.instance.parameter_set.values_list('value', flat=True)
 
+
 class ExtendedParameter(models.Model):
     key = models.CharField(max_length=50, verbose_name='clef')
     value = models.CharField(max_length=100, verbose_name='valeur')
@@ -211,4 +236,3 @@ class ExtendedParameter(models.Model):
     class Meta:
         verbose_name = u'paramètre étendu'
         verbose_name_plural = u'paramètres étendus'
-

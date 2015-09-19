@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load filter %}
+{% block pagetitle %}Edition ACL{% endblock %}
+{% block maintitle %}{{ folder | folder_crumbs }} : Permissions{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+    <script type="text/javascript">
+        $.postJSON = function (url, data, callback, errorcallback) {
+            return jQuery.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                'type': 'POST',
+                'url': url,
+                'data': JSON.stringify(data),
+                'dataType': 'json',
+                'success': callback,
+                'error': errorcallback
+            });
+        };
+
+        $(function () {
+                    var acl = {{ acl | safe }};
+                    var perms = {{ perms | safe }};
+                    var groups = {{ groups | safe }};
+
+                    var grlist = $("#groups");
+                    $.each(acl, function (key, value) {
+                        grlist.append($("<option value='" + key + "'>" + key + "</option>"));
+                    });
+
+                    var acelist = $("#ace");
+                    $.each(perms, function (value) {
+                        acelist.append($("<div><input id='" + this[0] + "' type='checkbox' value='" + this[0] + "'> <label for='" + this[0] + "'> " + this[1] + "</label></div>"));
+                    });
+
+                    var newgrouplist = $("#grouplist");
+                    $.each(groups, function (key, value) {
+                        newgrouplist.append($("<option value='" + key + "'>" + value + "</option>"));
+                    });
+
+                    grlist.change(function () {
+                        $("#form input").prop("disabled", false);
+                        var group_name = grlist.val();
+                        $("input[type='checkbox']").prop("checked", false);
+                        $.each(acl[group_name], function () {
+                            $("input[value=" + this + "]").prop("checked", true);
+                        });
+                    });
+
+                    $("div#ace").on("change", "input[type='checkbox']", function () {
+                        var group_name = grlist.val();
+                        var aces = acl[group_name];
+                        var perm = $(this).val();
+                        if (!$(this).prop("checked")) {
+                            aces.splice(aces.indexOf(perm), 1);
+                        }
+                        else {
+                            aces.push(perm);
+                        }
+                    });
+
+                    $("input#remove").click(function () {
+                        var group_name = grlist.val();
+                        $("option[value='" + group_name + "']").remove();
+                        delete acl[group_name];
+                        $("#form input").prop("disabled", true);
+                    });
+
+                    $("button#add").click(function () {
+                        var group_name = groups[newgrouplist.val()];
+                        if (grlist.find("option[value='" + group_name + "']").size() != 0) {
+                            return;
+                        }
+                        acl[group_name] = ['read_folder', 'list_envt', 'list_folders', 'read_envt']
+                        grlist.append($("<option value='" + group_name + "'>" + group_name + "</option>"));
+                        grlist.val(group_name).trigger('change');
+
+                    });
+
+                    $("button#save").click(function () {
+                        $.postJSON("{% url 'ref:set_acl' folder_id=folder.id %}", acl, function (data) {
+                        }, null);
+                    });
+
+                    $("#form input").prop("disabled", true);
+                }
+        );
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="form">
+        <div>
+            <select id="groups" size="10" style="min-width: 15em;"></select>
+        </div>
+        <div>
+            <input type="button" id="remove" value="Supprimer le groupe sélectionné de la liste">
+        </div>
+        <div>
+            <select id="grouplist"></select>
+            <button type="button" id="add">Ajouter ce groupe à la liste</button>
+        </div>
+        <button type="button" id="save">Enregistrer</button>
+        <div id="ace"></div>
+    </div>
+{% endblock %}

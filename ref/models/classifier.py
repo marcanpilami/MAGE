@@ -5,16 +5,20 @@
 from django.db import models
 
 
-class Project(models.Model):
+class AdministrationUnit(models.Model):
     """ 
-        referential objects may optionally be classified inside projects, defined by a code name
-        and containing a description
+        referential objects may optionally be classified inside these, defined by a code name
+        and containing a description.
+        Basically, this is a folder. ACL are defined on these folders.
+        A top level unit (one with parent = null) is also called a project.
     """
     name = models.CharField(max_length=100, unique=True)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
+    parent = models.ForeignKey('AdministrationUnit', null=True, blank=True, related_name='subfolders')
+    block_inheritance = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = u'projet'
@@ -23,16 +27,18 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Application(models.Model):
     name = models.CharField(max_length=100, unique=True)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
-    project = models.ForeignKey(Project, null=True, blank=True, related_name='applications')
+    project = models.ForeignKey(AdministrationUnit, related_name='applications')
 
     def __unicode__(self):
         return self.name
+
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
@@ -45,7 +51,8 @@ class EnvironmentType(models.Model):
     default_show_sensitive_data = models.BooleanField(default=False, verbose_name="afficher les informations sensibles")
 
     def __get_cic_list(self):
-        return ','.join([ i.name for i in self.implementation_patterns.all()])
+        return ','.join([i.name for i in self.implementation_patterns.all()])
+
     cic_list = property(__get_cic_list)
 
     def __unicode__(self):

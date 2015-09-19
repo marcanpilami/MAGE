@@ -171,6 +171,8 @@ CACHES = {
     }
 }
 
+AUTHENTICATION_BACKENDS = ('ref.models.acl.InternalAuthBackend',)
+
 LOCAL_APPS = ()
 try:
     from MAGE.local_settings import *

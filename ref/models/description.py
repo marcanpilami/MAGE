@@ -6,7 +6,8 @@ from django.db import models
 
 ## MAGE imports
 from ref import naming_language
-from ref.models import ComponentInstanceRelation, ComponentInstance, ComponentImplementationClass, Environment, ExtendedParameterDict, ComponentInstanceField
+from ref.models import ComponentInstanceRelation, ComponentInstance, ComponentImplementationClass, Environment, \
+    ExtendedParameterDict, ComponentInstanceField, AdministrationUnit
 
 
 ################################################################################
@@ -15,7 +16,7 @@ from ref.models import ComponentInstanceRelation, ComponentInstance, ComponentIm
 
 class ConventionCounter(models.Model):
     scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None)
-    scope_project = models.ForeignKey('Project', blank=True, null=True, default=None)
+    scope_project = models.ForeignKey(AdministrationUnit, blank=True, null=True, default=None)
     scope_application = models.ForeignKey('Application', blank=True, null=True, default=None)
     scope_type = models.ForeignKey('ImplementationDescription', blank=True, null=True, default=None)
     scope_instance = models.IntegerField(blank=True, null=True, default=None)
@@ -41,28 +42,35 @@ class ImplementationRelationType(models.Model):
         verbose_name = 'classification des relations'
         verbose_name_plural = 'classifications des relations'
 
+
 class ImplementationFieldBase(models.Model):
     name = models.CharField(max_length=100, verbose_name='nom court du champ')
     label = models.CharField(max_length=150, verbose_name='label')
-    label_short = models.CharField(max_length=30, verbose_name='label court', help_text=u'si vide, label sera utilisé', null=True, blank=True)
+    label_short = models.CharField(max_length=30, verbose_name='label court', help_text=u'si vide, label sera utilisé',
+                                   null=True, blank=True)
     help_text = models.CharField(max_length=254, verbose_name='aide descriptive du champ', null=True, blank=True)
     sensitive = models.BooleanField(default=False, verbose_name='sensible')
 
     def __short_label(self):
         return self.label_short or self.label
+
     short_label = property(__short_label)
 
     class Meta:
         abstract = True
 
+
 class ImplementationFieldDescription(ImplementationFieldBase):
     """ The description of a standard (i.e. that must be completed by the user) field inside a technical implementation """
     compulsory = models.BooleanField(default=True)
     default = models.CharField(max_length=500, verbose_name='défaut', null=True, blank=True)
-    datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier'), ('bool', 'booléen')), verbose_name=u'type')
+    datatype = models.CharField(max_length=20, default='str',
+                                choices=(('str', 'chaîne de caractères'), ('int', 'entier'), ('bool', 'booléen')),
+                                verbose_name=u'type')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
+    description = models.ForeignKey('ImplementationDescription', related_name='field_set',
+                                    verbose_name=u'implémentation mère')
 
     def __unicode__(self):
         return '%s (%s)' % (self.name, self.description.name)
@@ -72,12 +80,14 @@ class ImplementationFieldDescription(ImplementationFieldBase):
         verbose_name_plural = u'champs simples'
         unique_together = (('name', 'description'),)
 
+
 class ImplementationComputedFieldDescription(ImplementationFieldBase):
     """ The description of a calculated field inside a technical implementation """
     pattern = models.CharField(max_length=500, verbose_name='chaîne de calcul')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
+    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère',
+                                    related_name='computed_field_set')
 
     def __unicode__(self):
         return '%s' % (self.name)
@@ -90,9 +100,11 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
         verbose_name_plural = u'champs calculés'
         unique_together = (('name', 'description'),)
 
+
 class ImplementationRelationDescription(ImplementationFieldBase):
     source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source')
-    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible')
+    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set',
+                               verbose_name=u'type cible')
     min_cardinality = models.IntegerField(default=0)
     max_cardinality = models.IntegerField(blank=True, null=True)
     link_type = models.ForeignKey(ImplementationRelationType)
@@ -105,15 +117,21 @@ class ImplementationRelationDescription(ImplementationFieldBase):
         verbose_name_plural = u'relations'
         unique_together = (('name', 'source'),)
 
+
 _classes = {}
+
+
 class ImplementationDescription(models.Model):
     """ The description of a technical implementation """
     name = models.CharField(max_length=100, verbose_name='nom', db_index=True)
     description = models.CharField(max_length=500, verbose_name='description')
     tag = models.CharField(max_length=100, verbose_name=u'catégorie', null=True, blank=True, db_index=True)
     relationships = models.ManyToManyField('ImplementationDescription', through=ImplementationRelationDescription)
-    include_in_default_envt_backup = models.BooleanField(default=False, verbose_name=u'inclure dans les backups par défaut')
-    self_description_pattern = models.CharField(max_length=500, verbose_name='motif d\'auto description', help_text=u'sera utilisé pour toutes les descriptions par défaut des instances de composant. Utilise les même motifs (patterns) que les champs dynamiques.')
+    include_in_default_envt_backup = models.BooleanField(default=False,
+                                                         verbose_name=u'inclure dans les backups par défaut')
+    self_description_pattern = models.CharField(max_length=500, verbose_name='motif d\'auto description',
+                                                help_text=u'sera utilisé pour toutes les descriptions par défaut des instances de composant. Utilise les même motifs (patterns) que les champs dynamiques.')
+    project = models.ForeignKey(AdministrationUnit, verbose_name='projet', related_name='descriptions')
 
     def __unicode__(self):
         return self.name
@@ -129,32 +147,36 @@ class ImplementationDescription(models.Model):
         try:
             return _classes[self.name]
         except:
-            #TODO: datatype!
-            attrs = {'__init__': _proxyinit, 'save': lambda slf: slf._instance.save(), 'get' : lambda slf, attr, x : getattr(slf, attr)}
+            # TODO: datatype!
+            attrs = {'__init__': _proxyinit, 'save': lambda slf: slf._instance.save(),
+                     'get': lambda slf, attr, x: getattr(slf, attr)}
 
             ## Standard fields
             for field in self.field_set.all():
-                getter = lambda slf, field_id = field.id: _proxy_simple_accessor(slf, field_id)
-                setter = lambda slf, value, lfield = field: ComponentInstanceField.objects.update_or_create(defaults={'value': value} , field=lfield, instance=slf._instance)
+                getter = lambda slf, field_id=field.id: _proxy_simple_accessor(slf, field_id)
+                setter = lambda slf, value, lfield=field: ComponentInstanceField.objects.update_or_create(
+                    defaults={'value': value}, field=lfield, instance=slf._instance)
                 attrs[field.name] = property(fget=getter, fset=setter, doc=field.label)
 
             ## Self to others relationships
             for field in self.target_set.all():
                 if not field.max_cardinality or field.max_cardinality > 1:
                     ## In this case, list manipulation through a proxy object
-                    getter = lambda slf, field = field: ProxyRelSequence(proxy=slf, rel_descr=field)
+                    getter = lambda slf, field=field: ProxyRelSequence(proxy=slf, rel_descr=field)
                 else:
                     ## Direct get/set on a field
-                    getter = lambda slf, field_id = field.id: _proxy_single_rel_accessor(slf, field_id)
-                    setter = lambda slf, value, field_id = field.id:  ComponentInstanceRelation.objects.update_or_create(defaults={'target': value._instance if not isinstance(value, ComponentInstance) else value}, source=slf._instance, field_id=field_id)
+                    getter = lambda slf, field_id=field.id: _proxy_single_rel_accessor(slf, field_id)
+                    setter = lambda slf, value, field_id=field.id: ComponentInstanceRelation.objects.update_or_create(
+                        defaults={'target': value._instance if not isinstance(value, ComponentInstance) else value},
+                        source=slf._instance, field_id=field_id)
                 attrs[field.name] = property(fget=getter, fset=setter, doc=field.label)
 
             ## Other to self relationships
-            #...
+            # ...
 
             ## Computed fields (read only)
             for field in self.computed_field_set.all():
-                getter = lambda slf, pfield = field: pfield.resolve(slf)
+                getter = lambda slf, pfield=field: pfield.resolve(slf)
                 attrs[field.name] = property(fget=getter, doc=field.label)
 
             ## Create the class
@@ -174,30 +196,43 @@ class ImplementationDescription(models.Model):
         return descr.proxy_class()
 
     @staticmethod
-    def create_or_update(name, description, self_description_pattern, tag=None, include_in_default_envt_backup=False):
+    def create_or_update(name, description, self_description_pattern, project, tag=None,
+                         include_in_default_envt_backup=False):
         try:
             idn = ImplementationDescription.objects.get(name=name)
             idn.description = description
             idn.self_description_pattern = self_description_pattern
             idn.tag = tag
             idn.include_in_default_envt_backup = include_in_default_envt_backup
+            idn.project = project
             idn.save()
             return idn
         except:
-            idn = ImplementationDescription(name=name, description=description, self_description_pattern=self_description_pattern, tag=tag, include_in_default_envt_backup=include_in_default_envt_backup)
+            idn = ImplementationDescription(name=name, description=description,
+                                            self_description_pattern=self_description_pattern, tag=tag,
+                                            include_in_default_envt_backup=include_in_default_envt_backup,
+                                            project=project)
             idn.save()
             return idn
 
-    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0):
-        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, description=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
+    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True,
+                         sensitive=False, datatype='str', widget_row=0):
+        self.field_set.add(
+            ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype,
+                                           default=default, description=self, label_short=label_short,
+                                           help_text=help_text, compulsory=compulsory, widget_row=widget_row))
         return self
 
     def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0):
-        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row))
+        self.computed_field_set.add(
+            ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive,
+                                                   description=self, widget_row=widget_row))
         return self
 
     def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1):
-        self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target, min_cardinality=min_cardinality, max_cardinality=max_cardinality, link_type=link_type))
+        self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target,
+                                                              min_cardinality=min_cardinality,
+                                                              max_cardinality=max_cardinality, link_type=link_type))
         return self
 
     def field_count(self):
@@ -223,7 +258,9 @@ class ProxyRelSequence:
         self.rel_descr = rel_descr
 
     def __djangoseq__(self):
-        return [i.target for i in ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance, field=self.rel_descr).order_by('id')]
+        return [i.target for i in
+                ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance,
+                                                                                  field=self.rel_descr).order_by('id')]
 
     def __delitem__(self, key):
         ''' for deletion of self[key]'''
@@ -245,14 +282,21 @@ class ProxyRelSequence:
         return other_seq.proxy._instance._id == self.proxy._instance.id and self.rel_descr.id == other_seq.rel_descr.id
 
     def __contains__(self, instance):
-        return ComponentInstanceRelation.objects.filter(source=self.proxy._instance, target=instance if isinstance(instance, ComponentInstance) else instance._instance, field=self.rel_descr).count() > 0
+        return ComponentInstanceRelation.objects.filter(source=self.proxy._instance,
+                                                        target=instance if isinstance(instance,
+                                                                                      ComponentInstance) else instance._instance,
+                                                        field=self.rel_descr).count() > 0
 
     def append(self, target_instance):
-        r = ComponentInstanceRelation(source=self.proxy._instance, target=target_instance if isinstance(target_instance, ComponentInstance) else target_instance._instance, field=self.rel_descr)
+        r = ComponentInstanceRelation(source=self.proxy._instance, target=target_instance if isinstance(target_instance,
+                                                                                                        ComponentInstance) else target_instance._instance,
+                                      field=self.rel_descr)
         r.save()
 
     def count(self, instance):
-        return ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance, target=instance, field=self.rel_descr).count()
+        return ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance,
+                                                                                 target=instance,
+                                                                                 field=self.rel_descr).count()
 
     def index(self, instance):
         return self.__djangoseq__().index(instance if isinstance(instance, ComponentInstance) else instance._instance)
@@ -264,13 +308,18 @@ class ProxyRelSequence:
     def pop(self, i=None):
         if not i:
             i = self.__len__() - 1
-        rel_instance = ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance, field=self.rel_descr).order_by('id')[i]
+        rel_instance = ComponentInstanceRelation.objects.select_related('target').filter(source=self.proxy._instance,
+                                                                                         field=self.rel_descr).order_by(
+            'id')[i]
         item = rel_instance.target
         rel_instance.delete()
         return item
 
     def remove(self, target_instance):
-        ComponentInstanceRelation.objects.filter(source=self.proxy._instance, target=target_instance if isinstance(target_instance, ComponentInstance) else target_instance._instance, field=self.rel_descr).delete()
+        ComponentInstanceRelation.objects.filter(source=self.proxy._instance,
+                                                 target=target_instance if isinstance(target_instance,
+                                                                                      ComponentInstance) else target_instance._instance,
+                                                 field=self.rel_descr).delete()
 
 
 def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, **kwargs):
@@ -317,11 +366,13 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
     ## helper accessor to extended parameters
     self.extended_parameters = ExtendedParameterDict(self._instance)
 
+
 def _proxy_single_rel_accessor(instance, field_id):
     try:
         return instance._instance.rel_target_set.select_related('target__description').get(field_id=field_id).target
     except ComponentInstanceRelation.DoesNotExist:
         return None
+
 
 def _proxy_simple_accessor(proxy, field_id):
     try:

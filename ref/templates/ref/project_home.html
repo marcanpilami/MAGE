@@ -1,17 +1,36 @@
 {% extends "base.html" %}
-{% block pagetitle %}Accueil{% endblock %}
-{% block maintitle %}Accueil {{ project.name }}{% endblock %}
-{% load get_item from filter %}
+{% load get_item folder_crumbs from filter %}
 {% load cache %}
+
+{% block pagetitle %}Accueil{% endblock %}
+{% block maintitle %}{{ project | folder_crumbs }}{% endblock %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
 {% endblock %}
 
+{%block frequentActionsButtons%}
+<a href='{% url "ref:set_acl" folder_id=project.id %}' title="Editer les habilitations">P</a>
+{%  endblock %}
+
 {% block content %}
 {% cache 60 project_home_cache project.id %}
 <div style='color: white;' class='row'>
-<div class='col-sm-5'>
+
+{%  if project.subfolders.count > 0 %}
+<div class='col-sm-2'>
+    <div style='color: white;' class='row'>
+		<div class='t2' style='color: black;'>Sous répertoires</div>
+	</div>
+    <div style='color: white;' class='row'>
+        {%  for folder in project.subfolders.all %}
+            <a class='metSquare homeCoulour2' href="{% url 'ref:project_home' folder.id %}">{{folder.name}}<div class='metSquareLong annotation'>{{folder.description}}</div></a>
+        {% endfor %}
+    </div>
+</div>
+{%  endif %}
+
+<div class='col-sm-{%  if project.subfolders.count > 0 %}3{%  else %}5{% endif %}'>
 	<div style='color: white;' class='row'>
 		<div class='t2' style='color: black;'>Les environnements</div>
 	</div>
@@ -28,6 +47,7 @@
 		</div>
 	</div>
 </div>
+
 <div class='col-sm-3'>
 	<div style='color: white;' class='row'>
 		<div class='t2' style='color: black;'>Gestion de configuration</div>

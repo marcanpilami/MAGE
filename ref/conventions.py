@@ -10,7 +10,7 @@ from django.utils.timezone import now
 
 ## MAGE imports
 from MAGE.exceptions import MageError
-from ref.models import ConventionCounter, Environment, ComponentInstanceField, Project, ImplementationFieldDescription
+from ref.models import ConventionCounter, Environment, ComponentInstanceField
 import re
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save

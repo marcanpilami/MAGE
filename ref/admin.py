@@ -12,12 +12,10 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
 ## MAGE imports
-from ref.models import Project, Environment, LogicalComponent, Application, SLA, \
-    ComponentImplementationClass, ConventionCounter, ExtendedParameter, \
-    EnvironmentType, ImplementationFieldDescription, ImplementationDescription, \
-    ImplementationRelationDescription, ImplementationRelationType, \
-    ImplementationComputedFieldDescription, ComponentInstanceField, \
-    ComponentInstanceRelation
+from ref.models import AdministrationUnit, Environment, LogicalComponent, Application, SLA, \
+    ComponentImplementationClass, ConventionCounter, ExtendedParameter, EnvironmentType, ImplementationFieldDescription, \
+    ImplementationDescription, ImplementationRelationDescription, ImplementationRelationType, \
+    ImplementationComputedFieldDescription, ComponentInstanceField, ComponentInstanceRelation
 from ref.models.parameters import MageParam
 from ref.models.com import Link
 
@@ -42,8 +40,9 @@ site.register(User, UserAdmin)
 class MageParamAdmin(ModelAdmin):
     list_display = ['app', 'key', 'value', 'model', 'axis1', 'description', ]
     search_fields = ['app', 'key', 'value', 'axis1', ]
-    list_filter = ['app', ]  #'model',]
+    list_filter = ['app', ]  # 'model',]
     readonly_fields = ['default_value', ]
+
 
 site.register(MageParam, MageParamAdmin)
 
@@ -53,30 +52,35 @@ site.register(MageParam, MageParamAdmin)
 
 site.register(SLA)
 
+
 class EnvironmentAdmin(ModelAdmin):
-    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only', 'active', 'managed', 'show_sensitive_data' ]
+    fields = ['typology', 'name', 'description', 'project', 'buildDate', 'destructionDate', 'manager', 'template_only',
+              'active', 'managed', 'show_sensitive_data']
     list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
     list_filter = ['template_only', 'managed', 'typology', 'project']
     search_fields = ('name',)
 
-
     def has_delete_permission(self, request, obj=None):
         return False
+
     def get_actions(self, request):
         actions = super(EnvironmentAdmin, self).get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
 
+
 site.register(Environment, EnvironmentAdmin)
+
 
 class EnvironmentTypeAdmin(ModelAdmin):
     list_display = ('name', 'short_name', 'description', 'chronological_order',)
     ordering = ('chronological_order', 'name')
     filter_horizontal = ('implementation_patterns',)
     search_fields = ('name', 'short_name')
+
 
 site.register(EnvironmentType, EnvironmentTypeAdmin)
 
@@ -85,21 +89,32 @@ class LogicalComponentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'application', 'ref1', 'ref2', 'ref3')
     ordering = ('application', 'name')
     list_filter = ('application', 'active', 'scm_trackable')
+
+
 site.register(LogicalComponent, LogicalComponentAdmin)
+
 
 class ApplicationAdmin(ModelAdmin):
     list_display = ('name', 'description', 'project', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
     ordering = ('name',)
     list_filter = ('project',)
+
+
 site.register(Application, ApplicationAdmin)
 
-class ProjectAdmin(ModelAdmin):
-    list_display = ('name', 'description', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
+
+class AdministrationUnitAdmin(ModelAdmin):
+    list_display = ('name', 'description', 'parent', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
     ordering = ('name',)
-site.register(Project, ProjectAdmin)
+
+
+site.register(AdministrationUnit, AdministrationUnitAdmin)
+
 
 class LinkAdmin(ModelAdmin):
     list_display = ('url', 'legend')
+
+
 site.register(Link, LinkAdmin)
 
 
@@ -111,31 +126,41 @@ class CICAdmin(ModelAdmin):
     list_display = ('name', 'implements', 'technical_description', 'description', 'active')
     list_filter = ('active', 'implements__application', 'implements', 'description')
 
+
 site.register(ComponentImplementationClass, CICAdmin)
+
 
 class ImplementationRelationTypeAdmin(ModelAdmin):
     list_display = ('name', 'label')
+
+
 site.register(ImplementationRelationType, ImplementationRelationTypeAdmin)
+
 
 class ImplementationFieldDescriptionInline(TabularInline):
     model = ImplementationFieldDescription
     extra = 3
     can_delete = True
-    fields = ['name', 'datatype', 'default', 'label', 'compulsory', 'sensitive', 'widget_row' ]
+    fields = ['name', 'datatype', 'default', 'label', 'compulsory', 'sensitive', 'widget_row']
+
 
 class ImplementationRelationDescriptionInline(TabularInline):
     model = ImplementationRelationDescription
     extra = 1
     fk_name = "source"
 
+
 class ImplementationComputedFieldDescriptionInline(TabularInline):
     model = ImplementationComputedFieldDescription
     extra = 1
 
+
 class ImplementationDescriptionAdmin(ModelAdmin):
     list_display = ('name', 'description', 'tag')
     list_filter = ('tag',)
-    inlines = [ImplementationFieldDescriptionInline, ImplementationRelationDescriptionInline, ImplementationComputedFieldDescriptionInline]
+    inlines = [ImplementationFieldDescriptionInline, ImplementationRelationDescriptionInline,
+               ImplementationComputedFieldDescriptionInline]
+
 
 site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 
@@ -148,6 +173,7 @@ class ConventionCounterAdmin(ModelAdmin):
     list_filter = ('scope_project', 'scope_application', 'scope_environment', 'scope_type')
     list_display = ('scope_project', 'scope_application', 'scope_environment', 'scope_type', 'scope_instance', 'val')
 
+
 site.register(ConventionCounter, ConventionCounterAdmin)
 
 
@@ -158,19 +184,22 @@ site.register(ConventionCounter, ConventionCounterAdmin)
 class ExtendedParameterInline(TabularInline):
     model = ExtendedParameter
 
+
 class ComponentInstanceFieldAdmin(TabularInline):
     model = ComponentInstanceField
     fields = ['field', 'value', ]
+
 
 class ComponentInstanceRelationAdmin(TabularInline):
     model = ComponentInstanceRelation
     fields = ['field', 'target', ]
     fk_name = "source"
 
+
 class ComponentInstanceAdmin(ModelAdmin):
-    list_display = ['__unicode__', 'description', 'instanciates', 'active' ]
+    list_display = ['__unicode__', 'description', 'instanciates', 'active']
     list_filter = ('deleted', 'description', 'environments', 'description__tag', 'instanciates')
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
-#site.register(ComponentInstance, ComponentInstanceAdmin)
+# site.register(ComponentInstance, ComponentInstanceAdmin)

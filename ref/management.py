@@ -12,6 +12,7 @@ from django.db.models.signals import post_syncdb
 
 ## MAGE imports
 import models
+from ref.models.classifier import AdministrationUnit
 from ref.models.parameters import setOrCreateParam
 from ref.demo_items import utility_create_meta, utility_create_test_instances, \
     utility_create_logical, create_full_test_data
@@ -33,6 +34,10 @@ def post_syncdb_handler(sender, **kwargs):
              default_value='Liens utiles',
              description=u'titre du bloc de liens sur la page d\'accueil',
              axis1='welcome')
+
+    ## Root should exist
+    root = AdministrationUnit(name='root', description='the root container', block_inheritance=True)
+    root.save()
 
     ## DEBUG
     #create_full_test_data()
