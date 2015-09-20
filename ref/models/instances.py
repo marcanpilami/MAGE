@@ -35,12 +35,12 @@ class Environment(models.Model):
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
-    project = models.ForeignKey(AdministrationUnit)
+    project = models.ForeignKey(AdministrationUnit, verbose_name='dossier')
     typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie')
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
-    show_sensitive_data = models.NullBooleanField(verbose_name="afficher les informations sensibles", null=True,
-                                                  blank=True, choices=(
+    show_sensitive_data = models.NullBooleanField(verbose_name="toujours afficher les informations sensibles",
+                                                  null=True, blank=True, choices=(
             (None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
     managed = models.BooleanField(default=True, verbose_name=u'administré')
 
@@ -137,7 +137,8 @@ class ComponentInstance(models.Model):
     ## Environments
     environments = models.ManyToManyField(Environment, blank=True, verbose_name='environnements ',
                                           related_name='component_instances')
-    project = models.ForeignKey(AdministrationUnit, null=True, blank=True, verbose_name='si hors environnement classer dans')
+    project = models.ForeignKey(AdministrationUnit, null=True, blank=True,
+                                verbose_name='si hors environnement classer dans')
 
     ## Connections
     # TODO: symmetrical

@@ -27,6 +27,19 @@ class AdministrationUnit(models.Model):
     def __unicode__(self):
         return self.name
 
+    def scope(self, aus=None, level=0):
+        """
+        Naive tree distance calculation. Should be enough for our needs performance-wise.
+        """
+        if aus is None:
+            aus = AdministrationUnit.objects.all()
+        res = [self,]
+
+        for au in aus:
+            if au.parent_id == self.pk:
+                res += au.scope(aus, level + 1)
+        return res
+
 
 class Application(models.Model):
     name = models.CharField(max_length=100, unique=True)
