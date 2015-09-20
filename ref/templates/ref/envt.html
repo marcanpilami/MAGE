@@ -2,7 +2,7 @@
 {% load filter %}
 {% load staticfiles %}
 {% block pagetitle %}{{envt.name}}{% endblock %}
-{% block maintitle %}Environnement {{envt.name}}{% endblock %}
+{% block maintitle %}{{ envt.project | folder_crumbs }} > Environnement {{envt.name}}{% endblock %}
 
 {% block frequentActionsButtons %}
 {% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}

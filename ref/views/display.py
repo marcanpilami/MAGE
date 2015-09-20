@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.contrib.auth.views import redirect_to_login
 
 from django.shortcuts import render
 from django.db.models.query import Prefetch
@@ -16,6 +17,9 @@ def envt(request, envt_id):
                     select_related('typology').\
                     get(pk=envt_id)
 
+    if not request.user.has_perm('read_envt', envt):
+        return redirect_to_login(request.path)
+
     deleted = []
     if request.user.is_authenticated() and request.user.has_perm('ref.change_component_instance'):
         deleted = ComponentInstance.objects.filter(environments__id=envt_id, deleted=True).\
@@ -23,7 +27,7 @@ def envt(request, envt_id):
                     order_by('description__name', 'id')
 
     sec = (False,)
-    if not envt.protected or (request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance')):
+    if not envt.protected or (request.user.is_authenticated() and request.user.has_perm('read_envt_sensible', envt)):
         sec = (True, False)
 
     cis = ComponentInstance.objects.filter(environments__id=envt_id, deleted=False).\
