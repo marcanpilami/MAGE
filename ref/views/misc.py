@@ -65,10 +65,12 @@ def project_home(request, project_id):
 
 
 def home(request):
-    projects = [p for p in AdministrationUnit.objects.filter(parent__name='root').order_by('name') if request.user.has_perm('read_folder', p)]
-    if len(projects) == 1:
-        return project_home(request, projects[0])
-    return render(request, 'ref/projects_home_multiple.html', {'projects': projects})
+    root = AdministrationUnit.objects.prefetch_related('subfolders').get(name='root')
+    allowed_subfolders = [x for x in root.subfolders.all() if request.user.has_perm('read_folder', x)]
+    print allowed_subfolders
+    if len(allowed_subfolders) == 1:
+        return project_home(request, allowed_subfolders[0])
+    return render(request, 'ref/projects_home_multiple.html', {'root': root, 'subfolders': allowed_subfolders})
 
 
 ##############################################################################

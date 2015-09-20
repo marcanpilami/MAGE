@@ -2,16 +2,21 @@
 {% block pagetitle %}MAGE{% endblock %}
 {% block maintitle %}Accueil{% endblock %}
 
+{% block navigationButtons %}
+    <a href='{% url "admin:index" %}' title="Administration">A</a>
+{% endblock %}
 
-{%block navigationButtons%}
-<a href='{% url "admin:index" %}' title="Administration">A</a>
+{% block frequentActionsButtons %}
+    <a href='{% url "ref:set_acl" folder_id=root.id %}' title="Editer les habilitations">P</a>
 {% endblock %}
 
 {% block content %}
     <div class='t2' style='color: black;'>Accéder aux environnements de...</div>
-    <div  style='color: white;'>
-    {% for project in projects %}
-        <a class='metSquare' href="{% url 'ref:project_home' project.id %}">{{project.name}}<div class='metSquareLong annotation'>{{project.description}}</div></a>
-    {% endfor %}
+    <div style='color: white;'>
+        {% for folder in subfolders %}
+            <a class='metSquare' href="{% url 'ref:project_home' folder.id %}">{{ folder.name }}
+                <div class='metSquareLong annotation'>{{ folder.description }}</div>
+            </a>
+        {% endfor %}
     </div>
 {% endblock %}
