@@ -29,3 +29,10 @@ class TestTree(TestCase):
         children = AdministrationUnit.objects.get(name="C1").scope()
         children.sort(key=lambda x: x.name)
         self.assertEqual(["C1", "D1"], [x.name for x in children])
+
+    def test_superscope(self):
+        parents = AdministrationUnit.objects.get(name="B1").superscope()
+        self.assertEqual(["B1", "root"], [x.name for x in parents])
+
+        parents = AdministrationUnit.objects.get(name="D1").superscope()
+        self.assertEqual(["D1", "C1", "B1", "root"], [x.name for x in parents])

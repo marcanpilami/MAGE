@@ -30,14 +30,31 @@ class AdministrationUnit(models.Model):
     def scope(self, aus=None, level=0):
         """
         Naive tree distance calculation. Should be enough for our needs performance-wise.
+        Current node is included in the result.
         """
         if aus is None:
             aus = AdministrationUnit.objects.all()
-        res = [self,]
+        res = [self, ]
 
         for au in aus:
             if au.parent_id == self.pk:
                 res += au.scope(aus, level + 1)
+        return res
+
+    def superscope(self, aus=None):
+        """
+        Current node is included in the result.
+        """
+        if aus is None:
+            aus = AdministrationUnit.objects.all()
+        res = []
+        cur = self.pk
+        while cur:
+            for au in aus:
+                if au.pk == cur:
+                    res.append(au)
+                    cur = au.parent_id
+                    continue
         return res
 
 
