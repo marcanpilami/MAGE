@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from ref.models import ExtendedParameterDict
 from django.utils.safestring import mark_safe
+from ref.models.classifier import AdministrationUnit
 
 register = template.Library()
 
@@ -86,6 +87,8 @@ def get_item(dictionary, key):
 
 @register.filter
 def folder_crumbs(value):
+    if not isinstance(value, AdministrationUnit):
+        value = AdministrationUnit.objects.get(pk=value)
     parents = [value, ]
     p = value.parent
     while p is not None:

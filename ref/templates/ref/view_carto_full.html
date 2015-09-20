@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load folder_crumbs from filter %}
 
-{% block pagetitle %}GE{% endblock %}
-{% block maintitle %}Carte complète{% endblock %}
+{% block pagetitle %}Carte des environnements{% endblock %}
+{% block maintitle %}{% if scope_id %}{{ scope_id | folder_crumbs }} : {% endif %}Carte complète{% endblock %}
 {% block scripts %}
 <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
 <script type="text/javascript">
-function refresh_graph()
-{
-	
-}
-
 $(document).ready(function()
 {
 	$.ajax(
 	{
-		url : '{% url "ref:cartofulldata" "3" %}',
+        {%  if scope_id %}
+		url : '{% url "ref:cartoscopedata" scope_id "3" %}',
+        {%  else %}
+        url : '{% url "ref:cartofulldata" "3" %}',
+        {% endif %}
 		type : "GET",
 		dataType : "json",
 	}).done(function(json)
 	{
-		digraph = dagreD3.json.decode(json['nodes'], json['edges']);		
+		digraph = dagreD3.json.decode(json['nodes'], json['edges']);
 		var renderer = new dagreD3.Renderer();
 		renderer.run(digraph, d3.select("svg g"));
 	});

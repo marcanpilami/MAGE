@@ -5,12 +5,14 @@ import json
 
 ## Django imports
 from django import forms
+from django.contrib.auth.views import redirect_to_login
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response, render
 
 ## MAGE imports
 from ref.models import Environment, ImplementationDescription
 from ref.graph_mlg2 import getNetwork
+from ref.models.classifier import AdministrationUnit
 from ref.models.description import ImplementationRelationType
 from ref.models.instances import ComponentInstance
 from ref.graph_struct import getStructureTree
@@ -93,6 +95,11 @@ def carto_content_full(request, collapse_threshold=3):
     json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
+def carto_content_scope(request, scope_id, collapse_threshold=3):
+    response = HttpResponse(content_type='text/json; charset=utf-8')
+    json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False, environments__project_id=scope_id).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
+    return response
+
 def carto_description_content(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')
     json.dump(getStructureTree(), fp=response, ensure_ascii=False, indent=4)
@@ -103,6 +110,11 @@ def carto_description(request):
 
 def carto_full(request):
     return render_to_response('ref/view_carto_full.html')
+
+def carto_scope(request, scope_id):
+    if not request.user.has_perm('read_envt', AdministrationUnit.objects.get(pk=scope_id)):
+        return redirect_to_login(request.path)
+    return render_to_response('ref/view_carto_full.html', {'scope_id': scope_id})
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')

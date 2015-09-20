@@ -14,7 +14,7 @@ from ref.models.description import ImplementationFieldDescription, \
 
 def envt(request, envt_id):
     envt = Environment.objects.\
-                    select_related('typology').\
+                    select_related('typology').select_related('project').\
                     get(pk=envt_id)
 
     if not request.user.has_perm('read_envt', envt):
