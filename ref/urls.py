@@ -44,7 +44,7 @@ urlpatterns = patterns('',
 
     ## Misc
     url(r'urls', views.urls, name='urls'),
-    url(r'ci/backuped', views.backuped, name='backuped'),
+    url(r'ci/backuped/(?P<scope_id>\d+)$', views.backuped, name='backuped'),
     url(r'clearcache', views.clear_cache, name='clear_cache'),
 
     ## Referential debug/migration

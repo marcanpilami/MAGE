@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load get_item folder_crumbs from filter %}
 {% block pagetitle %}ref{% endblock %}
-{% block maintitle %}Instances de composant sauvegardées{% endblock %}
+{% block maintitle %}{{ folder | folder_crumbs  }} : Instances de composant sauvegardées{% endblock %}
 
 {% block content %}
 

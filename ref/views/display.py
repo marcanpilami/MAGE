@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.db.models.query import Prefetch
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from ref.models.classifier import AdministrationUnit
 
 from ref.models.instances import Environment, ComponentInstance, \
     ComponentInstanceField
@@ -40,12 +41,16 @@ def envt(request, envt_id):
 
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
 
-def backuped(request):
-    cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False).\
+def backuped(request, scope_id):
+    folder = AdministrationUnit.objects.get(pk = scope_id)
+    if not request.user.has_perm('read_envt', folder):
+        return redirect_to_login(request.path)
+
+    cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False, environments__project__in = folder.scope()).\
             select_related('instanciates__implements__application').\
             select_related('description').\
             prefetch_related('environments')
-    return render(request, 'ref/instance_backup.html', {'cis': cis})
+    return render(request, 'ref/instance_backup.html', {'cis': cis, 'folder': folder})
 
 
 def shared_ci(request):

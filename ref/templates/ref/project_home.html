@@ -38,7 +38,7 @@
 		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' %}">Carte interactive</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' project.pk %}">Carte complète du répertoire</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' %}">Eléments sauvegardés</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project.pk %}">Eléments sauvegardés (dont sous répertoires)</a>
         <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' %}">Composants mutualisés</a>
 		<div>
 		{% for envt in envts %}
