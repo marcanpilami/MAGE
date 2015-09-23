@@ -174,6 +174,57 @@ function mage_run_query
     return $ok
 }
 
+function mage_run_csv_query
+{
+    typeset s tmpFile arg ok query u
+    u=0
+    OPTIND=1
+    while getopts "q:s:u?" arg
+    do
+        case $arg in
+            q) # query
+                query="$OPTARG"
+                ;;
+            s) # session token
+                s="$OPTARG"
+                ;;
+            u) # unique result
+                u=1;
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    done
+
+    tmpFile="/tmp/tmpQuery_$$_$RANDOM"
+    mage_query -q "ref/mql/csv/${query}" -s $s | tail -n +2 >$tmpFile
+    ok=$?
+
+    if [[ $ok -ne 0 ]]
+    then
+        cat $tmpFile >&2
+        rm -f $tmpFile
+        return $ok
+    fi
+    
+    result_count=$(cat $tmpFile | wc -l)
+
+    if [[ ${result_count} -eq 0 ]] && [[ $u -eq 1 ]]
+    then    
+        echo "ERROR query awaited a single result but there were none returned" >&2
+        return 3
+    elif [[ ${result_count} -gt 1 ]] && [[ $u -eq 1 ]]
+    then
+        echo "ERROR query awaited a single result but there were more" >&2
+        return 4
+    fi
+    
+    cat $tmpFile
+    rm -f $tmpFile  
+    return $ok
+}
+
 function mage_get_result
 {
     typeset i l a f o arg
