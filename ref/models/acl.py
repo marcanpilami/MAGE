@@ -44,6 +44,8 @@ class InternalAuthBackend(ModelBackend):
     def has_perm(self, user_obj, perm, obj=None):
         if not user_obj.is_active:
             return False
+        if user_obj.is_superuser:
+            return True
 
         if obj:
             if isinstance(obj, Environment):
