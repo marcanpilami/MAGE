@@ -1,5 +1,7 @@
+from django.contrib.auth.models import Group, User
 from django.test.testcases import TestCase
-from ref.models.classifier import AdministrationUnit
+from ref.models.acl import AclAuthorization
+from ref.models.classifier import AdministrationUnit, PERMISSIONS
 
 
 class TestTree(TestCase):
@@ -16,6 +18,13 @@ class TestTree(TestCase):
 
         d1 = AdministrationUnit(name='D1', description='D1', parent=c1)
         d1.save()
+
+        g1 = Group(name='g1')
+        g1.save()
+        AclAuthorization(target=root, codename='read_folder', group=g1).save()
+
+        a = User.objects.create_superuser('a', 'a@o.fr', 'a')
+        a.groups.add(g1)
 
     def test_scope(self):
         children = AdministrationUnit.objects.get(name="B1").scope()
@@ -36,3 +45,26 @@ class TestTree(TestCase):
 
         parents = AdministrationUnit.objects.get(name="D1").superscope()
         self.assertEqual(["D1", "C1", "B1", "root"], [x.name for x in parents])
+
+    def test_acl_bygroup(self):
+        acl = AdministrationUnit.objects.get(name="D1").get_acl()
+
+        expected = {}
+        for perm in PERMISSIONS:
+            expected[perm[0]] = []
+        expected['read_folder'] = [Group.objects.get(name='g1').id, ]
+
+        self.assertEqual(expected, acl)
+
+        with self.assertNumQueries(2):
+            AdministrationUnit.objects.get(name="D1").get_acl()
+            AdministrationUnit.objects.get(name="root").get_acl()
+
+        # Invalidate the root folder => cache should be refreshed
+        AclAuthorization(target=AdministrationUnit.objects.get(name="root"), codename='modify_folder',
+                         group=Group.objects.get(name='g1')).save()
+        with self.assertNumQueries(8):
+            AdministrationUnit.objects.get(name="D1").get_acl()
+
+        with self.assertNumQueries(1):
+            AdministrationUnit.objects.get(name="B1").get_acl()

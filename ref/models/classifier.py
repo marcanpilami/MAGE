@@ -1,8 +1,25 @@
 # coding: utf-8
 """ models structuring the others: applicaion, project... """
 
-## Django imports
+# Django imports
 from django.db import models
+from django.core.cache import cache
+
+PERMISSIONS = (
+    ('read_folder', 'Afficher les caractéristiques du dossier'),
+    ('modify_folder', 'Modifier les caractéristiques du dossier'),
+    ('list_envt', 'Afficher la liste des environnements contenus'),
+    ('list_folders', 'Afficher la liste des sous dossiers contenus'),
+    ('add_envt', 'Créer un environnement'),
+    ('delete_envt', 'Supprimer un environnement'),
+    ('add_folder', 'Ajouter un sous dossier'),
+    ('delete_folder', 'Supprimer un sous-dossier vide'),
+    ('read_envt', 'Afficher le détail des environnements (sauf informations sensibles)'),
+    ('read_envt_sensible', 'Afficher les information sensibles des environnements'),
+    ('change_envt', 'Modifier un environnement (sauf informations sensibles)'),
+    ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'),
+    ('change_permissions', 'Modifier les habilitations')
+)
 
 
 class AdministrationUnit(models.Model):
@@ -56,6 +73,28 @@ class AdministrationUnit(models.Model):
                     cur = au.parent_id
                     continue
         return res
+
+    def get_acl(self):
+        # Cache
+        cache_key = "acl_folder_%s" % self.pk
+        a = cache.get(cache_key)
+        if a:
+            return a
+
+        # Parents?
+        if not self.block_inheritance and self.parent_id:
+            acl = self.parent.get_acl()
+        else:
+            acl = {}
+            for perm in PERMISSIONS:
+                acl[perm[0]] = []
+
+        # Local ACE
+        for ace in self.acl.all():
+            acl[ace.codename].append(ace.group_id)
+
+        cache.set(cache_key, acl)
+        return acl
 
 
 class Application(models.Model):
