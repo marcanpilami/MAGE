@@ -48,14 +48,11 @@ class InternalAuthBackend(ModelBackend):
                 return ok
 
             if isinstance(obj, AdministrationUnit):
+                acl = obj.get_acl()
+
                 for group in user_obj.groups.all():
-                    try:
-                        ace = AclAuthorization.objects.get(codename=perm, grant=0, group=group, target=obj)
+                    if group.pk in acl[perm]:
                         return True
-                    except AclAuthorization.DoesNotExist:
-                        pass
-                if obj.parent is not None and not obj.block_inheritance:
-                    return self.has_perm(user_obj, perm, obj.parent)
 
             return False
 

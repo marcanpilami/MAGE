@@ -30,7 +30,7 @@ def project_home(request, project_id):
     if isinstance(project_id, AdministrationUnit):
         project = project_id  # optim with home wiew
     else:
-        project = AdministrationUnit.objects.prefetch_related('subfolders').get(pk=project_id)
+        project = AdministrationUnit.objects.select_related('parent').prefetch_related('subfolders').get(pk=project_id)
 
     if not request.user.has_perm('read_folder', project):
         return redirect_to_login(request.path)
