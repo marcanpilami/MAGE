@@ -53,23 +53,41 @@ def backuped(request, scope_id):
     return render(request, 'ref/instance_backup.html', {'cis': cis, 'folder': folder})
 
 
-def shared_ci(request):
+def shared_ci(request, folder_id, recursive = False):
+    if not request.user.has_perm('read_envt', int(folder_id)):
+        return redirect_to_login(request.path)
+
     deleted = []
-    if request.user.is_authenticated() and request.user.has_perm('ref.change_component_instance'):
-        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True).\
+    sec = (False,)
+    if request.user.is_authenticated() and request.user.has_perm('read_envt_sensible', folder_id):
+        sec = (True, False)
+
+    if recursive:
+        folder = AdministrationUnit.objects.get(pk = folder_id)
+        scope = [ s for s in folder.scope() if request.user.has_perm('read_envt', s.pk) ]
+        cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(project_id__in = scope)
+        sec = (False,) # cannot easily ensure ACL enforcement below the current folder, so no sensitive data allowed.
+
+        if request.user.has_perm('change_envt', folder_id):
+            deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).\
+                    filter(project_id__in = scope, deleted=True).filter(Q(num_envt=0)).\
+                    select_related('description').\
+                    order_by('description__name', 'id')
+    else:
+        cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(project_id = folder_id)
+
+        if request.user.has_perm('change_envt', folder_id):
+            deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).\
+                    filter(project_id = folder_id, deleted=True).filter(Q(num_envt=0)).\
                     select_related('description').\
                     order_by('description__name', 'id')
 
-    sec = (False,)
-    if request.user.is_authenticated() and request.user.has_perm('ref.allfields_componentinstance'):
-        sec = (True, False)
-
-    cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=False).\
+    cis = cis.filter(deleted=False).\
+                    filter(Q(num_envt = 0)).\
                     select_related('description').\
-                    prefetch_related('environments').\
                     prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.filter(field__widget_row__gte=0, field__sensitive__in=sec).order_by('field__widget_row', 'field__id'))).\
                     prefetch_related(Prefetch('description__field_set', queryset=ImplementationFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
                     prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
                     order_by('description__tag', 'description__name')
 
-    return render(request, 'ref/envt_shared.html', {'deleted': deleted, 'cis' : cis})
+    return render(request, 'ref/envt_shared.html', {'folder_id': folder_id, 'deleted': deleted, 'cis' : cis, 'recursive': recursive})

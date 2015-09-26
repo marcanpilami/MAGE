@@ -13,7 +13,8 @@ urlpatterns = patterns('',
     url(r'^node/(?P<folder_id>\d+)/acl', views.set_acl, name='set_acl'),
     url(r'^node/(?P<project_id>\d+)$', project_home, name='project_home'),
 
-    url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
+    url(r'^node/(?P<folder_id>\d+)/shared$', views.shared_ci, name='shared_ci'),
+    url(r'^node/(?P<folder_id>\d+)/sharedrecursive$', views.shared_ci, {'recursive': True}, name='shared_ci_rec'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
 

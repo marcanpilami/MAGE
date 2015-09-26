@@ -2,7 +2,7 @@
 {% load filter %}
 {% load staticfiles %}
 {% block pagetitle %}Composant mutualisés{% endblock %}
-{% block maintitle %}Composant mutualisés{% endblock %}
+{% block maintitle %}{{ folder_id | folder_crumbs }}{% if recursive %} (et sous dossiers){% endif %} : Composant mutualisés{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
@@ -36,7 +36,6 @@ $(document).ready(function() {
 	            <thead>
                     <tr>
                         <th>Nom</th>
-                        <th>Environnements</th>
                         {% for field in compotype.grouper.field_set.all %}
                             <th>{{field.short_label|capfirst}}</th>
                         {% endfor %}
@@ -54,7 +53,6 @@ $(document).ready(function() {
                 {% for compo in compotype.list %}                
                    <tr>
                        <td>{{compo.name}}</td>
-                       <td>{{compo.environments_str}}</td>
                 
                        {% for field, value in compo.description.field_set.all|project_ci_fields:compo.field_set.all %}
                            <td>{{value | urlify}}</td>

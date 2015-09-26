@@ -17,7 +17,7 @@ PERMISSIONS = (
     ('read_envt', 'Afficher le détail des environnements (sauf informations sensibles)'),
     ('read_envt_sensible', 'Afficher les information sensibles des environnements'),
     ('change_envt', 'Modifier un environnement (sauf informations sensibles)'),
-    ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'),
+    ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'), # read_sensible+change?
     ('change_permissions', 'Modifier les habilitations')
 )
 

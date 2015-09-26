@@ -21,7 +21,7 @@
 {%  if project.subfolders.count > 0 %}
 <div class='col-sm-2'>
     <div style='color: white;' class='row'>
-		<div class='t2' style='color: black;'>Sous répertoires</div>
+		<div class='t2' style='color: black;'>Sous dossiers</div>
 	</div>
     <div style='color: white;' class='row'>
         {%  for folder in project.subfolders.all %}
@@ -37,10 +37,13 @@
 	</div>
 	<div style='color: white;' class='row'>	
 		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' %}">Carte interactive</a>
-		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' project.pk %}">Carte complète du répertoire</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' project_id %}">Carte complète du contenu du dossier</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project.pk %}">Eléments sauvegardés (dont sous répertoires)</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' %}">Composants mutualisés</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project_id %}">Eléments sauvegardés{% if project.subfolders.count > 0  %} (dont sous dossiers){% endif %}</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' project_id %}">Composants mutualisés de ce dossier</a>
+        {% if project.subfolders.count > 0  %}
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci_rec' project_id %}">Composants mutualisés de ce dossier et sous dossiers</a>
+        {%  endif %}
 		<div>
 		{% for envt in envts %}
 		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	

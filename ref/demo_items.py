@@ -53,7 +53,7 @@ def utility_create_meta(project):
                                                        self_description_pattern='sid', tag='oracle'). \
         add_field_simple('sid', 'SID of the instance', widget_row=None). \
         add_field_simple('admin_login', 'login DBA', default='scott'). \
-        add_field_simple('admin_password', 'mot de passe DBA', default='tiger'). \
+        add_field_simple('admin_password', 'mot de passe DBA', default='tiger', sensitive=True). \
         add_field_simple('port', 'port', default=1521). \
         add_field_computed('server_dns', 'DNS serveur', 'server.name'). \
         add_relationship('server', 'serveur', impl1, dt2, min_cardinality=1, max_cardinality=1)
@@ -283,21 +283,24 @@ def utility_create_meta(project):
 
 @atomic
 def utility_create_test_instances():
+    folder = AdministrationUnit.objects.get(alternate_name_1='ERP')
+    folder2 = AdministrationUnit.objects.get(name='Production team environments')
+
     ## Environments
     e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'),
-                     project=AdministrationUnit.objects.get(alternate_name_1='ERP'))
+                     project=folder)
     e1.save()
 
     ## OS instances
-    i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin')
-    i1_2 = ImplementationDescription.class_for_name('osserver')(dns='server2.marsu.net', admin_login='test admin')
+    i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin', _folder=folder)
+    i1_2 = ImplementationDescription.class_for_name('osserver')(dns='server2.marsu.net', admin_login='test admin', _folder=folder2)
 
-    i2_1 = ImplementationDescription.class_for_name('osaccount')(login='user', password='test', server=i1_1)
+    i2_1 = ImplementationDescription.class_for_name('osaccount')(login='user', password='test', server=i1_1, _folder=folder)
     i2_1.save()
 
     ## Oracle items
     i3_1 = ImplementationDescription.class_for_name('oracleinstance')(sid='ORAINST1', server=i1_1, admin_login='login',
-                                                                      admin_password='toto')
+                                                                      admin_password='toto', _folder=folder)
 
     i4_1 = ImplementationDescription.class_for_name('oracleschema')(name='schema1', password='pass', instance=i3_1,
                                                                     _env=e1, _cic='soft1_database_main_oracle')
@@ -316,12 +319,13 @@ def utility_create_test_instances():
     i12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain études', admin_user='admin',
                                                                     admin_password='pass',
                                                                     base_http_port=8080, base_https_port=8081,
-                                                                    web_admin_port=9990, native_admin_port=9999)
+                                                                    web_admin_port=9990, native_admin_port=9999,
+                                                                    _folder=folder)
 
     i13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost1.marsu.net', domain=i12_1,
-                                                                  server=i1_1)
+                                                                  server=i1_1, _folder=folder)
     i13_2 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost2.marsu.net', domain=i12_1,
-                                                                  server=i1_2)
+                                                                  server=i1_2, _folder=folder)
 
     i14_1 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)
     i14_2 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)

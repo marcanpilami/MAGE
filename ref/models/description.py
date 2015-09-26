@@ -322,7 +322,7 @@ class ProxyRelSequence:
                                                  field=self.rel_descr).delete()
 
 
-def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, **kwargs):
+def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, _folder=None, **kwargs):
     self._descr_id = None
     self._id = None
 
@@ -352,6 +352,11 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
         self._instance.environments.add(Environment.objects.get(name=_env))
     elif _env and type(_env) is Environment:
         self._instance.environments.add(_env)
+
+    ## Folder
+    if _folder:
+        self._instance.project = _folder
+        self._instance.save()
 
     ## Fields
     if not _noconventions:

@@ -150,7 +150,7 @@ class ModelChoiceFieldWithTitle(forms.ModelChoiceField):
 class FullCIEditFormBase(forms.ModelForm):
     class Meta:
         model = ComponentInstance
-        fields = ['deleted', 'include_in_envt_backup', 'instanciates', 'environments', ]
+        fields = ['deleted', 'include_in_envt_backup', 'instanciates', 'environments', 'project',]
 
     def __init__(self, *args, **kwargs):
         super(FullCIEditFormBase, self).__init__(*args, **kwargs)
