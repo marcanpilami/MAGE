@@ -38,8 +38,8 @@ class AdministrationUnit(models.Model):
     block_inheritance = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = u'projet'
-        verbose_name_plural = u'projets'
+        verbose_name = u'dossier'
+        verbose_name_plural = u'dossiers'
 
     def __unicode__(self):
         return self.name

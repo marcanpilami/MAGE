@@ -1,27 +1,28 @@
 # coding: utf-8
-'''
+"""
     @license: Apache License, Version 2.0
     @copyright: 2007-2013 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
-'''
+"""
 
-## Django imports
+# Django imports
 from django.contrib.admin import ModelAdmin, TabularInline
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 
-## MAGE imports
+# MAGE imports
 from ref.models import AdministrationUnit, Environment, LogicalComponent, Application, SLA, \
-    ComponentImplementationClass, ConventionCounter, ExtendedParameter, EnvironmentType, ImplementationFieldDescription, \
-    ImplementationDescription, ImplementationRelationDescription, ImplementationRelationType, \
+    ComponentImplementationClass, ConventionCounter, ExtendedParameter, EnvironmentType, ImplementationRelationType, \
+    ImplementationDescription, ImplementationRelationDescription, ImplementationFieldDescription, \
     ImplementationComputedFieldDescription, ComponentInstanceField, ComponentInstanceRelation
+from ref.models.acl import AclAuthorization
 from ref.models.parameters import MageParam
 from ref.models.com import Link
 
 
 ################################################################################
-## Create admin site object
+# Create admin site object
 ################################################################################
 
 site = AdminSite()
@@ -34,7 +35,7 @@ site.register(User, UserAdmin)
 
 
 ################################################################################
-## Parameters
+# Parameters
 ################################################################################
 
 class MageParamAdmin(ModelAdmin):
@@ -47,7 +48,7 @@ class MageParamAdmin(ModelAdmin):
 site.register(MageParam, MageParamAdmin)
 
 ################################################################################
-## No-frills admins
+# No-frills admins
 ################################################################################
 
 site.register(SLA)
@@ -103,14 +104,6 @@ class ApplicationAdmin(ModelAdmin):
 site.register(Application, ApplicationAdmin)
 
 
-class AdministrationUnitAdmin(ModelAdmin):
-    list_display = ('name', 'description', 'parent', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3')
-    ordering = ('name',)
-
-
-site.register(AdministrationUnit, AdministrationUnitAdmin)
-
-
 class LinkAdmin(ModelAdmin):
     list_display = ('url', 'legend')
 
@@ -119,7 +112,7 @@ site.register(Link, LinkAdmin)
 
 
 ################################################################################
-## CIC
+# CIC
 ################################################################################
 
 class CICAdmin(ModelAdmin):
@@ -166,7 +159,7 @@ site.register(ImplementationDescription, ImplementationDescriptionAdmin)
 
 
 ################################################################################
-## Naming conventions
+# Naming conventions
 ################################################################################
 
 class ConventionCounterAdmin(ModelAdmin):
@@ -178,7 +171,7 @@ site.register(ConventionCounter, ConventionCounterAdmin)
 
 
 ################################################################################
-## Component instances
+# Component instances
 ################################################################################
 
 class ExtendedParameterInline(TabularInline):
@@ -202,4 +195,23 @@ class ComponentInstanceAdmin(ModelAdmin):
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
+
 # site.register(ComponentInstance, ComponentInstanceAdmin)
+
+################################################################################
+# Folders
+################################################################################
+
+class AclAuthorizationAdmin(TabularInline):
+    model = AclAuthorization
+    fields = ['codename', 'group', ]
+
+
+class AdministrationUnitAdmin(ModelAdmin):
+    list_display = ['name', 'alternate_name_1', 'alternate_name_2', 'alternate_name_3', 'parent']
+    list_filter = ('block_inheritance',)
+    inlines = [AclAuthorizationAdmin, ]
+    ordering = ('name',)
+
+
+site.register(AdministrationUnit, AdministrationUnitAdmin)
