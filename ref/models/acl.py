@@ -2,6 +2,7 @@
 
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
+from django.contrib.auth.views import redirect_to_login
 from django.db import models
 from django.conf import settings
 from ref.models.classifier import AdministrationUnit, PERMISSIONS, get_acl
@@ -65,3 +66,16 @@ class InternalAuthBackend(ModelBackend):
 
     def has_module_perms(self, user_obj, app_label):
         return False
+
+
+def folder_permission_required(perm):
+    def real_decorator(function):
+        def decorator(request, *args, **kwargs):
+            folder_id = int(kwargs['folder_id'])
+            if not request.user.is_authenticated or not request.user.has_perm(perm, folder_id):
+                return redirect_to_login(request.path)
+            return function(request, *args, **kwargs)
+
+        return decorator
+
+    return real_decorator

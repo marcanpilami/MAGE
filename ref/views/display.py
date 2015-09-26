@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.db.models.query import Prefetch
 from django.db.models import Q
 from django.db.models.aggregates import Count
+from ref.models.acl import folder_permission_required
 from ref.models.classifier import AdministrationUnit
 
 from ref.models.instances import Environment, ComponentInstance, \
@@ -52,11 +53,8 @@ def backuped(request, scope_id):
             prefetch_related('environments')
     return render(request, 'ref/instance_backup.html', {'cis': cis, 'folder': folder})
 
-
+@folder_permission_required('read_envt')
 def shared_ci(request, folder_id, recursive = False):
-    if not request.user.has_perm('read_envt', int(folder_id)):
-        return redirect_to_login(request.path)
-
     deleted = []
     sec = (False,)
     if request.user.is_authenticated() and request.user.has_perm('read_envt_sensible', folder_id):

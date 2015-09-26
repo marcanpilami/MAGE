@@ -19,6 +19,7 @@ from django.core.cache import cache
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, \
     Link
 from ref.models import AdministrationUnit, getParam
+from ref.models.acl import folder_permission_required
 from scm.models import ComponentInstanceConfiguration
 
 
@@ -26,26 +27,24 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
-def project_home(request, project_id):
-    if not request.user.has_perm('read_folder', int(project_id)):
-        return redirect_to_login(request.path)
-
+@folder_permission_required('read_folder')
+def project_home(request, folder_id):
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    project = None
-    ck = make_template_fragment_key('project_home_cache', [project_id])
+    folder = None
+    ck = make_template_fragment_key('project_home_cache', [folder_id])
     p = cache.get(ck)
     if p is None:
-        if isinstance(project_id, AdministrationUnit):
-            project = project_id  # optim with home wiew
+        if isinstance(folder_id, AdministrationUnit):
+            folder = folder_id  # optim with home wiew
         else:
-            project = AdministrationUnit.objects.select_related('parent').prefetch_related('subfolders').get(
-                pk=project_id)
+            folder = AdministrationUnit.objects.select_related('parent').prefetch_related('subfolders').get(
+                pk=folder_id)
 
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.filter(project_id=project_id).annotate(
+        envts = Environment.objects_active.filter(project_id=folder_id).annotate(
             latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
@@ -59,9 +58,9 @@ def project_home(request, project_id):
                                                      'latest_setname': latest_setname,
                                                      'latest_date': latest_date,
                                                      'envts': envts,
-                                                     'project': project,
-                                                     'project_id': project_id,
-                                                     'templates': Environment.objects.filter(project_id=project_id,
+                                                     'folder': folder,
+                                                     'folder_id': folder_id,
+                                                     'templates': Environment.objects.filter(project_id=folder_id,
                                                                                              template_only=True)})
 
 

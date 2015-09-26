@@ -3,7 +3,7 @@
 {% load cache %}
 
 {% block pagetitle %}Accueil{% endblock %}
-{% block maintitle %}{% cache 60 project_home_title_cache project_id %}{{ project | folder_crumbs }}
+{% block maintitle %}{% cache 60 project_home_title_cache folder_id %}{{ folder | folder_crumbs }}
 {% endcache %}{% endblock %}
 
 {%block navigationButtons%}
@@ -11,38 +11,38 @@
 {% endblock %}
 
 {%block frequentActionsButtons%}
-<a href='{% url "ref:set_acl" folder_id=project_id %}' title="Editer les habilitations">P</a>
+<a href='{% url "ref:set_acl" folder_id=folder_id %}' title="Editer les habilitations">P</a>
 {%  endblock %}
 
 {% block content %}
-{% cache 60 project_home_cache project_id %}
+{% cache 60 project_home_cache folder_id %}
 <div style='color: white;' class='row'>
 
-{%  if project.subfolders.count > 0 %}
+{%  if folder.subfolders.count > 0 %}
 <div class='col-sm-2'>
     <div style='color: white;' class='row'>
 		<div class='t2' style='color: black;'>Sous dossiers</div>
 	</div>
     <div style='color: white;' class='row'>
-        {%  for folder in project.subfolders.all %}
+        {%  for folder in folder.subfolders.all %}
             <a class='metSquare homeCoulour2' href="{% url 'ref:project_home' folder.id %}">{{folder.name}}<div class='metSquareLong annotation'>{{folder.description}}</div></a>
         {% endfor %}
     </div>
 </div>
 {%  endif %}
 
-<div class='col-sm-{%  if project.subfolders.count > 0 %}3{%  else %}5{% endif %}'>
+<div class='col-sm-{%  if folder.subfolders.count > 0 %}3{%  else %}5{% endif %}'>
 	<div style='color: white;' class='row'>
 		<div class='t2' style='color: black;'>Les environnements</div>
 	</div>
 	<div style='color: white;' class='row'>	
 		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' %}">Carte interactive</a>
-		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' project_id %}">Carte complète du contenu du dossier</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' folder_id %}">Carte complète du contenu du dossier</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project_id %}">Eléments sauvegardés{% if project.subfolders.count > 0  %} (dont sous dossiers){% endif %}</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' project_id %}">Composants mutualisés de ce dossier</a>
-        {% if project.subfolders.count > 0  %}
-        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci_rec' project_id %}">Composants mutualisés de ce dossier et sous dossiers</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' folder_id %}">Eléments sauvegardés{% if folder.subfolders.count > 0  %} (dont sous dossiers){% endif %}</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' folder_id %}">Composants mutualisés de ce dossier</a>
+        {% if folder.subfolders.count > 0  %}
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci_rec' folder_id %}">Composants mutualisés de ce dossier et sous dossiers</a>
         {%  endif %}
 		<div>
 		{% for envt in envts %}
