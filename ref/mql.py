@@ -3,9 +3,11 @@
 '''
 MAGE Query Language
 '''
+from django.db.models import Q
 
 from pyparsing import Forward, Group, Suppress, Optional, ZeroOrMore, Combine, \
     Word, alphas, nums, QuotedString, CaselessLiteral, FollowedBy
+from ref.models.classifier import get_folder
 from ref.models.instances import ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
 from django.db.models.query import Prefetch
 
@@ -18,6 +20,7 @@ def __build_grammar():
     k_where = CaselessLiteral("WHERE")
     k_and = CaselessLiteral("AND")
     k_instances = CaselessLiteral("INSTANCES")
+    k_folder = CaselessLiteral("FOLDER")
     qs = QuotedString("'", escQuote="''")
 
     identifier = Combine(Word(alphas + "_", exact=1) + Optional(Word(nums + alphas + "_")))("identifier")
@@ -32,7 +35,8 @@ def __build_grammar():
     cic = Suppress(CaselessLiteral("offer")) + qs('cic')
     lc = Suppress(CaselessLiteral("lc")) + qs('lc')
     envt = Suppress(CaselessLiteral("environment")) + qs('envt')
-    pre_filter = Optional(envt) + Optional(lc) + Optional(cic) + Optional(impl) + FollowedBy(k_instances)
+    folder = Suppress(k_folder) + qs('folder')
+    pre_filter = Optional(folder) + Optional(envt) + Optional(lc) + Optional(cic) + Optional(impl) + FollowedBy(k_instances)
 
     # Dict query (only select some elements and navigate)
     nl_expr = Group(navigation + ZeroOrMore(Suppress(',') + navigation) + FollowedBy(k_from))('selector')
@@ -71,6 +75,20 @@ def __select_compo(q, return_sensitive_data):
         rs = rs.filter(description__name=q.impl)
     if q.envt:
         rs = rs.filter(environments__name=q.envt)
+
+    if q.folder:
+        if q.folder == '/**':
+            # All CI... meaning no filter.
+            pass
+        elif q.folder[-3:] != "/**":
+            # Only given folder
+            folder = get_folder(q.folder)
+            rs = rs.filter(Q(environments__project = folder) | Q(project = folder))
+        else:
+            # All sub-folders
+            folder = get_folder(q.folder[0:-3])
+            scope = folder.scope()
+            rs = rs.filter(Q(environments__project__in = scope) | Q(project__in = scope))
 
     if q.where:
         for predicate in q.where:

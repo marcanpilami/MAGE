@@ -17,7 +17,7 @@ PERMISSIONS = (
     ('read_envt', 'Afficher le détail des environnements (sauf informations sensibles)'),
     ('read_envt_sensible', 'Afficher les information sensibles des environnements'),
     ('change_envt', 'Modifier un environnement (sauf informations sensibles)'),
-    ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'), # read_sensible+change?
+    ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'),  # read_sensible+change?
     ('change_permissions', 'Modifier les habilitations')
 )
 
@@ -108,6 +108,21 @@ def get_acl(folder_or_id):
 
     cache.set(cache_key, acl)
     return acl
+
+
+def get_folder(path):
+    res = AdministrationUnit.objects
+    p = ''
+    for seg in reversed(path.split('/')):
+        if not seg:
+            break
+        res = res.filter(**{'%sname' % p: seg})
+        p = '%sparent__' % p
+    if len(res) > 1:
+        raise Exception('multiple folders possible for path %s' % path)
+    if len(res) == 0:
+        raise Exception('folder %s does not exist' % path)
+    return res[0]
 
 
 class Application(models.Model):

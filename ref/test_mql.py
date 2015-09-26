@@ -1,16 +1,19 @@
 # coding: utf-8
 from django.test import TestCase
-from ref.demo_items import utility_create_meta, utility_create_logical
+from ref.demo_items import utility_create_meta, utility_create_logical, utility_create_admin_structure
 from ref.models import ImplementationDescription, Environment, EnvironmentType, ComponentInstance
 from ref import mql
+from ref.models.classifier import AdministrationUnit
 
 
 class MQLTestCase(TestCase):
     def setUp(self):
-        utility_create_meta()
+        utility_create_admin_structure()
+        folder = AdministrationUnit.objects.get(name='SUPER-PROJECT')
+        utility_create_meta(folder)
         utility_create_logical()
 
-        e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'))
+        e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'), project = folder)
         e1.save()
 
         i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin', _noconventions=True)
@@ -101,3 +104,13 @@ class MQLTestCase(TestCase):
         res = mql.run("SELECT 'jbossas' INSTANCES where group.name=(SELECT name FROM INSTANCES WHERE name='GEP_DEV1_02')")
         self.assertEqual(1, len(res))
         self.assertEqual(self.i15_2_1._instance.id, res[0]['mage_id'])
+
+    def test_query_folder(self):
+        res = mql.run("SELECT FOLDER '/SUPER-PROJECT' INSTANCES where name='GEP_DEV1_01_03'")
+        self.assertEqual(1, len(res))
+
+        res = mql.run("SELECT FOLDER '/**' INSTANCES where name='GEP_DEV1_01_03'")
+        self.assertEqual(1, len(res))
+
+        res = mql.run("SELECT FOLDER '/Side project' INSTANCES where name='GEP_DEV1_01_03'")
+        self.assertEqual(0, len(res))
