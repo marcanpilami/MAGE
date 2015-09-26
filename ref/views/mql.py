@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.contrib.auth.decorators import login_required
 
 from django.http.response import HttpResponse
 from django.shortcuts import render
@@ -12,6 +13,7 @@ class MqlTesterForm(forms.Form):
     mql = forms.CharField(max_length=300, initial='SELECT INSTANCES', label='Requête MQL', widget=forms.TextInput(
                  attrs={'size':'200', 'class':'inputText'}))
 
+@login_required
 def mql_tester(request):
     base = request.build_absolute_uri('/')[:-1]
     error = None
@@ -19,7 +21,7 @@ def mql_tester(request):
         form = MqlTesterForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
-                res = mql.run(form.cleaned_data['mql'], return_sensitive_data = request.user.has_perm('ref.allfields_componentinstance'))
+                res = mql.run(form.cleaned_data['mql'], user = request.user)
                 return render(request, 'ref/mql_tester.html', {'mql': form.cleaned_data['mql'], 'form': form, 'results': res, 'base': base})
             except Exception, e:
                 error = e.__str__()

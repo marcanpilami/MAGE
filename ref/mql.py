@@ -53,18 +53,18 @@ def __build_grammar():
 __grammar = __build_grammar()
 
 
-def run(query, return_sensitive_data=False):
+def run(query, user = None):
     expr = __grammar.parseString(query)
-    return __run(expr, return_sensitive_data)
+    return __run(expr, user)
     # return  __grammar.parseString(query)
 
 
-def __run(q, return_sensitive_data):
+def __run(q, user = None):
     if q.select != None:
-        return __select_compo(q.select, return_sensitive_data)
+        return __select_compo(q.select, user)
 
 
-def __select_compo(q, return_sensitive_data):
+def __select_compo(q, user = None):
     rs = ComponentInstance.objects.filter(deleted=False)
 
     if q.lc:
@@ -118,7 +118,7 @@ def __select_compo(q, return_sensitive_data):
             if predicate.value:
                 val = predicate.value
             elif predicate.subquery:
-                tmp = __select_compo(predicate.subquery, return_sensitive_data)
+                tmp = __select_compo(predicate.subquery, user)
                 if not type(tmp) == list:
                     raise Exception('subqueries must always return a single field')
                 if len(tmp) != 1:
@@ -137,7 +137,6 @@ def __select_compo(q, return_sensitive_data):
                     r[prefix + 'field_set__value__contains'] = val[1:-1]
                 elif escaped_val.endswith("%"):
                     r[prefix + 'field_set__value__startswith'] = val[:-1]
-                    print r
                 elif escaped_val.startswith("%"):
                     r[prefix + 'field_set__value__endswith'] = val[1:]
                 else:
@@ -145,12 +144,12 @@ def __select_compo(q, return_sensitive_data):
             rs = rs.filter(**r)
 
     if not q.selector:
-        return __to_dict(rs, use_computed_fields=q.compute, return_sensitive_data=return_sensitive_data)
+        return __to_dict(rs, use_computed_fields=q.compute, user = user)
     else:
-        return __to_dict(rs, q.selector, return_sensitive_data=return_sensitive_data)
+        return __to_dict(rs, q.selector, user = user)
 
 
-def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_sensitive_data=False):
+def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, user = None):
     '''Navigations are done entirely in memory to avoid hitting too much the database'''
     res = []
 
@@ -160,10 +159,13 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
         rs = rs.prefetch_related(
             Prefetch('rel_target_set', queryset=ComponentInstanceRelation.objects.select_related('field')))
         rs = rs.select_related('description')
-        rs = rs.prefetch_related('environments')
+        rs = rs.select_related('project')
+        rs = rs.prefetch_related('environments__project')
 
         for ci in rs.all():
             compo = {}
+            if user and not user.has_perm('read_envt', ci):
+                continue
             res.append(compo)
 
             compo['mage_id'] = ci.id
@@ -174,12 +176,12 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
             compo['mage_environments'] = ','.join([e.name for e in ci.environments.all()])
 
             for fi in ci.field_set.all():
-                if not return_sensitive_data and fi.field.sensitive:
+                if fi.field.sensitive and user and not user.has_perm('read_envt_sensible', ci):
                     continue
                 compo[fi.field.name] = fi.value
 
             for fi in ci.rel_target_set.all():
-                if not return_sensitive_data and fi.field.sensitive:
+                if fi.field.sensitive and user and not user.has_perm('read_envt_sensible', ci):
                     continue
                 key = fi.field.name + '_id'
                 if compo.has_key(key):
@@ -203,14 +205,17 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                                                                                                         'target')))
             rs = rs.prefetch_related(Prefetch('rel_target_set__target__field_set',
                                               queryset=ComponentInstanceField.objects.select_related('field')))
+            rs = rs.prefetch_related('environments__project')
 
         ## Fetch!
         for ci in rs.all():
+            if user and not user.has_perm('read_envt', ci):
+                continue
+
             compo = {}
             res.append(compo)
 
             for navigation in selector:
-                print navigation
                 tmp = ci
                 for idn in navigation:
                     if navigation.asList().index(idn) == len(navigation) - 1:
@@ -221,7 +226,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                             if fi.field.name == idn:
                                 found = True
                                 compo[key] = fi.value
-                                if not return_sensitive_data and fi.field.sensitive:
+                                if fi.field.sensitive and user and not user.has_perm('read_envt_sensible', ci):
                                     raise Exception('logged-in user has no access to field %s' % idn)
                         if not found:
                             ## Special field?
@@ -246,7 +251,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                             if rel.field.name == idn:
                                 tmp = rel.target
                                 found = True
-                                if not return_sensitive_data and rel.field.sensitive:
+                                if fi.field.sensitive and user and not user.has_perm('read_envt_sensible', ci):
                                     raise Exception('logged-in user has no access to field %s' % idn)
                                 break
                         if not found:

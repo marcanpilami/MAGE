@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.views import redirect_to_login
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from ref.models.classifier import AdministrationUnit, PERMISSIONS, get_acl
 from ref.models.instances import Environment, ComponentInstance
 
@@ -40,7 +41,7 @@ class InternalAuthBackend(ModelBackend):
             if isinstance(obj, ComponentInstance):
                 # CI  may belong to many environments. Must be OK on all.
                 if obj.project:
-                    return self.has_perm(user_obj, perm.obj.project)
+                    return self.has_perm(user_obj, perm, obj.project)
                 if obj.environments.count() == 0:
                     return False
                 ok = True
@@ -50,7 +51,12 @@ class InternalAuthBackend(ModelBackend):
 
             if isinstance(obj, AdministrationUnit):
                 acl = obj.get_acl()
-                for group in user_obj.groups.all():
+                cache_key = "user_groups_%s" %user_obj.pk
+                user_groups = cache.get(cache_key)
+                if not user_groups:
+                    user_groups = user_obj.groups.all()
+                    cache.set(cache_key, user_groups, 60)
+                for group in user_groups:
                     if group.pk in acl[perm]:
                         return True
 
