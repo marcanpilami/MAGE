@@ -4,7 +4,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
 from django.db import models
 from django.conf import settings
-from ref.models.classifier import AdministrationUnit, PERMISSIONS
+from ref.models.classifier import AdministrationUnit, PERMISSIONS, get_acl
 from ref.models.instances import Environment, ComponentInstance
 
 try:
@@ -49,7 +49,12 @@ class InternalAuthBackend(ModelBackend):
 
             if isinstance(obj, AdministrationUnit):
                 acl = obj.get_acl()
+                for group in user_obj.groups.all():
+                    if group.pk in acl[perm]:
+                        return True
 
+            if isinstance(obj, int):
+                acl = get_acl(obj)
                 for group in user_obj.groups.all():
                     if group.pk in acl[perm]:
                         return True

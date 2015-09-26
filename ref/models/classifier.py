@@ -75,26 +75,39 @@ class AdministrationUnit(models.Model):
         return res
 
     def get_acl(self):
-        # Cache
-        cache_key = "acl_folder_%s" % self.pk
+        return get_acl(self)
+
+
+def get_acl(folder_or_id):
+    # If by ID, we may simply need to query the cache
+    if isinstance(folder_or_id, int):
+        cache_key = "acl_folder_%s" % folder_or_id
         a = cache.get(cache_key)
         if a:
             return a
+        # Not in cache => we need to do some queries
+        return AdministrationUnit.objects.prefetch_related('acl').get(pk=folder_or_id).get_acl()
 
-        # Parents?
-        if not self.block_inheritance and self.parent_id:
-            acl = self.parent.get_acl()
-        else:
-            acl = {}
-            for perm in PERMISSIONS:
-                acl[perm[0]] = []
+    # Inside cache?
+    cache_key = "acl_folder_%s" % folder_or_id.pk
+    a = cache.get(cache_key)
+    if a:
+        return a
 
-        # Local ACE
-        for ace in self.acl.all():
-            acl[ace.codename].append(ace.group_id)
+    # Parents?
+    if not folder_or_id.block_inheritance and folder_or_id.parent_id:
+        acl = folder_or_id.parent.get_acl()
+    else:
+        acl = {}
+        for perm in PERMISSIONS:
+            acl[perm[0]] = []
 
-        cache.set(cache_key, acl)
-        return acl
+    # Local ACE
+    for ace in folder_or_id.acl.all():
+        acl[ace.codename].append(ace.group_id)
+
+    cache.set(cache_key, acl)
+    return acl
 
 
 class Application(models.Model):

@@ -3,18 +3,19 @@
 {% load cache %}
 
 {% block pagetitle %}Accueil{% endblock %}
-{% block maintitle %}{{ project | folder_crumbs }}{% endblock %}
+{% block maintitle %}{% cache 60 project_home_title_cache project_id %}{{ project | folder_crumbs }}
+{% endcache %}{% endblock %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
 {% endblock %}
 
 {%block frequentActionsButtons%}
-<a href='{% url "ref:set_acl" folder_id=project.id %}' title="Editer les habilitations">P</a>
+<a href='{% url "ref:set_acl" folder_id=project_id %}' title="Editer les habilitations">P</a>
 {%  endblock %}
 
 {% block content %}
-{% cache 60 project_home_cache project.id %}
+{% cache 60 project_home_cache project_id %}
 <div style='color: white;' class='row'>
 
 {%  if project.subfolders.count > 0 %}

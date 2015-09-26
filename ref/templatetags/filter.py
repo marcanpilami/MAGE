@@ -87,15 +87,18 @@ def get_item(dictionary, key):
 
 @register.filter
 def folder_crumbs(value):
+    if value is None:
+        return ""
     if not isinstance(value, AdministrationUnit):
         value = AdministrationUnit.objects.get(pk=value)
+
     parents = [value, ]
     p = value.parent
     while p is not None:
         parents.append(p)
         p = p.parent
     res = ""
+
     for p in reversed(parents[0:-1]):
         res += "<a href='" + reverse("ref:project_home", kwargs={'project_id': p.id}) + "'>" + p.name + "</a> > "
-
     return mark_safe(res[0:-2])

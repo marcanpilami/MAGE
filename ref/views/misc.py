@@ -27,23 +27,25 @@ from scm.models import ComponentInstanceConfiguration
 ##############################################################################
 
 def project_home(request, project_id):
-    if isinstance(project_id, AdministrationUnit):
-        project = project_id  # optim with home wiew
-    else:
-        project = AdministrationUnit.objects.select_related('parent').prefetch_related('subfolders').get(pk=project_id)
-
-    if not request.user.has_perm('read_folder', project):
+    if not request.user.has_perm('read_folder', int(project_id)):
         return redirect_to_login(request.path)
 
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('project_home_cache', [project.id])
+    project = None
+    ck = make_template_fragment_key('project_home_cache', [project_id])
     p = cache.get(ck)
     if p is None:
+        if isinstance(project_id, AdministrationUnit):
+            project = project_id  # optim with home wiew
+        else:
+            project = AdministrationUnit.objects.select_related('parent').prefetch_related('subfolders').get(
+                pk=project_id)
+
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.filter(project_id=project.id).annotate(
+        envts = Environment.objects_active.filter(project_id=project_id).annotate(
             latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
@@ -52,15 +54,14 @@ def project_home(request, project_id):
                 latest_setname[e.name] = cic.result_of.belongs_to_set.name
                 latest_date[e.name] = cic.created_on
 
-    parents = [project,]
-
     return render(request, 'ref/project_home.html', {'team_links_title': link_title,
                                                      'team_links': Link.objects.all(),
                                                      'latest_setname': latest_setname,
                                                      'latest_date': latest_date,
                                                      'envts': envts,
                                                      'project': project,
-                                                     'templates': Environment.objects.filter(project_id=project.id,
+                                                     'project_id': project_id,
+                                                     'templates': Environment.objects.filter(project_id=project_id,
                                                                                              template_only=True)})
 
 
