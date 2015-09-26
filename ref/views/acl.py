@@ -1,20 +1,17 @@
 # coding: utf-8
 import json
 from django.contrib.auth.models import Group
-from django.contrib.auth.views import redirect_to_login
 from django.db.transaction import atomic
 from django.shortcuts import render_to_response, redirect
-from ref.models.acl import PERMISSIONS, AclAuthorization
+from ref.models.acl import PERMISSIONS, AclAuthorization, folder_permission_required
 from ref.models.classifier import AdministrationUnit
 
 
 @atomic
+@folder_permission_required('change_permissions')
 def set_acl(request, folder_id):
     folder = AdministrationUnit.objects.get(pk=folder_id)
     groups = Group.objects.order_by('name').all()
-
-    if not request.user.has_perm('change_permissions', folder):
-        return redirect_to_login(request.path)
 
     if request.method == 'GET':
         acl = {}

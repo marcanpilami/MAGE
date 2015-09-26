@@ -42,11 +42,9 @@ def envt(request, envt_id):
 
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
 
-def backuped(request, scope_id):
-    folder = AdministrationUnit.objects.get(pk = scope_id)
-    if not request.user.has_perm('read_envt', folder):
-        return redirect_to_login(request.path)
-
+@folder_permission_required('read_envt')
+def backuped(request, folder_id):
+    folder = AdministrationUnit.objects.get(pk = folder_id)
     cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False, environments__project__in = folder.scope()).\
             select_related('instanciates__implements__application').\
             select_related('description').\
