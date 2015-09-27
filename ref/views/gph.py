@@ -29,20 +29,20 @@ class CartoForm(forms.Form):
     envts = forms.ModelMultipleChoiceField(
         queryset=None,
         widget=forms.widgets.CheckboxSelectMultiple,
-        label=u'Environnements ',
+        label=u'Restreindre aux environnements ',
         required=False)
 
     models = ModelMultipleChoiceFieldDescription(
         queryset=None,
         widget=forms.widgets.CheckboxSelectMultiple,
         required=False,
-        label=u'Composants ')
+        label=u'Restreindre aux types ')
 
     reltypes = forms.ModelMultipleChoiceField(
         queryset=ImplementationRelationType.objects.all(),
         widget=forms.widgets.CheckboxSelectMultiple,
         required=False,
-        label=u'Suivre ')
+        label=u'Suivre les liens ')
 
     relRecursion = forms.IntegerField(
         label=u'sur générations ',
@@ -58,7 +58,7 @@ class CartoForm(forms.Form):
 
     scope = forms.MultipleChoiceField(
         choices=(),
-        label=u'Restreindre aux dossiers',
+        label=u'Restreindre aux dossiers ',
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple
     )

@@ -5,48 +5,136 @@
 {% block pagetitle %}GE{% endblock %}
 {% block maintitle %}{{ folder_id | folder_crumbs }} : Carte interactive{% endblock %}
 {% block scripts %}
-<script type="text/javascript" src='{% static "d3.min.js" %}'></script>
-<script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
-<script type="text/javascript">
-function refresh_graph()
-{
-	$.ajax(
-	{
-		url : '{% url "ref:cartoformdata" %}',
-		type : "POST",
-		dataType : "json",
-		data: $("#ff").serialize(),
-	}).done(function(json)
-	{
-		digraph = dagreD3.json.decode(json['nodes'], json['edges']);
-		
-		var renderer = new dagreD3.Renderer();
-		$("svg g").empty();
-		renderer.run(digraph, d3.select("svg g"));
-	});
-}
+    <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+    <script type="text/javascript">
+        function refresh_graph() {
+            $("svg g").empty();
+            $.ajax(
+                    {
+                        url: '{% url "ref:cartoformdata" %}',
+                        type: "POST",
+                        dataType: "json",
+                        data: $("#ff").serialize(),
+                    }).done(function (json) {
+                        digraph = dagreD3.json.decode(json['nodes'], json['edges']);
 
-$(document).ready(function()
-{
-	$('#refresh').on('click', function() { refresh_graph(); });
-});
-</script>
+                        var renderer = new dagreD3.Renderer();
+                        $("svg g").empty();
+                        renderer.run(digraph, d3.select("svg g"));
+                    });
+        }
+
+        $(document).ready(function () {
+            $('#showfilterrow').hide();
+
+            $('#refresh').on('click', function () {
+                refresh_graph();
+            });
+
+            $('#refreshmask').on('click', function () {
+                refresh_graph();
+                $('#filterrow').hide();
+                $('#showfilterrow').show();
+            });
+
+            $('#hidefilters').click(function () {
+                $('#filterrow').hide();
+                $('#showfilterrow').show();
+            });
+
+            $('#showfilters').click(function () {
+                $('#filterrow').show();
+                $('#showfilterrow').hide();
+            });
+        });
+    </script>
 {% endblock scripts %}
 
 {% block content %}
-<div class='row'>
-	<div class='col-md-2 bulletLessList'>
-		<button id='refresh'>Refresh</button>
-		<form id='ff'>
-		{{form.as_p}}
-		</form>
-		
-	</div>
-	<div class='col-md-10'>
-		<svg width=5024 height=5024>
-		    <g transform="translate(20,20) scale(0.7)"/>
-		</svg>
-	</div>	
-</div>
+    <div class="metContainer">
+        <div class='row'>
+            <div class='col-md-12'>
+                {{ form.non_field_errors }}
+            </div>
+        </div>
+
+        <div id="filterrow" class='row' style="border-bottom: 2px solid blue;">
+            <form id='ff'>
+                <div class='col-md-2 bulletLessList'>
+                    <div class="form-group">
+                        {{ form.envts.errors }}
+                        <label for="{{ form.envts.id_for_label }}">{{ form.envts.label_tag }}</label>
+
+                        <div style="max-height: 200px; overflow-y:auto; margin-right: 10px;">
+                            {{ form.envts }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class='col-md-4 bulletLessList'>
+                    <div class="form-group">
+                        {{ form.models.errors }}
+                        <label for="{{ form.models.id_for_label }}">{{ form.models.label_tag }}</label>
+
+                        <div style="max-height: 200px; overflow-y:auto; margin-right: 10px;">
+                            {{ form.models }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class='col-md-2 bulletLessList'>
+                    <div class="form-group">
+                        {{ form.reltypes.errors }}
+                        <label for="{{ form.reltypes.id_for_label }}">{{ form.reltypes.label_tag }}</label>
+                        {{ form.reltypes }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.relRecursion.errors }}
+                        <label for="{{ form.relRecursion.id_for_label }}">{{ form.relRecursion.label_tag }}</label>
+                        {{ form.relRecursion }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.collapseThr.errors }}
+                        <label for="{{ form.collapseThr.id_for_label }}">{{ form.collapseThr.label_tag }}</label>
+                        {{ form.collapseThr }}
+                    </div>
+                </div>
+
+                <div class='col-md-3 bulletLessList'>
+                    <div class="form-group">
+                        {{ form.scope.errors }}
+                        <label for="{{ form.scope.id_for_label }}">{{ form.scope.label_tag }}</label>
+
+                        <div style="max-height: 200px; overflow-y:auto; margin-right: 10px;">
+                            {{ form.scope }}
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class='col-md-1 bulletLessList'>
+                <button id='refresh'>Rafraîchir</button>
+                <br><br>
+                <button id='refreshmask'>Rafraîchir et masquer les filtres</button>
+                <br><br>
+                <button id='hidefilters'>Masquer les filtres</button>
+            </div>
+        </div>
+
+        <div id="showfilterrow" class='row'>
+            <div class='col-md-12 bulletLessList'>
+                <button id='showfilters'>Afficher les filtres</button>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class='col-md-12'>
+                <svg width=5024 height=5024>
+                    <g transform="translate(20,20) scale(0.7)"/>
+                </svg>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
