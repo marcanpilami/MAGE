@@ -18,7 +18,9 @@ PERMISSIONS = (
     ('read_envt_sensible', 'Afficher les information sensibles des environnements'),
     ('change_envt', 'Modifier un environnement (sauf informations sensibles)'),
     ('change_envt_sensible', 'Modifier les informations sensibles d\'un environnement'),  # read_sensible+change?
-    ('change_permissions', 'Modifier les habilitations')
+    ('change_permissions', 'Modifier les habilitations'),
+    ('read_meta', 'Consulter la modélisation des compsants'),
+    ('change_meta', 'Modifier la modélisation des compsants')
 )
 
 
@@ -76,6 +78,14 @@ class AdministrationUnit(models.Model):
 
     def get_acl(self):
         return get_acl(self)
+
+
+def get_user_scope(folder_or_id, user, perm):
+    if isinstance(folder_or_id, int) or isinstance(folder_or_id, unicode):
+        folder = AdministrationUnit.objects.get(pk=int(folder_or_id))
+    else:
+        folder = folder_or_id
+    return [f for f in folder.scope() if user.has_perm(perm, f)]
 
 
 def get_acl(folder_or_id):

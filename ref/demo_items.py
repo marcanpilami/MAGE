@@ -525,6 +525,7 @@ def utility_create_test_users():
     g5.save()
 
     b.groups.add(g3)
+    c.groups.add(g4)
 
 
 @atomic

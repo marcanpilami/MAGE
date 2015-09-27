@@ -34,7 +34,7 @@ urlpatterns = patterns('',
     ## Graphs
     url(r'^gph/full$', views.carto_full, name='grfull'),
     url(r'^gph/node/(?P<scope_id>\d+)$', views.carto_scope, name='grscope'),
-    url(r'^gph/marsupilamographe$', views.carto_form, name='cartoform'),
+    url(r'^gph/marsupilamographe/node/(?P<folder_id>\d+)$', views.carto_form, name='cartoform'),
     url(r'^gph/mplgdata$', views.carto_content_form, name='cartoformdata'),
     url(r'^gph/mplgdatafull/(?P<collapse_threshold>\d+)$', views.carto_content_full, name='cartofulldata'),
     url(r'^gph/mplgdatascope/(?P<scope_id>\d+)/(?P<collapse_threshold>\d+)$', views.carto_content_scope, name='cartoscopedata'),

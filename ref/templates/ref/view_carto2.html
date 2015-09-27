@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load folder_crumbs from filter %}
 
 {% block pagetitle %}GE{% endblock %}
-{% block maintitle %}Carte interactive{% endblock %}
+{% block maintitle %}{{ folder_id | folder_crumbs }} : Carte interactive{% endblock %}
 {% block scripts %}
 <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
@@ -34,16 +35,15 @@ $(document).ready(function()
 {% endblock scripts %}
 
 {% block content %}
-
-<div class='container-fluid'>
-	<div class='col-md-1 bulletLessList'>
+<div class='row'>
+	<div class='col-md-2 bulletLessList'>
 		<button id='refresh'>Refresh</button>
 		<form id='ff'>
 		{{form.as_p}}
 		</form>
 		
 	</div>
-	<div class='col-md-11'>
+	<div class='col-md-10'>
 		<svg width=5024 height=5024>
 		    <g transform="translate(20,20) scale(0.7)"/>
 		</svg>

@@ -36,7 +36,7 @@
 		<div class='t2' style='color: black;'>Les environnements</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' %}">Carte interactive</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' folder_id %}">Carte interactive</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:grscope' folder_id %}">Carte complète du contenu du dossier</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
         <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' folder_id %}">Eléments sauvegardés{% if folder.subfolders.count > 0  %} (dont sous dossiers){% endif %}</a>
