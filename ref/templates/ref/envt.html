@@ -5,7 +5,7 @@
 {% block maintitle %}{{ envt.project | folder_crumbs }} > Environnement {{envt.name}}{% endblock %}
 
 {% block frequentActionsButtons %}
-{% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
+{% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.project_id envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
 <a href="{% url 'ref:instance_envt' envt.id %}" title="Editer l'environnement">E</a>
 <a href="{% url 'admin:ref_environment_change' envt.id %}" title="Paramètres de l'environnement">P</a>
 {% endblock %}

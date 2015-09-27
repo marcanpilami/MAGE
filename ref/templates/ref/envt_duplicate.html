@@ -1,46 +1,64 @@
 {% extends "base.html" %}
+{% load folder_crumbs from filter %}
 {% load staticfiles %}
 {% block pagetitle %}Duplication{% endblock %}
-{% block maintitle %}Duplication de l'environnement {{envt.name}}{% endblock %}
+{% block maintitle %}{{ envt.project | folder_crumbs }} : Duplication de {{ envt.name }}{% endblock %}
 
 
 {% block scripts %}
-<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	$('#remap select[id$=old_target]').clone().appendTo('#hidden');
-	$('#remap select[id$=old_target]').attr('disabled', 'disabled'); });
-</script>
+    <script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#remap select[id$=old_target]').clone().appendTo('#hidden');
+            $('#remap select[id$=old_target]').attr('disabled', 'disabled');
+        });
+    </script>
 {% endblock %}
 
 
 {% block content %}
-<form class='metContainer bulletLessList'  method="post">
-	<div class='column'>
-		<div class='t2'>Nouveau nom</div>
-		{{form.new_name}}{{form.new_name.errors}}
-		<br/><br/>
-		<input type="submit" value="Submit" />
-	</div>
-	<div class='column'>
-		<span class='t2'>composants à copier</span>
-		{{form.instances_to_copy}}
-		
-	</div>
-	<div id='remap' class='column' style='width: auto; max-width: none;'>
-		<span class='t2'>Remapping optionnel</span>
-		
-		{{ fs.management_form }}
-		{% for f in fs %}	
-			<div>
-				{{ f.id }}
-				Remap {{ f.old_target }} to {{f.new_target}}
-			</div>
-		{% endfor %}
-	</div>
-	
-	<div id='hidden' style='display: none;'></div>
-</form>
+    <form method="post">
+        <div class=".row">
 
+            <div class="col-sm-3">
+                <div class='t2'>Nouvelle identité</div>
+                <div class="form-group">
+                    <label for="id_new_name">Nom</label>
+                    {{ form.new_name }}{{ form.new_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_new_description">Description</label>
+                    {{ form.new_description }}{{ form.new_description.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_new_folder">Dossier</label>
+                    {{ form.new_folder }}{{ form.new_folder.errors }}
+                </div>
+                <br/><br/>
+                <input type="submit" value="Submit"/>
+            </div>
+
+            <div class='col-sm-3 bulletLessList'>
+                <span class='t2'>Composants à copier</span>
+                {{ form.instances_to_copy }}
+
+            </div>
+
+            <div id='remap' class='col-sm-6'>
+                <span class='t2'>Remapping optionnel</span>
+
+                {{ fs.management_form }}
+                {% for f in fs %}
+                    <div>
+                        {{ f.id }}
+                        Remap {{ f.old_target }} to {{ f.new_target }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id='hidden' style='display: none;'></div>
+
+        </div>
+    </form>
 {% endblock content %}
 

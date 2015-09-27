@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     url(r'^node/(?P<folder_id>\d+)/shared$', views.shared_ci, name='shared_ci'),
     url(r'^node/(?P<folder_id>\d+)/sharedrecursive$', views.shared_ci, {'recursive': True}, name='shared_ci_rec'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
-    url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
+    url(r'^node/(?P<folder_id>\d+)/envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
 
     url(r'^type$', views.model_types, name='types'),
     url(r'^types_details$', views.model_detail, name='types_details'),

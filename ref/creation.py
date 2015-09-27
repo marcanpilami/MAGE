@@ -11,7 +11,7 @@ from ref.models.instances import ComponentInstanceField, ComponentInstanceRelati
 from ref.conventions import value_instance_fields, value_instance_graph_fields
 
 
-def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
+def duplicate_envt(envt_name, new_name, new_description=None, new_folder=None, remaps={}, *components_to_duplicate):
     """ 
     @param envt_name: the name of the environment to duplicate
     @param new_name: name of the new environment. Must not already exist.
@@ -31,7 +31,9 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
     envt.id = None
     envt.name = new_name
     envt.template_only = False
-    envt.description = "copied from environment %s (%s)" % (envt_name, envt.description)
+    envt.description = new_description or "copied from environment %s (%s)" % (envt_name, envt.description)
+    if new_folder:
+        envt.project = new_folder
 
     ## Try to find the ET
     for et in EnvironmentType.objects.all():
