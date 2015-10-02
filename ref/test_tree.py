@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group, User
 from django.test.testcases import TestCase
-from ref.models.acl import AclAuthorization
+from ref.models.ou import AclAuthorization
 from ref.models.classifier import AdministrationUnit, PERMISSIONS
 
 

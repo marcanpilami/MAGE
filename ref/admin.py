@@ -16,7 +16,7 @@ from ref.models import AdministrationUnit, Environment, LogicalComponent, Applic
     ComponentImplementationClass, ConventionCounter, ExtendedParameter, EnvironmentType, ImplementationRelationType, \
     ImplementationDescription, ImplementationRelationDescription, ImplementationFieldDescription, \
     ImplementationComputedFieldDescription, ComponentInstanceField, ComponentInstanceRelation
-from ref.models.acl import AclAuthorization
+from ref.models.ou import AclAuthorization
 from ref.models.parameters import MageParam
 from ref.models.com import Link
 

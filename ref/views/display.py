@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.db.models.query import Prefetch
 from django.db.models import Q
 from django.db.models.aggregates import Count
-from ref.models.acl import folder_permission_required
+from ref.models.ou import folder_permission_required
 from ref.models.classifier import AdministrationUnit
 
 from ref.models.instances import Environment, ComponentInstance, \

@@ -5,7 +5,7 @@ from django import forms
 from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import permission_required
 from django.db.transaction import atomic
-from ref.models.acl import folder_permission_required
+from ref.models.ou import folder_permission_required
 from ref.models.classifier import AdministrationUnit
 
 from ref.models.instances import ComponentInstance, Environment

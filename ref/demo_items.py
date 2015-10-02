@@ -11,7 +11,7 @@ from ref.models import EnvironmentType, ImplementationRelationType, Implementati
     Application, LogicalComponent, ComponentImplementationClass, Environment
 from django.db.transaction import atomic
 from ref.creation import duplicate_envt
-from ref.models.acl import AclAuthorization
+from ref.models.ou import AclAuthorization
 from ref.models.com import Link
 
 

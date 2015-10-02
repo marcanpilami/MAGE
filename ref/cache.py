@@ -2,7 +2,7 @@
 from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
-from ref.models.acl import AclAuthorization
+from ref.models.ou import AclAuthorization
 
 from ref.models.instances import ComponentInstance, ComponentInstanceField
 from ref.models.description import ImplementationComputedFieldDescription, \

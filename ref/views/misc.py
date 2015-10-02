@@ -19,7 +19,7 @@ from django.core.cache import cache
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, \
     Link
 from ref.models import AdministrationUnit, getParam
-from ref.models.acl import folder_permission_required
+from ref.models.ou import folder_permission_required
 from scm.models import ComponentInstanceConfiguration
 
 

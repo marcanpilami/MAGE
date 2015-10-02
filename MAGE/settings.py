@@ -171,7 +171,7 @@ CACHES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = ('ref.models.acl.InternalAuthBackend',)
+AUTHENTICATION_BACKENDS = ('ref.models.ou.InternalAuthBackend',)
 
 LOCAL_APPS = ()
 try:

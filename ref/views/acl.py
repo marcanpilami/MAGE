@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.models import Group
 from django.db.transaction import atomic
 from django.shortcuts import render_to_response, redirect
-from ref.models.acl import PERMISSIONS, AclAuthorization, folder_permission_required
+from ref.models.ou import PERMISSIONS, AclAuthorization, folder_permission_required
 from ref.models.classifier import AdministrationUnit
 
 

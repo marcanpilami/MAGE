@@ -7,8 +7,7 @@ from django.db.models import Q
 
 from pyparsing import Forward, Group, Suppress, Optional, ZeroOrMore, Combine, \
     Word, alphas, nums, QuotedString, CaselessLiteral, FollowedBy
-from ref.models.classifier import get_folder
-from ref.models.instances import ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
+from ref.models import ComponentInstance, ComponentInstanceField, ComponentInstanceRelation, get_folder
 from django.db.models.query import Prefetch
 
 
