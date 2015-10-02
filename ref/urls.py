@@ -33,11 +33,11 @@ urlpatterns = patterns('',
 
     ## Graphs
     url(r'^gph/full$', views.carto_full, name='grfull'),
-    url(r'^gph/node/(?P<scope_id>\d+)$', views.carto_scope, name='grscope'),
+    url(r'^gph/node/(?P<folder_id>\d+)$', views.carto_scope, name='grscope'),
     url(r'^gph/marsupilamographe/node/(?P<folder_id>\d+)$', views.carto_form, name='cartoform'),
     url(r'^gph/mplgdata$', views.carto_content_form, name='cartoformdata'),
     url(r'^gph/mplgdatafull/(?P<collapse_threshold>\d+)$', views.carto_content_full, name='cartofulldata'),
-    url(r'^gph/mplgdatascope/(?P<scope_id>\d+)/(?P<collapse_threshold>\d+)$', views.carto_content_scope, name='cartoscopedata'),
+    url(r'^gph/mplgdatascope/(?P<folder_id>\d+)/(?P<collapse_threshold>\d+)$', views.carto_content_scope, name='cartoscopedata'),
     url(r'^gph/mplgdatasimple/(?P<ci_id_list>[\d,]+)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
     url(r'^gph/mplgdatadebug$', views.carto_debug, name='cartodebugdata'),
     url(r'^gph/structuredata$', views.carto_description_content, name='cartostructuredata'),
