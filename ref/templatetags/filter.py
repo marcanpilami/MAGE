@@ -99,6 +99,9 @@ def folder_crumbs(value):
         p = p.parent
     res = ""
 
-    for p in reversed(parents[0:-1]):
-        res += "<a href='" + reverse("ref:project_home", kwargs={'folder_id': p.id}) + "'>" + p.name + "</a> > "
+    if len(parents) > 1:
+        for p in reversed(parents[0:-1]):
+            res += "<a href='" + reverse("ref:project_home", kwargs={'folder_id': p.id}) + "'>" + p.name + "</a> > "
+    else:
+        res += "<a href='" + reverse("ref:project_home", kwargs={'folder_id': value.id}) + "'>" + value.name + "</a> > "
     return mark_safe(res[0:-2])
