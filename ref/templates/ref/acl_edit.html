@@ -43,9 +43,9 @@
                     });
 
                     grlist.change(function () {
-                        $("#form input").prop("disabled", false);
+                        $("#aclcol input").prop("disabled", false);
                         var group_name = grlist.val();
-                        $("input[type='checkbox']").prop("checked", false);
+                        $("#aclcol input[type='checkbox']").prop("checked", false);
                         $.each(acl[group_name], function () {
                             $("input[value=" + this + "]").prop("checked", true);
                         });
@@ -63,11 +63,15 @@
                         }
                     });
 
+                    $("input#blockinherit").change(function () {
+                        ace['_block'] = $(this).prop("checked");
+                    });
+
                     $("input#remove").click(function () {
                         var group_name = grlist.val();
                         $("option[value='" + group_name + "']").remove();
                         delete acl[group_name];
-                        $("#form input").prop("disabled", true);
+                        $("#aclcol input").prop("disabled", true);
                     });
 
                     $("button#add").click(function () {
@@ -86,25 +90,64 @@
                         }, null);
                     });
 
-                    $("#form input").prop("disabled", true);
+                    $("#aclcol input").prop("disabled", true);
+                    acl['_block'] = {{ folder.block_inheritance | lower }};
+                    $("input#blockinherit").prop('checked', acl['_block']);
                 }
         );
     </script>
 {% endblock %}
 
 {% block content %}
-    <div id="form">
-        <div>
-            <select id="groups" size="10" style="min-width: 15em;"></select>
+    <div id="form" class="row metContainer">
+        <div id="aclcol" class="col-md-8">
+            <div style='color: white;' class='row'>
+                <div class='t2 col-md-12' style='color: black;'>ACL des groupes</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    Créer une ACl pour le groupe
+                    <select id="grouplist"></select>
+                    <button type="button" id="add" class="cancel">Créer</button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <select id="groups" size="10" style="min-width: 15em;"></select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="button" class="cancel" id="remove" value="Supprimer le groupe sélectionné">
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="ace"></div>
+                </div>
+            </div>
+
+
         </div>
-        <div>
-            <input type="button" id="remove" value="Supprimer le groupe sélectionné de la liste">
+
+        <div class="col-md-4">
+            <div style='color: white;' class='row'>
+                <div class='t2 col-md-12' style='color: black;'>Général</div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div>
+                        <input id='blockinherit' type='checkbox' value='false'>
+                        <label for='blockinherit'>Bloquer l'héritage des dossiers parent</label>
+                    </div>
+                    <button type="button" id="save">Enregistrer</button>
+                </div>
+            </div>
         </div>
-        <div>
-            <select id="grouplist"></select>
-            <button type="button" id="add">Ajouter ce groupe à la liste</button>
-        </div>
-        <button type="button" id="save">Enregistrer</button>
-        <div id="ace"></div>
     </div>
 {% endblock %}

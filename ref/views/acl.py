@@ -35,10 +35,13 @@ def set_acl(request, folder_id):
             ace.delete()
 
         for group_name, perm_list in d.items():
-            if len(perm_list) == 0:
+            if group_name == '_block' or len(perm_list) == 0:
                 continue
             group = [g for g in groups if g.name == group_name][0]
 
             for perm in perm_list:
                 AclAuthorization(target=folder, codename=perm, group=group).save()
+
+        folder.block_inheritance =  bool(d['_block'])
+
         return redirect("ref:set_acl", folder_id)
