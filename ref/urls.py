@@ -12,6 +12,7 @@ from ref.views.misc import project_home
 urlpatterns = patterns('',
     url(r'^node/(?P<folder_id>\d+)/acl', views.set_acl, name='set_acl'),
     url(r'^node/(?P<folder_id>\d+)$', project_home, name='project_home'),
+    url(r'^node/(?P<folder_id>\d+)/delete$', views.remove_folder, name='folder_delete'),
 
     url(r'^node/(?P<folder_id>\d+)/shared$', views.shared_ci, name='shared_ci'),
     url(r'^node/(?P<folder_id>\d+)/sharedrecursive$', views.shared_ci, {'recursive': True}, name='shared_ci_rec'),

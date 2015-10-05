@@ -53,6 +53,15 @@ class AdministrationUnit(models.Model):
         verbose_name = u'dossier'
         verbose_name_plural = u'dossiers'
 
+    def is_empty(self):
+        return len(self.environment_set.all()) + len(self.subfolders.all()) == 0
+    empty = property(is_empty)
+
+    def delete(self, using=None):
+        if not self.empty:
+            raise Exception('non-empty folders cannot be deleted')
+        super(AdministrationUnit, self).delete(using)
+
     def __unicode__(self):
         return self.name
 

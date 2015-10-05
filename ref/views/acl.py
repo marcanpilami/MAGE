@@ -1,6 +1,8 @@
 # coding: utf-8
 import json
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.contrib.auth.views import redirect_to_login
 from django.db.transaction import atomic
 from django.shortcuts import render_to_response, redirect
 from ref.models.ou import PERMISSIONS, AclAuthorization, folder_permission_required
@@ -42,6 +44,19 @@ def set_acl(request, folder_id):
             for perm in perm_list:
                 AclAuthorization(target=folder, codename=perm, group=group).save()
 
-        folder.block_inheritance =  bool(d['_block'])
+        folder.block_inheritance = bool(d['_block'])
 
         return redirect("ref:set_acl", folder_id)
+
+
+@atomic
+@login_required
+def remove_folder(request, folder_id):
+    folder = AdministrationUnit.objects.get(pk=folder_id)
+    parent_id = folder.parent_id
+
+    if not request.user.has_perm('delete_folder', parent_id):
+        return redirect_to_login(request.path)
+
+    folder.delete()
+    return redirect('ref:project_home', parent_id)
