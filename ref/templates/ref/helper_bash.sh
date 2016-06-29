@@ -198,7 +198,7 @@ function mage_run_csv_query
     done
 
     tmpFile="/tmp/tmpQuery_$$_$RANDOM"
-    mage_query -q "ref/mql/csv/${query}" -s $s | tail -n +2 >$tmpFile
+    mage_query -q "ref/mql/csv/${query}" -s $s | tail -n +2 | tr -d "\r" >$tmpFile
     ok=$?
 
     if [[ $ok -ne 0 ]]
