@@ -32,8 +32,14 @@ $(document).ready(function()
            
            var same_envt = $(same, this).sort(function(a,b){return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());});
            var others = $("option:not("+same+")", this).sort(function(a,b){return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());});
-           
+           var empty = $("option[value='']", this);
+
            select.empty();
+           if (empty)
+           {
+               select.append(empty);
+           }
+
            if (same_envt.length > 0)
            {
                	var gr1 = select.append("<optgroup label='Belonging to selected environment " + env_names + "' >");

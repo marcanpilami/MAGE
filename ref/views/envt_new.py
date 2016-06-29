@@ -194,6 +194,8 @@ class FullCIEditFormBase(forms.ModelForm):
             new_data = self.cleaned_data[field.name]
             if isinstance(new_data, ComponentInstance):
                 new_data = [new_data, ]
+            if new_data is None:
+                continue
             for ci in new_data:
                 ComponentInstanceRelation.objects.update_or_create(target=ci, source=self.mage_instance, field=field)
 

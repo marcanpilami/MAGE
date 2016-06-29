@@ -13,3 +13,6 @@ d17
 d18
 .idea
 env
+obj/
+bin/
+.vs/
