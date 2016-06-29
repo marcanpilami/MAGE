@@ -16,3 +16,4 @@ env
 obj/
 bin/
 .vs/
+staticroot/
