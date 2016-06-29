@@ -7,7 +7,10 @@
 <a href="{% url 'scm:delivery_edit_dep' delivery.id %}" title="Editer les dépendances">D</a>
 {% if delivery.status > 1 %}
 	<a href="{% url 'scm:iset_validate' delivery.id %}" title="Valider la livraison">V</a>
+{% else %}
+    <a href="{% url 'scm:iset_invalidate' delivery.id %}" title="Invalider la livraison">U</a>
 {% endif %}
+
 <a href='{% url "scm:iset_export" delivery.id "csvc" %}' title="CSV du contenu">C</a>
 <a href='{% url "scm:iset_export" delivery.id "sh" %}' title="Script shell détaillant le contenu">S</a>
 {%endblock%}
