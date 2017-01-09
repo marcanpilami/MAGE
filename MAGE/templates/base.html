@@ -48,7 +48,11 @@
                     <ul class="nav navbar-nav navbar-right" id='inout'>
                         {% if user.is_authenticated %}
                         <li>
-                            <p class="navbar-text">{{ user.username }}</p>
+							{% if user.last_name and user.first_name %}
+							<p class="navbar-text">{{ user.first_name }} {{ user.last_name }}</p>
+							{% else %}
+							<p class="navbar-text">{{ user.username }}</p>
+							{% endif %}
                         </li>
                         {% endif %}
                         <li>
