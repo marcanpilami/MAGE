@@ -6,7 +6,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = False
+DEBUG = (os.getenv("DEBUG") == "True")
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
@@ -14,12 +14,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, r'tmp\db.sqlite'),  # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'ENGINE': os.getenv("DB_ENGINE"),
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
         'PORT': '',  # Set to empty string for default.
     }
 }
@@ -28,7 +27,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv('WEBSITE_HOSTNAME'), ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -55,7 +54,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'tmp/media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -66,7 +65,7 @@ MEDIA_URL = '/magefiles/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'tmp/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -95,7 +94,9 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'ref.middleware.DisableCSRF',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'MAGE.force_login_middleware.ForceLoginMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -153,10 +154,11 @@ LOGGING = {
     }
 }
 
-LOGIN_URL = 'login'  # named URL
+LOGIN_URL = 'openid'  # named URL
 LOGIN_REDIRECT_URL = 'welcome'
 # Only used when force logging middleware is enabled (off by default):
-FORCE_LOGIN_EXCEPTIONS = ('login', 'logout', 'script_logout', 'script_login', 'script_login_post', 'force_login', 'openid', )
+FORCE_LOGIN_EXCEPTIONS = ('login', 'logout', 'script_logout', 'script_login', 'script_login_post', 'force_login',
+                          'openid', 'openid_with_op_name', 'openid_login_cb', 'openid_logout_cb' )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
@@ -170,6 +172,49 @@ CACHES = {
         'LOCATION': 'houba-hop'
     }
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'djangooidc.backends.OpenIdConnectBackend',
+)
+
+##################################
+# OIDC
+
+OIDC_LOGIN_TEMPLATE = "fed_login.html"
+
+OIDC_ALLOW_DYNAMIC_OP = False
+
+OIDC_CALLBACK_URL_START = "%s://%s" %(os.getenv('WEBSITE_PROTOCOL', 'https'), os.getenv('WEBSITE_HOSTNAME', 'localhost'))
+
+OIDC_DYNAMIC_CLIENT_REGISTRATION_DATA = {
+    "application_type": "web",
+    "contacts": [a[1] for a in ADMINS],
+    "redirect_uris": ["%s/openid/callback/login/" %OIDC_CALLBACK_URL_START, ],
+    "post_logout_redirect_uris": ["%s/openid/callback/logout/" %OIDC_CALLBACK_URL_START, ]
+}
+
+OIDC_DEFAULT_BEHAVIOUR = {
+    "response_type": "code",
+    "scope": ["openid", "profile", "email", "address", "phone"],
+}
+
+OIDC_PROVIDERS = {
+    "Azure Active Directory": {
+        "srv_discovery_url": "https://sts.windows.net/%s/" % os.getenv('AZURE_AD_DIRECTORY_GUID'),
+        "behaviour": OIDC_DEFAULT_BEHAVIOUR,
+        "client_registration": {
+            "client_id": os.getenv('AZURE_AD_CLIENT_ID'),
+            "client_secret": os.getenv('AZURE_AD_CLIENT_SECRET'),
+            "redirect_uris": ["%s/openid/callback/login/" %OIDC_CALLBACK_URL_START, ],
+            "post_logout_redirect_uris": ["%s/openid/callback/logout/" %OIDC_CALLBACK_URL_START, ],
+            "token_endpoint_auth_method": "client_secret_post",
+        }
+    },
+}
+
+#
+##################################
 
 LOCAL_APPS = ()
 try:

@@ -1,0 +1,2 @@
+[config]
+command = deploy_azure.cmd

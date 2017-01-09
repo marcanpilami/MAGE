@@ -1,0 +1,21 @@
+<?xml version="1.0"  encoding="utf-8"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <system.webServer>
+    <fastCgi>
+      <application xdt:Transform="Insert"
+            fullPath="D:\Python27\python.exe" 
+            arguments="D:\home\site\wwwroot\env\Lib\site-packages\wfastcgi.py" 
+            monitorChangesTo="" 
+            stderrMode="ReturnStdErrIn500" 
+            maxInstances="1" 
+            idleTimeout="300" 
+            activityTimeout="30" 
+            requestTimeout="90" 
+            instanceMaxRequests="200" 
+            protocol="NamedPipe" 
+            queueLength="1000" 
+            flushNamedPipe="false" 
+            rapidFailsPerMinute="10"/>
+    </fastCgi>
+   </system.webServer>
+</configuration>

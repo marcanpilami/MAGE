@@ -1,39 +1,29 @@
 """
 WSGI config for MAGE project.
 
-This module contains the WSGI application used by Django's development server
-and any production WSGI deployments. It should expose a module-level variable
-named ``application``. Django's ``runserver`` and ``runfcgi`` commands discover
-this application via the ``WSGI_APPLICATION`` setting.
+It exposes the WSGI callable as a module-level variable named ``application``.
 
-Usually you will have the standard Django WSGI application here, but it also
-might make sense to replace the whole Django WSGI application with a custom one
-that later delegates to the Django one. For example, you could introduce WSGI
-middleware here, or combine a Django application with an application of another
-framework.
-
+For more information on this file, see
+https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
+
 import os
-import sys
 
-mage_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.path.pardir)
-if mage_path not in sys.path:
-    sys.path.append(mage_path)
-    #sys.path.append(os.path.join(pydici_path,"pydici"))
+from django.core.wsgi import get_wsgi_application
 
+###############
+## HACK - Django expects decoded data in PATH_INFO, but the Azure publication chain actually returns it still URL-encoded.
+## See https://github.com/Microsoft/PTVS/issues/123 (rewrite issue)
+import urllib
+import django.core.handlers.wsgi
+def get_path_info(environ):
+    path_info = django.core.handlers.wsgi.get_bytes_from_wsgi(environ, 'PATH_INFO', '/')
+    return urllib.unquote(path_info.decode(str('utf-8')))
+django.core.handlers.wsgi.get_path_info = get_path_info
+##
+## END OF HACK
+###############
 
-# We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
-# if running multiple sites in the same mod_wsgi process. To fix this, use
-# mod_wsgi daemon mode with each site in its own daemon process, or use
-# os.environ["DJANGO_SETTINGS_MODULE"] = "MAGE2.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MAGE.settings")
 
-# This application object is used by any WSGI server configured to use this
-# file. This includes Django's development server, if the WSGI_APPLICATION
-# setting points here.
-from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
-
-# Apply WSGI middleware here.
-# from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)
