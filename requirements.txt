@@ -16,5 +16,5 @@ requests==2.7
 azure-storage==0.20.0
 
 ## Following libraries are not used in normal operations, the are just present for debugging in case of problem.
-#ipython
-#django_debug_toolbar
+ipython
+django_debug_toolbar

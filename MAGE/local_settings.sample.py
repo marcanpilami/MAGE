@@ -111,7 +111,7 @@ LANGUAGE_CODE = 'fr-fr'
 LOCAL_APPS=()
 
 # Add your own middleware here.
-# Example: LOCAL_MIDDLEWARE_CLASSES = ('MAGE.profiler.ProfileMiddleware',)
+# Example: LOCAL_MIDDLEWARE_CLASSES = ('MAGE.profiler.ProfileMiddleware', 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 LOCAL_MIDDLEWARE_CLASSES = ()
 
 
@@ -132,6 +132,9 @@ LOCAL_MIDDLEWARE_CLASSES = ()
 
 # If True, detailed exception will be displayed on errors. Performance and security impact.
 DEBUG = False
+
+# The list of clients considered as local. Only these can see the debug toolbar if enabled.
+#INTERNAL_IPS = [ '127.0.0.1', ]
 
 # The list of admins that receive a mail when a server error occurs
 ADMINS = (
