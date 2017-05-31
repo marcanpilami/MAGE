@@ -19,7 +19,7 @@ from ref.models.parameters import getParam
 
 
 def install_iset_envt(iset, envt, force_prereqs = False, install_date = None, ticket = None):
-    compos = envt.component_instances.filter(instanciates__isnull=False)
+    compos = envt.component_instances.filter(instanciates__isnull=False, deleted=False)
     install_iset(iset, compos, envt, force_prereqs, install_date, ticket)
 
 def install_iset(iset, targets, envt, force_prereqs = False, install_date = None, ticket = None, ii_selection = None):
