@@ -1,6 +1,10 @@
 MAGE - Module d'Assistance à la Gestion d'Environnement
 ============================================================
 
+Note that MAGE is created using the excellent IDE [PyCharm](https://www.jetbrains.com/pycharm), provided freely by [JetBrains](https://www.jetbrains.com) to this open source project. Huge thanks to them.
+
+Notez que MAGE est créé avec l'IDE [PyCharm](https://www.jetbrains.com/pycharm), fourni gratuitement par [JetBrains](https://www.jetbrains.com) à ce projet open source. Grand merci à eux.
+
 (in French - MAGE is not localized in other languages yet)
 
 MAGE est un framework permettant de facilement mettre en place un outillage de gestion d'environnements sur un projet informatique. 
