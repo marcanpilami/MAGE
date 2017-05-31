@@ -45,6 +45,11 @@ class CartoForm(forms.Form):
                     max_value=20,
                     min_value=0,
                     initial=3)
+    
+    include_deleted = forms.BooleanField(
+                    label=u'inclure éléments effacés',
+                    initial=False,
+                    required=False)
 
     def __init__(self, *args, **kwargs):
         super(CartoForm, self).__init__(*args, **kwargs)
@@ -65,7 +70,10 @@ def carto_content_form(request):
     if request.method == 'POST':  # If the form has been submitted...
         form = CartoForm(request.POST)  # A form bound to the POST data
         if form.is_valid():  # All validation rules pass
-            rs = ComponentInstance.objects.all()
+            if form.cleaned_data['include_deleted']:
+                rs = ComponentInstance.objects.all()
+            else:
+                rs = ComponentInstance.objects.filter(deleted=False)
 
             if len(form.cleaned_data['envts']) > 0:
                 rs = rs.filter(environments__pk_in=form.cleaned_data['envts'])
