@@ -63,6 +63,7 @@ class InstallableSet(models.Model):
         failures = []
         if len(ii_selection) == 0:
             ii_selection = self.set_content.all()
+            
         for ii in self.set_content.all():
             try:
                 ii.check_prerequisites(envt_name, ii_selection)

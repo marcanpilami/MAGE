@@ -59,6 +59,7 @@ def lc_versions_per_environment(request):
             .prefetch_related('component_instance__environments')
 
     res = {}
+    
     for cic in cics:
         if not res.has_key(cic.component_instance.instanciates.implements):
             res[cic.component_instance.instanciates.implements] = OrderedDict()

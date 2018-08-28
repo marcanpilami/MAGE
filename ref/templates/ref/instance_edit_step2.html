@@ -74,6 +74,8 @@ $(document).ready(function()
 
 
 {% block content %}
-Cette instance est du type "{{instance.description.description}}". {% if instance.environments.all %}Elle appartient à {{ instance.environments.all|join:", "}}.{% else %}Elle n'appartient à aucun environnement.{% endif %}
+ <div style="margin-left: 50px; margin-top: 50px;">
+ <div  style ="width: 80% ;margin-left: 110px; "class="alert alert-success">Cette instance est du type "{{instance.description.description}}". {% if instance.environments.all %}Elle appartient à {{ instance.environments.all|join:", "}}.{% else %}Elle n'appartient à aucun environnement.{% endif %}</div>
 	{% crispy form %}
+	</div>
 {% endblock content %}

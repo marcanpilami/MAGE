@@ -5,20 +5,36 @@
 {% block content %}
 
 {% if error %}
-	<div class='metContainer metErrorBackground'>
+<div class="alert alert-danger" style="margin-top: 5px;">
+  <strong>Error !</strong>{{error | linebreaks}} 
+</div>
+	<!--  <div class='metContainer metErrorBackground' >
 		{{error | linebreaks}}
 	</div>
+	-->
 	<br/>
-	<a class='metContainer metErrorBackground' href="{% url 'scm:iset_apply_envt_force' delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;</a>
+	<a  href="{% url 'scm:iset_apply_envt_force' delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;  <button type="button" class="btn btn-danger">Enregistrer<i class="fas fa-skull"></i></button></a>
 {% else %}
-	<div class='metContainer metOkBackground'>
+	<!--  <div class='metContainer metOkBackground'>
 		L'environnement est prêt à accueillir la livraison
-	</div>
+	</div>-->
+	
+	<div class="alert alert-success" style="margin-top: 5px;">
+     <strong>Success!</strong> L'environnement est prêt à accueillir la livraison
+    </div>
+    
+   
+<span>Cliquez ici pour enregistrer l'application de l'ensemble de cette livraison sur tous les composants éligibles de cet environnement. </span>
 
-	<a class='metRectList defaultHighlightBackground' style='height:auto;'
+<a href="{% url 'scm:iset_apply_envt' delivery.id envt.id %}"> 
+  <button type="button" class="btn btn-success">Enregistrer  <i class="fas fa-save"></i>
+
+  </button> </a>
+
+	<!-- <a class='metRectList defaultHighlightBackground' style='height:auto;'
 		href="{% url 'scm:iset_apply_envt' delivery.id envt.id %}">
 		Cliquez ici pour enregistrer l'application de l'ensemble de cette livraison sur tous les composants éligibles de cet environnement.
-	</a>
+	</a> -->
 {% endif %}
 
 

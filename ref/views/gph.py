@@ -59,10 +59,16 @@ class CartoForm(forms.Form):
         self.fields['models'].initial = [m.pk for m in ImplementationDescription.objects.all()]
         self.fields['reltypes'].queryset = ImplementationRelationType.objects.all()
         self.fields['reltypes'].initial = [m.pk for m in ImplementationRelationType.objects.all()]
+        #changing each class field for the every input 
+        self.fields['relRecursion'].widget.attrs = {'style':'width :100% ;border-radius: 3px;'}
+        self.fields['collapseThr'].widget.attrs = {'style':'width :100% ; border-radius: 3px;'}
 
 
 def carto_form(request):
     """Marsupilamographe"""
+    
+   
+    
     return render_to_response('ref/view_carto2.html', {'form': CartoForm()})
 
 def carto_content_form(request):

@@ -5,13 +5,32 @@
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link rel="shortcut icon" href='{% static "fav.png" %}' />
-		
 		<title>{%block pagetitle%}MAGE{%endblock pagetitle%}</title>
+		
 		{%block scripts%}{%endblock%}
 		{%block other_css%}{%endblock%}
 		
-		<link media="all" type="text/css" href="{% static "bootstrap-3.3.4/css/bootstrap.min.css" %}" rel="stylesheet"/>
-		<link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
+		
+	     <!--<link media="all" type="text/css" href="{% static "bootstrap-3.3.4/css/bootstrap.min.css" %}" rel="stylesheet"/>-->
+		 <link media="all" type="text/css" href="{% static "NavigationBar.css" %}" rel="stylesheet"/>
+		 <link media="all" type="text/css" href="{% static "mage.css" %}" rel="stylesheet"/>
+		 <!--   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+         <!--  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">-->
+         
+         <!--font awesom from internet -->
+         <!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">-->
+         <!--font awesom from local dir  -->
+         <link rel="stylesheet" href="{% static "fontawesome-free-5.2.0-web/css/all.css" %}" >
+        
+         <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+         <link rel="stylesheet" href="{% static "bootstrap-3.3.7/css/bootstrap.min.css" %}">
+         
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+        <script src="{% static "jquery-3.3.1/jquery.min.js" %}"></script>
+         
+         <!--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+         <script src="{% static "bootstrap-3.3.7/js/bootstrap.min.js" %}"></script>
+		 
 		
 		<script type="text/javascript">function back() 
 		{
@@ -33,13 +52,73 @@
 			}
 		}</script>
 	</head>
-	<body>
-		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<body style ="background-color: #efeff0 ;" >
+	
+	
+	
+	    
+		{%block sidebar%}
+	<div  style ="float: left; width: 200px; margin-left: 0px; padding-top: 0em;" class="sidebar-nav" >
+    <ul>
+        
+        
+        <li><a href="#" data-target=".dashboard-menu" class="nav-header collapsed in  " data-toggle="collapse"><i class="fas fa-grip-vertical"></i> Les environnements <i class="fa fa-collapse"></i></a></li>
+        <li>
+            <ul class="dashboard-menu nav nav-list collapse ">
+            <li><a href="{% url 'ref:cartoform' %}"><span class="fa fa-caret-right"></span> carte interactive</a></li>
+            <li ><a  href="{% url 'ref:grfull' %}" ><span class="fa fa-caret-right"></span> carte générale</a></li>
+            <li ><a href="{% url 'ref:new_item' %}" ><span class="fa fa-caret-right"></span> créer un element de référence </a></li>
+            <li ><a href="{% url 'ref:backuped' %}"><span class="fa fa-caret-right"></span> eléments sauvegardés</a></li>
+            <li ><a href="{% url 'ref:shared_ci' %}" ><span class="fa fa-caret-right"></span> composants mutualisés</a></li>
+            </ul>
+        </li>
+        
+        <li ><a  data-target=".premium-menu" class="nav-header collapsed" data-toggle="collapse"><i class="fas fa-cog"></i>Gestion configuration<i class="fa fa-collapse"></i></a></li>
+        <li>
+            <ul class="premium-menu nav nav-list collapse">
+            <li ><a href="{% url 'scm:lc_installs_envts' %}" ><span class="fa fa-caret-right"></span> Les versions courants </a></li>
+            <li ><a href="{% url 'scm:deliveries' %}" ><span class="fa fa-caret-right"></span> Livraisons disponibles</a></li>
+            <li ><a href="{% url 'scm:delivery_create' %}" ><span class="fa fa-caret-right"></span> référencer une livraison </a></li>
+            <li ><a href="{% url 'scm:tag_list' %}" ><span class="fa fa-caret-right"></span> tags</a></li>
+            <li ><a href="{% url 'scm:backup_list' %}" ><span class="fa fa-caret-right"></span> sauvegardes disponibles</a></li>
+            <li ><a href="{% url 'scm:lc_list' %}" ><span class="fa fa-caret-right"></span> versions disponibles</a></li>
+            </ul>
+        </li>
+
+        <li><a  data-target=".legal-menu" class="nav-header collapsed" data-toggle="collapse"><i  class="fas fa-link"></i> Liens utiles<i class="fa fa-collapse"></i></a></li>
+        <li>
+            <ul class="legal-menu nav nav-list collapse">
+            <li ><a href="#/notification"><span class="fa fa-caret-right"></span> Lien1 </a></li>
+            <li ><a href="#/notif"><span class="fa fa-caret-right"></span> Lien2</a></li>
+            </ul> 
+        </li>   
+        
+        <li><a  data-target=".aidesscripting" class="nav-header collapsed" data-toggle="collapse"><i class="fas fa-medkit"></i> Aides scripting<i class="fa fa-collapse"></i></a></li>
+        <li>
+            <ul class="aidesscripting nav nav-list collapse">
+            <li ><a href="{% url 'ref:types' %}" ><span class="fa fa-caret-right"></span> Types composants  </a></li>
+            <li ><a href="{% url 'ref:mqltester' %}" ><span class="fa fa-caret-right"></span> requete MQL</a></li>
+            <li ><a href="{% url 'ref:types_details' %}" ><span class="fa fa-caret-right"></span> détails composants installés  </a></li>
+            <li ><a href="{% url 'ref:urls' %}" ><span class="fa fa-caret-right"></span> API web partielle </a></li>
+            <li ><a href="{% url 'ref:cartostructure' %}"><span class="fa fa-caret-right"></span> Graphes</a></li>
+            </ul> 
+        </li>
+        
+      
+       
+       </ul>
+       </div> 
+       {%endblock%}
+      
+       
+	   
+	    
+		<div   style ="background-color:#4d4d4d"   class="navbar navbar-inverse navbar-fixed-top" role="navigation"  >
 			<div class='container-fluid'>
 				<div class='navbar-header'>
                     <a class="navbar-brand" href="{% url 'welcome' %}">MAGE</a>
 				</div>
-                
+               
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-left">
                         <li><p class="navbar-text caps pageTitle">{%block maintitle%}{%endblock%}</p></li>
@@ -69,13 +148,20 @@
                 </div>			
 			</div>
 		</div>
+		
 		{% if messages %}
 		<div class='bloc1'>
 		    {% for message in messages %}
 		    <li>{{ message }}</li>
 		    {% endfor %}
 		</div>
-		{% endif %}
-		<div class='container-fluid'>{%block content%}{%endblock content%}</div>		
+	    {% endif %}
+		
+		
+   
+	<div   style=" margin: 50px 0em 0 200px; padding: 0px 15px 0; " class='container-fluid' >{%block content%}{%endblock content%}</div>
+	
+  
+	
 	</body>
 </html>

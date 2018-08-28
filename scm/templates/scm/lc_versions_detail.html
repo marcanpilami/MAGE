@@ -11,18 +11,44 @@
 {% for v in lc.versions.all|dictsortreversed:"pk" %}
 <div class='row'>
     <div class='col-md-1'>
-	   <div class='metRectList defaultHighlightBackground'>{{ v.version }}</div>
+	   <div class='metRectList defaultHighlightBackground' style="background-color: #808080;color: white;">{{ v.version }}</div>
 	</div>
 	<div class='col-md-11'>
-    	{% for ii in v.installed_by.all %}
+
+<div class="btn-group" style="height: 60px; padding-top: 5px;">
+ <button type="button" class="btn " style=" width: 140px;  border-radius: 0px; height: 40px; ">Livré dans</button>
+  <button   type="button" class="btn  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="height: 40px;">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  
+  <ul class="dropdown-menu">
+     {% for ii in v.installed_by.all %}
+        {% if not ii.belongs_to_set.backupset %}
+    <li><a href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">{{ ii.belongs_to_set.name }}</a></li>
+        {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+    	<!--  {% for ii in v.installed_by.all %}
             {% if not ii.belongs_to_set.backupset %}
         		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">
         			<div class='smallContent'>Livré dans</div>{{ ii.belongs_to_set.name }}
         		</a>
             {% endif %}
-    	{% endfor %}
+    	{% endfor %}-->
     </div>
 </div>
 {% endfor %}
+
+
+
+
+
+
+
+
+
+
 
 {% endblock content %}

@@ -4,36 +4,20 @@
 {% block pagetitle %}Composant mutualisés{% endblock %}
 {% block maintitle %}Composant mutualisés{% endblock %}
 
-{% block scripts %}
-<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
-<script type="text/javascript" src='{% static "datatables-1.10.5/js/jquery.dataTables.min.js" %}'></script>
-<script type="text/javascript" src='{% static "datatables-1.10.5/js/dataTables.bootstrap.min.js" %}'></script>
-<link rel="stylesheet" type="text/css" href='{% static "datatables-1.10.5/css/dataTables.bootstrap.css" %}'>
-<script type="text/javascript">
-$(document).ready(function() {
-    $('.dt').DataTable({
-        'paging': false,
-        'searching': false,
-        'info': false,
-        'order': [[0,"asc"]],
-        'columnDefs': [{'orderable': false, 'targets': [-1,]}],
-	});
-} );
-</script>
-{% endblock scripts %}
+
 
 {% block content %}
 {% regroup cis by description as compotype_list %}
 
 <div class='row'>
 
-<div class='col-md-12'>
+<div class='col-md-12' style="margin: 5px 5px 0px 5px;">
     {% for compotype in compotype_list %}
-        <div class='t4'>{{compotype.grouper.description}}</div>
-        <div class='table-responsive'>
+        <div class='t4' >{{compotype.grouper.description}}</div>
+        <div class='table-responsive' style =" border-radius: 10px 10px 0 0;">
             <table class='table table-condensed table-bordered table-hover dt'>
                 {% comment %} Table Header {% endcomment %}
-	            <thead>
+	            <thead   style ="background-color: #4d0000 ; color: rgba(201,195,195,1);">
                     <tr>
                         <th>Nom</th>
                         <th>Environnements</th>
@@ -64,7 +48,7 @@ $(document).ready(function() {
                            <td>{{compo | apply_field_template:field | urlify}}</td>
                        {% endfor %}
                         
-                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                       {% if perms.ref.change_component_instance %}<td style="width: 30px;"><a href='{%url "ref:edit_ci" compo.pk %}'><i class="fa fa-edit" ></i></a></td>{% endif %}
                    </tr>
                 {% endfor %}
                 </tbody>
@@ -87,5 +71,5 @@ $(document).ready(function() {
     {% endif %}
 </div>
 
-</div> <!-- Main row div -->
+</div> 
 {% endblock content %}

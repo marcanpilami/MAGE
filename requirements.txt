@@ -1,7 +1,5 @@
 --find-links wheelhouse
-## To ease compilation on Windows
-pip>9
-setuptools>6
+
 
 ## Core dependencies
 django>=1.8,<1.9

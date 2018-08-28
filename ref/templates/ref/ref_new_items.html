@@ -8,56 +8,173 @@
 {%endblock%}
 
 {% block content %}
+
+
 {% regroup impls by tag as tag_list %}
-<!-- <a class='metSquare' href="{% url 'ref:new_item' %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
-<a class='metSquare' href="{% url 'ref:new_item' %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
--->
 
 
-<div class='container-fluid'>
-	<div class='col-md-1'>
-		<a class='metRectList metLineHeader'>1 - Méta référentiel</a>
-	</div>
-	<div class='col-md-11'>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_implementationrelationtype_add' %}">Types de liens<div class='metSquareLong annotation'>familles de liens entre composant pour classification</div></a>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_implementationdescription_add' %}">Description technique<div class='metSquareLong annotation'>comment les instances vont être décrites dans le référentiel</div></a>		
-	</div>
-	
-	<div class='col-md-1'>
-		<a class='metRectList metLineHeader'>2 - Offres</a>
-	</div>
-	<div class='col-md-11'>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_project_add' %}">Projet<div class='metSquareLong annotation'>Regroupement d'applications</div></a>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_application_add' %}">Application<div class='metSquareLong annotation'>Regroupement de composants logiques, d'environnements</div></a>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_logicalcomponent_add' %}">Composant logique<div class='metSquareLong annotation'>ce que réprésentent réellement les instances</div></a>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_componentimplementationclass_add' %}">Offres d'implémentation<div class='metSquareLong annotation'>façon d'implémenter les composants logiques</div></a>
-	</div>
-	
-	<div class='col-md-1'>
-		<a class='metRectList metLineHeader'>3 - Environnements</a>
-	</div>
-	<div class='col-md-11'>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_environmenttype_add' %}">Type d'environnement<div class='metSquareLong annotation'>sert à classer les environnements</div></a>
-		<a class='metRectList metDefaultColors' href="{% url 'admin:ref_environment_add' %}">Environnement<div class='metSquareLong annotation'>regroupement d'instances pour faciliter leur gestion</div></a>
-	</div>
-	
-	<div class='col-md-1'>
-		<a class='metRectList metLineHeader'>4 - Instances</a>
-	</div>	
-	{% for tag in tag_list|dictsort:"grouper" %}
-		{% if forloop.first %}
-		<div class='col-md-1'>
-		{% else %}
-		<div class='col-md-1 col-md-offset-1'>
-		{% endif %}
-			<a class='metRectList metSubLineHeader'>{% if tag.grouper %}{{tag.grouper}}{% else %}non classé{% endif %}</a>
+
+
+<div style =  "margin: 30px 30px 10px 50px;" class="bs-example   ">
+    <ul class="nav nav-tabs border-success" id="myTab">
+        <li class="active"><a href="#sectionA">Méta référentiel</a></li>
+        <li><a href="#sectionB">Offres</a></li>
+        <li><a href="#sectionC">Environnements</a></li>
+        <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">instances<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+            {% for tag in tag_list|dictsort:"grouper" %}
+		    <li> <a  href="#{% if tag.grouper %}{{tag.grouper}}{% else %}non{% endif %}">{% if tag.grouper %}{{tag.grouper}}{% else %}non classé{% endif %}</a></li>
+		   {% endfor %}
+            </ul>
+        </li>
+    </ul>
+    
+<div class="tab-content ">
+     
+     
+     
+     <div id="sectionA" class="tab-pane fade in active">
+       <div   style ="margin-left: 0px;   " class="container">
+       <div class="row">
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_implementationrelationtype_add' %}" >
+                 <div class="ssb-icon"><i class="fas fa-link" aria-hidden="true"></i></div>
+                 <h2 class="ssb-title">Types de liens</h2>  
+                 <div class='metSquareLong annotation'>familles de liens entre composant pour classification</div>
+               </a>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_implementationdescription_add' %}" >
+                 <div class="ssb-icon"> <i class="fas fa-file-prescription" aria-hidden="true"></i> </div>
+                 <h2 class="ssb-title">Description technique</h2>  
+                <div class='metSquareLong annotation'>comment les instances vont être décrites dans le référentiel</div>
+               </a>
+            </div>
+          </div>
+        </div>
+       </div> 
+      </div>
+       
+      
+      
+      
+      
+     <div id="sectionB" class="tab-pane fade">
+      <div   style ="margin-left: 0px;" class="container">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_project_add' %}" >
+                 <div class="ssb-icon"><i class="fa fa-globe" aria-hidden="true"></i></div>
+                 <h2 class="ssb-title">Projet</h2>  
+                 <div class='metSquareLong annotation'>Regroupement d'applications</div>
+               </a>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_application_add' %}" >
+                 <div class="ssb-icon"> <i class="fas fa-plus-circle" aria-hidden="true"></i> </div>
+                 <h2 class="ssb-title">Application</h2>  
+                 <div class='metSquareLong annotation'>Regroupement de composants logiques, d'environnements</div>
+               </a>
+            </div>
+          </div>
+        </div>
+      </div> 
+                                   
+      <div   style ="margin-left: 0px;" class="container">
+       <div class="row">
+         <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_logicalcomponent_add' %}" >
+                 <div class="ssb-icon"><i class="fa fa-cubes" aria-hidden="true"></i></div>
+                 <h2 class="ssb-title">Composant logique</h2> 
+                 <div class='metSquareLong annotation'>ce que réprésentent réellement les instances</div> 
+               </a>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a  href="{% url 'admin:ref_componentimplementationclass_add' %}">
+                 <div class="ssb-icon"><i class="fas fa-barcode" aria-hidden="true"></i></div>
+                 <h2 class="ssb-title">Offres implémentation</h2>  
+                 <div class='metSquareLong annotation'>façon d'implémenter les composants logiques</div>
+               </a>
+            </div>
+          </div>
+       </div>
+      </div>
+   
+     </div>
+   
+   <div id="sectionC" class="tab-pane fade">
+     <div   style ="margin-left: 0px;   " class="container">
+      <div class="row">
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a href="{% url 'admin:ref_environmenttype_add' %}" >
+                 <div class="ssb-icon"><i class="fa fa-globe" aria-hidden="true"></i></div>
+                 <h2 class="ssb-title">Type d'environnement</h2>  
+                <div class='metSquareLong annotation'>sert à classer les environnements</div>
+               </a>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="square-service-block">
+               <a  href="{% url 'admin:ref_environment_add' %}"  >
+                 <div class="ssb-icon"> <i class="fas fa-plus-circle" aria-hidden="true"></i> </div>
+                 <h2 class="ssb-title">Environnement</h2>  
+                <div class='metSquareLong annotation'>regroupement d'instances pour faciliter leur gestion</div>
+               </a>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div>
+    
+    
+       
+        {% for tag in tag_list|dictsort:"grouper" %}
+        <div id="{% if tag.grouper %}{{tag.grouper}}{% else %}non{% endif %}" class="tab-pane fade">
+                <h2  style="color: rgba(201,195,195,1); margin-left: 20px;">{%if tag.grouper %}{{tag.grouper}}{% else %}non classe{% endif %}</h2>
+        	
+        	{% for desc in tag.list|dictsort:"name" %}
+			<div class="col-md-3">
+            <div class="square-service-block">
+               <a  href="{% url 'ref:new_item_ci' desc.id %}" >
+                 <div class="ssb-icon"> <i class="fas fa-plus-circle" aria-hidden="true"></i> </div>
+                 <div  style =" color: white;"class="ssb-title">{{desc.description|capfirst}}</div>  
+                <div class='metSquareLong annotation'>code {{desc.name}}</div>
+               </a>
+             </div>
+             </div>
+		    {% endfor %}
 		</div>
-		<div class='col-md-10'>
-		{% for desc in tag.list|dictsort:"name" %}
-			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' desc.id %}">{{desc.description|capfirst}}<div class='metSquareLong annotation'>code {{desc.name}}</div></a>
-		{% endfor %}
-		</div>
-	{% endfor %}
+	    {% endfor %}
+        
+
+        
 </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+    $("#myTab a").click(function(e){
+    	e.preventDefault();
+    	$(this).tab('show');
+    });
+});
+</script>
+
+
 {% endblock content %}
 

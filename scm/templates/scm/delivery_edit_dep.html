@@ -37,7 +37,7 @@ versionfinder="{% url 'scm:lc_versions_export' 99999999 %}";
 						<span {% if form.operator.errors %} class='formerror' {%endif %} >{{form.operator}} </span>
 						<span {% if form.depends_on_version.errors %} class='formerror' {%endif %} >{{ form.depends_on_version }}</span>
 						{{ form.id }} {{ form.DELETE }}
-						<input class="deleteContent" type="button" value="Supprimer" style='display: none'/>
+						<input class="deleteContent" type="button" value="Supprimer" style='display: none ;background-color: #800000; height: 20px; '/>
 					</div>
 				{% endfor %}
 			</div>

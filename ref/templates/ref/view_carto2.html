@@ -36,17 +36,82 @@ $(document).ready(function()
 {% block content %}
 
 <div class='container-fluid'>
-	<div class='col-md-1 bulletLessList'>
-		<button id='refresh'>Refresh</button>
+	<div class='col-md-2 bulletLessList'>
+	<br>
+		<button id='refresh' class="btn btn-success" style="width: 100%" >Refresh</button>
+		<br><br>
+		
+		
 		<form id='ff'>
-		{{form.as_p}}
-		</form>
+		 <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 15pt; " >{{form.envts.label}}</div>
+		 
+		<div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px;">{{form.envts}}</div>
+	    
+	    <br>
+	      <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 15pt;" >{{form.models.label}}</div>
+	      <div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px; ">{{form.models}}</div>
+	    <br><br>
+		
+		
+		 <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 15pt;" >{{form.reltypes.label}}</div>
+		 
+		<div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px;">{{form.reltypes}}</div>
+	    
+	    <br> 
+	     <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 15pt;" >{{form.relRecursion.label}}</div>
+		 
+		<div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px; ">{{form.relRecursion}}</div>
+	    
+	    
+	    
+	
+	      <br>
+	     
+	      <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 11pt;" >{{form.collapseThr.label}}</div>
+		 
+		<div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px; ">{{form.collapseThr}}</div>
+	    
+	     
+	   
+	    	    <br>
+	    	    
+	    	    
+	    	        <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1); font-size: 11pt;" >{{form.include_deleted.label}}</div>
+		 
+		<div style="background-color: 	rgba(160,164,165,0.25); padding-left: 2px;">{{form.include_deleted}}</div>
+		
+		
+		
+	  
+		
+		
+		</form>   
 		
 	</div>
-	<div class='col-md-11'>
+	<div class='col-md-9'>
 		<svg width=5024 height=5024>
 		    <g transform="translate(20,20) scale(0.7)"/>
 		</svg>
-	</div>	
+	</div>
 </div>
+	
+	
+	<!-- back up  wrapping to do the styling  -->
+	<!-- <form id='ff'>
+		 {%for field in form %}
+		 <label for="{{field.id_for_label}}">{{field.label}}</label>
+		<div style ="padding: 5px; background-color:#D3D3D3; margin: 10px;">{{field}}</div>
+	
+		{% endfor %}
+		</form>  -->
+		
+		
+		
+		<!-- or like  this <form id='ff'>
+	
+		 {{form.as_p}}
+		
+		</form>    -->
+	
+
 {% endblock content %}

@@ -4,12 +4,15 @@
 
 {% block content %}
 
-
+<br>
 <form action="{% url 'ref:mqltester' %}" method="post">
-	{{ form.as_ul }}
-	<input type="submit" value="Submit" />
+	
+	<!--  {{ form.as_ul }}-->
+	{{ form }}
+	<input class="btn btn-success" type="submit" value="Submit" />
 	{% if error %}
-		<div class='formerror'>{{error}}</div>
+	<br><br>
+		<div style ="width: 98%" class='formerror alert alert-warning '>{{error}}</div>
 	{% endif %}
 </form>
 
@@ -28,23 +31,34 @@
 </div>
 {%  endif %}
 
+
+
+
+
+
 <div>
 {% if results %}
-	<div>Also see results as: 
-		<a href="{% url 'ref:mqlquery' 'json' mql %}">JSON</a>,
-		<a href="{% url 'ref:mqlquery' 'csv' mql %}">CSV (Excel)</a>,
-	 	<a href="{% url 'ref:mqlquery' 'sh' mql %}">sh script</a>,
-	 	<a href="{% url 'ref:mqlquery' 'bash4' mql %}">bash 4 script</a>
+	<div>Also see results as: <br>
+		<a  class="btn btn-primary" href="{% url 'ref:mqlquery' 'json' mql %}">JSON </a>
+		<a  class="btn btn-primary"  href="{% url 'ref:mqlquery' 'csv' mql %}">CSV (Excel) <i class="far fa-file-excel"></i></a>
+	 	<a  class="btn btn-primary" href="{% url 'ref:mqlquery' 'sh' mql %}">sh script</a>
+	 	<a class="btn btn-primary"  href="{% url 'ref:mqlquery' 'bash4' mql %}">bash 4 script</a>
 	</div>
 
 	{% regroup results|dictsort:'mage_description_name' by mage_description_name as model_list %}
         
     {% if not model_list %}
         {% comment %} For navigation queries - a dict without predictable structure is returned {% endcomment %}
-        <table class='metContainer visibleTable'>
+       
+       
+    
+       
+      <!--   <table class='metContainer visibleTable '>-->
+      <div class='table-responsive' style ="border-radius: 10px 10px 0 0; width: 100%">
+		   <table class=' metContainer visibleTable ' style =" width: 95% ">
         {% for compo in results %}
             {% if forloop.first %}
-                <thead><tr> 
+                <thead   style ="background-color: #4d0000 ; color: rgba(201,195,195,1);" ><tr> 
                 {% for key in compo.keys %}
                     <th>{{key}}</th>
                 {%endfor%}
@@ -58,16 +72,23 @@
             </tr>
         {% endfor %}
         </table>
+        </div>
+        
+        
     {% endif %}
         
 	{% for modeltype in model_list %}
         {% comment %} For queries without navigation - a dict with predictable structure is returned {% endcomment %}
 		<div class='t2'>{{ modeltype.grouper }}</div>
-		<table class='metContainer visibleTable'>
+		
+		   <div class='table-responsive' style ="border-radius: 10px 10px 0 0; width: 100%">
+        <!--   <table class='table table-condensed table-bordered table-hover dt'>-->
+      
+		   <table class=' metContainer visibleTable ' style =" width: 100% ">
 		{% for compo in modeltype.list %}
 		
 			{% if forloop.first %}
-				<thead><tr> 
+				<thead style ="background-color: #4d0000 ; color: rgba(201,195,195,1);" ><tr> 
 				{% for key in compo.keys %}
 					<th>{{key}}</th>
 				{%endfor%}
@@ -80,9 +101,14 @@
 			{% endfor %}
 			</tr>
 		{% endfor %}
-		</table>
+		   </table>
+        </div>
+       
 	{% endfor %}
 {% endif %}
+
 </div>
+
+
 
 {% endblock content %}

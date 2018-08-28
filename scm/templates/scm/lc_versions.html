@@ -2,9 +2,11 @@
 {% block pagetitle %}Gestion de configuration{% endblock %}
 {% block maintitle %}Versions disponibles des composants logiques{% endblock %}
 
+
+
 {% block content %}
 {% regroup lcs by application as applications_list %}
-
+<!--  
 {% for application in applications_list %}
 <div class='row'>
 	<div class='col-md-1'>
@@ -19,7 +21,18 @@
 	</div>
 </div>
 {% endfor %}
-
-
-
+-->
+<br>
+{% for application in applications_list %}
+<div class="list-group">
+  <a   style ="background-color:#4d4d4d ;color: white; " href="#" class="list-group-item disabled">
+   {{ application.grouper.name }}
+  </a>
+  
+  {% for lc in application.list %}
+  <a href="{% url 'scm:lc_versions' lc.id %}" class="list-group-item">{{ lc.name|capfirst }}</a>
+  {% endfor %}
+</div>
+<br>
+{% endfor %}
 {% endblock content %}

@@ -3,13 +3,14 @@
 {% block maintitle %}Progression des composants{% endblock %}
 
 {% block content %}
-<div class='table-responsive'>
-<table class='table table-condensed table-bordered table-hover'>
-	<thead>
-		<tr>
-			<th></th>
-			<th></th>
-			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt.name %}">{{envt.name}}</a></th>{% endfor %}
+<div class='table-responsive' >
+<br>
+<table class='table table-condensed table-bordered table-hover '>
+	<thead style ="background-color: #4d0000 ; ">
+		<tr  style ="color: rgba(201,195,195,1);">
+			<th>application </th>
+			<th>composant logique </th>
+			{% for envt in envts %}<th><a   href="{% url 'scm:envtinstallhist' envt.name %}">{{envt.name}}</a></th>{% endfor %}
 		</tr>
 	</thead>
 

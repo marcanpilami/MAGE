@@ -62,19 +62,19 @@
 <br/>
 {% if delivery.available %}
 	{% for envt in envts %}
-		<a class='metRectList defaultHighlightBackground' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
+		<a class='metRectList defaultHighlightBackground' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}" style="background-color: #4d0000 ; color: rgba(201,195,195,1);border-radius: 20px 20px 0px 0px; ">Peut-elle être installée sur {{envt.name}} ?</a>
 	{% endfor %}
 {% else %}
 	<div class='metRectList metErrorBackground'>Livraison non disponible - non installable</div>
 {% endif %}
 <br/><br/>
 <table class='table table-condensed table-bordered table-hover'>
-    <thead>
+    <thead  style ="background-color: #4d0000 ; color: rgba(201,195,195,1);">
         <tr>
             <th>Environnement</th>
             <th>Dernière installation d'un élément de cette livraison</th>
         </tr>        
-    </thead>
+    </thead >
     <tbody>
         {% for e in envts %}
             <tr>

@@ -5,7 +5,7 @@
 {% block content %}
 
 {% regroup res by tag as models_by_tag_list %}
-
+<div style="width: 100%">
 <table class='metContainer visibleTable'>
 	<thead>
 		<tr style='text-align: left; padding: 30px;'>
@@ -71,4 +71,5 @@
 		{% endfor %}
 	{% endfor %}
 </table>
+</div>
 {% endblock content %}
