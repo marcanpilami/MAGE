@@ -1,4 +1,4 @@
-﻿# coding: utf-8
+# coding: utf-8
 
 # This is the main configuration file. Please copy it as 'MAGE/local_settings.py' and set
 # the desired values.
