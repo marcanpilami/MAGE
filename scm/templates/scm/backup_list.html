@@ -14,6 +14,28 @@
 
 {% regroup backups by from_envt as envt_list %}
 
+<!--  
+{% for envt in envt_list %}
+<div class='row'>
+	<div class='col-md-1'>
+		<div class='metRectFixedwidth metLineHeader'>{{envt.grouper.name}}</div>
+	</div>
+	<div class='col-md-11'>
+		{% for bckset in envt.list %}
+		<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' bckset.id %}">
+			{{bckset.set_date}}
+			<div>
+				<div class='annotation'>{{ bckset.item_count }} éléments sauvegardés</div>
+			</div>
+		</a>
+		{% endfor %}
+	</div>
+</div>
+{% endfor %}
+
+
+-->
+
 
 
 {% for envt in envt_list %}
