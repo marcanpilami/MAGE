@@ -57,7 +57,9 @@ def envt_instances(request, envt_id=1):
 
         for field_instance in instance.rel_target_set.all():
             di[field_instance.field.name] = field_instance.target_id
-
+        
+        
+        
         # add the dict to a list of instances with the same description
         if typ_items.has_key(instance.description):
             typ_items[instance.description].append(di)

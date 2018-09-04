@@ -67,4 +67,6 @@ urlpatterns = patterns('',
     url(r'is/(?P<iset_id>\d*)/invalidate$', views.iset_invalidate, name='iset_invalidate'),
     url(r'is/(?P<is_id>\d*)/archive$', views.iset_archive, name='iset_archive'),
     url(r'is/(?P<is_id>\d*)/unarchive$', views.iset_unarchive, name='iset_unarchive'),
+    
+     url(r'ansible/export/$', views.ansible_inventory_export, name='ansible'),
 )
