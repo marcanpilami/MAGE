@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 {% block pagetitle %}Types{% endblock %}
 {% block maintitle %}Types installés{% endblock %}
-
 {% block content %}
+
 {% regroup models by tag as tag_list %}
 
+    
+
 {% for tag in tag_list %}
-<div class='row'>
-	<div class='col-md-1'>
-		<div class='metRectFixedwidth metLineHeader'>{% if tag.grouper %}{{ tag.grouper | capfirst }}{% else %}non classé{% endif %}</div>
-	</div>
-	<div class='col-md-11'>
-		{% for model in tag.list|dictsort:"name" %}
-			<div class='metContainer metRectFixedwidth defaultHighlightBackground'>
-				{{ model.description }}
-				<div class='annotation'>
-					Code {{model.name}}, ID {{model.id}}
-				</div>
-			</div>
-		{% endfor %}
-	</div>
-</div>
+<div class="list-group" style="margin-top: 10px;">
+          {% if tag.grouper %}
+          <a style ="background-color:#4d4d4d ;color: white; "  href="#" class="list-group-item disabled"   >{{ tag.grouper | capfirst }}</a>
+          {% else %}
+          <a href="#" style ="background-color:#4d4d4d ;color: white; " class="list-group-item disabled"   >non classé</a>{% endif %}
+ 
+  
+   {% for model in tag.list|dictsort:"name" %}
+  <a href="#" class="list-group-item">{{ model.description }}  <div style="margin-left: 88% ;"><h12>Code {{model.name}}, ID {{model.id}}</h12></div></a>
+ 
+  {% endfor %}
+ </div>
+ <br>
 {% endfor %}
 {% endblock content %}

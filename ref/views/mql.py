@@ -10,7 +10,7 @@ import json
 
 class MqlTesterForm(forms.Form):
     mql = forms.CharField(max_length=300, initial='SELECT INSTANCES', label='Requête MQL', widget=forms.TextInput(
-                 attrs={'size':'200', 'class':'inputText'}))
+                 attrs={'size':'200', 'class':'inputText' ,'style':'border: 1px solid gray; width:84% ;height:30px;'}))
 
 def mql_tester(request):
     base = request.build_absolute_uri('/')[:-1]

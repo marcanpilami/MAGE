@@ -2,11 +2,11 @@
 
 {%block pagetitle%}Authentification{%endblock pagetitle%}
 
-
+{%block sidebar%} {%endblock%}
 {% block content %}
 
-<div class='metRibbonSplash metContainer'>
-	<div class='metRibbonSplashContent'>
+<div class='metRibbonSplash metContainer' style="margin: -10%  40% 0px 20% ; height: 50%; width: 60%  ;background-color:#500000   ;color:#C8C8C8; border-radius: 20px; " >
+	<div class='metRibbonSplashContent' style="  margin-top: 5%; ">
 		<div style='display: inline-block;'>
 			<div class='t2'>Accès à une ressource protégée</div>		
 			{% if user.is_authenticated %}
@@ -28,10 +28,10 @@
 						<td>{{ form.password }}</td>
 					</tr>
 				</table>
-				
-				<div class='right'>
-					<input type="submit" value="login" />
-					<button class='cancel' onclick="back();return false;">cancel</button>
+				<br><br>
+				<div class='left'>
+					<input type="submit"    value="login"   />
+					<button class='cancel ' onclick="back();return false;">cancel</button>
 					<input type="hidden" name="next" value="{{ next }}" />
 				</div>
 				
