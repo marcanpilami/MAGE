@@ -3,8 +3,8 @@
 # A sample file named local_settings.sample.py is provided in this directory.
 
 import os
-#from django.core.servers.basehttp import WSGIServer
-#WSGIServer.request_queue_size = 60
+from django.core.servers.basehttp import WSGIServer
+WSGIServer.request_queue_size = 60
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 

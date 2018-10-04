@@ -66,9 +66,6 @@ class CartoForm(forms.Form):
 
 def carto_form(request):
     """Marsupilamographe"""
-    
-   
-    
     return render_to_response('ref/view_carto2.html', {'form': CartoForm()})
 
 def carto_content_form(request):

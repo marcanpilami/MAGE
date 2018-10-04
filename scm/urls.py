@@ -68,5 +68,14 @@ urlpatterns = patterns('',
     url(r'is/(?P<is_id>\d*)/archive$', views.iset_archive, name='iset_archive'),
     url(r'is/(?P<is_id>\d*)/unarchive$', views.iset_unarchive, name='iset_unarchive'),
     
-     url(r'ansible/export/$', views.ansible_inventory_export, name='ansible'),
+    #ansible
+    url(r'ansible/export/$', views.ansible_inventory_export, name='ansible'),
+    url(r'ansible/export2/$', views.ansible_inventory_export2, name='ansible2'),
+    url(r'ansible/part0/$', views.ansible_part0, name='ansible_part0'),
+    url(r'ansible/part1/$', views.ansible_part1, name='ansible_part1'),
+    url(r'ansible/test/$', views.ansible_testing, name='ansible_testing'),
+    url(r'ansible/test2/$', views.ansible_testing2, name='ansible_testing2'),
+    url(r'ansible/test2/(?P<play_id>.*)$', views.manage_task, name='manage_task'),
+    url(r'ansible/list/$', views.creating_choice_list, name='generate_choice_tuple'),
+    
 )

@@ -26,7 +26,7 @@ __grammar = build_grammar()  #.setDebug()
 def resolve(pattern, instance, field_id=None):
     # Always use the true Django object
     try:
-        instance = instance._instance  
+        instance = instance._instance
     except:
         pass
 

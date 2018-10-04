@@ -1,39 +1,12 @@
 {% extends "base.html" %}
 {% block pagetitle %}Types{% endblock %}
 {% block maintitle %}Types installés{% endblock %}
-
 {% block content %}
+
 {% regroup models by tag as tag_list %}
 
-{% for tag in tag_list %}
+    
 
-<!-- ancien  -->
-<!--
-<div class='row'>
-	<div class='col-md-1'>
-		<div class='metRectFixedwidth metLineHeader'>{% if tag.grouper %}{{ tag.grouper | capfirst }}{% else %}non classé{% endif %}</div>
-	</div>
-	<div class='col-md-11'>
-		{% for model in tag.list|dictsort:"name" %}
-			<div class='metContainer metRectFixedwidth defaultHighlightBackground'>
-				{{ model.description }}
-				<div class='annotation'>
-					Code {{model.name}}, ID {{model.id}}
-				</div>
-			</div>
-		{% endfor %}
-	</div>
-</div>
-{% endfor %}
--->
-
-
-
-<!-- test -->
-
- 
-      
-      
 {% for tag in tag_list %}
 <div class="list-group" style="margin-top: 10px;">
           {% if tag.grouper %}
@@ -49,11 +22,4 @@
  </div>
  <br>
 {% endfor %}
-      
-      
-      
-      
-      
-
-       
 {% endblock content %}

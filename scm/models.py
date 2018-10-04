@@ -468,3 +468,50 @@ ComponentInstance.latest_cic = property(getLatestCIC)
 ComponentInstance.cic_at_safe = getCICAtDateSafe
 ComponentInstance.version_at = getCICAtDate
 ComponentInstance.version_at_safe = getVersionObjectAtDateSafe
+
+
+#######################################################################################
+## models for ansible 
+#######################################################################################
+
+
+class Play(models.Model):
+    name = models.CharField(max_length=100, verbose_name='play name',null=True,blank=True)
+    hosts = models.CharField(max_length=100, verbose_name='target',null=True,blank=True)
+    strategy = models.CharField(max_length=20, verbose_name='strategy', help_text='strategy de execution des taches dans cette play' ,null=True,blank=True)
+
+    class Meta:
+        verbose_name = 'play'
+        verbose_name_plural = 'plays'
+        
+        
+        
+        
+class Task(models.Model):
+    
+    name = models.CharField(max_length=100, verbose_name='task name',null=True,blank=True)
+    module_name = models.CharField(max_length=100, verbose_name='module name',null=True,blank=True)
+    delegate_to=models.CharField(max_length=100, verbose_name='delegation to another host',null=True,blank=True)
+    play = models.ForeignKey(Play,on_delete=models.CASCADE, related_name='tasks',null=True,blank=True)
+    
+
+    class Meta:
+        verbose_name = 'task'
+        verbose_name_plural = 'tasks'
+        
+        
+        
+class Attribute(models.Model):
+    
+    name = models.CharField(max_length=100, verbose_name='attribute name',null=True,blank=True)
+    mannuel_value = models.CharField(max_length=100, verbose_name='mannuel field value ',null=True,blank=True)
+    automatique_value=models.CharField(max_length=100, verbose_name='automatic field value ',null=True,blank=True)
+    task = models.ForeignKey(Task,on_delete=models.CASCADE, related_name='attributes',null=True,blank=True)
+    
+    
+    
+
+    class Meta:
+        verbose_name = 'task'
+        verbose_name_plural = 'tasks'        
+        

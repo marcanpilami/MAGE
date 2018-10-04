@@ -1,4 +1,3 @@
-@CHARSET "ISO-8859-1";
 .sidebar-nav {
   width: 240px;
   background-color:#efeff0;
@@ -27,8 +26,6 @@
   background: -ms-linear-gradient(bottom, #efeff0, #fafafa);
   background: -moz-linear-gradient(center bottom, #efeff0 0%, #fafafa 100%);
   background: -o-linear-gradient(bottom, #efeff0, #fafafa);
-  filter: progid:dximagetransform.microsoft.gradient(startColorStr='#e3e3e3', EndColorStr='#ffffff');
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#fafafa',EndColorStr='#efeff0')";
   border-left: none;
   color: #444;
   display: block;
@@ -54,8 +51,7 @@
   background: -ms-linear-gradient(bottom, #efeff0, #ffffff);
   background: -moz-linear-gradient(center bottom, #efeff0 0%, #ffffff 100%);
   background: -o-linear-gradient(bottom, #efeff0, #ffffff);
-  filter: progid:dximagetransform.microsoft.gradient(startColorStr='#e3e3e3', EndColorStr='#ffffff');
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff',EndColorStr='#efeff0')";
+  
 }
 .sidebar-nav .nav-header.collapsed .fa-collapse::before {
   content: "\f078";
@@ -157,3 +153,4 @@
 h2.sidebar {
   font-size: 120%;
 }
+/******** fin partie testing  ***********/
