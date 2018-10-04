@@ -1,4 +1,3 @@
-@CHARSET "ISO-8859-1";
 
 /* Defaults */
 html {
@@ -7,11 +6,16 @@ html {
 }
 
 body {
-	background-color: #F5F0F2;
+	
+	  background-color: #efeff0 ;
 }
 
 body>.container-fluid {
 	padding: 60px 15px 0;
+	
+	
+	
+	
 }
 
 .ifjs {
@@ -31,6 +35,7 @@ body>.container-fluid {
 	letter-spacing: 0.02em;
 	font-weight: 300;
 	text-transform: uppercase;
+	
 }
 
 .t3 {
@@ -257,7 +262,9 @@ div.metRibbonSplashContent {
 
 .metDefaultColors {
 	color: white;
-	background-color: #094AB2;
+	/*background-color: #094AB2;*/
+	background-color: #BCBCBC;
+	
 }
 
 /* Tables within modern containers */
@@ -315,7 +322,7 @@ div.metContainer select,div.metContainer span {
 }
 
 a {
-	color: inherit;
+	color: white;
 	text-decoration: none;
 }
 
@@ -350,7 +357,8 @@ a.frequentAction,a.metRectList,a.metContainer {
 }
 
 button.cancel,input.cancel[type='button'] {
-	background-color: #6E7E94;
+background-color: #6E7E94;
+
 }
 
 .metRibbonSplash .right {
@@ -376,7 +384,11 @@ button.cancel,input.cancel[type='button'] {
 }
 
 .defaultHighlightBackground {
-	background-color: #2E8DEF;
+	    background-color: #2E8DEF;
+	    color: green;
+	
+	
+	
 }
 
 .metErrorBackground {
@@ -398,6 +410,9 @@ button.cancel,input.cancel[type='button'] {
 /* Menu & Toolbar */
 .navbar {
 	background-color: #094AB2;
+	
+	
+	
 	color: white;
 }
 
@@ -471,3 +486,194 @@ svg {
 .table-responsive {
 	overflow-x: inherit; 
 }
+
+
+
+/**********new **********************/
+
+.gstyle{
+	
+	
+	background-color:#efeff0;
+	
+	
+	
+}
+
+
+.test{
+	
+
+color: red;
+	
+}
+
+/******** big red squares ***********/
+.square-service-block{
+	position:relative;
+	overflow:hidden;
+	margin:15px auto;
+	}
+.square-service-block a {
+ /* background-color: #e74c3c;*/
+   background-color: #4d0000 ;
+  border-radius: 5px;
+  display: block;
+  padding: 60px 0px;
+  text-align: center;
+  width: 100%;
+}
+.square-service-block a:hover{
+  background-color: rgba(231, 76, 60, 0.8);
+  border-radius: 5px;
+}
+
+.ssb-icon {
+  color: #fff;
+  display: inline-block;
+  font-size: 28px;
+  margin: 0 0 20px;
+}
+
+h2.ssb-title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 200;
+  margin:0;
+  padding:0;
+  text-transform: uppercase;
+}
+
+
+.container{
+	
+	width: 1000px;
+	
+}
+
+
+.grapheMarsupillami{
+	
+	
+	background-color: #4d0000;
+	
+	
+}
+.mc{
+	background-color: red ;
+	color: #4d0000;
+	  font-size: 10px;
+	
+	
+}
+/*begin style for the Types Installé */
+.tabs-left {
+  border-bottom: none;
+  padding-top: 2px;
+}
+.tabs-left {
+  border-right: 1px solid #ddd;
+}
+
+.tabs-left>li, .tabs-right>li {
+  float: none;
+  margin-bottom: 2px;
+}
+.tabs-left>li {
+  margin-right: -1px;
+}
+
+.tabs-left>li.active>a,
+.tabs-left>li.active>a:hover,
+.tabs-left>li.active>a:focus {
+  border-bottom-color: #ddd;
+  border-right-color: transparent;
+}
+
+
+.tabs-left>li>a {
+  border-radius: 4px 0 0 4px;
+  margin-right: 0;
+  display:block;
+}
+
+/*end style for the Types installé */
+
+
+/******** acceuil squares ***********/
+
+
+.block{
+	position:relative;
+	overflow:hidden;
+	margin:5px auto;
+	}
+	
+	
+.block a {
+ /* background-color: #e74c3c;*/
+   background-color: #4d0000 ;
+  border-radius: 5px;
+  display: block;
+  padding: 60px 0px;
+  text-align: center;
+  width: 100%;
+}
+
+
+.block a:hover{
+  background-color: rgba(231, 76, 60, 0.8);
+  border-radius: 5px;
+}
+
+.icon {
+  color: #fff;
+  display: inline-block;
+  font-size: 28px;
+  margin: 0 0 20px;
+}
+
+h2.title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 200;
+  margin:0;
+  padding:0;
+  text-transform: uppercase;
+}
+
+
+
+
+
+.metSquaree {
+	display: inline-block;
+	overflow: hidden;
+	width: 100px;
+	height: 100px;
+	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	padding: 5px;
+	vertical-align: top;
+	position: relative;
+	
+	width: 100px;
+	 background-color: #4d0000 ;
+     border-radius: 5px;
+}
+
+.ssb-iconn {
+  color: #fff;
+  display: inline-block;
+  font-size: 28px;
+  margin: 0 0 20px;
+}
+
+.metSquaree:hover{
+  background-color: rgba(231, 76, 60, 0.8);
+  border-radius: 5px;
+}
+
+/******** fin  acceuil squares ***********/

@@ -19,3 +19,5 @@ bin/
 staticroot/
 venv/
 env/
+inventory/
+ansible_script/

@@ -2,7 +2,8 @@
 {% load filter %}
 {% load staticfiles %}
 {% block pagetitle %}{{envt.name}}{% endblock %}
-{% block maintitle %}Environnement {{envt.name}}{% endblock %}
+{% block maintitle %}Environnement {{envt.name}}  <a><i class="fas fa-chart-area" aria-hidden="true"   data-toggle="modal" data-target="#myModal"></i></a>{% endblock %} 
+
 
 {% block frequentActionsButtons %}
 {% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
@@ -13,31 +14,18 @@
 {% block scripts %}
 <script type="text/javascript" src='{% static "d3.min.js" %}'></script>
 <script type="text/javascript" src='{% static "dagre-d3.min.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery-1.11.2.min.js" %}'></script>
-<script type="text/javascript" src='{% static "datatables-1.10.5/js/jquery.dataTables.min.js" %}'></script>
-<script type="text/javascript" src='{% static "datatables-1.10.5/js/dataTables.bootstrap.min.js" %}'></script>
-<link rel="stylesheet" type="text/css" href='{% static "datatables-1.10.5/css/dataTables.bootstrap.css" %}'>
-<script type="text/javascript">
-$(document).ready(function() {
-    $('.dt').DataTable({
-        'paging': false,
-        'searching': false,
-        'info': false,
-        'order': [[1,"asc"]],
-        'columnDefs': [{'orderable': false, 'targets': [0,-1]}],
-	});
-} );
-</script>
+
 {% endblock scripts %}
 
 {% block content %}
 {% regroup cis by description as compotype_list %}
 
-<div class='row'>
+<div  style ="background-color:#efeff0 "class='row'>
 
-<div class='col-md-2'>
-    <div class='t2'>Généralités</div>
-    <div class="metContainer metFreeRect defaultHighlightBackground" style="min-width: 100%;">
+<div  style="padding-top: 5px"    class='col-md-3'>
+
+    <div  style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1);"class='t2'>Généralités <br> <span style=" visibility: hidden;" >dz</span> </div>
+    <div class="metContainer metFreeRect defaultHighlightBackground" style="min-width: 100%  ;   background-color: 	rgba(160,164,165,0.25);">
         <table>
             <tr><td>Code</td><td>: {{envt.name}}</td></tr>
             <tr><td>Responsable</td><td>: {{envt.manager}}</td></tr>
@@ -47,31 +35,35 @@ $(document).ready(function() {
             <tr><td>Géré en version</td><td>: {% if envt.managed %}oui{% else %}non{% endif %}</td></tr>
         </table>   
     </div><br/><br/>
-    <div class='t2'>Liens GCL</div>
-    <a  href="{% url 'scm:envtinstallhist' envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-        <img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Historique des installations</div>
+    <div style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1);" class='t2'>Liens GCL</div>
+    <a  href="{% url 'scm:envtinstallhist' envt.name %}" style='width:100%; background-color: #4d0000; '  class='metRectList defaultHighlightBackground' >
+        <img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: rgba(201,195,195,1);'>Historique des installations</div>
     </a>
-    <a  href="{% url 'scm:backup_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-        <img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Sauvegardes disponibles</div>
+    <a  href="{% url 'scm:backup_list' %}"  style='width:100%; background-color: #4d0000; '  class='metRectList defaultHighlightBackground' >
+        <img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: rgba(201,195,195,1);'>Sauvegardes disponibles</div>
     </a>
-    <a  href="{% url 'scm:tag_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
-        <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
+    <a   href="{% url 'scm:tag_list' %}" style='width:100%; background-color:#4d0000 '  class='metRectList defaultHighlightBackground' >
+        <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: rgba(201,195,195,1);'>Tags</div>
     </a><br/><br/>
-    <div class='t2'>Accès rapide</div>
+    <div    style ="background-color: rgba(95,96,96,1); color: rgba(201,195,195,1);" class='t2' >Accès rapide    <i class="fa fa-paper-plane" style="font-size:20px; position: top "></i>
+       <br> <span style=" visibility: hidden;" >dz</span> </div>
+      <div style="background-color: 	rgba(160,164,165,0.25);">
     {% for compotype in compotype_list %}
         <a href="#{{ compotype.grouper.id }}">{{ compotype.grouper.description | capfirst}}</a><br/>
     {%  endfor %}
+       </div>
+       
 </div>
 
-<div class='col-md-8'>
+<div class='col-md-9'>
     <div class='t2'>Composants</div>   
     {% for compotype in compotype_list %}
         <div class='t4'>{{compotype.grouper.description}}</div>
-        <a name="{{ compotype.grouper.id }}" style="position:relative; display: block; top: -70px"></a>
-        <div class='table-responsive'>
-            <table class='table table-condensed table-bordered table-hover dt'>
+        <a name="{{ compotype.grouper.id }}"  style="position:relative; display: block; top: -70px"></a>
+        <div  style =" border-radius: 10px 10px 0 0;"  class='table-responsive'>
+            <table  class='table table-condensed table-bordered table-hover dt'>
                 {% comment %} Table Header {% endcomment %}
-	            <thead>
+	            <thead    style ="background-color: #4d0000 ; color: rgba(201,195,195,1);" >
                     <tr>
                         <th>Livré dans</th>
                         <th>Nom</th>
@@ -105,7 +97,7 @@ $(document).ready(function() {
                            <td>{{compo | apply_field_template:field | urlify}}</td>
                        {% endfor %}
                         
-                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'><i class="fa fa-edit" style="font-size:20px"></i></a></td>{% endif %}
                    </tr>
                 {% endfor %}
                 </tbody>
@@ -117,39 +109,70 @@ $(document).ready(function() {
     <div>
         <div class='t4'>Composants supprimés</div>
             <div class='table-responsive'>
-            <table class='table table-condensed table-bordered table-hover'>
+            <table  class='table table-condensed table-bordered table-hover'>
                 <tr><th>ID</th><th>Type</th><th></th></tr>
                 {% for ci in deleted %}                  
-                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
+                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'><i class="fa fa-edit" style="font-size:20px"></i></a></td></tr>
                 {% endfor %}
             </table>
         </div>
     </div>
     {% endif %}
 </div>
+ </div> 
 
-<div class='col-md-2'>
-   <div class='t2'>Représentation</div>
-   <script type="text/javascript">
-$(document).ready(function()
-{   
-	$.ajax(
-    {
-        url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
-        type : "GET",
-        dataType : "json",
-    }).done(function(json)
-    {
-    	var digraph = dagreD3.json.decode(json['nodes'], json['edges']);
-    	var renderer = new dagreD3.Renderer();
-    	renderer.run(digraph, d3.select("svg g"));
-    });
-});
+
+
+<!-- ###########  Section  modal  (the graph) #######-->
+ <div  class="container"   >
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog"  style="width: 1200px;  height: 500px; "   >
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Représentation </h4>
+          <button  class="btn btn-success" onclick="myFunction()">afficher</button>
+        </div>
+        <div class="modal-body"   >
+                        
+                      <div  style=" width: 1170px ;height:500px; ;background-color: gray; " > 
+	                 <svg   style="border:1px  black; display: block; width: 1170px; height: 500px " >
+	                 <g transform="translate(20,20) scale(0.7)"/>
+	                 </svg> 
+	                  </div>
+            
+          </div>        
+           
+        <div style ="width:500px; margin-left: 20px; "    id="demo"></div>
+        
+    <script>
+
+	function myFunction() {
+	  document.getElementById("demo").innerHTML = "cliquez 2 fois pour zoom in ";
+	  $.ajax(
+			    {
+			        url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
+			        type : "GET",
+			        dataType : "json",
+			    }).done(function(json)
+			    {
+			    	var digraph = dagreD3.json.decode(json['nodes'], json['edges']);
+			    	var renderer = new dagreD3.Renderer();
+			    	renderer.run(digraph, d3.select("svg g"));
+			    }); 
+	}
 	</script>
-	<svg width='2048' height='2048'>
-	   <g transform="translate(20,20) scale(0.7)"/>
-	</svg>
-</div>
+    </div>
+        <div class="modal-footer">
+          <button type="button"  style ="background-color: #4d0000; color: rgba(201,195,195,1);" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
 
-</div> <!-- Main row div -->
 {% endblock content %}
+

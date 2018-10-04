@@ -163,6 +163,12 @@ class ComponentInstance(models.Model):
         return not self.deleted
     active.admin_order_field = 'deleted'
     active.boolean = True
+    
+    
+    
+    def __getitem__(self,key):
+        #print ("Inside `__getitem__` method!")
+        return getattr(self,key)
 
     class Meta:
         permissions = (('allfields_componentinstance', 'access all fields including restricted ones'),)

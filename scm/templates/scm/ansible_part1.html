@@ -1,0 +1,116 @@
+
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+<!--  
+{% block scripts %}
+
+{% endblock %}
+
+-->
+
+
+{% block content %}
+<div >
+<h1>Custom ansible  Playbook</h1>
+<form method="post" >
+
+{{ task_formset.management_form }}
+{{ task_formset.non_form_errors }}
+
+{% for task_form in task_formset.forms %}
+<div ><h4 class="alert alert-success">Task Numero {{forloop.counter}}</h4><br>
+    {{ task_form }}
+
+    {% if task_form.nested %}
+        {{ task_form.nested.management_form }}
+        {{ task_form.nested.non_form_errors }}
+
+        {% for nested_form in task_form.nested.forms %}
+           <div> <br>
+            {{ nested_form }}
+            </div>
+        {% endfor %}
+
+    {% endif %}
+</div>
+<hr />
+{% endfor %}
+
+
+
+<input type="submit" value="Enregistrer" class="btn btn-primary">
+
+</form>
+</div>
+
+<br><br>
+
+
+<!--  
+
+<h3>Attributes</h3>
+{{ task_formset.management_form }}
+<div id="form_set2">
+    {% for task_form in task_formset.forms %}
+         {% for nested_form in task_form.nested.forms %}
+        <table class='no_error'>
+           {{ nested_form.as_table }}
+        </table>
+        {% endfor %}
+    {% endfor %}
+</div>
+<input type="button" value="Add More" id="add_more2">
+<div id="empty_form2" style="display:none"> <div> helloppp
+ 
+{% for task_form in task_formset.forms %}
+     {% for nested_form in task_form.nested.forms %}
+     {% if forloop.last %}
+    <table class='no_error'>
+    
+        {{ nested_form }}
+    </table>
+    {% endif %}
+     {% endfor %}
+    {% endfor %}  
+    </div>
+</div>
+<script>
+    $('#add_more2').click(function() {
+        var form_idx2 = $('#id_form-TOTAL_FORMS').val();
+        $('#form_set2').append($('#empty_form2').html().replace(/__prefix__/g, form_idx2));
+        $('#id_form-TOTAL_FORMS').val(parseInt(form_idx2) + 1);
+    });
+</script>
+
+
+
+
+
+
+<h3>My Services</h3>
+{{ task_formset.management_form }}
+<div id="form_set">
+    {% for form in task_formset.forms %}
+        <table class='no_error'>
+            {{ form.as_table }}
+        </table>
+    {% endfor %}
+</div>
+<input type="button" value="Add More" id="add_more">
+<div id="empty_form" style="display:none">
+    <table class='no_error'>
+        {{ task_formset.empty_form.as_table }}
+    </table>
+</div>
+<script>
+    $('#add_more').click(function() {
+        var form_idx = $('#id_form-TOTAL_FORMS').val();
+        $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
+        $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+    });
+</script>
+
+-->
+{% endblock content %}

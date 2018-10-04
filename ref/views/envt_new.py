@@ -44,7 +44,7 @@ def new_ci_step1(request, description_id):
     if request.POST:
         form = cls(request.POST)
         if form.is_valid():
-            ## Do things & redirect
+            ## Do things &new_item_ci redirect
             ci = ImplementationDescription.class_for_name(descr.name)(**form.cleaned_data)
             ci.save()
             return redirect('ref:edit_ci', instance_id=ci._instance.pk)

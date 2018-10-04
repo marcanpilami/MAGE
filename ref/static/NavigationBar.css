@@ -1,0 +1,156 @@
+.sidebar-nav {
+  width: 240px;
+  background-color:#efeff0;
+  height: 100%;
+  position: absolute;
+  top: 54px;
+  float: left;
+  border-top: none;
+  margin-top: 51px;
+  border-left: none;
+  margin: 0em;
+}
+.sidebar-nav ul {
+  list-style: none;
+  padding-left: 0px;
+}
+.sidebar-nav li a .fa-caret-right {
+  color: #666;
+  padding-right: .25em;
+}
+.sidebar-nav .nav-header {
+  border-top: 1px solid #fcfcfc;
+  border-bottom: 1px solid #c8c8cb;
+  background: #efeff0;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #efeff0), color-stop(1, #fafafa));
+  background: -ms-linear-gradient(bottom, #efeff0, #fafafa);
+  background: -moz-linear-gradient(center bottom, #efeff0 0%, #fafafa 100%);
+  background: -o-linear-gradient(bottom, #efeff0, #fafafa);
+  border-left: none;
+  color: #444;
+  display: block;
+  font-weight: normal;
+  font-size: 1em;
+  line-height: 2.5em;
+  padding: .25em .25em .25em 1em;
+  margin-bottom: 0px;
+  text-shadow: none;
+  text-transform: none;
+  /*Change the arrow direction if the item is collapsed*/
+
+}
+.sidebar-nav .nav-header .label {
+  float: right;
+  margin-top: .5em;
+  margin-right: .25em;
+  line-height: 1.5em;
+}
+.sidebar-nav .nav-header:hover {
+  background: #efeff0;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #efeff0), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #efeff0, #ffffff);
+  background: -moz-linear-gradient(center bottom, #efeff0 0%, #ffffff 100%);
+  background: -o-linear-gradient(bottom, #efeff0, #ffffff);
+  
+}
+.sidebar-nav .nav-header.collapsed .fa-collapse::before {
+  content: "\f078";
+}
+.sidebar-nav .nav-header .fa-collapse::before {
+  content: "\f077";
+}
+.sidebar-nav .nav-header .fa-collapse,
+.sidebar-nav .nav-header .fa-collapse {
+  float: right;
+}
+.sidebar-nav .nav-header .label {
+  float: right;
+  margin-top: .7em;
+  line-height: 1.5em;
+}
+.sidebar-nav .nav-header i[class*="fa-"] {
+  line-height: 2.25em;
+  padding-right: .75em;
+}
+.sidebar-nav .nav-list {
+  margin: 0px;
+  border: 0px;
+  background: #fafafa;
+}
+.sidebar-nav .nav-list  > li > a:hover {
+  background: #d2d2dd;
+}
+.sidebar-nav .nav-list  > .active > a,
+.sidebar-nav .nav-list  > .active > a:hover {
+  text-shadow: none;
+  background: #e5e5ea;
+  border-top: 1px solid #d0d0d6;
+  border-bottom: 1px solid #d0d0d6;
+}
+.sidebar-nav .nav-list li:first-child.active a {
+  border-top: 0px;
+}
+.sidebar-nav .nav-list li:last-child.active a {
+  border-bottom: 0px;
+}
+.sidebar-nav .nav-list  > li:hover {
+  border-left: 4px solid #8989a6;
+  overflow: hidden;
+}
+.sidebar-nav .nav-list  > li:hover a {
+  margin-left: -4px;
+}
+.sidebar-nav .nav-list  > .active {
+  overflow: hidden;
+  border-left: 4px solid #909096;
+}
+.sidebar-nav .nav-list  > .active a {
+  margin-left: -4px;
+}
+.sidebar-nav .nav-list  > .active > a:hover {
+  background: #c3c3d2;
+}
+.sidebar-nav .nav-list  > li > a {
+  color: #222;
+  padding: .5em 1em;
+}
+.sidebar-nav .nav-list.collapse.in {
+  border-bottom: 1px solid #ccc;
+}
+
+
+
+
+
+
+
+/*testing */
+
+
+#header {
+ background-color: #666;
+ border-bottom: 1px solid #333;
+}
+#sidebarLeft {
+ float: left;
+ width: 160px;
+ margin-left: 10px;
+ padding-top: 1em;
+}
+#mainRight {
+ padding-top: 1em;
+ margin: 0 2em 0 200px;
+  background-color: red;
+
+}
+#footer {
+ clear: both;
+ background-color: #ccc;
+ padding-bottom: 1em;
+ border-top: 1px solid #333;
+ padding-left: 200px;
+}
+h2.sidebar {
+  font-size: 120%;
+}
+/******** fin partie testing  ***********/

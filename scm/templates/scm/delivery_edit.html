@@ -14,7 +14,7 @@
 
 {% block content %}
 <form id='mainForm' method='POST' enctype="multipart/form-data">
-
+<br>
 	<div id='main' class='metContainer metSection wideInputs metFormSection'>
 		<label class='t2' for='main'>Informations de base</label>
 		<table id='basics'>
@@ -55,14 +55,14 @@
 					{% if fs.datafile.errors %}<tr><td></td><td>{{fs.datafile.errors}}</td></tr>{%endif%}
 					<tr><td>{{fs.DELETE.label}} :</td><td>{{fs.DELETE}}</td></tr>
 				</table>
-				<input class="deleteContent cancel" type="button" value="Supprimer ce contenu" style='display: none; position:absolute; top:2px; right:2px;'>
+				<input class="deleteContent cancel  " type="button" value="Supprimer ce contenu" style='display: none; position:absolute; top:2px; right:2px; background-color: #800000; '>
 			</div>
 		{% endfor %}
 	</div>
 	
-	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none' class='metButton'>
-	<input id='submit' type="submit" value="Enregistrer" class='metButton'/>
-	<button class='metButton cancel' onclick="back();return false;">annuler</button>
+	<input type="button" value="Ajouter un contenu" id="add_content" style='display: none ' class='metButton'   >
+	<input id='submit' type="submit" value="Enregistrer" class='metButton'   />
+	<button class=' metButton cancel ' onclick="back();return false;" style=" background-color: #800000;">annuler</button>
 </form>
 
 <div id='emptyformset' style='display: none; '>
@@ -78,7 +78,7 @@
 			{% if display.iifile %}<tr><td>{{iisf.empty_form.datafile.label}} :</td><td>{{iisf.empty_form.datafile}}</td></tr>{% endif %}
 			<tr><td>{{iisf.empty_form.DELETE.label}} :</td><td>{{iisf.empty_form.DELETE}}</td></tr>
 		</table>
-		<input class="deleteContent cancel" type="button" value="Supprimer ce contenu" style='display: none; position:absolute; top:2px; right:2px;'>
+		<input   class="deleteContent cancel" type="button" value="Supprimer ce contenu" style='display: none; position:absolute; top:2px; right:2px; background-color: #800000; '>
 	</div>
 </div>
 
