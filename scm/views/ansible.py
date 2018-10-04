@@ -278,12 +278,7 @@ def ansible_inventory_export(request):
     
      
      print os.getcwd()
-     """with open('ansible.txt', 'r') as fh:
-            #response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response = HttpResponse(fh.read(),content_type='text/csv; charset=utf-8')
-            response['Content-Disposition'] = 'inline; filename="ansible.txt"'
-            #response['Content-Disposition'] = 'inline; filename=' + os.path.basename('ansible.txt')
-  """          
+    
      #lister  tous nos  Projets (on a une seule projet pour la premiere version )
      projects = Project.objects.\
                     prefetch_related('environment_set__component_instances__description','applications__logicalcomponent_set__implemented_by__instances').all()
@@ -377,27 +372,7 @@ def ansible_inventory_export(request):
            
            inventory+='\n'
            
-           """
-           for x,y in zip(groups,uniquekeys):
-               
-               for z in list(x): 
-                 print z.name
-                 if z.instanciates is not None:
-                      
-                    print 'this is instanciates'
-                 else :
-                      print 'not instanciates'   
-               print 'la description qui vient avec ces component instance  '
-               print y.description
-               """
-      
-           """inventory+=str(p.id)+'_'+envt.name+':children]'
-           for x,y in zip(groups,uniquekeys):
-               print x 
-               
-               print y.description
-           
-           print '##########################################################'"""
+          
                  
          
      #f = open("ansible_script/inventory/MAGE_inventory", "w")

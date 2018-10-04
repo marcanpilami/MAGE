@@ -18,13 +18,6 @@ from django.forms import ModelForm
 from scm.models import Play,Task,Attribute
 from scm.views import generate_the_playbook
 
-"""SAMPLE_CHOICES_LIST = (('>=', '>='),
-                        ('<=', '<='),
-                        ('==', '==')) """
-
-
-
-#AttributeFormset =None
 
 def formfield_callback(field):
     if isinstance(field, fields.CharField) and field.name == 'mannuel_value':
@@ -35,15 +28,6 @@ def formfield_callback(field):
     return field.formfield()
 
 
-
-#TaskFormset = inlineformset_factory(Play, Task, extra=1)
-"""AttributeFormset = inlineformset_factory(Task, Attribute, extra=0,fields=('name','mannuel_value',),widgets={
-    
-    'name': Textarea(attrs={'cols': 5, 'rows': 1},),
-    'mannuel_value': Select(attrs={'cols': 5, 'rows': 1},choices=SAMPLE_CHOICES_LIST ),
-   
-    
-})"""
 
 
 
@@ -86,10 +70,6 @@ class BaseTaskFormset(BaseInlineFormSet):
     
        
 
-"""TaskFormset = inlineformset_factory(Play,
-                                        Task,
-                                        formset=BaseTaskFormset,
-                                        extra=1,exclude=())"""
 
 
 
@@ -212,24 +192,7 @@ def manage_task(request, play_id):
         print 'the name of the play'
         print play.name
         formset = TaskFormset(instance=play)
-        """for form in formset:
-            print (type(form))
-            if isinstance(form, fields.CharField) and form.name == 'mannuel_value':
-                     print ('yeeeeee########################################s') 
-            for formfield in form :
-                
-                if formfield.name=='module_name':
-                    formfield=  forms.MultipleChoiceField(
-                                            required=False,
-                                            widget=forms.CheckboxSelectMultiple,
-                                            choices=SAMPLE_CHOICES_LIST,
-                                        )
-                    
-                    
-                    print 'good'
-                
-                
-                print form.prefix"""            
+           
         
     return render(request, 'scm/ansible_part1.html', {
                   'play':play,
