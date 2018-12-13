@@ -5,10 +5,10 @@
     @author: Marc-Antoine Gouillart
 '''
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from ref import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
@@ -48,6 +48,6 @@ urlpatterns = patterns('',
     url(r'^control$', views.control, name='control'),
 
     ## Script helpers
-    url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash')
-)
+    url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash'),
+]
 
