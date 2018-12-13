@@ -56,7 +56,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
         already_migrated[old.pk] = new_instance
 
         for fv in old.field_set.all():
-            new_instance.field_set.add(ComponentInstanceField(value=fv.value, field=fv.field))
+            new_instance.field_set.add(ComponentInstanceField(value=fv.value, field=fv.field), bulk=False)
 
         ## Relationships
         for fv in old.rel_target_set.all():

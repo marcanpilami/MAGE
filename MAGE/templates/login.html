@@ -17,7 +17,7 @@
 			{% else %}
 				<div>La ressource ne peut être utilisée par un utilisateur anonyme - veuillez vous identifier.</div>
 			{% endif %}
-			<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+			<form method="post" action="{% url 'login' %}">
 				<table>
 					<tr>
 						<td>Nom d'utilisateur</td>

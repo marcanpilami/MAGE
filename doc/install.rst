@@ -54,7 +54,7 @@ In the ${MAGE_INSTALL_ROOT} directory, create the database objects by running::
     python manage.py migrate
     python manage.py collectstatic
     python manage.py createsuperuser
-    python manager.py synccheckers
+    python manage.py synccheckers
 	
 You will be asked to create a root account. Accept and do not forget the password you specify.
 
