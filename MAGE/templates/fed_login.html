@@ -21,7 +21,7 @@
 
                 <div class='metContainer'>
                     <div class="t4">Login applicatif</div>
-                    <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+                    <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
                         {{ ilform }}
                         <input name="internal_login" type="submit">
