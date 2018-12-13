@@ -188,16 +188,23 @@ class ImplementationDescription(models.Model):
             idn.save()
             return idn
 
-    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0):
-        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, description=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
+    def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0, bulk=False):
+        field = ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default,
+                                       description=self, label_short=label_short, help_text=help_text,
+                                       compulsory=compulsory, widget_row=widget_row)
+        self.field_set.add(field, bulk=bulk)
         return self
 
-    def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0):
-        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row))
+    def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0, bulk=False):
+        field = ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row)
+        self.computed_field_set.add(field, bulk=bulk)
         return self
 
-    def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1):
-        self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target, min_cardinality=min_cardinality, max_cardinality=max_cardinality, link_type=link_type))
+    def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1, bulk=False):
+        relation = ImplementationRelationDescription(name=name, label=label, source=self, target=target,
+                                          min_cardinality=min_cardinality, max_cardinality=max_cardinality,
+                                          link_type=link_type)
+        self.target_set.add(relation, bulk=bulk)
         return self
 
     def field_count(self):
