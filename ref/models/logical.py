@@ -36,7 +36,7 @@ class LogicalComponent(models.Model):
     ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
     class Meta:
@@ -56,7 +56,7 @@ class ComponentImplementationClass(models.Model):
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     class Meta:

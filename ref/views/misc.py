@@ -61,7 +61,7 @@ def script_login(request, username, password):
         raise PermissionDenied  # will return a 403 (HTTP forbidden)
 
 def script_login_post(request):
-    if request.method == 'POST' and request.POST.has_key('username') and request.POST.has_key('password'):
+    if request.method == 'POST' and 'username' in request.POST and 'password' in request.POST:
         name = request.POST['username']
         passwd = request.POST['password']
         return script_login(request, name, passwd)
@@ -132,7 +132,7 @@ def control(request):
                         found = True
                         break
                 if not found:
-                    if missing_field.has_key(i):
+                    if i in missing_field:
                         missing_field[i].append(f)
                     else:
                         missing_field[i] = [f, ]
@@ -148,7 +148,7 @@ def control(request):
                         found = True
                         break
                 if not found:
-                    if missing_rel.has_key(i):
+                    if i in missing_rel:
                         missing_rel[i].append(f)
                     else:
                         missing_rel[i] = [f, ]

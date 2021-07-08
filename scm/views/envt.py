@@ -18,7 +18,7 @@ from scm.models import Installation, ComponentInstanceConfiguration, \
 
 def all_installs(request, envt_name, limit):
     '''All installs on a given environment'''
-    if isinstance(limit, unicode):
+    if isinstance(limit, str):
         limit = int(limit)
     envt = Environment.objects.get(name=envt_name)
     envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
@@ -38,7 +38,7 @@ def all_installs(request, envt_name, limit):
             lc = logical_components.get(id=compo.instanciates.implements_id)
         except LogicalComponent.DoesNotExist:
             continue
-        if versions.has_key(lc):
+        if lc in versions:
             versions[lc] += (compo.version,)
         else:
             versions[lc] = (compo.version,)
@@ -60,7 +60,7 @@ def lc_versions_per_environment(request):
 
     res = {}
     for cic in cics:
-        if not res.has_key(cic.component_instance.instanciates.implements):
+        if not cic.component_instance.instanciates.implements in res:
             res[cic.component_instance.instanciates.implements] = OrderedDict()
             for e in envts:
                 res[cic.component_instance.instanciates.implements][e] = []

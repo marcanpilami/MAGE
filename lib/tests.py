@@ -15,7 +15,7 @@ import requests
 from ref.demo_items import utility_create_logical, utility_create_meta, utility_create_test_instances
 from ref.models.description import clear_classes_cache
 
-from libmage6 import MageClient, LibMageException
+from .libmage6 import MageClient, LibMageException
 
 USERNAME = "root"
 PASSWORD = "secret"

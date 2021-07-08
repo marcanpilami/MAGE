@@ -33,4 +33,4 @@ class Command(BaseCommand):
         for bs in BackupSet.objects.filter(removed__isnull=False, set_date__lte=limit).annotate(installs=Count('installation')).filter(installs=0):
             bs.delete()        
         
-        print "%s backupsets purged" %(init - BackupSet.objects.filter(removed__isnull=False).count())
+        print("%s backupsets purged" %(init - BackupSet.objects.filter(removed__isnull=False).count()))

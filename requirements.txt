@@ -1,12 +1,12 @@
 --find-links wheelhouse
 ## To ease compilation on Windows
-pip>9
-setuptools>6
+#pip>21
+#setuptools>57
 
 ## Core dependencies
 django>=1.8,<1.9
 pyparsing==2.0.2
-unicodecsv==0.9.4
+unicodecsv==0.14.1
 django-crispy-forms-ng
 
 ## Client (libmage) dependencies
@@ -17,4 +17,8 @@ azure-storage==0.20.0
 
 ## Following libraries are not used in normal operations, the are just present for debugging in case of problem.
 ipython
-django_debug_toolbar
+django_debug_toolbar==1.9.1
+
+# Lint
+pylint
+pylint-django

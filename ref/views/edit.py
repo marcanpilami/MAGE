@@ -59,12 +59,12 @@ def envt_instances(request, envt_id=1):
             di[field_instance.field.name] = field_instance.target_id
 
         # add the dict to a list of instances with the same description
-        if typ_items.has_key(instance.description):
+        if instance.description in typ_items:
             typ_items[instance.description].append(di)
         else:
             typ_items[instance.description] = [di, ]
 
-    for typ, listi in typ_items.iteritems():
+    for typ, listi in typ_items.items():
         cls = form_for_model(typ)
         InstanceFormSet = formset_factory(wraps(cls)(partial(cls,
                  cics=ComponentImplementationClass.objects.filter(technical_description_id=typ.id).order_by('name'))) , extra=0)
@@ -72,17 +72,17 @@ def envt_instances(request, envt_id=1):
 
     if request.POST:
         valid = True
-        for typ, formset in ffs.iteritems():
+        for typ, formset in ffs.items():
             if not formset.is_valid():
                 valid = False
                 break
 
         if valid:
-            for typ, formset in ffs.iteritems():
+            for typ, formset in ffs.items():
                 if formset.has_changed():
                     for form in formset:
                         if form.has_changed():
-                            instance_id = form.cleaned_data['_id'] if form.cleaned_data.has_key('_id') else None
+                            instance_id = form.cleaned_data['_id'] if '_id' in form.cleaned_data else None
                             instance = None
                             if instance_id:
                                 instance = ComponentInstance.objects.get(pk=instance_id)
@@ -131,7 +131,7 @@ descr_terseform_cache = {}
 def form_for_model(descr):
     attrs = {}
     key = 'descr_terseformset_%s' % descr.id
-    if cache.get(key) and descr_terseform_cache.has_key(key):
+    if cache.get(key) and key in descr_terseform_cache:
         return descr_terseform_cache[key]
 
     # Simple fields

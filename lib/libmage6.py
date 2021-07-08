@@ -8,7 +8,7 @@
 '''
 
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -61,7 +61,7 @@ class MageClient(object):
 
         try:
             request = self._session.post(login, data = { "username": self.username, "password": self.password })
-        except requests.ConnectionError, e:
+        except requests.ConnectionError as e:
             self._session = None
             msg = "Failed to connect to MAGE: %s" % e
             self.logger.fatal(msg)

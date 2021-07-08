@@ -19,8 +19,7 @@ from MAGE.settings import MEDIA_ROOT
 
 ## MAGE imports
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
-from exceptions import MageScmUndefinedVersionError
-from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
+from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck, MageScmUndefinedVersionError
 from MAGE.exceptions import MageError
 from django.db.models.query import Prefetch
 
@@ -56,7 +55,7 @@ class InstallableSet(models.Model):
     available = property(is_available)
     is_available.admin_order_field = 'removed'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
     def check_prerequisites(self, envt_name, ii_selection=()):
@@ -66,7 +65,7 @@ class InstallableSet(models.Model):
         for ii in self.set_content.all():
             try:
                 ii.check_prerequisites(envt_name, ii_selection)
-            except MageScmFailedEnvironmentDependencyCheck, e:
+            except MageScmFailedEnvironmentDependencyCheck as e:
                 failures.extend(e.failing_dep)
 
         if len(failures) == 0:
@@ -94,7 +93,7 @@ class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
     logical_component = models.ForeignKey(LogicalComponent, related_name='versions')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
 
     def compare(self, lcv2, strict=False):
@@ -196,7 +195,7 @@ class InstallationMethod(models.Model):
     restoration_only = models.BooleanField(default=False, verbose_name=u'opération purement de restauration')
     checkers = models.ManyToManyField('PackageChecker', related_name='used_in', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
@@ -231,7 +230,7 @@ class InstallableItem(models.Model):
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
     datafile = models.FileField(verbose_name='fichier', upload_to=__iidatafilename__, blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.id is not None:
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
@@ -315,7 +314,7 @@ class ItemDependency(models.Model):
     depends_on_version = models.ForeignKey(LogicalComponentVersion)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES, default='==')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'dépendance de [%s] envers [%s en version %s %s]' % (self.installable_item.what_is_installed.logical_component.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
@@ -327,7 +326,7 @@ class SetDependency(models.Model):
     depends_on_version = models.ForeignKey(LogicalComponentVersion)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'IS [%s] requires [%s in version %s %s]' % (self.installable_set.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
@@ -336,7 +335,7 @@ class Installation(models.Model):
     asked_in_ticket = models.CharField(max_length=10, verbose_name='ticket lié ', blank=True, null=True)
     install_date = models.DateTimeField(verbose_name='date d\installation ')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
 
 @receiver(post_save, sender=Installation)
@@ -354,7 +353,7 @@ class ComponentInstanceConfiguration(models.Model):
     created_on = models.DateTimeField()
     install_failure = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.what_is_installed.version)
 
 class Tag(models.Model):
@@ -363,7 +362,7 @@ class Tag(models.Model):
     from_envt = models.ForeignKey(Environment)
     snapshot_date = models.DateTimeField(verbose_name=u'date de prise de la photo', auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Tag n°%s - %s (concerne %s composants)' % (self.pk, self.name, self.versions.count())
 
 
@@ -412,7 +411,7 @@ class PackageChecker(models.Model):
         checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name)
         checker_impl.check(checker_impl(), package_file, logical_component, installation_method)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
 

@@ -34,7 +34,7 @@ class ImplementationRelationType(models.Model):
     name = models.CharField(max_length=20, verbose_name='type relation')
     label = models.CharField(max_length=100, verbose_name='label')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -64,7 +64,7 @@ class ImplementationFieldDescription(ImplementationFieldBase):
 
     description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s (%s)' % (self.name, self.description.name)
 
     class Meta:
@@ -79,7 +79,7 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
 
     description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % (self.name)
 
     def resolve(self, instance):
@@ -97,7 +97,7 @@ class ImplementationRelationDescription(ImplementationFieldBase):
     max_cardinality = models.IntegerField(blank=True, null=True)
     link_type = models.ForeignKey(ImplementationRelationType)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s (%s)' % (self.name, self.source.name)
 
     class Meta:
@@ -115,7 +115,7 @@ class ImplementationDescription(models.Model):
     include_in_default_envt_backup = models.BooleanField(default=False, verbose_name=u'inclure dans les backups par défaut')
     self_description_pattern = models.CharField(max_length=500, verbose_name='motif d\'auto description', help_text=u'sera utilisé pour toutes les descriptions par défaut des instances de composant. Utilise les même motifs (patterns) que les champs dynamiques.')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def resolve_self_description(self, instance):

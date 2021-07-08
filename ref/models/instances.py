@@ -6,7 +6,7 @@
 '''
 
 ## Python imports
-from UserDict import DictMixin
+from typing import MutableMapping
 
 ## Django imports
 from django.db import models
@@ -47,7 +47,7 @@ class Environment(models.Model):
             return True
     protected = property(__protected)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s" % (self.name,)
 
     def ci_id_list(self):
@@ -93,7 +93,7 @@ class ComponentInstanceRelation(models.Model):
         verbose_name = u'valeur de relation'
         verbose_name_plural = u'valeurs des relations'
 
-    def __unicode__(self):
+    def __str__(self):
         return 'valeur de %s' % self.field.name
 
 class ComponentInstanceField(models.Model):
@@ -107,7 +107,7 @@ class ComponentInstanceField(models.Model):
         verbose_name = u'valeur de champ'
         verbose_name_plural = u'valeurs des champs'
 
-    def __unicode__(self):
+    def __str__(self):
         return 'valeur de %s' % self.field.name
 
 class ComponentInstance(models.Model):
@@ -151,12 +151,12 @@ class ComponentInstance(models.Model):
     environments_str = property(_environments_str)
 
     ## Pretty print
-    def __unicode__(self):
+    def __str__(self):
         if self.description:
             return '%s' % self.description.resolve_self_description(self)
         else:
             return '%s' % self.pk
-    name = property(__unicode__)
+    name = property(__str__)
 
     ## Pretty admin deleted field
     def active(self):
@@ -174,7 +174,7 @@ class ComponentInstance(models.Model):
 ## Extended parameters
 ################################################################################
 
-class ExtendedParameterDict(DictMixin):
+class ExtendedParameterDict(MutableMapping):
     def __init__(self, instance):
         self.instance = instance
 
@@ -194,6 +194,9 @@ class ExtendedParameterDict(DictMixin):
         ep = self.__getitem__(key)
         ep.delete()
 
+    def __iter__(self):
+        return self.instance.parameter_set
+
     def keys(self):
         return self.instance.parameter_set.values_list('key', flat=True)
 
@@ -205,7 +208,7 @@ class ExtendedParameter(models.Model):
     value = models.CharField(max_length=100, verbose_name='valeur')
     instance = models.ForeignKey(ComponentInstance, related_name='parameter_set')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s on %s' % (self.key, self.instance.name)
 
     class Meta:

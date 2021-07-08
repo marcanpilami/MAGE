@@ -19,7 +19,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
     '''
 
     def getNode(ci, rel_level=0, rel_type=None):
-        if nodes.has_key(ci.pk):
+        if ci.pk in nodes:
             return
 
         if ci in instances_to_draw:
@@ -34,10 +34,10 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
         targets[ci.pk] = []
 
         for rel in ci.rel_target_set.all():
-            if (rel.target in instances_to_draw) or (select_related.has_key(rel.field.link_type.name) and (rel_type is None or rel_type == rel.field.link_type.name) and rel_level < select_related[rel.field.link_type.name]):
+            if (rel.target in instances_to_draw) or (rel.field.link_type.name in select_related and (rel_type is None or rel_type == rel.field.link_type.name) and rel_level < select_related[rel.field.link_type.name]):
                 getNode(rel.target, rel_level + 1, rel.field.link_type.name)
 
-                if not edges.has_key(rel.id):
+                if not rel.id in edges:
                     edges[rel.id] = {'id': rel.id, 'u': ci.pk, 'v': rel.target_id, 'value': {'label': rel.field.name} }
                     targets[ci.pk].append(rel.target_id)
 
@@ -49,7 +49,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
 
         def getNodeColour(self, ci):
             if ci.first_environment() != None:
-                if not self.colour_envt.has_key(ci.first_environment().id):
+                if not ci.first_environment().id in self.colour_envt:
                     self.colour_index = self.colour_index + 1
                     if self.colour_index > len(self.colours) - 1:
                         self.colour_index = -1
@@ -78,7 +78,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
         getNode(ci)
 
     ## Collapse
-    ns = nodes.values()
+    ns = list(nodes.values())
     removed_nodes = []
     for i in range(0, len(ns)):
         n1 = ns[i]
@@ -110,6 +110,6 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
 
 
     ## Done
-    return {'nodes': nodes.values(), 'edges': edges.values()}
+    return {'nodes': list(nodes.values()), 'edges': list(edges.values())}
 
 

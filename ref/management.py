@@ -11,7 +11,7 @@
 from django.db.models.signals import post_syncdb
 
 ## MAGE imports
-import models
+import ref.models
 from ref.models.parameters import setOrCreateParam
 from ref.demo_items import utility_create_meta, utility_create_test_instances, \
     utility_create_logical, create_full_test_data
@@ -39,7 +39,7 @@ def post_syncdb_handler(sender, **kwargs):
 
 
 ## Listen to the syncdb signal
-post_syncdb.connect(post_syncdb_handler, sender=models)
+post_syncdb.connect(post_syncdb_handler, sender=ref.models)
 
 """
 C:\Python27\python.exe .\manage.py sqlclear ref,scm | select-string -NotMatch dot  | C:\Python27\python.exe .\manage.py dbshell

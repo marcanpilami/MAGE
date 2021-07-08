@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def register(self, checker):
         if not issubclass(checker, PackageCheckerBaseImpl):
             raise Exception('a checker must be a subclass of PackageCheckerBaseImpl (' + checker.__name__ + ')')
-        print u'registering checker named ' + checker.__name__
+        print(u'registering checker named ' + checker.__name__)
         pc = PackageChecker.objects.get_or_create(module=checker.__module__ , name=checker.__name__)
         pc[0].description = checker.description if checker.description else checker.__name__
         pc[0].save()
@@ -32,7 +32,7 @@ class Command(BaseCommand):
     def end_sync(self):
         for pc in PackageChecker.objects.all():
             if not pc in self.this_launch:
-                print u'removing checker named ' + pc.name
+                print(u'removing checker named ' + pc.name)
                 pc.delete()
 
     def handle(self, *args, **options):

@@ -20,7 +20,7 @@ class Project(models.Model):
         verbose_name = u'projet'
         verbose_name_plural = u'projets'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class Application(models.Model):
@@ -31,7 +31,7 @@ class Application(models.Model):
     description = models.CharField(max_length=500)
     project = models.ForeignKey(Project, null=True, blank=True, related_name='applications')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class EnvironmentType(models.Model):
@@ -48,7 +48,7 @@ class EnvironmentType(models.Model):
         return ','.join([ i.name for i in self.implementation_patterns.all()])
     cic_list = property(__get_cic_list)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

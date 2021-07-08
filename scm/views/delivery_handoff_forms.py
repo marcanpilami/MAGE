@@ -55,7 +55,7 @@ class IIForm(ModelForm):
 
     def clean_how_to_install(self):
         data = self.cleaned_data['how_to_install']
-        deleted = self.cleaned_data.has_key('DELETE') if self.cleaned_data.has_key('DELETE') else False
+        deleted = 'DELETE' in self.cleaned_data if 'DELETE'in self.cleaned_data else False
         if len(data) == 0 and not deleted:
             raise forms.ValidationError("At least one technical target is required")
         return data
@@ -84,7 +84,7 @@ class IIForm(ModelForm):
         cleaned_data = super(IIForm, self).clean()
 
         ## Check how_to_install consistency
-        if self.cleaned_data.has_key('target') and self.cleaned_data.has_key('how_to_install'):
+        if 'target' in self.cleaned_data and 'how_to_install' in self.cleaned_data:
             logicalcompo = self.cleaned_data['target']
             htis = self.cleaned_data['how_to_install']
             for hti in htis:
@@ -101,7 +101,7 @@ class IIForm(ModelForm):
         super(IIForm, self).__init__(*args, **kwargs)
         self.fields['how_to_install'].queryset = InstallationMethod.objects.filter(restoration_only=False)
 
-        if kwargs.has_key('application'):
+        if 'application' in kwargs:
             self.field['target'].queryset = self.field['target'].queryset.filter(application=kwargs['application'])
             kwargs.remove('application')
 

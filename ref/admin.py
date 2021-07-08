@@ -168,7 +168,7 @@ class ComponentInstanceRelationAdmin(TabularInline):
     fk_name = "source"
 
 class ComponentInstanceAdmin(ModelAdmin):
-    list_display = ['__unicode__', 'description', 'instanciates', 'active' ]
+    list_display = ['__str__', 'description', 'instanciates', 'active' ]
     list_filter = ('deleted', 'description', 'environments', 'description__tag', 'instanciates')
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]

@@ -105,7 +105,7 @@ def __select_compo(q, return_sensitive_data):
                     raise Exception('subqueries must always return a single field')
                 if len(tmp) != 1:
                     raise Exception('subqueries must return a single value')
-                val = tmp[0].values()[0]
+                val = list(tmp[0].values())[0]
 
             if predicate.navigation[-1] == '_id':
                 r[prefix + 'id'] = val
@@ -119,7 +119,7 @@ def __select_compo(q, return_sensitive_data):
                     r[prefix + 'field_set__value__contains'] = val[1:-1]
                 elif escaped_val.endswith("%"):
                     r[prefix + 'field_set__value__startswith'] = val[:-1]
-                    print r
+                    print(r)
                 elif escaped_val.startswith("%"):
                     r[prefix + 'field_set__value__endswith'] = val[1:]
                 else:
@@ -164,7 +164,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
                 if not return_sensitive_data and fi.field.sensitive:
                     continue
                 key = fi.field.name + '_id'
-                if compo.has_key(key):
+                if key in compo:
                     compo[key] = '%s,%s' % (compo[key], fi.target_id)
                 else:
                     compo[key] = fi.target_id
@@ -192,7 +192,7 @@ def __to_dict(rs, selector=None, optim=True, use_computed_fields=False, return_s
             res.append(compo)
 
             for navigation in selector:
-                print navigation
+                print(navigation)
                 tmp = ci
                 for idn in navigation:
                     if navigation.asList().index(idn) == len(navigation) - 1:

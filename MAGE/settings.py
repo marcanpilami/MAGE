@@ -174,7 +174,7 @@ CACHES = {
 LOCAL_APPS = ()
 try:
     from MAGE.local_settings import *
-except ImportError, e:
+except ImportError as e:
     pass
 
 INSTALLED_APPS = (

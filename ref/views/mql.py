@@ -21,7 +21,7 @@ def mql_tester(request):
             try:
                 res = mql.run(form.cleaned_data['mql'], return_sensitive_data = request.user.has_perm('ref.allfields_componentinstance'))
                 return render(request, 'ref/mql_tester.html', {'mql': form.cleaned_data['mql'], 'form': form, 'results': res, 'base': base})
-            except Exception, e:
+            except Exception as e:
                 error = e.__str__()
     else:
         form = MqlTesterForm() # An unbound form
