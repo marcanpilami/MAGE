@@ -162,15 +162,8 @@ def form_for_model(descr):
 ## Debug form for changing types
 #####################################################
 
-class HorizontalCSM(CheckboxSelectMultiple.renderer):
-    def render(self):
-        id_ = self.attrs.get('id', None)
-        start_tag = format_html('<div id="{0}">', id_) if id_ else '<div>'
-        output = [start_tag]
-        for widget in self:
-            output.append(format_html(u'<span>{0}</span>', force_text(widget)))
-        output.append('</span>')
-        return mark_safe('\n'.join(output))
+class HorizontalCheckboxSelectMultiple(CheckboxSelectMultiple):
+    template_name="widgets/widget_checkbox_select_multiple_horizontal"
 
 class CIForm(ModelForm):
     def __init__(self, descriptions, envts, cics, **kwargs):
@@ -193,7 +186,7 @@ class CIForm(ModelForm):
     class Meta:
         model = ComponentInstance
         fields = ['description', 'instanciates', 'environments', 'deleted']
-        widgets = {'environments' : CheckboxSelectMultiple(renderer=HorizontalCSM)}
+        widgets = {'environments' : HorizontalCheckboxSelectMultiple()}
 
 @atomic
 @permission_required('ref.scm_addcomponentinstance')

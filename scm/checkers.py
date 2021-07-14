@@ -20,7 +20,7 @@ class DeliveryCheckerSql(PackageCheckerBaseImpl):
         try:
             zf = ZipFile(fileinfo)
             zf.testzip()
-        except BadZipfile, e:
+        except BadZipfile as e:
             raise forms.ValidationError(e)
 
         ## Must contain only SQL files either inside a 'scripts-sql' directory or at the root.
@@ -47,7 +47,7 @@ class DeliveryCheckerEar(PackageCheckerBaseImpl):
         try:
             zf = ZipFile(fileinfo)
             zf.testzip()
-        except BadZipfile, e:
+        except BadZipfile as e:
             raise forms.ValidationError('File is not an EAR archive or is corrupted: ' + str(e))
 
         ## Must end with 'ear'
@@ -65,7 +65,7 @@ class DeliveryCheckerEarWar(PackageCheckerBaseImpl):
         try:
             zf = ZipFile(fileinfo)
             zf.testzip()
-        except BadZipfile, e:
+        except BadZipfile as e:
             raise forms.ValidationError('File is not an EAR or WAR archive or is corrupted: ' + str(e))
 
         ## Must end with 'ear'

@@ -7,6 +7,7 @@ Created on 11 août 2014
 '''
 
 from django.apps import AppConfig
+from django.db.models.signals import post_migrate
 
 class RefAppConfig(AppConfig):
     name='ref'
@@ -14,3 +15,7 @@ class RefAppConfig(AppConfig):
     
     def ready(self):
         import ref.cache
+        from ref.management import post_migrate_handler
+
+        ## Listen to the syncdb signal
+        post_migrate.connect(post_migrate_handler, sender=self)
