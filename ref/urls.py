@@ -8,6 +8,8 @@
 from django.conf.urls import url
 from ref import views
 
+app_name='ref'
+
 urlpatterns = [
     url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),

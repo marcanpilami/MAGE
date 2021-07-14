@@ -14,10 +14,10 @@ from ref.models import ComponentInstanceRelation, ComponentInstance, ComponentIm
 ################################################################################
 
 class ConventionCounter(models.Model):
-    scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None)
-    scope_project = models.ForeignKey('Project', blank=True, null=True, default=None)
-    scope_application = models.ForeignKey('Application', blank=True, null=True, default=None)
-    scope_type = models.ForeignKey('ImplementationDescription', blank=True, null=True, default=None)
+    scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_project = models.ForeignKey('Project', blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_application = models.ForeignKey('Application', blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_type = models.ForeignKey('ImplementationDescription', blank=True, null=True, default=None, on_delete=models.CASCADE)
     scope_instance = models.IntegerField(blank=True, null=True, default=None)
     val = models.IntegerField(default=0, verbose_name='valeur courante')
 
@@ -62,7 +62,7 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier'), ('bool', 'booléen')), verbose_name=u'type')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
+    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère', on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.description.name)
@@ -77,7 +77,7 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
     pattern = models.CharField(max_length=500, verbose_name='chaîne de calcul')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
+    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set', on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s' % (self.name)
@@ -91,11 +91,11 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
         unique_together = (('name', 'description'),)
 
 class ImplementationRelationDescription(ImplementationFieldBase):
-    source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source')
-    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible')
+    source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source', on_delete=models.CASCADE)
+    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible', on_delete=models.CASCADE)
     min_cardinality = models.IntegerField(default=0)
     max_cardinality = models.IntegerField(blank=True, null=True)
-    link_type = models.ForeignKey(ImplementationRelationType)
+    link_type = models.ForeignKey(ImplementationRelationType, on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.source.name)

@@ -11,7 +11,7 @@ from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 
 class ClearableFileInputPretty(ClearableFileInput):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         substitutions = {
             'initial_text': self.initial_text,
             'input_text': self.input_text,
@@ -20,7 +20,7 @@ class ClearableFileInputPretty(ClearableFileInput):
             'initial_url': value.url if value and hasattr(value, 'url') else None,
         }
         template = '%(input)s'
-        substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs)
+        substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs, renderer)
 
         if value and hasattr(value, "url"):
             template = self.template_with_initial

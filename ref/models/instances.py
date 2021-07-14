@@ -31,8 +31,8 @@ class Environment(models.Model):
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
-    project = models.ForeignKey('Project', null=True, blank=True)
-    typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie')
+    project = models.ForeignKey('Project', null=True, blank=True, on_delete=models.CASCADE)
+    typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie', on_delete=models.CASCADE)
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
     show_sensitive_data = models.NullBooleanField(verbose_name="afficher les informations sensibles", null=True, blank=True, choices=((None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
@@ -85,9 +85,9 @@ class RichManager(models.Manager):
             return None
 
 class ComponentInstanceRelation(models.Model):
-    source = models.ForeignKey('ComponentInstance', related_name='rel_target_set', verbose_name='instance source')
-    target = models.ForeignKey('ComponentInstance', related_name='rel_targeted_by_set', verbose_name='instance cible')
-    field = models.ForeignKey('ImplementationRelationDescription', verbose_name=u'champ implémenté', related_name='field_set')
+    source = models.ForeignKey('ComponentInstance', related_name='rel_target_set', verbose_name='instance source', on_delete=models.CASCADE)
+    target = models.ForeignKey('ComponentInstance', related_name='rel_targeted_by_set', verbose_name='instance cible', on_delete=models.CASCADE)
+    field = models.ForeignKey('ImplementationRelationDescription', verbose_name=u'champ implémenté', related_name='field_set', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = u'valeur de relation'
@@ -100,8 +100,8 @@ class ComponentInstanceField(models.Model):
     objects = RichManager()
 
     value = models.CharField(max_length=255, verbose_name='valeur', db_index=True)
-    field = models.ForeignKey('ImplementationFieldDescription', verbose_name=u'champ implémenté')
-    instance = models.ForeignKey('ComponentInstance', verbose_name=u'instance de composant', related_name='field_set')
+    field = models.ForeignKey('ImplementationFieldDescription', verbose_name=u'champ implémenté', on_delete=models.CASCADE)
+    instance = models.ForeignKey('ComponentInstance', verbose_name=u'instance de composant', related_name='field_set', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = u'valeur de champ'
@@ -114,8 +114,8 @@ class ComponentInstance(models.Model):
     """Instances! Usually used through its proxy object"""
 
     ## Base data for all components
-    instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances')
-    description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation')
+    instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances', on_delete=models.CASCADE)
+    description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation', on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
 
@@ -206,7 +206,7 @@ class ExtendedParameterDict(MutableMapping):
 class ExtendedParameter(models.Model):
     key = models.CharField(max_length=50, verbose_name='clef')
     value = models.CharField(max_length=100, verbose_name='valeur')
-    instance = models.ForeignKey(ComponentInstance, related_name='parameter_set')
+    instance = models.ForeignKey(ComponentInstance, related_name='parameter_set', on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s on %s' % (self.key, self.instance.name)

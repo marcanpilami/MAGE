@@ -66,7 +66,7 @@ class MageParam(models.Model):
 
     description = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'description')
     default_value = models.CharField(max_length=100, blank=True, null=True, verbose_name=u'valeur par défaut')
-    model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné')
+    model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné', on_delete=models.CASCADE)
     axis1 = models.CharField(max_length=30, verbose_name=u'classification optionnelle', blank=True, null=True)
 
     restricted = models.BooleanField(default=False)

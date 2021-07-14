@@ -8,6 +8,8 @@
 from django.conf.urls import url
 from scm import views
 
+app_name='scm'
+
 urlpatterns = [
     url(r'envt/hist/(?P<envt_name>.*)/(?P<limit>\d+)', views.all_installs, name='envtinstallhistprm'),
     url(r'envt/hist/(?P<envt_name>.*)', views.all_installs, {'limit': 90}, name='envtinstallhist'),

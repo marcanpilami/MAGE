@@ -82,8 +82,8 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody. (overloaded in local settings)
 SECRET_KEY = 'your_own_here'
 
-LOCAL_MIDDLEWARE_CLASSES = ()
-MIDDLEWARE_CLASSES = (
+LOCAL_MIDDLEWARE = []
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,7 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'MAGE.urls'
 
@@ -196,4 +196,4 @@ INSTALLED_APPS = (
 )
 
 INSTALLED_APPS += LOCAL_APPS
-MIDDLEWARE_CLASSES += LOCAL_MIDDLEWARE_CLASSES
+MIDDLEWARE += LOCAL_MIDDLEWARE

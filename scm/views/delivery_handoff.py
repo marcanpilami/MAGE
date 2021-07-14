@@ -4,7 +4,7 @@
 
 # Django imports
 from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms.models import inlineformset_factory
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import permission_required, login_required

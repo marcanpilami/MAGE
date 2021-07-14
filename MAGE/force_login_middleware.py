@@ -22,7 +22,7 @@ class ForceLoginMiddleware(object):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         # No need to process URLs if user already logged in
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return None
 
         # An exception match should immediately return None

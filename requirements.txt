@@ -1,13 +1,11 @@
---find-links wheelhouse
-## To ease compilation on Windows
-#pip>21
-#setuptools>57
+#pip>=21.1.2
+#setuptools>=57
 
 ## Core dependencies
-django>=1.11,<1.12
+django>=2.2.24,<3
 pyparsing==2.0.2
 unicodecsv==0.14.1
-django-crispy-forms-ng
+django-crispy-forms>=1.11.0,<2
 
 ## Client (libmage) dependencies
 requests==2.7

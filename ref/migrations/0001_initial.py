@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('scope_instance', models.IntegerField(default=None, null=True, blank=True)),
                 ('val', models.IntegerField(default=0, verbose_name=b'valeur courante')),
-                ('scope_application', models.ForeignKey(default=None, blank=True, to='ref.Application', null=True)),
+                ('scope_application', models.ForeignKey(default=None, blank=True, to='ref.Application', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Compteur convention nommage',
@@ -136,7 +136,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50, verbose_name=b'clef')),
                 ('value', models.CharField(max_length=100, verbose_name=b'valeur')),
-                ('instance', models.ForeignKey(related_name='parameter_set', to='ref.ComponentInstance')),
+                ('instance', models.ForeignKey(related_name='parameter_set', to='ref.ComponentInstance', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'param\xe8tre \xe9tendu',
@@ -191,7 +191,7 @@ class Migration(migrations.Migration):
                 ('default', models.CharField(max_length=500, null=True, verbose_name=b'd\xc3\xa9faut', blank=True)),
                 ('datatype', models.CharField(default=b'str', max_length=20, verbose_name='type', choices=[(b'str', b'cha\xc3\xaene de caract\xc3\xa8res'), (b'int', b'entier')])),
                 ('widget_row', models.PositiveSmallIntegerField(null=True, blank=True)),
-                ('description', models.ForeignKey(related_name='field_set', verbose_name='impl\xe9mentation m\xe8re', to='ref.ImplementationDescription')),
+                ('description', models.ForeignKey(related_name='field_set', verbose_name='impl\xe9mentation m\xe8re', to='ref.ImplementationDescription', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'champ simple',
@@ -255,7 +255,7 @@ class Migration(migrations.Migration):
                 ('ref1', models.CharField(max_length=20, null=True, verbose_name='ref\xe9rence 1', blank=True)),
                 ('ref2', models.CharField(max_length=20, null=True, verbose_name='ref\xe9rence 2', blank=True)),
                 ('ref3', models.CharField(max_length=20, null=True, verbose_name='ref\xe9rence 3', blank=True)),
-                ('application', models.ForeignKey(to='ref.Application')),
+                ('application', models.ForeignKey(to='ref.Application', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'composant logique',
@@ -274,7 +274,7 @@ class Migration(migrations.Migration):
                 ('default_value', models.CharField(max_length=100, null=True, verbose_name='valeur par d\xe9faut', blank=True)),
                 ('axis1', models.CharField(max_length=30, null=True, verbose_name='classification optionnelle', blank=True)),
                 ('restricted', models.BooleanField(default=False)),
-                ('model', models.ForeignKey(verbose_name='mod\xe8le concern\xe9', blank=True, to='contenttypes.ContentType', null=True)),
+                ('model', models.ForeignKey(verbose_name='mod\xe8le concern\xe9', blank=True, to='contenttypes.ContentType', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['app', 'key'],
@@ -322,19 +322,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='implementationrelationdescription',
             name='link_type',
-            field=models.ForeignKey(to='ref.ImplementationRelationType'),
+            field=models.ForeignKey(to='ref.ImplementationRelationType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='implementationrelationdescription',
             name='source',
-            field=models.ForeignKey(related_name='target_set', verbose_name=b'type source', to='ref.ImplementationDescription'),
+            field=models.ForeignKey(related_name='target_set', verbose_name=b'type source', to='ref.ImplementationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='implementationrelationdescription',
             name='target',
-            field=models.ForeignKey(related_name='is_targeted_by_set', verbose_name='type cible', to='ref.ImplementationDescription'),
+            field=models.ForeignKey(related_name='is_targeted_by_set', verbose_name='type cible', to='ref.ImplementationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -354,7 +354,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='implementationcomputedfielddescription',
             name='description',
-            field=models.ForeignKey(related_name='computed_field_set', verbose_name='impl\xe9mentation m\xe8re', to='ref.ImplementationDescription'),
+            field=models.ForeignKey(related_name='computed_field_set', verbose_name='impl\xe9mentation m\xe8re', to='ref.ImplementationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -364,73 +364,73 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='environmenttype',
             name='sla',
-            field=models.ForeignKey(blank=True, to='ref.SLA', null=True),
+            field=models.ForeignKey(blank=True, to='ref.SLA', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='environment',
             name='project',
-            field=models.ForeignKey(blank=True, to='ref.Project', null=True),
+            field=models.ForeignKey(blank=True, to='ref.Project', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='environment',
             name='typology',
-            field=models.ForeignKey(to='ref.EnvironmentType'),
+            field=models.ForeignKey(to='ref.EnvironmentType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='conventioncounter',
             name='scope_environment',
-            field=models.ForeignKey(default=None, blank=True, to='ref.Environment', null=True),
+            field=models.ForeignKey(default=None, blank=True, to='ref.Environment', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='conventioncounter',
             name='scope_project',
-            field=models.ForeignKey(default=None, blank=True, to='ref.Project', null=True),
+            field=models.ForeignKey(default=None, blank=True, to='ref.Project', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='conventioncounter',
             name='scope_type',
-            field=models.ForeignKey(default=None, blank=True, to='ref.ImplementationDescription', null=True),
+            field=models.ForeignKey(default=None, blank=True, to='ref.ImplementationDescription', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstancerelation',
             name='field',
-            field=models.ForeignKey(related_name='field_set', verbose_name='champ impl\xe9ment\xe9', to='ref.ImplementationRelationDescription'),
+            field=models.ForeignKey(related_name='field_set', verbose_name='champ impl\xe9ment\xe9', to='ref.ImplementationRelationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstancerelation',
             name='source',
-            field=models.ForeignKey(related_name='rel_target_set', verbose_name=b'instance source', to='ref.ComponentInstance'),
+            field=models.ForeignKey(related_name='rel_target_set', verbose_name=b'instance source', to='ref.ComponentInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstancerelation',
             name='target',
-            field=models.ForeignKey(related_name='rel_targeted_by_set', verbose_name=b'instance cible', to='ref.ComponentInstance'),
+            field=models.ForeignKey(related_name='rel_targeted_by_set', verbose_name=b'instance cible', to='ref.ComponentInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstancefield',
             name='field',
-            field=models.ForeignKey(verbose_name='champ impl\xe9ment\xe9', to='ref.ImplementationFieldDescription'),
+            field=models.ForeignKey(verbose_name='champ impl\xe9ment\xe9', to='ref.ImplementationFieldDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstancefield',
             name='instance',
-            field=models.ForeignKey(related_name='field_set', verbose_name='instance de composant', to='ref.ComponentInstance'),
+            field=models.ForeignKey(related_name='field_set', verbose_name='instance de composant', to='ref.ComponentInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstance',
             name='description',
-            field=models.ForeignKey(related_name='instance_set', verbose_name="d\xe9crit par l'impl\xe9mentation", to='ref.ImplementationDescription'),
+            field=models.ForeignKey(related_name='instance_set', verbose_name="d\xe9crit par l'impl\xe9mentation", to='ref.ImplementationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -442,7 +442,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='componentinstance',
             name='instanciates',
-            field=models.ForeignKey(related_name='instances', verbose_name='impl\xe9mentation de ', blank=True, to='ref.ComponentImplementationClass', null=True),
+            field=models.ForeignKey(related_name='instances', verbose_name='impl\xe9mentation de ', blank=True, to='ref.ComponentImplementationClass', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -454,25 +454,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='componentimplementationclass',
             name='implements',
-            field=models.ForeignKey(related_name='implemented_by', verbose_name='composant logique impl\xe9ment\xe9', to='ref.LogicalComponent'),
+            field=models.ForeignKey(related_name='implemented_by', verbose_name='composant logique impl\xe9ment\xe9', to='ref.LogicalComponent', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentimplementationclass',
             name='sla',
-            field=models.ForeignKey(blank=True, to='ref.SLA', null=True),
+            field=models.ForeignKey(blank=True, to='ref.SLA', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentimplementationclass',
             name='technical_description',
-            field=models.ForeignKey(related_name='cic_set', verbose_name='description technique', to='ref.ImplementationDescription'),
+            field=models.ForeignKey(related_name='cic_set', verbose_name='description technique', to='ref.ImplementationDescription', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='application',
             name='project',
-            field=models.ForeignKey(related_name='applications', blank=True, to='ref.Project', null=True),
+            field=models.ForeignKey(related_name='applications', blank=True, to='ref.Project', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
