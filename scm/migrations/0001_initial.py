@@ -48,9 +48,9 @@ class Migration(migrations.Migration):
             name='InstallableItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('is_full', models.BooleanField(default=False, verbose_name=b'installation de z\xc3\xa9ro')),
-                ('data_loss', models.BooleanField(default=False, verbose_name='entraine des pertes de donn\xe9es')),
-                ('datafile', models.FileField(upload_to=scm.models.__iidatafilename__, null=True, verbose_name=b'fichier', blank=True)),
+                ('is_full', models.BooleanField(default=False, verbose_name=u'installation de zéro')),
+                ('data_loss', models.BooleanField(default=False, verbose_name=u'entraine des pertes de données')),
+                ('datafile', models.FileField(upload_to=scm.models.__iidatafilename__, null=True, verbose_name='fichier', blank=True)),
             ],
             options={
                 'permissions': (('download_ii', 'can download the installation file'),),
@@ -64,13 +64,13 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(unique=True, max_length=40, verbose_name='r\xe9f\xe9rence')),
                 ('description', models.CharField(max_length=1000, null=True, verbose_name='r\xe9sum\xe9 du contenu', blank=True)),
                 ('set_date', models.DateTimeField(auto_now_add=True, verbose_name='date de r\xe9ception')),
-                ('ticket_list', models.CharField(max_length=100, null=True, verbose_name=b'ticket(s) li\xc3\xa9(s) s\xc3\xa9par\xc3\xa9s par une virgule', blank=True)),
-                ('status', models.IntegerField(default=3, choices=[(1, b'VALIDATED'), (2, b'TESTED'), (3, b'HANDEDOFF')])),
+                ('ticket_list', models.CharField(max_length=100, null=True, verbose_name=u'ticket(s) lié(s) séparés par une virgule', blank=True)),
+                ('status', models.IntegerField(default=3, choices=[(1, 'VALIDATED'), (2, 'TESTED'), (3, 'HANDEDOFF')])),
                 ('location_data_1', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_2', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_3', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_4', models.CharField(max_length=100, null=True, blank=True)),
-                ('datafile', models.FileField(upload_to=scm.models.__isetdatafilename__, null=True, verbose_name=b'fichier', blank=True)),
+                ('datafile', models.FileField(upload_to=scm.models.__isetdatafilename__, null=True, verbose_name='fichier', blank=True)),
                 ('removed', models.DateTimeField(null=True, blank=True)),
             ],
             options={
@@ -101,9 +101,9 @@ class Migration(migrations.Migration):
             name='Installation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('asked_in_ticket', models.CharField(max_length=10, null=True, verbose_name=b'ticket li\xc3\xa9 ', blank=True)),
-                ('install_date', models.DateTimeField(verbose_name=b'date d\\installation ')),
-                ('installed_set', models.ForeignKey(verbose_name=b'livraison appliqu\xc3\xa9e ', to='scm.InstallableSet', on_delete=models.CASCADE)),
+                ('asked_in_ticket', models.CharField(max_length=10, null=True, verbose_name=u'ticket lié ', blank=True)),
+                ('install_date', models.DateTimeField(verbose_name='date d\\installation ')),
+                ('installed_set', models.ForeignKey(verbose_name=u'livraison appliquée ', to='scm.InstallableSet', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
             name='ItemDependency',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('operator', models.CharField(default=b'==', max_length=2, choices=[(b'>=', b'>='), (b'<=', b'<='), (b'==', b'==')])),
+                ('operator', models.CharField(default='==', max_length=2, choices=[('>=', '>='), ('<=', '<='), ('==', '==')])),
             ],
             options={
             },
@@ -149,9 +149,9 @@ class Migration(migrations.Migration):
             name='PackageChecker',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('module', models.CharField(max_length=200, verbose_name=b'Python module containing the checker class')),
-                ('name', models.CharField(max_length=200, verbose_name=b'Python checker class name')),
-                ('description', models.CharField(max_length=200, verbose_name=b'description')),
+                ('module', models.CharField(max_length=200, verbose_name='Python module containing the checker class')),
+                ('name', models.CharField(max_length=200, verbose_name='Python checker class name')),
+                ('description', models.CharField(max_length=200, verbose_name='description')),
             ],
             options={
             },
@@ -161,7 +161,7 @@ class Migration(migrations.Migration):
             name='SetDependency',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('operator', models.CharField(max_length=2, choices=[(b'>=', b'>='), (b'<=', b'<='), (b'==', b'==')])),
+                ('operator', models.CharField(max_length=2, choices=[('>=', '>='), ('<=', '<='), ('==', '==')])),
                 ('depends_on_version', models.ForeignKey(to='scm.LogicalComponentVersion', on_delete=models.CASCADE)),
                 ('installable_set', models.ForeignKey(related_name='requirements', to='scm.InstallableSet', on_delete=models.CASCADE)),
             ],
@@ -215,7 +215,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='installableitem',
             name='how_to_install',
-            field=models.ManyToManyField(to='scm.InstallationMethod', verbose_name=b"peut s'installer avec"),
+            field=models.ManyToManyField(to='scm.InstallationMethod', verbose_name="peut s'installer avec"),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -245,7 +245,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='backuprestoremethod',
             name='target',
-            field=models.ForeignKey(related_name='restore_methods', verbose_name=b'cible', to='ref.ComponentImplementationClass', on_delete=models.CASCADE),
+            field=models.ForeignKey(related_name='restore_methods', verbose_name='cible', to='ref.ComponentImplementationClass', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

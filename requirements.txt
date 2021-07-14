@@ -1,7 +1,7 @@
 ## Core dependencies
-django>=2.2.24,<3
+django>=3.2.5,<3.3
 pyparsing==2.0.2
-unicodecsv==0.14.1
+unicodecsv==0.14.1 # todo: remove.
 django-crispy-forms>=1.11.0,<2
 
 ## Client (libmage) dependencies
@@ -12,7 +12,7 @@ azure-storage==0.20.0
 
 ## Following libraries are not used in normal operations, the are just present for debugging in case of problem.
 ipython
-django_debug_toolbar==1.9.1
+django_debug_toolbar==3.2.1
 
 # Lint
 pylint

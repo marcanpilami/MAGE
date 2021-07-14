@@ -6,7 +6,7 @@ import json
 ## Django imports
 from django import forms
 from django.http.response import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 
 ## MAGE imports
 from ref.models import Environment, ImplementationDescription
@@ -63,7 +63,7 @@ class CartoForm(forms.Form):
 
 def carto_form(request):
     """Marsupilamographe"""
-    return render_to_response('ref/view_carto2.html', {'form': CartoForm()})
+    return render(request, 'ref/view_carto2.html', {'form': CartoForm()})
 
 def carto_content_form(request):
     form = None
@@ -107,10 +107,10 @@ def carto_description_content(request):
     return response
 
 def carto_description(request):
-    return render_to_response('ref/view_carto_struct.html')
+    return render(request, 'ref/view_carto_struct.html')
 
 def carto_full(request):
-    return render_to_response('ref/view_carto_full.html')
+    return render(request, 'ref/view_carto_full.html')
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')

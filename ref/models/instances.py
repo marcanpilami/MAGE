@@ -35,7 +35,7 @@ class Environment(models.Model):
     typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie', on_delete=models.CASCADE)
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
-    show_sensitive_data = models.NullBooleanField(verbose_name="afficher les informations sensibles", null=True, blank=True, choices=((None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
+    show_sensitive_data = models.BooleanField(verbose_name="afficher les informations sensibles", null=True, blank=True, choices=((None, u'défini par la typologie'), (False, 'cacher'), (True, 'montrer')))
     managed = models.BooleanField(default=True, verbose_name=u'administré')
 
     def __protected(self):

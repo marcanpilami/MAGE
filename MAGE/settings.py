@@ -24,11 +24,15 @@ DATABASES = {
     }
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
+
+INTERNAL_IPS = [ '127.0.0.1', ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -173,13 +177,13 @@ CACHES = {
     }
 }
 
-LOCAL_APPS = ()
+LOCAL_APPS = []
 try:
     from MAGE.local_settings import *
 except ImportError as e:
     pass
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -193,7 +197,7 @@ INSTALLED_APPS = (
 
     'ref',  ## Keep REF first after django internals
     'scm',  ## Keep SCM second
-)
+]
 
 INSTALLED_APPS += LOCAL_APPS
 MIDDLEWARE += LOCAL_MIDDLEWARE

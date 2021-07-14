@@ -1,19 +1,15 @@
 # coding: utf-8
 
 ## Python imports
-from functools import wraps
-from _functools import partial
+from functools import wraps, partial
 
 ## Django imports
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms.models import ModelChoiceIterator, ModelForm, modelformset_factory
 from django.forms.widgets import CheckboxSelectMultiple, CheckboxInput
-from django.shortcuts import render_to_response, redirect
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_text
-from django.utils.functional import curry
+from django.shortcuts import render, redirect
+
 from django.db.models.query import Prefetch
 from django.db.transaction import atomic
 from django.contrib.auth.decorators import permission_required
@@ -111,7 +107,7 @@ def envt_instances(request, envt_id=1):
                             instance.save()
 
 
-    return render_to_response("ref/instance_envt.html", {'fss': ffs, 'envt': e})
+    return render(request, "ref/instance_envt.html", {'fss': ffs, 'envt': e})
 
 
 ## Forms
@@ -192,7 +188,7 @@ class CIForm(ModelForm):
 @permission_required('ref.scm_addcomponentinstance')
 def edit_all_comps_meta(request):
     CIFormSet = modelformset_factory(ComponentInstance, form=CIForm, extra=0)
-    CIFormSet.form = staticmethod(curry(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
+    CIFormSet.form = staticmethod(partial(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
                                         envts=Environment.objects.all().order_by('name'),
                                         cics=ComponentImplementationClass.objects.all().order_by('implements__application__name', 'name')))
 
@@ -204,7 +200,7 @@ def edit_all_comps_meta(request):
     else:
         formset = CIFormSet(queryset=ComponentInstance.objects.all().select_related('description').prefetch_related('environments'))
 
-    return render_to_response("ref/instance_all.html", {"formset": formset, })
+    return render(request, "ref/instance_all.html", {"formset": formset, })
 
 
 ############################################################
@@ -281,7 +277,7 @@ def descr_instances_reinit(request, descr_id=4):
 
     cls = reinit_form_for_model(descr)
     InstanceFormSet = modelformset_factory(ComponentInstance, form=cls, extra=0)
-    InstanceFormSet.form = staticmethod(curry(cls, cics=cics))
+    InstanceFormSet.form = staticmethod(partial(cls, cics=cics))
 
     if request.POST:
         formset = InstanceFormSet(request.POST, request.FILES)
@@ -295,4 +291,4 @@ def descr_instances_reinit(request, descr_id=4):
                 prefetch_related('environments')
         formset = InstanceFormSet(queryset=instances)
 
-    return render_to_response("ref/instance_descr_reinit.html", {'formset': formset, 'descr': descr})
+    return render(request, "ref/instance_descr_reinit.html", {'formset': formset, 'descr': descr})

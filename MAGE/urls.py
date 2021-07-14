@@ -5,7 +5,8 @@
     @author: Marc-Antoine Gouillart
 '''
 
-from django.conf.urls import include, url
+from django.urls import include, path
+from django.conf.urls import url
 from django.contrib.admin import autodiscover
 from django.contrib.auth import views as auth_views
 from ref.admin import site
@@ -39,7 +40,6 @@ urlpatterns = [
 if settings.DEBUG:
     try:
         import debug_toolbar
-        urlpatterns += [ url(r'^__debug__/', include(debug_toolbar.urls)), ]
+        urlpatterns += [ path('__debug__/', include(debug_toolbar.urls)), ]
     except:
-        raise
         pass
