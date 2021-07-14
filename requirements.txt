@@ -1,6 +1,3 @@
-#pip>=21.1.2
-#setuptools>=57
-
 ## Core dependencies
 django>=2.2.24,<3
 pyparsing==2.0.2
