@@ -26,7 +26,7 @@ def iset_test(request, iset_id, envt_id_or_name):
     try:
         delivery.check_prerequisites(envt.name)
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': None})
-    except MageScmFailedEnvironmentDependencyCheck, e:
+    except MageScmFailedEnvironmentDependencyCheck as e:
         return render(request, 'scm/delivery_prereqs.html', {'delivery': delivery, 'envt': envt, 'error': e})
 
 def iset_test_script(request, iset_id, envt_id_or_name):
@@ -39,7 +39,7 @@ def iset_test_script(request, iset_id, envt_id_or_name):
     try:
         delivery.check_prerequisites(envt.name)
         return HttpResponse("<html><body>OK</body></html>")
-    except MageScmFailedEnvironmentDependencyCheck, e:
+    except MageScmFailedEnvironmentDependencyCheck as e:
         return HttpResponse("<html><body>%s</body></html>" % e, status=424)
 
 @permission_required('scm.install_installableset')
@@ -73,7 +73,7 @@ def delivery_ii_test_envt(request, ii_id, envt_name, full_delivery=False):
     try:
         ii.check_prerequisites(envt.name, ii.belongs_to_set.set_content.all() if full_delivery else ())
         return HttpResponse("<html><body>OK</body></html>")
-    except MageScmFailedEnvironmentDependencyCheck, e:
+    except MageScmFailedEnvironmentDependencyCheck as e:
         return HttpResponse("<html><body>%s</body></html>" % e, status=424)
 
 

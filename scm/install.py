@@ -35,7 +35,7 @@ def install_iset(iset, targets, envt, force_prereqs = False, install_date = None
     ## Check prerequisites
     try:
         iset.check_prerequisites(envt.name, ii_selection)
-    except MageScmFailedEnvironmentDependencyCheck, e:
+    except MageScmFailedEnvironmentDependencyCheck as e:
         if not force_prereqs:
             raise e
     
@@ -73,7 +73,7 @@ def install_ii_single_target_envt(ii, instance, envt, force_prereqs = False, ins
     ## Check prerequisites
     try:
         iset.check_prerequisites(envt.name)
-    except MageScmFailedEnvironmentDependencyCheck, e:
+    except MageScmFailedEnvironmentDependencyCheck as e:
         if not force_prereqs:
             raise e
 

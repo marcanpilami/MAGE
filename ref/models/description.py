@@ -14,10 +14,10 @@ from ref.models import ComponentInstanceRelation, ComponentInstance, ComponentIm
 ################################################################################
 
 class ConventionCounter(models.Model):
-    scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None)
-    scope_project = models.ForeignKey('Project', blank=True, null=True, default=None)
-    scope_application = models.ForeignKey('Application', blank=True, null=True, default=None)
-    scope_type = models.ForeignKey('ImplementationDescription', blank=True, null=True, default=None)
+    scope_environment = models.ForeignKey(Environment, blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_project = models.ForeignKey('Project', blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_application = models.ForeignKey('Application', blank=True, null=True, default=None, on_delete=models.CASCADE)
+    scope_type = models.ForeignKey('ImplementationDescription', blank=True, null=True, default=None, on_delete=models.CASCADE)
     scope_instance = models.IntegerField(blank=True, null=True, default=None)
     val = models.IntegerField(default=0, verbose_name='valeur courante')
 
@@ -34,7 +34,7 @@ class ImplementationRelationType(models.Model):
     name = models.CharField(max_length=20, verbose_name='type relation')
     label = models.CharField(max_length=100, verbose_name='label')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -62,9 +62,9 @@ class ImplementationFieldDescription(ImplementationFieldBase):
     datatype = models.CharField(max_length=20, default='str', choices=(('str', 'chaîne de caractères'), ('int', 'entier'), ('bool', 'booléen')), verbose_name=u'type')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère')
+    description = models.ForeignKey('ImplementationDescription', related_name='field_set', verbose_name=u'implémentation mère', on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s (%s)' % (self.name, self.description.name)
 
     class Meta:
@@ -77,9 +77,9 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
     pattern = models.CharField(max_length=500, verbose_name='chaîne de calcul')
     widget_row = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set')
+    description = models.ForeignKey('ImplementationDescription', verbose_name=u'implémentation mère', related_name='computed_field_set', on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % (self.name)
 
     def resolve(self, instance):
@@ -91,13 +91,13 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
         unique_together = (('name', 'description'),)
 
 class ImplementationRelationDescription(ImplementationFieldBase):
-    source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source')
-    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible')
+    source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source', on_delete=models.CASCADE)
+    target = models.ForeignKey('ImplementationDescription', related_name='is_targeted_by_set', verbose_name=u'type cible', on_delete=models.CASCADE)
     min_cardinality = models.IntegerField(default=0)
     max_cardinality = models.IntegerField(blank=True, null=True)
-    link_type = models.ForeignKey(ImplementationRelationType)
+    link_type = models.ForeignKey(ImplementationRelationType, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s (%s)' % (self.name, self.source.name)
 
     class Meta:
@@ -115,7 +115,7 @@ class ImplementationDescription(models.Model):
     include_in_default_envt_backup = models.BooleanField(default=False, verbose_name=u'inclure dans les backups par défaut')
     self_description_pattern = models.CharField(max_length=500, verbose_name='motif d\'auto description', help_text=u'sera utilisé pour toutes les descriptions par défaut des instances de composant. Utilise les même motifs (patterns) que les champs dynamiques.')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def resolve_self_description(self, instance):
@@ -189,15 +189,15 @@ class ImplementationDescription(models.Model):
             return idn
 
     def add_field_simple(self, name, label, default=None, label_short=None, help_text=None, compulsory=True, sensitive=False, datatype='str', widget_row=0):
-        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, description=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row))
+        self.field_set.add(ImplementationFieldDescription(name=name, label=label, sensitive=sensitive, datatype=datatype, default=default, description=self, label_short=label_short, help_text=help_text, compulsory=compulsory, widget_row=widget_row), bulk=False)
         return self
 
     def add_field_computed(self, name, label, pattern, sensitive=False, widget_row=0):
-        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row))
+        self.computed_field_set.add(ImplementationComputedFieldDescription(name=name, label=label, pattern=pattern, sensitive=sensitive, description=self, widget_row=widget_row), bulk=False)
         return self
 
     def add_relationship(self, name, label, target, link_type, min_cardinality=0, max_cardinality=1):
-        self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target, min_cardinality=min_cardinality, max_cardinality=max_cardinality, link_type=link_type))
+        self.target_set.add(ImplementationRelationDescription(name=name, label=label, source=self, target=target, min_cardinality=min_cardinality, max_cardinality=max_cardinality, link_type=link_type), bulk=False)
         return self
 
     def field_count(self):

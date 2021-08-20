@@ -48,7 +48,7 @@ def backup_script(request, envt_name, ci_id, bck_id=None):
     try:
         bs = register_backup(envt_name, now(), bck_id, ComponentInstance.objects.get(pk=ci_id), description='script backup')
         return HttpResponse(bs.id, content_type='text/plain')
-    except Exception, e:
+    except Exception as e:
         return HttpResponseBadRequest(e, content_type='text/plain')
 
 
@@ -62,7 +62,7 @@ def latest_ci_backupset_age_mn(request, ci_id):
         else:
             bis = bis.latest('set_date')
             response.write(int(round((now() - bis.set_date).total_seconds() / 60, 0)))
-    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+    except (ComponentInstance.DoesNotExist, BackupSet.DoesNotExist):
         response.write("-1")
     return response
 
@@ -74,7 +74,7 @@ def latest_ci_backupset_id(request, ci_id):
             response.write("-1")
         else:
             response.write(bis.latest('set_date').pk)
-    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+    except (ComponentInstance.DoesNotExist, BackupSet.DoesNotExist):
         response.write("-1")
     return response
 
@@ -86,7 +86,7 @@ def latest_envt_backupset_id(request, envt_name):
             response.write("-1")
         else:
             response.write(bis.latest('set_date').pk)
-    except ComponentInstance.DoesNotExist, BackupSet.DoesNotExist:
+    except (ComponentInstance.DoesNotExist, BackupSet.DoesNotExist):
         response.write("-1")
     return response
 
@@ -100,4 +100,4 @@ class BackupForm(forms.Form):
         self.envt = kwargs['envt']
         del kwargs['envt']
         super(BackupForm, self).__init__(*args, **kwargs)
-        self.fields['instances'].choices = [(i.pk, i.__unicode__()) for i in self.envt.component_instances.all()]
+        self.fields['instances'].choices = [(i.pk, i.__str__()) for i in self.envt.component_instances.all()]

@@ -19,8 +19,7 @@ from MAGE.settings import MEDIA_ROOT
 
 ## MAGE imports
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
-from exceptions import MageScmUndefinedVersionError
-from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck
+from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck, MageScmUndefinedVersionError
 from MAGE.exceptions import MageError
 from django.db.models.query import Prefetch
 
@@ -56,7 +55,7 @@ class InstallableSet(models.Model):
     available = property(is_available)
     is_available.admin_order_field = 'removed'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
     def check_prerequisites(self, envt_name, ii_selection=()):
@@ -66,7 +65,7 @@ class InstallableSet(models.Model):
         for ii in self.set_content.all():
             try:
                 ii.check_prerequisites(envt_name, ii_selection)
-            except MageScmFailedEnvironmentDependencyCheck, e:
+            except MageScmFailedEnvironmentDependencyCheck as e:
                 failures.extend(e.failing_dep)
 
         if len(failures) == 0:
@@ -83,7 +82,7 @@ class Delivery(InstallableSet):
     pass
 
 class BackupSet(InstallableSet):
-    from_envt = models.ForeignKey(Environment, blank=True, null=True)
+    from_envt = models.ForeignKey(Environment, blank=True, null=True, on_delete=models.CASCADE)
 
 
 ################################################################################
@@ -92,9 +91,9 @@ class BackupSet(InstallableSet):
 
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
-    logical_component = models.ForeignKey(LogicalComponent, related_name='versions')
+    logical_component = models.ForeignKey(LogicalComponent, related_name='versions', on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
 
     def compare(self, lcv2, strict=False):
@@ -196,7 +195,7 @@ class InstallationMethod(models.Model):
     restoration_only = models.BooleanField(default=False, verbose_name=u'opération purement de restauration')
     checkers = models.ManyToManyField('PackageChecker', related_name='used_in', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         a = ""
         if not self.available:
             a = "OBSOLETE - "
@@ -213,10 +212,10 @@ class InstallationMethod(models.Model):
 class BackupItem(models.Model):
     """ Backup can contain component instances that are NOT SCM tracked.
         This object represents these contents """
-    backupset = models.ForeignKey(BackupSet, related_name='all_items')
-    instance = models.ForeignKey(ComponentInstance)
-    related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True)  # null if not SCM-tracked
-    instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True)
+    backupset = models.ForeignKey(BackupSet, related_name='all_items', on_delete=models.CASCADE)
+    instance = models.ForeignKey(ComponentInstance, on_delete=models.CASCADE)
+    related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True, on_delete=models.CASCADE)  # null if not SCM-tracked
+    instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True, on_delete=models.CASCADE)
 
 def __iidatafilename__(ii, filename):
         ext = os.path.splitext(filename)[1]
@@ -224,14 +223,14 @@ def __iidatafilename__(ii, filename):
         return 'installablesets/' + slugify(d + '_' + ii.belongs_to_set.name) + '/' + slugify(ii.what_is_installed.logical_component.name) + ext
 
 class InstallableItem(models.Model):
-    what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by')
+    what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by', on_delete=models.CASCADE)
     how_to_install = models.ManyToManyField(InstallationMethod, verbose_name='peut s\'installer avec')
-    belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content')
+    belongs_to_set = models.ForeignKey(InstallableSet, related_name='set_content', on_delete=models.CASCADE)
     is_full = models.BooleanField(verbose_name='installation de zéro', default=False)
     data_loss = models.BooleanField(verbose_name=u'entraine des pertes de données', default=False)
     datafile = models.FileField(verbose_name='fichier', upload_to=__iidatafilename__, blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.id is not None:
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
@@ -311,11 +310,11 @@ class ItemDependency(models.Model):
     OPERATOR_CHOICES = (('>=', '>='),
                         ('<=', '<='),
                         ('==', '=='))
-    installable_item = models.ForeignKey(InstallableItem, related_name='dependencies')
-    depends_on_version = models.ForeignKey(LogicalComponentVersion)
+    installable_item = models.ForeignKey(InstallableItem, related_name='dependencies', on_delete=models.CASCADE)
+    depends_on_version = models.ForeignKey(LogicalComponentVersion, on_delete=models.CASCADE)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES, default='==')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'dépendance de [%s] envers [%s en version %s %s]' % (self.installable_item.what_is_installed.logical_component.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
@@ -323,20 +322,20 @@ class SetDependency(models.Model):
     OPERATOR_CHOICES = (('>=', '>='),
                         ('<=', '<='),
                         ('==', '=='))
-    installable_set = models.ForeignKey(InstallableSet, related_name='requirements')
-    depends_on_version = models.ForeignKey(LogicalComponentVersion)
+    installable_set = models.ForeignKey(InstallableSet, related_name='requirements', on_delete=models.CASCADE)
+    depends_on_version = models.ForeignKey(LogicalComponentVersion, on_delete=models.CASCADE)
     operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'IS [%s] requires [%s in version %s %s]' % (self.installable_set.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
 class Installation(models.Model):
-    installed_set = models.ForeignKey(InstallableSet, verbose_name='livraison appliquée ')
+    installed_set = models.ForeignKey(InstallableSet, verbose_name='livraison appliquée ', on_delete=models.CASCADE)
     asked_in_ticket = models.CharField(max_length=10, verbose_name='ticket lié ', blank=True, null=True)
     install_date = models.DateTimeField(verbose_name='date d\installation ')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
 
 @receiver(post_save, sender=Installation)
@@ -348,22 +347,22 @@ def check_validation_on_install(sender, instance, raw, **kwargs):
         instance.installed_set.save()
 
 class ComponentInstanceConfiguration(models.Model):
-    component_instance = models.ForeignKey(ComponentInstance, related_name='configurations')
-    result_of = models.ForeignKey(InstallableItem)
-    part_of_installation = models.ForeignKey(Installation, related_name='modified_components')
+    component_instance = models.ForeignKey(ComponentInstance, related_name='configurations', on_delete=models.CASCADE)
+    result_of = models.ForeignKey(InstallableItem, on_delete=models.CASCADE)
+    part_of_installation = models.ForeignKey(Installation, related_name='modified_components', on_delete=models.CASCADE)
     created_on = models.DateTimeField()
     install_failure = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.what_is_installed.version)
 
 class Tag(models.Model):
     name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
     versions = models.ManyToManyField(LogicalComponentVersion, verbose_name=u'version des composants')
-    from_envt = models.ForeignKey(Environment)
+    from_envt = models.ForeignKey(Environment, on_delete=models.CASCADE)
     snapshot_date = models.DateTimeField(verbose_name=u'date de prise de la photo', auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Tag n°%s - %s (concerne %s composants)' % (self.pk, self.name, self.versions.count())
 
 
@@ -377,8 +376,8 @@ class BackupRestoreMethod(models.Model):
         we need a mean to know which InstallationMethod to use to restore a backup.
         There cannot be more than one BMR per CIC (we are talking default restoration method - only one default!)
     """
-    method = models.ForeignKey(InstallationMethod)
-    target = models.ForeignKey(ComponentImplementationClass, related_name='restore_methods', verbose_name='cible')
+    method = models.ForeignKey(InstallationMethod, on_delete=models.CASCADE)
+    target = models.ForeignKey(ComponentImplementationClass, related_name='restore_methods', verbose_name='cible', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = u'méthode de restauration par défaut'
@@ -412,7 +411,7 @@ class PackageChecker(models.Model):
         checker_impl = getattr(__import__(self.module, fromlist=[self.name]), self.name)
         checker_impl.check(checker_impl(), package_file, logical_component, installation_method)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
 

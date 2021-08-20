@@ -107,12 +107,12 @@ LANGUAGE_CODE = 'fr-fr'
 ###############################################################################
 
 # Add your applications here (comma separated list)
-# Example: LOCAL_APPS = ('debug_toolbar.apps.DebugToolbarConfig', )
-LOCAL_APPS=()
+# Example: LOCAL_APPS = ['debug_toolbar.apps.DebugToolbarConfig', ]
+LOCAL_APPS=[]
 
 # Add your own middleware here.
-# Example: LOCAL_MIDDLEWARE_CLASSES = ('MAGE.profiler.ProfileMiddleware', 'debug_toolbar.middleware.DebugToolbarMiddleware',)
-LOCAL_MIDDLEWARE_CLASSES = ()
+    # Example: LOCAL_MIDDLEWARE = ['MAGE.profiler.ProfileMiddleware', 'debug_toolbar.middleware.DebugToolbarMiddleware',]
+LOCAL_MIDDLEWARE = []
 
 
 ###############################################################################

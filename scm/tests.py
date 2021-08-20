@@ -11,7 +11,7 @@ from django.test import TestCase
 
 ## MAGE imports
 from scm.models import InstallableItem, LogicalComponentVersion, Installation
-from install import install_iset_envt
+from scm.install import install_iset_envt
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.backup import register_backup
 from scm.install import install_ii_single_target_envt

@@ -66,12 +66,12 @@ class MageParam(models.Model):
 
     description = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'description')
     default_value = models.CharField(max_length=100, blank=True, null=True, verbose_name=u'valeur par défaut')
-    model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné')
+    model = models.ForeignKey(ContentType, blank=True, null=True, verbose_name=u'modèle concerné', on_delete=models.CASCADE)
     axis1 = models.CharField(max_length=30, verbose_name=u'classification optionnelle', blank=True, null=True)
 
     restricted = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'[%s] %s : %s' % (self.app, self.key, self.value)
 
     class Meta:
@@ -93,7 +93,7 @@ def getParam(key, **others):
         @return: the parameter value as a string (unicode).
         @raise ParamNotFound: if the param cannot be found, or if multiple params were found. 
     """
-    if others and others.has_key('app'): app = others['app']
+    if others and 'app' in others: app = others['app']
     else: app = sys._getframe(1).f_globals['__name__'].split('.')[0]
     filters = others or {}
     filters['app'] = app
@@ -105,7 +105,7 @@ def getParam(key, **others):
         raise ParamNotFound(filters)
 
 def setOrCreateParam(key, value, **others):
-    if others and others.has_key('app'): app = others['app']
+    if others and 'app' in others: app = others['app']
     else: app = sys._getframe(1).f_globals['__name__'].split('.')[0]
     args = others or {}
     args['key'] = key
@@ -123,7 +123,7 @@ def setParam(key, value, **others):
         @raise DjangoExceptions: many Django model exceptions may be raised in this function
         @raise DuplicateParam:  in case of unicity constraint violation
     """
-    if others and others.has_key('app'): app = others['app']
+    if others and 'app' in others: app = others['app']
     else: app = sys._getframe(1).f_globals['__name__'].split('.')[0]
     args = others or {}
     args['key'] = key

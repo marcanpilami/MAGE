@@ -2,7 +2,7 @@
 
 ## Django imports
 from django import forms
-from django.shortcuts import render, render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.db.transaction import atomic
 from django.contrib.auth.decorators import permission_required
 
@@ -15,12 +15,12 @@ from crispy_forms.layout import Submit
 from django.db.models.query import Prefetch
 from django.forms.models import ModelChoiceIterator
 
-''' 
+'''
     This file contains views and form for the standard component instance creation and update. (unitary forms)
 
     Creation is divided in two forms so as to be able to apply naming conventions during creation:
     * first step asks for the environment and linked items, for these could be used in convention
-    * naming convention is applied and component instance is created with only this data 
+    * naming convention is applied and component instance is created with only this data
       (may result in an incorrect CI as compulsory fields may still be null after applying conventions)
     * second step allows to edit the same data, plus all fields
 '''
@@ -51,7 +51,7 @@ def new_ci_step1(request, description_id):
     else:
         form = cls()  # unbound form
 
-    return render_to_response("ref/instance_edit_step1.html", {'form': form, 'descr' : descr})
+    return render(request, "ref/instance_edit_step1.html", {'form': form, 'descr' : descr})
 
 ## Forms
 class NewCiStep1Form(forms.Form):
@@ -120,7 +120,7 @@ def new_ci_step2(request, instance_id):  # always edit an existing CI - to creat
     else:
         form = cls(instance=instance)
 
-    return render_to_response("ref/instance_edit_step2.html", {'form': form, 'descr' : instance.description, 'instance': instance})
+    return render(request, "ref/instance_edit_step2.html", {'form': form, 'descr' : instance.description, 'instance': instance})
 
 
 # Forms

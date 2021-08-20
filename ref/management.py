@@ -8,15 +8,14 @@
 ## Python imports
 
 ## Django imports
-from django.db.models.signals import post_syncdb
 
 ## MAGE imports
-import models
+import ref.models
 from ref.models.parameters import setOrCreateParam
 from ref.demo_items import utility_create_meta, utility_create_test_instances, \
     utility_create_logical, create_full_test_data
 
-def post_syncdb_handler(sender, **kwargs):
+def post_migrate_handler(sender, **kwargs):
     ## Create or update parameters
 
     ## General parameters that should never be removed...
@@ -37,9 +36,6 @@ def post_syncdb_handler(sender, **kwargs):
     ## DEBUG
     #create_full_test_data()
 
-
-## Listen to the syncdb signal
-post_syncdb.connect(post_syncdb_handler, sender=models)
 
 """
 C:\Python27\python.exe .\manage.py sqlclear ref,scm | select-string -NotMatch dot  | C:\Python27\python.exe .\manage.py dbshell

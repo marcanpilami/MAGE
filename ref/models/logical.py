@@ -29,14 +29,14 @@ class SLA(models.Model):
 class LogicalComponent(models.Model):
     name = models.CharField(max_length=100, verbose_name='nom')
     description = models.CharField(max_length=500)
-    application = models.ForeignKey('Application')
+    application = models.ForeignKey('Application', on_delete=models.CASCADE)
     scm_trackable = models.BooleanField(default=True)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
     ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
     ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
     class Meta:
@@ -48,15 +48,15 @@ class ComponentImplementationClass(models.Model):
     name = models.CharField(max_length=100, verbose_name='code')
 
     description = models.CharField(max_length=500)
-    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'composant logique implémenté')
-    sla = models.ForeignKey(SLA, blank=True, null=True)
-    technical_description = models.ForeignKey('ImplementationDescription', related_name='cic_set', verbose_name=u'description technique')
+    implements = models.ForeignKey(LogicalComponent, related_name='implemented_by', verbose_name=u'composant logique implémenté', on_delete=models.CASCADE)
+    sla = models.ForeignKey(SLA, blank=True, null=True, on_delete=models.CASCADE)
+    technical_description = models.ForeignKey('ImplementationDescription', related_name='cic_set', verbose_name=u'description technique', on_delete=models.CASCADE)
     ref1 = models.CharField(max_length=20, verbose_name=u'reférence 1', blank=True, null=True)
     ref2 = models.CharField(max_length=20, verbose_name=u'reférence 2', blank=True, null=True)
     ref3 = models.CharField(max_length=20, verbose_name=u'reférence 3', blank=True, null=True)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     class Meta:

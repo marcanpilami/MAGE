@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created_on', models.DateTimeField()),
                 ('install_failure', models.BooleanField(default=False)),
-                ('component_instance', models.ForeignKey(related_name='configurations', to='ref.ComponentInstance')),
+                ('component_instance', models.ForeignKey(related_name='configurations', to='ref.ComponentInstance', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -48,9 +48,9 @@ class Migration(migrations.Migration):
             name='InstallableItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('is_full', models.BooleanField(default=False, verbose_name=b'installation de z\xc3\xa9ro')),
-                ('data_loss', models.BooleanField(default=False, verbose_name='entraine des pertes de donn\xe9es')),
-                ('datafile', models.FileField(upload_to=scm.models.__iidatafilename__, null=True, verbose_name=b'fichier', blank=True)),
+                ('is_full', models.BooleanField(default=False, verbose_name=u'installation de zéro')),
+                ('data_loss', models.BooleanField(default=False, verbose_name=u'entraine des pertes de données')),
+                ('datafile', models.FileField(upload_to=scm.models.__iidatafilename__, null=True, verbose_name='fichier', blank=True)),
             ],
             options={
                 'permissions': (('download_ii', 'can download the installation file'),),
@@ -64,13 +64,13 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(unique=True, max_length=40, verbose_name='r\xe9f\xe9rence')),
                 ('description', models.CharField(max_length=1000, null=True, verbose_name='r\xe9sum\xe9 du contenu', blank=True)),
                 ('set_date', models.DateTimeField(auto_now_add=True, verbose_name='date de r\xe9ception')),
-                ('ticket_list', models.CharField(max_length=100, null=True, verbose_name=b'ticket(s) li\xc3\xa9(s) s\xc3\xa9par\xc3\xa9s par une virgule', blank=True)),
-                ('status', models.IntegerField(default=3, choices=[(1, b'VALIDATED'), (2, b'TESTED'), (3, b'HANDEDOFF')])),
+                ('ticket_list', models.CharField(max_length=100, null=True, verbose_name=u'ticket(s) lié(s) séparés par une virgule', blank=True)),
+                ('status', models.IntegerField(default=3, choices=[(1, 'VALIDATED'), (2, 'TESTED'), (3, 'HANDEDOFF')])),
                 ('location_data_1', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_2', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_3', models.CharField(max_length=100, null=True, blank=True)),
                 ('location_data_4', models.CharField(max_length=100, null=True, blank=True)),
-                ('datafile', models.FileField(upload_to=scm.models.__isetdatafilename__, null=True, verbose_name=b'fichier', blank=True)),
+                ('datafile', models.FileField(upload_to=scm.models.__isetdatafilename__, null=True, verbose_name='fichier', blank=True)),
                 ('removed', models.DateTimeField(null=True, blank=True)),
             ],
             options={
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Delivery',
             fields=[
-                ('installableset_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scm.InstallableSet')),
+                ('installableset_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scm.InstallableSet', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -90,8 +90,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BackupSet',
             fields=[
-                ('installableset_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scm.InstallableSet')),
-                ('from_envt', models.ForeignKey(blank=True, to='ref.Environment', null=True)),
+                ('installableset_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scm.InstallableSet', on_delete=models.CASCADE)),
+                ('from_envt', models.ForeignKey(blank=True, to='ref.Environment', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -101,9 +101,9 @@ class Migration(migrations.Migration):
             name='Installation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('asked_in_ticket', models.CharField(max_length=10, null=True, verbose_name=b'ticket li\xc3\xa9 ', blank=True)),
-                ('install_date', models.DateTimeField(verbose_name=b'date d\\installation ')),
-                ('installed_set', models.ForeignKey(verbose_name=b'livraison appliqu\xc3\xa9e ', to='scm.InstallableSet')),
+                ('asked_in_ticket', models.CharField(max_length=10, null=True, verbose_name=u'ticket lié ', blank=True)),
+                ('install_date', models.DateTimeField(verbose_name='date d\\installation ')),
+                ('installed_set', models.ForeignKey(verbose_name=u'livraison appliquée ', to='scm.InstallableSet', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
             name='ItemDependency',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('operator', models.CharField(default=b'==', max_length=2, choices=[(b'>=', b'>='), (b'<=', b'<='), (b'==', b'==')])),
+                ('operator', models.CharField(default='==', max_length=2, choices=[('>=', '>='), ('<=', '<='), ('==', '==')])),
             ],
             options={
             },
@@ -139,7 +139,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('version', models.CharField(max_length=50)),
-                ('logical_component', models.ForeignKey(related_name='versions', to='ref.LogicalComponent')),
+                ('logical_component', models.ForeignKey(related_name='versions', to='ref.LogicalComponent', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -149,9 +149,9 @@ class Migration(migrations.Migration):
             name='PackageChecker',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('module', models.CharField(max_length=200, verbose_name=b'Python module containing the checker class')),
-                ('name', models.CharField(max_length=200, verbose_name=b'Python checker class name')),
-                ('description', models.CharField(max_length=200, verbose_name=b'description')),
+                ('module', models.CharField(max_length=200, verbose_name='Python module containing the checker class')),
+                ('name', models.CharField(max_length=200, verbose_name='Python checker class name')),
+                ('description', models.CharField(max_length=200, verbose_name='description')),
             ],
             options={
             },
@@ -161,9 +161,9 @@ class Migration(migrations.Migration):
             name='SetDependency',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('operator', models.CharField(max_length=2, choices=[(b'>=', b'>='), (b'<=', b'<='), (b'==', b'==')])),
-                ('depends_on_version', models.ForeignKey(to='scm.LogicalComponentVersion')),
-                ('installable_set', models.ForeignKey(related_name='requirements', to='scm.InstallableSet')),
+                ('operator', models.CharField(max_length=2, choices=[('>=', '>='), ('<=', '<='), ('==', '==')])),
+                ('depends_on_version', models.ForeignKey(to='scm.LogicalComponentVersion', on_delete=models.CASCADE)),
+                ('installable_set', models.ForeignKey(related_name='requirements', to='scm.InstallableSet', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -175,7 +175,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=40, verbose_name='r\xe9f\xe9rence')),
                 ('snapshot_date', models.DateTimeField(auto_now_add=True, verbose_name='date de prise de la photo')),
-                ('from_envt', models.ForeignKey(to='ref.Environment')),
+                ('from_envt', models.ForeignKey(to='ref.Environment', on_delete=models.CASCADE)),
                 ('versions', models.ManyToManyField(to='scm.LogicalComponentVersion', verbose_name='version des composants')),
             ],
             options={
@@ -185,13 +185,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='itemdependency',
             name='depends_on_version',
-            field=models.ForeignKey(to='scm.LogicalComponentVersion'),
+            field=models.ForeignKey(to='scm.LogicalComponentVersion', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='itemdependency',
             name='installable_item',
-            field=models.ForeignKey(related_name='dependencies', to='scm.InstallableItem'),
+            field=models.ForeignKey(related_name='dependencies', to='scm.InstallableItem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -209,67 +209,67 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='installableitem',
             name='belongs_to_set',
-            field=models.ForeignKey(related_name='set_content', to='scm.InstallableSet'),
+            field=models.ForeignKey(related_name='set_content', to='scm.InstallableSet', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='installableitem',
             name='how_to_install',
-            field=models.ManyToManyField(to='scm.InstallationMethod', verbose_name=b"peut s'installer avec"),
+            field=models.ManyToManyField(to='scm.InstallationMethod', verbose_name="peut s'installer avec"),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='installableitem',
             name='what_is_installed',
-            field=models.ForeignKey(related_name='installed_by', to='scm.LogicalComponentVersion'),
+            field=models.ForeignKey(related_name='installed_by', to='scm.LogicalComponentVersion', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstanceconfiguration',
             name='part_of_installation',
-            field=models.ForeignKey(related_name='modified_components', to='scm.Installation'),
+            field=models.ForeignKey(related_name='modified_components', to='scm.Installation', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='componentinstanceconfiguration',
             name='result_of',
-            field=models.ForeignKey(to='scm.InstallableItem'),
+            field=models.ForeignKey(to='scm.InstallableItem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backuprestoremethod',
             name='method',
-            field=models.ForeignKey(to='scm.InstallationMethod'),
+            field=models.ForeignKey(to='scm.InstallationMethod', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backuprestoremethod',
             name='target',
-            field=models.ForeignKey(related_name='restore_methods', verbose_name=b'cible', to='ref.ComponentImplementationClass'),
+            field=models.ForeignKey(related_name='restore_methods', verbose_name='cible', to='ref.ComponentImplementationClass', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backupitem',
             name='backupset',
-            field=models.ForeignKey(related_name='all_items', to='scm.BackupSet'),
+            field=models.ForeignKey(related_name='all_items', to='scm.BackupSet', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backupitem',
             name='instance',
-            field=models.ForeignKey(to='ref.ComponentInstance'),
+            field=models.ForeignKey(to='ref.ComponentInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backupitem',
             name='instance_configuration',
-            field=models.ForeignKey(blank=True, to='scm.ComponentInstanceConfiguration', null=True),
+            field=models.ForeignKey(blank=True, to='scm.ComponentInstanceConfiguration', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='backupitem',
             name='related_scm_install',
-            field=models.ForeignKey(blank=True, to='scm.InstallableItem', null=True),
+            field=models.ForeignKey(blank=True, to='scm.InstallableItem', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

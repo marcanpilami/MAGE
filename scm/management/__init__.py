@@ -8,7 +8,6 @@
 ## Python imports
 
 ## Django imports
-from django.db.models.signals import post_syncdb
 from django.contrib.auth.models import Group, User, Permission
 
 ## MAGE imports
@@ -16,7 +15,7 @@ import scm.models
 from ref.models.parameters import setOrCreateParam
 
 
-def post_syncdb_handler(sender, **kwargs):
+def post_migrate_handler(sender, **kwargs):
     ## Create DEV group & first user
     if not Group.objects.filter(name='DEV').exists():
         devgroup = Group(name='DEV')
@@ -45,7 +44,3 @@ def post_syncdb_handler(sender, **kwargs):
     setOrCreateParam(key = u'DELIVERY_FORM_DATAFILE_MODE', value = u'ONE_FILE_PER_ITEM', 
                      default_value = u'ONE_FILE_PER_ITEM', 
                      description = u'ONE_FILE_PER_SET, ONE_FILE_PER_ITEM, NO_UPLOAD')
-        
-
-## Listen to the syncdb signal
-post_syncdb.connect(post_syncdb_handler, sender=scm.models)

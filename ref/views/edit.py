@@ -1,19 +1,15 @@
 # coding: utf-8
 
 ## Python imports
-from functools import wraps
-from _functools import partial
+from functools import wraps, partial
 
 ## Django imports
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms.models import ModelChoiceIterator, ModelForm, modelformset_factory
 from django.forms.widgets import CheckboxSelectMultiple, CheckboxInput
-from django.shortcuts import render_to_response, redirect
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_text
-from django.utils.functional import curry
+from django.shortcuts import render, redirect
+
 from django.db.models.query import Prefetch
 from django.db.transaction import atomic
 from django.contrib.auth.decorators import permission_required
@@ -59,12 +55,12 @@ def envt_instances(request, envt_id=1):
             di[field_instance.field.name] = field_instance.target_id
 
         # add the dict to a list of instances with the same description
-        if typ_items.has_key(instance.description):
+        if instance.description in typ_items:
             typ_items[instance.description].append(di)
         else:
             typ_items[instance.description] = [di, ]
 
-    for typ, listi in typ_items.iteritems():
+    for typ, listi in typ_items.items():
         cls = form_for_model(typ)
         InstanceFormSet = formset_factory(wraps(cls)(partial(cls,
                  cics=ComponentImplementationClass.objects.filter(technical_description_id=typ.id).order_by('name'))) , extra=0)
@@ -72,17 +68,17 @@ def envt_instances(request, envt_id=1):
 
     if request.POST:
         valid = True
-        for typ, formset in ffs.iteritems():
+        for typ, formset in ffs.items():
             if not formset.is_valid():
                 valid = False
                 break
 
         if valid:
-            for typ, formset in ffs.iteritems():
+            for typ, formset in ffs.items():
                 if formset.has_changed():
                     for form in formset:
                         if form.has_changed():
-                            instance_id = form.cleaned_data['_id'] if form.cleaned_data.has_key('_id') else None
+                            instance_id = form.cleaned_data['_id'] if '_id' in form.cleaned_data else None
                             instance = None
                             if instance_id:
                                 instance = ComponentInstance.objects.get(pk=instance_id)
@@ -111,7 +107,7 @@ def envt_instances(request, envt_id=1):
                             instance.save()
 
 
-    return render_to_response("ref/instance_envt.html", {'fss': ffs, 'envt': e})
+    return render(request, "ref/instance_envt.html", {'fss': ffs, 'envt': e})
 
 
 ## Forms
@@ -131,7 +127,7 @@ descr_terseform_cache = {}
 def form_for_model(descr):
     attrs = {}
     key = 'descr_terseformset_%s' % descr.id
-    if cache.get(key) and descr_terseform_cache.has_key(key):
+    if cache.get(key) and key in descr_terseform_cache:
         return descr_terseform_cache[key]
 
     # Simple fields
@@ -162,15 +158,8 @@ def form_for_model(descr):
 ## Debug form for changing types
 #####################################################
 
-class HorizontalCSM(CheckboxSelectMultiple.renderer):
-    def render(self):
-        id_ = self.attrs.get('id', None)
-        start_tag = format_html('<div id="{0}">', id_) if id_ else '<div>'
-        output = [start_tag]
-        for widget in self:
-            output.append(format_html(u'<span>{0}</span>', force_text(widget)))
-        output.append('</span>')
-        return mark_safe('\n'.join(output))
+class HorizontalCheckboxSelectMultiple(CheckboxSelectMultiple):
+    template_name="widgets/widget_checkbox_select_multiple_horizontal"
 
 class CIForm(ModelForm):
     def __init__(self, descriptions, envts, cics, **kwargs):
@@ -193,13 +182,13 @@ class CIForm(ModelForm):
     class Meta:
         model = ComponentInstance
         fields = ['description', 'instanciates', 'environments', 'deleted']
-        widgets = {'environments' : CheckboxSelectMultiple(renderer=HorizontalCSM)}
+        widgets = {'environments' : HorizontalCheckboxSelectMultiple()}
 
 @atomic
 @permission_required('ref.scm_addcomponentinstance')
 def edit_all_comps_meta(request):
     CIFormSet = modelformset_factory(ComponentInstance, form=CIForm, extra=0)
-    CIFormSet.form = staticmethod(curry(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
+    CIFormSet.form = staticmethod(partial(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
                                         envts=Environment.objects.all().order_by('name'),
                                         cics=ComponentImplementationClass.objects.all().order_by('implements__application__name', 'name')))
 
@@ -211,7 +200,7 @@ def edit_all_comps_meta(request):
     else:
         formset = CIFormSet(queryset=ComponentInstance.objects.all().select_related('description').prefetch_related('environments'))
 
-    return render_to_response("ref/instance_all.html", {"formset": formset, })
+    return render(request, "ref/instance_all.html", {"formset": formset, })
 
 
 ############################################################
@@ -288,7 +277,7 @@ def descr_instances_reinit(request, descr_id=4):
 
     cls = reinit_form_for_model(descr)
     InstanceFormSet = modelformset_factory(ComponentInstance, form=cls, extra=0)
-    InstanceFormSet.form = staticmethod(curry(cls, cics=cics))
+    InstanceFormSet.form = staticmethod(partial(cls, cics=cics))
 
     if request.POST:
         formset = InstanceFormSet(request.POST, request.FILES)
@@ -302,4 +291,4 @@ def descr_instances_reinit(request, descr_id=4):
                 prefetch_related('environments')
         formset = InstanceFormSet(queryset=instances)
 
-    return render_to_response("ref/instance_descr_reinit.html", {'formset': formset, 'descr': descr})
+    return render(request, "ref/instance_descr_reinit.html", {'formset': formset, 'descr': descr})

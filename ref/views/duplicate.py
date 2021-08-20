@@ -61,7 +61,7 @@ class DuplicateFormRelInline(forms.Form):
         super(DuplicateFormRelInline, self).__init__(*args, **kwargs)
         if self.is_bound:
             self.fields['new_target'].queryset = ComponentInstance.objects.get(pk=self.data[self.prefix + '-old_target']).description.instance_set.all()
-        if self.initial.has_key('old_target') and self.initial['old_target']:
+        if 'old_target' in self.initial and self.initial['old_target']:
             self.fields['new_target'].queryset = self.initial['old_target'].description.instance_set.all()
 
 class DuplicateForm(forms.Form):
@@ -73,7 +73,7 @@ class DuplicateForm(forms.Form):
         self.envt = kwargs['envt']
         del kwargs['envt']
         super(DuplicateForm, self).__init__(*args, **kwargs)
-        self.fields['instances_to_copy'].choices = [(i.pk, i.__unicode__()) for i in self.envt.component_instances.all()]
+        self.fields['instances_to_copy'].choices = [(i.pk, i.__str__()) for i in self.envt.component_instances.all()]
         self.fields['instances_to_copy'].initial = [i.pk for i in self.envt.component_instances.all()]
 
 

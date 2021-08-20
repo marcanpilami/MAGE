@@ -4,7 +4,7 @@
 
 # Django imports
 from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms.models import inlineformset_factory
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import permission_required, login_required
@@ -81,7 +81,7 @@ def delivery_edit(request, iset_id=None):
     ## Remove partially completed removed forms
     for ff in iiformset.forms:
         if hasattr(ff, "cleaned_data"):
-            if ff.cleaned_data["DELETE"] if ff.cleaned_data.has_key("DELETE") else False and ff.instance.pk is None:
+            if ff.cleaned_data["DELETE"] if "DELETE" in ff.cleaned_data else False and ff.instance.pk is None:
                 iiformset.forms.remove(ff)
 
     return render(request, 'scm/delivery_edit.html', {

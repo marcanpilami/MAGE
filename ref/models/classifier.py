@@ -20,7 +20,7 @@ class Project(models.Model):
         verbose_name = u'projet'
         verbose_name_plural = u'projets'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class Application(models.Model):
@@ -29,9 +29,9 @@ class Application(models.Model):
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
-    project = models.ForeignKey(Project, null=True, blank=True, related_name='applications')
+    project = models.ForeignKey(Project, null=True, blank=True, related_name='applications', on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class EnvironmentType(models.Model):
@@ -39,7 +39,7 @@ class EnvironmentType(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom', unique=True)
     description = models.CharField(max_length=500, verbose_name='description')
     short_name = models.CharField(max_length=10, verbose_name='code', db_index=True)
-    sla = models.ForeignKey('SLA', blank=True, null=True)
+    sla = models.ForeignKey('SLA', blank=True, null=True, on_delete=models.CASCADE)
     implementation_patterns = models.ManyToManyField('ComponentImplementationClass', blank=True)
     chronological_order = models.IntegerField(default=1, verbose_name='ordre d\'affichage')
     default_show_sensitive_data = models.BooleanField(default=False, verbose_name="afficher les informations sensibles")
@@ -48,7 +48,7 @@ class EnvironmentType(models.Model):
         return ','.join([ i.name for i in self.implementation_patterns.all()])
     cic_list = property(__get_cic_list)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

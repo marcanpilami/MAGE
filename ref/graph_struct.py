@@ -17,7 +17,7 @@ def getStructureTree():
             self.colour_tag = {}
 
         def getNodeColour(self, rn):
-            if not self.colour_tag.has_key(rn.tag):
+            if not rn.tag in self.colour_tag:
                 self.colour_index = self.colour_index + 1
                 if self.colour_index > len(self.colours) - 1:
                     self.colour_index = -1
@@ -44,4 +44,4 @@ def getStructureTree():
         edges[rel.id] = {'id': rel.id, 'u': rel.source_id, 'v': rel.target_id, 'value': {'label': rel.name + card} }
 
     ## Done
-    return {'nodes': repre.values(), 'edges': edges.values()}
+    return {'nodes': list(repre.values()), 'edges': list(edges.values())}

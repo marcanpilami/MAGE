@@ -16,7 +16,7 @@ from ref.models.parameters import getParam
 
 def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
     ## Check params
-    if isinstance(envt, str) or isinstance(envt, unicode):
+    if isinstance(envt, str):
         envt = Environment.objects.get(name=envt)
     
     for instance in component_instances:
@@ -48,7 +48,7 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
                  
         # No merge: create a new backupset
         if bs is None:
-            if not kwargs.has_key('description'):
+            if not 'description' in kwargs:
                 kwargs['description']='backup taken from environment %s on %s' % (envt.name, backup_date)
             bs = BackupSet(name=bck_name, status=1, from_envt=envt, **kwargs)
             bs.save()

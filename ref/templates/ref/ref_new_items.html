@@ -43,8 +43,8 @@
 	
 	<div class='col-md-1'>
 		<a class='metRectList metLineHeader'>4 - Instances</a>
-	</div>	
-	{% for tag in tag_list|dictsort:"grouper" %}
+	</div>
+	{% for tag in tag_list %}
 		{% if forloop.first %}
 		<div class='col-md-1'>
 		{% else %}
