@@ -22,7 +22,7 @@ RUN addgroup -S $APP_NAME && adduser -S $APP_NAME -G $APP_NAME
 RUN mkdir -p /etc/nginx/sites-enabled/
 RUN mkdir -p /etc/nginx/sites-available/
 
-COPY ./docker/nginx.conf /etc/nginx/sites-available/
+COPY ./docker/mage_nginx.conf /etc/nginx/sites-available/
 RUN ln -s /etc/nginx/sites-available/nginx.conf /etc/nginx/sites-enabled/
 
 # Create working dir
@@ -47,5 +47,8 @@ RUN python manage.py synccheckers
 # create_test_is()
 
 EXPOSE 8000
+
+USER root
+CMD ["uwsgi", "--ini", "uwsgi.ini"]
 CMD ["nginx", "-g", "daemon off;"]
 #CMD ["uwsgi", "--http", "0.0.0.0:8000", "--module", "MAGE.wsgi"]
