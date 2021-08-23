@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  mage:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:80"
+    environment:
+      - DEBUG=True
