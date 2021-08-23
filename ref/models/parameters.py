@@ -61,7 +61,7 @@ def choice_list():
 
 class MageParam(models.Model):
     key = models.CharField(max_length=30, verbose_name=u'clé')
-    app = models.CharField(max_length=5, verbose_name=u'application', choices=choice_list())
+    app = models.CharField(max_length=8, verbose_name=u'application', choices=choice_list())
     value = models.CharField(max_length=100, verbose_name=u'valeur')
 
     description = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'description')
