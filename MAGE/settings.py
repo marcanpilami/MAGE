@@ -6,7 +6,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = False
+DEBUG = os.getenv('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
@@ -192,7 +192,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.staticfiles',
-    'mod_wsgi.server',
+    # 'mod_wsgi.server',
 
     'crispy_forms',
 
