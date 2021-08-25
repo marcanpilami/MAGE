@@ -19,8 +19,10 @@ RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
 # Create working dir
 WORKDIR $WORKDIR
 
-#RUN chown apache:apache $WORKDIR
-#USER apache
+RUN sed -i 's/Listen 80/# Listen 80/' /etc/apache2/httpd.conf
+
+RUN chown apache:apache /var/www/*
+USER apache
 
 ENV VIRTUAL_ENV=$WORKDIR/mage-venv
 RUN python -m venv $VIRTUAL_ENV
@@ -33,12 +35,11 @@ RUN pip install -r requirements.txt --upgrade
 
 # RUN pip install <database_drivers>
 
-COPY docker/mage_httpd.conf /etc/apache2/conf.d/
-#COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
+# COPY docker/mage_httpd.conf /etc/apache2/conf.d/
+COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
 
-COPY . .
-#COPY --chown=apache . .
-#RUN chmod -R 755 $WORKDIR
+#COPY . .
+COPY --chown=apache . .
 
 # Create databases objects
 RUN python manage.py migrate
@@ -51,7 +52,7 @@ RUN python manage.py synccheckers
 # from scm.demo_items import create_test_is
 # create_test_is()
 
-EXPOSE 80
+EXPOSE 8000
 #USER root
 CMD ["/usr/sbin/httpd", "-D", "FOREGROUND", "-e", "info"]
 #CMD python manage.py runmodwsgi --port=8000 --user apache --group apache --server-root=/etc/apache2/ --rewrite-rules /etc/apache2/mage_httpd.conf
