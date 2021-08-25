@@ -49,6 +49,7 @@ RUN python manage.py collectstatic --noinput
 RUN python manage.py createsuperuser
 RUN python manage.py synccheckers
 
+VOLUME tmp/media/ $WORKDIR/tmp/media
 
 EXPOSE 8000
 #USER root
