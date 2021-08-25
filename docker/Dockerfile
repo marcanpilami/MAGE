@@ -1,7 +1,7 @@
 FROM python:3.8-alpine
 
 ENV APP_NAME=MAGE
-ENV WORKDIR=/home/$APP_NAME DEBUG=True ALLOWED_HOSTS=*
+ENV WORKDIR=/var/www/$APP_NAME DEBUG=True ALLOWED_HOSTS=*
 ENV APP_DIR=$WORKDIR
 # TODO: create a python function to handle empty values
 #    DATABASE_ENGINE="" \
@@ -19,19 +19,26 @@ RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
 # Create working dir
 WORKDIR $WORKDIR
 
+#RUN chown apache:apache $WORKDIR
+#USER apache
+
 ENV VIRTUAL_ENV=$WORKDIR/mage-venv
-RUN python3 -m venv $VIRTUAL_ENV
+RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Collect and install requirements
 COPY requirements.txt $WORKDIR
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt --upgrade
 
 # RUN pip install <database_drivers>
 
 COPY docker/mage_httpd.conf /etc/apache2/conf.d/
+#COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
 
 COPY . .
+#COPY --chown=apache . .
+#RUN chmod -R 755 $WORKDIR
 
 # Create databases objects
 RUN python manage.py migrate
@@ -45,7 +52,7 @@ RUN python manage.py synccheckers
 # create_test_is()
 
 EXPOSE 80
-
-CMD /usr/sbin/httpd -D FOREGROUND
+#USER root
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUND", "-e", "info"]
 #CMD python manage.py runmodwsgi --port=8000 --user apache --group apache --server-root=/etc/apache2/ --rewrite-rules /etc/apache2/mage_httpd.conf
 #CMD mod_wsgi-express start-server $WORKDIR/$APP_NAME/wsgi.py --port=8000 --user apache --group apache
