@@ -1,14 +1,14 @@
 FROM python:3.8-alpine
 
 ENV APP_NAME=MAGE
-ENV WORKDIR=/var/www/$APP_NAME DEBUG=True ALLOWED_HOSTS=*
+ENV WORKDIR=/var/www/$APP_NAME \
+    DATABASE_ENGINE="" \
+    DATABASE_NAME="" DATABASE_HOST="" DATABASE_PORT="" DATABASE_USER="" DATABASE_PASSWORD="" \
+    ALLOWED_HOSTS="localhost" DEBUG=""  INTERNAL_IPS="" \
+    MEDIA_ROOT="" MEDIA_URL="" STATIC_ROOT="" STATIC_URL="" \
+    SECRET_KEY="your_own_here" AZURE_ACCOUNT_NAME="" AZURE_ACCOUNT_KEY="" AZURE_CONTAINER=""
+
 ENV APP_DIR=$WORKDIR
-# TODO: create a python function to handle empty values
-#    DATABASE_ENGINE="" \
-#    DATABASE_NAME="" DATABASE_HOST="" DATABASE_PORT="" DATABASE_USER="" DATABASE_PASSWORD="" \
-#    ALLOWED_HOSTS="" INTERNAL_IPS="" \
-#    MEDIA_ROOT="" MEDIA_URL="" STATIC_ROOT="" STATIC_URL="" \
-#    SECRET_KEY="your_own_here" AZURE_ACCOUNT_NAME="" AZURE_ACCOUNT_KEY="" AZURE_CONTAINER=""
 
 # TODO: Load ODBC drivers postgresql mysql oracle
 # RUN apk add postgresql postgresql-contrib
