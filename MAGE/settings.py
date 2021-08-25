@@ -193,7 +193,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.staticfiles',
-    # 'mod_wsgi.server',
 
     'crispy_forms',
 
