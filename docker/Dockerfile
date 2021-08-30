@@ -16,7 +16,7 @@ ENV APP_NAME=MAGE \
     AZURE_ACCOUNT_NAME="" \
     AZURE_ACCOUNT_KEY="" \
     AZURE_CONTAINER="" \
-    MAGE_ALLOW_MIGRATIONS=False
+    MAGE_ALLOW_MIGRATIONS=True
 
 RUN apk update
 RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
