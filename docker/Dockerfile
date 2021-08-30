@@ -33,7 +33,7 @@ RUN pip install -r requirements.txt --upgrade
 # db modules support
 RUN pip install psycopg2 mysqlclient cx_Oracle
 
-COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
+COPY --chown=apache ./docker/mage_httpd.conf /etc/apache2/conf.d/
 
 #COPY . .
 COPY --chown=apache . .
