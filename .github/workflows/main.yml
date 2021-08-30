@@ -81,6 +81,9 @@ jobs:
           TAG: nightly
         run: echo "Using default tag $TAG"
 
+      - name: show path
+        run: pwd && ls
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
