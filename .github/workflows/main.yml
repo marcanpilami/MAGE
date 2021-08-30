@@ -51,7 +51,7 @@ jobs:
 
   docker:
     needs: test
-    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'develop/github-action' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop/github-action' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
