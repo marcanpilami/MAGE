@@ -1,7 +1,8 @@
 FROM python:3.8-alpine
 
-ENV APP_NAME=MAGE
-ENV WORKDIR=/var/www/$APP_NAME \
+ENV APP_NAME=MAGE \
+    WORKDIR=/var/www/MAGE \
+    APP_DIR=/var/www/MAGE \
     DATABASE_ENGINE="" \
     DATABASE_NAME="" \
     DATABASE_HOST="" \
@@ -20,8 +21,6 @@ ENV WORKDIR=/var/www/$APP_NAME \
     AZURE_ACCOUNT_KEY="" \
     AZURE_CONTAINER="" \
     MAGE_ALLOW_MIGRATIONS=False
-
-ENV APP_DIR=$WORKDIR
 
 RUN apk update
 RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
