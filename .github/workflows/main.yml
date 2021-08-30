@@ -87,7 +87,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: false
-          tags: ${{ $TAG }}
+          tags: ${{ env.TAG }}
       
     
 
