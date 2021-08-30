@@ -76,7 +76,7 @@ jobs:
         run: echo "Using given $TAG"
 
       - name: default tag
-        if: ${{ $TAG == '' }}
+        if: ${{ env.TAG == '' }}
         env:
           TAG: nightly
         run: echo "Using default tag $TAG"
