@@ -9,6 +9,7 @@ on:
     branches: [ develop/github-action, master ]
    pull_request:
     branches: [ master ]
+   create
 
   # Allows you to run this workflow manually from the Actions tab
   # workflow_dispatch:
@@ -23,21 +24,65 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        -
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+
       - name: Add environment variable
         run: export VIRTUAL_ENV=$GITHUB_WORKSPACE/mage-venv
+
       - name: Install virtual environment
         run: python -m venv ./mag-venv
+
       - name: Activate virtual env
         run: export PATH="$VIRTUAL_ENV:$PATH"
+
       - name: Install python modules
         run: pip install -r requirements.txt --upgrade
+
       - name: test
         run: |
           python manage.py test
+
+  docker:
+    needs: test
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: enioka/mage
+
+      - name: Define tag
+        if: ${{ github.event == 'create' && github.event.ref_type == 'tag' }}
+        env:
+          TAG: ${{ github.event.ref }}
+
+      - name: default tag
+        if: ${{ $TAG == '' }}
+        env:
+          TAG: nightly
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          tags: ${{ $TAG }}
       
     
 
