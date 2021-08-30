@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: 3.8
       - name: Install virtual environment
-        run: python -m venv
+        run: python -m venv ./mag-venv
       - name: Install python modules
         run: pip install -r requirements.txt --upgrade
       - name: Check coding style (black)
