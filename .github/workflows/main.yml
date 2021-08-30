@@ -37,7 +37,7 @@ jobs:
         run: pip install -r requirements.txt --upgrade
       - name: test
         run: |
-          pipenv run coverage run ./manage.py test
+          python manage.py test
       
     
 
