@@ -12,15 +12,11 @@ ENV APP_NAME=MAGE \
     ALLOWED_HOSTS="localhost" \
     DEBUG=""  \
     INTERNAL_IPS="" \
-    MEDIA_ROOT="" \
-    MEDIA_URL="" \
-    STATIC_ROOT="" \
-    STATIC_URL="" \
     SECRET_KEY="your_own_here" \
     AZURE_ACCOUNT_NAME="" \
     AZURE_ACCOUNT_KEY="" \
     AZURE_CONTAINER="" \
-    MAGE_ALLOW_MIGRATIONS=False
+    MAGE_ALLOW_MIGRATIONS=True
 
 RUN apk update
 RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
