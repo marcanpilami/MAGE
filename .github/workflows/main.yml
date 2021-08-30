@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  check:
+  test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -33,21 +33,6 @@ jobs:
         run: python -m venv ./mag-venv
       - name: Activate virtual env
         run: export PATH="$VIRTUAL_ENV:$PATH"
-      - name: Install python modules
-        run: pip install -r requirements.txt --upgrade
-      - name: Check coding style (black)
-        run: pipenv run black --check .
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install virtual environment
-        run: python -m venv
       - name: Install python modules
         run: pip install -r requirements.txt --upgrade
       - name: test
