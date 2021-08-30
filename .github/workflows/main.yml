@@ -27,8 +27,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Add environment variable
+        run: export VIRTUAL_ENV=$GITHUB_WORKSPACE/mage-venv
       - name: Install virtual environment
         run: python -m venv ./mag-venv
+      - name: Activate virtual env
+        run: export PATH="$VIRTUAL_ENV:$PATH"
       - name: Install python modules
         run: pip install -r requirements.txt --upgrade
       - name: Check coding style (black)
