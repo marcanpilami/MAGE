@@ -3,11 +3,16 @@
 # A sample file named local_settings.sample.py is provided in this directory.
 
 import os
-from MAGE import environment_variable_utility as env_var
+
+# Fixes our usage of os.getenv() method with docker
+# Empty variable should use default value
+def getenv(environment_variable, default=''):
+    get_env = os.getenv(environment_variable, default)
+    return get_env if get_env != '' else default
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = env_var.getenv('DEBUG', False)
+DEBUG = getenv('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
@@ -15,13 +20,13 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': env_var.getenv('DATABASE_ENGINE', 'django.db.backends.sqlite3'),  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': env_var.getenv('DATABASE_NAME', os.path.join(BASE_DIR, r'tmp\db.sqlite')),  # Or path to database file if using sqlite3.
+        'ENGINE': getenv('DATABASE_ENGINE', 'django.db.backends.sqlite3'),  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': getenv('DATABASE_NAME', os.path.join(BASE_DIR, r'tmp\db.sqlite')),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': env_var.getenv('DATABASE_USER', ''),
-        'PASSWORD': env_var.getenv('DATABASE_PASSWORD', ''),
-        'HOST': env_var.getenv('DATABASE_HOST', ''),  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': env_var.getenv('DATABASE_PORT', ''),  # Set to empty string for default.
+        'USER': getenv('DATABASE_USER', ''),
+        'PASSWORD': getenv('DATABASE_PASSWORD', ''),
+        'HOST': getenv('DATABASE_HOST', ''),  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': getenv('DATABASE_PORT', ''),  # Set to empty string for default.
     }
 }
 
@@ -31,9 +36,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [env_var.getenv('ALLOWED_HOSTS', '*')]
+ALLOWED_HOSTS = [getenv('ALLOWED_HOSTS', '*')]
 
-INTERNAL_IPS = [ env_var.getenv('INTERNAL_IPS', '127.0.0.1'), ]
+INTERNAL_IPS = [ getenv('INTERNAL_IPS', '127.0.0.1'), ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -85,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody. (overloaded in local settings)
-SECRET_KEY = env_var.getenv('SECRET_KEY', 'your_own_here')
+SECRET_KEY = getenv('SECRET_KEY', 'your_own_here')
 
 LOCAL_MIDDLEWARE = []
 MIDDLEWARE = [
@@ -166,10 +171,10 @@ LOGIN_REDIRECT_URL = 'welcome'
 FORCE_LOGIN_EXCEPTIONS = ('login', 'logout', 'script_logout', 'script_login', 'script_login_post', 'force_login', 'openid', )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-DEFAULT_FILE_STORAGE = env_var.getenv('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
-AZURE_ACCOUNT_NAME = env_var.getenv('AZURE_ACCOUNT_NAME')
-AZURE_ACCOUNT_KEY = env_var.getenv('AZURE_ACCOUNT_KEY')
-AZURE_CONTAINER = env_var.getenv('AZURE_CONTAINER', 'mage-media')
+DEFAULT_FILE_STORAGE = getenv('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
+AZURE_ACCOUNT_NAME = getenv('AZURE_ACCOUNT_NAME')
+AZURE_ACCOUNT_KEY = getenv('AZURE_ACCOUNT_KEY')
+AZURE_CONTAINER = getenv('AZURE_CONTAINER', 'mage-media')
 
 CACHES = {
     'default': {
@@ -202,7 +207,3 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += LOCAL_APPS
 MIDDLEWARE += LOCAL_MIDDLEWARE
-
-def getenv_var(environment_variable, default):
-    get_env = env_var.getenv(environment_variable, default)
-    return get_env if get_env != '' else default
