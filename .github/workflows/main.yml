@@ -75,7 +75,7 @@ jobs:
       - name: Collect branch tag
         id: docker_tag
         run: |
-          if [ "${{github.event}}" == "create" && "${{github.event.ref_type}}" == "tag" ];
+          if [ "${{github.event}}" == "create" ] && [ "${{github.event.ref_type}}" == "tag" ];
           then
             echo "::set-output name=value::$TAG";
           else
