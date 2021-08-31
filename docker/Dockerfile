@@ -45,11 +45,6 @@ COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
 #COPY . .
 COPY --chown=apache . .
 
-RUN python manage.py collectstatic --noinput
-# inject environment parameters or users parameters
-RUN python manage.py createsuperuser
-RUN python manage.py synccheckers
-
 VOLUME $WORKDIR/tmp/media
 
 EXPOSE 8000
