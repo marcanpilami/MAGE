@@ -9,7 +9,7 @@ on:
     branches: [ develop/github-action, master ]
   release:
     types:
-      - created
+      - edited
     branches: [ develop/github-action, master ]
 
   # Allows you to run this workflow manually from the Actions tab
