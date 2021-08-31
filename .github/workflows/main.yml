@@ -54,8 +54,8 @@ jobs:
       - name: Useful echo of the github obj
         id: echo_github_object
         env:
-          { STEPS_CONTEXT: '${{ toJson(steps) }}' }
-        run: echo "$STEPS_CONTEXT"
+          GITHUB_CONTEXT_TO_JSON: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT_TO_JSON"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
