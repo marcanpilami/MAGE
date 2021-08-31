@@ -52,6 +52,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Useful echo of the github obj
+        id: echo_github_object
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: echo "$STEPS_CONTEXT"
