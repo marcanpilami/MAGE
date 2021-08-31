@@ -68,21 +68,29 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v3
         with:
           images: enioka/mage
 
-      - name: Define tag
+      - name: print env variable
+        run: echo "- $TEST -"
+        env:
+          TEST: hello
+
+      - name: test env
+        run: echo "test env var - $env.TEST $TEST -"
+
+      - name: Collect branch tag
         if: ${{ github.event == 'create' && github.event.ref_type == 'tag' }}
         env:
           TAG: ${{ github.event.ref }}
         run: echo "Using given $TAG"
 
-      - name: default tag
+      - name: Set default tag
         if: ${{ env.TAG == '' }}
         env:
           TAG: nightly
-        run: echo "Using default tag $TAG"
+        run: echo "Using default tag env.TAG"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
