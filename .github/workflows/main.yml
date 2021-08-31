@@ -72,25 +72,17 @@ jobs:
         with:
           images: enioka/mage
 
-      - name: print env variable
-        run: echo "- $TEST -"
-        env:
-          TEST: hello
-
-      - name: test env
-        run: echo "test env var - $env.TEST $TEST -"
-
       - name: Collect branch tag
-        if: ${{ github.event == 'create' && github.event.ref_type == 'tag' }}
+        id: docker_tag
+        run: |
+          if [ github.event == 'create' && github.event.ref_type == 'tag' ];
+          then
+            echo "::set-output name=value::$TAG";
+          else
+            echo "::set-output name=value::nightly";
+          fi
         env:
           TAG: ${{ github.event.ref }}
-        run: echo "Using given $TAG"
-
-      - name: Set default tag
-        if: ${{ env.TAG == '' }}
-        env:
-          TAG: nightly
-        run: echo "Using default tag env.TAG"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -98,7 +90,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: false
-          tags: ${{ env.TAG }}
+          tags: ${{ steps.docker_tag.outputs.value }}
       
     
 
