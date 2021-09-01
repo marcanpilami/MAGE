@@ -117,7 +117,7 @@ jobs:
       - name: Create tar and gzip it
         run: |
         tar -cvf files.tar ../MAGE .
-        gzip -k9 mage_${{ github.release.tag_name }}.tar
+        echo "mage_${{ github.release.tag_name }}.tar" | gzip -k9 -
 
       # action softprops/action-gh-release@v1 substitute to
       # actions/upload-release-asset@v1 (which is currently archived)
