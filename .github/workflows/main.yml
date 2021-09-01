@@ -129,7 +129,8 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: ./${{ env.TAR_FILE_NAME }}.tar.gz
+          files: ./${{ env.TAR_FILE_NAME }}.gz
           tag_name: ${{ env.TAG_NAME }}
+          fail_on_unmatched_files: true
 
 
