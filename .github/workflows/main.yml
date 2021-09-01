@@ -9,9 +9,11 @@ on:
     branches: [ develop/github-action, master ]
     tags:
       - '*'
+  create:
+    branches: [ develop/github-action, master ]
+    tags:
+      - '*'
   release:
-    types:
-      - edited
     branches: [ develop/github-action, master ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -78,12 +80,13 @@ jobs:
         run: |
           if [ "${{github.event_name}}" == "release" ];
           then
-            echo "::set-output name=value::$TAG";
+            echo "::set-output name=value::${{ github.event.release.tag_name }}";
+          elif [ "${{github.event_name}}" == "create"] && [ "${{github.ref.type}}" == "tag" ];
+          then
+            echo "::set-output name=value::${{ github.ref }}";
           else
             echo "::set-output name=value::nightly";
           fi
-        env:
-          TAG: ${{ github.event.release.tag_name }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
