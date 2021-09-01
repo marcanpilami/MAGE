@@ -7,13 +7,8 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ develop/github-action, master ]
-    tags:
-      - '*'
-  create:
-    branches: [ develop/github-action, master ]
-    tags:
-      - '*'
   release:
+    types: [ published, created, edited, prereleased ]
     branches: [ develop/github-action, master ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -80,13 +75,12 @@ jobs:
         run: |
           if [ "${{github.event_name}}" == "release" ];
           then
-            echo "::set-output name=value::${{ github.event.release.tag_name }}";
-          elif [ "${{github.event_name}}" == "create"] && [ "${{github.ref.type}}" == "tag" ];
-          then
-            echo "::set-output name=value::${{ github.ref }}";
+            echo "::set-output name=value::$TAG";
           else
             echo "::set-output name=value::nightly";
           fi
+        env:
+          TAG: ${{ github.event.release.tag_name }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -96,37 +90,41 @@ jobs:
           file: ./docker/Dockerfile
           push: false
       
-  create_release:
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+  update_release_with_asset:
+    if: ${{ github.event_name == "release" }}
     needs: [ django_test, publish_docker ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Get tag
-        id: get_tag
+      - name: Install virtual environment
+        run: python -m venv ./mag-venv
+
+      - name: Activate virtual env
+        run: export PATH="$VIRTUAL_ENV:$PATH"
+
+      - name: Install python modules
+        run: pip install -r requirements.txt --upgrade
+
+      - name: init data
         run: |
-          [[ ${{ github.ref }} =~ refs\/tags\/(.*) ]];
-          echo "::set-output name=value::${BASH_REMATCH[1]}";
+          python manage.py shell << EOF
+          from scm.demo_items import create_test_is
+          create_test_is()
+          EOF
 
-      - name: Create docker image archive
-        uses: docker/build-push-action@v2
-        with:
-          tags: ${{ steps.get_tag.outputs.value }}
-          context: .
-          file: ./docker/Dockerfile
-          push: false
-          outputs: type=tar, dest=./mage_latest.tar
+      - name: Create tar and gzip it
+        run: |
+        tar -cvf files.tar ../MAGE . ;
+        gzip -9 mage_${{github.release.tag_name}}.tar ;
 
-      - name: Compress the image
-        run: gzip -k9 ./mage_latest.tar
-
-      - name: Create release
+      # action softprops/action-gh-release@v1 substitute to
+      # actions/upload-release-asset@v1 (which is currently archived)
+      - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: mage_latest.tar.gz
-          tag_name: ${{ steps.get_tag.outputs.value }}
-          fail_on_unmatched_files: true
+          files: ./mage_${{github.release.tag_name}}.tar.gz
+          tag_name: ${{github.release.tag_name}}
 
 
