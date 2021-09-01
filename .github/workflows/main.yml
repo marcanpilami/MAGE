@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: MAGE_CI
 
 # Controls when the workflow will run
 on:
@@ -19,7 +19,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  test:
+  django_test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -48,7 +48,7 @@ jobs:
         run: |
           python manage.py test
 
-  docker:
+  publish_docker:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -93,5 +93,28 @@ jobs:
           file: ./docker/Dockerfile
           push: false
       
-    
+  create_release:
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: [ django_test, publish_docker ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+
+      - name: Get tag
+        id: get_tag
+        run: |
+          [[ $tag_name =~ refs\/tags\/(.*) ]];
+          echo "::set-output name=value::${BASH_REMATCH[1]}";
+
+      - name: Create docker image archive
+        run: docker save mage:latest | gzip > mage_latest.tar.gz
+
+      - name: Create release
+      - uses: softprops/action-gh-release@v1
+          with:
+            files: mage_latest.tar.gz
+            tag_name: ${{ steps.get_tag.outputs.value }}
+            fail_on_unmatched_files: true
+
 
