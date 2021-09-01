@@ -107,8 +107,9 @@ jobs:
       - name: Install python modules
         run: pip install -r requirements.txt --upgrade
 
-      - name: init data
+      - name: Init data
         run: |
+          python manage.py migrate
           python manage.py shell << EOF
           from scm.demo_items import create_test_is
           create_test_is()
