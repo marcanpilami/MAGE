@@ -5,6 +5,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    image: mage:latest
     ports:
       - "8000:8000"
     environment:
