@@ -103,9 +103,7 @@ jobs:
 
       - name: Get tag
         id: get_tag
-        run: |
-          [[ $tag_name =~ refs\/tags\/(.*) ]];
-          echo "::set-output name=value::${BASH_REMATCH[1]}";
+        run: [[ $tag_name =~ refs\/tags\/(.*) ]] && echo "::set-output name=value::${BASH_REMATCH[1]}"
 
       - name: Create docker image archive
         run: docker save mage:latest | gzip > mage_latest.tar.gz
