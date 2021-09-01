@@ -94,6 +94,9 @@ jobs:
     if: ${{ github.event_name == 'release' }}
     needs: [ django_test, publish_docker ]
     runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+      TAR_FILE_NAME: mage_${{ github.event.release.tag_name }}.tar
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
@@ -117,17 +120,16 @@ jobs:
 
       - name: Create tar and gzip it
         run: |
-          tar -cvf $TAR_NAME ../MAGE
-          gzip -k9 $TAR_NAME
-        env:
-          TAR_NAME: mage_${{ github.event.release.tag_name }}.tar
+          tar -cvf ${{ env.TAR_FILE_NAME }} ../MAGE
+          gzip -k9 ${{ env.TAR_FILE_NAME }}
+
 
       # action softprops/action-gh-release@v1 substitute to
       # actions/upload-release-asset@v1 (which is currently archived)
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: ./mage_${{github.release.tag_name}}.tar.gz
-          tag_name: ${{github.release.tag_name}}
+          files: ./${{ env.TAR_FILE_NAME }}.tar.gz
+          tag_name: ${{ env.TAG_NAME }}
 
 
