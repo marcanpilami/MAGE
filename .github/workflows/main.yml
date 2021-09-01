@@ -108,7 +108,13 @@ jobs:
           echo "::set-output name=value::${BASH_REMATCH[1]}";
 
       - name: Create docker image archive
-        run: docker save mage:latest | gzip > mage_latest.tar.gz
+        uses: docker/build-push-action@v2
+        with:
+          tags: ${{ steps.get_tag.outputs.value }}
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          outputs: type=tar, dest=./mage_latest.tar.gz
 
       - name: Create release
         uses: softprops/action-gh-release@v1
