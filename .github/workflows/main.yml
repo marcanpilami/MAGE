@@ -98,36 +98,49 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Install virtual environment
-        run: python -m venv ./mag-venv
 
-      - name: Activate virtual env
-        run: export PATH="$VIRTUAL_ENV:$PATH"
+      - name: Useful echo of the github obj
+        id: echo_github_object
+        env:
+          GITHUB_CONTEXT_TO_JSON: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT_TO_JSON"
 
-      - name: Install python modules
-        run: pip install -r requirements.txt --upgrade
-
-      - name: Init data
+      - name: display tar name
         run: |
-          python manage.py migrate
-          python manage.py shell << EOF
-          from scm.demo_items import create_test_is
-          create_test_is()
-          EOF
-
-      - name: Create tar and gzip it
-        run: |
-          tar -cvf $TAR_NAME ../MAGE
-          gzip -k9 $TAR_NAME
+          echo $TAR_NAME
         env:
           TAR_NAME: mage_${{ github.release.tag_name }}.tar
 
+#      - name: Install virtual environment
+#        run: python -m venv ./mag-venv
+#
+#      - name: Activate virtual env
+#        run: export PATH="$VIRTUAL_ENV:$PATH"
+#
+#      - name: Install python modules
+#        run: pip install -r requirements.txt --upgrade
+#
+#      - name: Init data
+#        run: |
+#          python manage.py migrate
+#          python manage.py shell << EOF
+#          from scm.demo_items import create_test_is
+#          create_test_is()
+#          EOF
+#
+#      - name: Create tar and gzip it
+#        run: |
+#          tar -cvf $TAR_NAME ../MAGE
+#          gzip -k9 $TAR_NAME
+#        env:
+#          TAR_NAME: mage_${{ github.release.tag_name }}.tar
+
       # action softprops/action-gh-release@v1 substitute to
       # actions/upload-release-asset@v1 (which is currently archived)
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./mage_${{github.release.tag_name}}.tar.gz
-          tag_name: ${{github.release.tag_name}}
+#      - name: Upload Release Asset
+#        uses: softprops/action-gh-release@v1
+#        with:
+#          files: ./mage_${{github.release.tag_name}}.tar.gz
+#          tag_name: ${{github.release.tag_name}}
 
 
