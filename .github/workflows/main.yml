@@ -114,7 +114,10 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: false
-          outputs: type=tar, dest=./mage_latest.tar.gz
+          outputs: type=tar, dest=./mage_latest.tar
+
+      - name: Compress the image
+        run: gzip -k9 ./mage_latest.tar
 
       - name: Create release
         uses: softprops/action-gh-release@v1
