@@ -111,7 +111,7 @@ jobs:
         run: docker save mage:latest | gzip > mage_latest.tar.gz
 
       - name: Create release
-      - uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v1
           with:
             files: mage_latest.tar.gz
             tag_name: ${{ steps.get_tag.outputs.value }}
