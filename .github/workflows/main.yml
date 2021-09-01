@@ -116,8 +116,8 @@ jobs:
 
       - name: Create tar and gzip it
         run: |
-        tar -cvf $TAR_NAME ../MAGE
-        gzip -k9 $TAR_NAME
+          tar -cvf $TAR_NAME ../MAGE
+          gzip -k9 $TAR_NAME
         env:
           TAR_NAME: mage_${{ github.release.tag_name }}.tar
 
