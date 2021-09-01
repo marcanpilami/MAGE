@@ -91,7 +91,7 @@ jobs:
           push: false
       
   update_release_with_asset:
-    if: ${{ github.event_name == "release" }}
+    if: ${{ github.event_name == 'release' }}
     needs: [ django_test, publish_docker ]
     runs-on: ubuntu-latest
     steps:
