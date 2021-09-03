@@ -142,6 +142,18 @@ body>.container-fluid {
 	margin-right: 2px;
 }
 
+.metSquareProject {
+    display: inline-block;
+    overflow: hidden;
+    min-height: 100px;
+    min-width: 100px;
+    margin: 5px;
+    padding: 5px;
+    vertical-align: top;
+    position: relative;
+    background-color: #1B58B8;
+}
+
 .metSquare {
 	display: inline-block;
 	overflow: hidden;

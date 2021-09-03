@@ -11,6 +11,8 @@ from ref import views
 app_name='ref'
 
 urlpatterns = [
+    url(r'^welcome/(?P<prj_name>.*)$', views.misc.welcome, name='prj'),
+
     url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),

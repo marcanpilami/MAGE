@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 
 ## MAGE imports
-from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link
+from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
 from ref.models.parameters import getParam
 from scm.models import ComponentInstanceConfiguration
 
@@ -24,28 +24,39 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
-def welcome(request):
+def welcome(request, prj_name):
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('welcome_all')
+    ck = make_template_fragment_key('welcome', [prj_name])
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
+        envts = Environment.objects_active.filter(project__name=prj_name).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
                 cic = ComponentInstanceConfiguration.objects.select_related('result_of__belongs_to_set').get(pk=e.latest_reconfiguration)
                 latest_setname[e.name] = cic.result_of.belongs_to_set.name
                 latest_date[e.name] = cic.created_on
 
-    return render(request, 'ref/welcome.html', {    'team_links_title': link_title,
+    return render(request, 'ref/welcome.html', {    'project_name': prj_name,
+                                                    'team_links_title': link_title,
                                                     'team_links': Link.objects.all(),
                                                     'latest_setname': latest_setname,
                                                     'latest_date': latest_date,
                                                     'envts': envts,
                                                     'templates': Environment.objects.filter(template_only=True) })
+
+
+def projects(request):
+    projects = []
+    ck = make_template_fragment_key('projects')
+    projects_cache = cache.get(ck)
+    if projects_cache is None:
+        projects = Project.objects.all()
+
+    return render(request, 'ref/projects.html', { 'templates': projects })
 
 
 ##############################################################################

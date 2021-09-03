@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block pagetitle %}Accueil{% endblock %}
-{% block maintitle %}Accueil{% endblock %}
+{% block pagetitle %}Projet {{ project_name }}{% endblock %}
+{% block maintitle %}{{ project_name }}{% endblock %}
 {% load get_item from filter %}
 {% load cache %}
 
@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-{% cache 60 welcome_all %}
+{% cache 60 welcome prj_name %}
 <div style='color: white;' class='row'>
 <div class='col-sm-5'>
 	<div style='color: white;' class='row'>
