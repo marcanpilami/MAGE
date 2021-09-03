@@ -68,6 +68,14 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v3
@@ -87,12 +95,27 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
 
       - name: Build and push Docker image
+        if: ${{ steps.docker_tag.outputs.value == 'nightly' }}
         uses: docker/build-push-action@v2
         with:
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ steps.docker_tag.outputs.value }}
           context: .
           file: ./docker/Dockerfile
           push: true
+
+      # Make use of the cache if it's release
+      - name: Build and push Docker image
+        if: ${{ steps.docker_tag.outputs.value != 'nightly' }}
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: ${{ steps.docker_tag.outputs.value }}
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
       
   update_release_with_asset:
     if: ${{ github.event_name == 'release' }}
