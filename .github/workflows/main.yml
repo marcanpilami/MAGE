@@ -114,6 +114,19 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+
+      # Uploading the README.md is not a core feature of docker/build-push-action yet
+      - name: push README to Dockerhub
+        if: ${{ steps.docker_tag.outputs.value != 'nightly' }}
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+        with:
+          destination_container_repo: enioka/mage
+          provider: dockerhub
+          short_description: "Image officielle pour MAGE (Module d'Assistance à la Gestion d'Environnement)"
+          readme_file: './docker/README.md'
       
   update_release_with_asset:
     if: ${{ github.event_name == 'release' }}
