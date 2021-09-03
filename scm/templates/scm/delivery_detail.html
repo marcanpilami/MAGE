@@ -15,7 +15,7 @@
 <a href='{% url "scm:iset_export" delivery.id "sh" %}' title="Script shell détaillant le contenu">S</a>
 {%endblock%}
 
-{%block navigationButtons%}<a href="{% url 'scm:deliveries' %}" title="Liste des livraisons">↑</a>{%endblock%}
+{%block navigationButtons%}<a href="{% url 'scm:deliveries' project %}" title="Liste des livraisons">↑</a>{%endblock%}
 
 {% block content %}
 
@@ -78,7 +78,7 @@
     <tbody>
         {% for e in envts %}
             <tr>
-                <td><a href="{% url 'scm:envtinstallhist' e.name %}">{{e.name}}</a></td>
+                <td><a href="{% url 'scm:envtinstallhist' envt_name=e.name project=project %}">{{e.name}}</a></td>
                 <td>
                 {% for ee in installs %}
                     {% if ee.id == e.id %}{{ee.dd}}{%endif%}

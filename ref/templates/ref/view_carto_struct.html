@@ -13,7 +13,7 @@ $(document).ready(function()
 {
 	$.ajax(
 	{
-		url : '{% url "ref:cartostructuredata" %}',
+		url : '{% url "ref:cartostructuredata" project %}',
 		type : "GET",
 		dataType : "json",
 	}).done(function(json)

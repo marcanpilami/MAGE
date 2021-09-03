@@ -7,7 +7,7 @@
 
 from ref import admin
 from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet, \
-    PackageChecker
+    PackageChecker,InstallableSet, InstallableItem
 
 
 class BackupRestoreMethodAdmin(admin.ModelAdmin):
@@ -61,6 +61,15 @@ class PackageCheckerAdmin(admin.ModelAdmin):
 
 admin.site.register(PackageChecker, PackageCheckerAdmin)
 
-#admin.site.register(InstallableItem)
+class InstallableSetAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'logical_component_name', 'ticket_list', 'set_date')
+    list_filter = ['status', 'set_content__what_is_installed__logical_component__application__project']
+
+    def logical_component_name(self, obj):
+        return obj.set_content.all()[0].what_is_installed.logical_component.name
+
+admin.site.register(InstallableSet, InstallableSetAdmin)
+
+#admin.site.register(InstallableItem, InstallableItemAdmin)
 #admin.site.register(BackupItem)
 

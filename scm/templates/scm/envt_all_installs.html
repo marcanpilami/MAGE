@@ -41,7 +41,7 @@
 			<tr>
 				<td>
 					<div class='metContainer' style='background:#D6D6D6;margin:0;' >
-						<a href="{% url "scm:delivery_detail" install.installed_set.pk %}"> {{ install.installed_set.name }}</a>
+						<a href="{% url "scm:delivery_detail" project=project iset_id=install.installed_set.pk %}"> {{ install.installed_set.name }}</a>
 					</div>
 				</td>
 				<td>

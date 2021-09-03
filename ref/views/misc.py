@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 
 ## MAGE imports
-from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link
+from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
 from ref.models.parameters import getParam
 from scm.models import ComponentInstanceConfiguration
 
@@ -24,28 +24,42 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
-def welcome(request):
+def project(request, project):
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('welcome_all')
+    ck = make_template_fragment_key('project', [project])
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
+        envts = Environment.objects_active.filter(project__name=project).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
                 cic = ComponentInstanceConfiguration.objects.select_related('result_of__belongs_to_set').get(pk=e.latest_reconfiguration)
                 latest_setname[e.name] = cic.result_of.belongs_to_set.name
                 latest_date[e.name] = cic.created_on
 
-    return render(request, 'ref/welcome.html', {    'team_links_title': link_title,
+    return render(request, 'ref/project.html', {    'project': project,
+                                                    'team_links_title': link_title,
                                                     'team_links': Link.objects.all(),
                                                     'latest_setname': latest_setname,
                                                     'latest_date': latest_date,
                                                     'envts': envts,
                                                     'templates': Environment.objects.filter(template_only=True) })
+
+
+def welcome(request):
+    projects = []
+    ck = make_template_fragment_key('welcome')
+    projects_cache = cache.get(ck)
+    if projects_cache is None:
+        projects = Project.objects.all()
+
+    if projects.count() == 1:
+        return redirect('ref:project', project=projects[0].name)
+    else:
+        return render(request, 'ref/welcome.html', { 'templates': projects })
 
 
 ##############################################################################
@@ -80,17 +94,17 @@ def force_login(request):
     return redirect(next)
 
 
-def urls(request):
+def urls(request, project):
     '''List of all URLs inside the web API'''
-    return render(request, 'ref/urls.html')
+    return render(request, 'ref/urls.html', {'project': project})
 
-def model_types(request):
+def model_types(request, project):
     '''List of all installed component types'''
-    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.all()})
+    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(cic_set__implements__application__project__name =project).distinct(), 'project': project})
 
 
-def model_detail(request):
-    ids = ImplementationDescription.objects.order_by('tag', 'name').prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
+def model_detail(request, project):
+    ids = ImplementationDescription.objects.filter(cic_set__implements__application__project__name=project).order_by('tag', 'name').distinct().prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
                                                                                      'field_set',
                                                                                      'computed_field_set')
 
@@ -98,7 +112,7 @@ def model_detail(request):
 
 
     #return render(request, 'ref/model_details.html', {'res' : sorted(ids.iteritems(), key=lambda (k, v) :  v['id']['name']) })
-    return render(request, 'ref/model_details.html', {'res' : ids })
+    return render(request, 'ref/model_details.html', {'res' : ids, 'project': project })
 
 
 def shelllib_bash(request):

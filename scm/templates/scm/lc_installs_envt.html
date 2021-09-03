@@ -9,7 +9,7 @@
 		<tr>
 			<th></th>
 			<th></th>
-			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt.name %}">{{envt.name}}</a></th>{% endfor %}
+			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt_name=envt.name project=project %}">{{envt.name}}</a></th>{% endfor %}
 		</tr>
 	</thead>
 

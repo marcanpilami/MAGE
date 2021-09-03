@@ -4,7 +4,7 @@
 {% block maintitle %}Livraisons disponibles à l'installation{% endblock %}
 
 {%block frequentActionsButtons%}
-<a class='frequentAction' href="{% url 'scm:delivery_create' %}" title="Créer une livraison">+</a>
+<a class='frequentAction' href="{% url 'scm:delivery_create' project %}" title="Créer une livraison">+</a>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
 		{% for is in deliveries %}
 			<tr>
 				<td>
-					<a  href="{% url 'scm:delivery_detail' is.id %}">
+					<a  href="{% url 'scm:delivery_detail' iset_id=is.id project=project %}">
 						{{ is.name }}
 					</a>
 				</td>

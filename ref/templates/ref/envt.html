@@ -51,10 +51,10 @@ $(document).ready(function() {
     <a  href="{% url 'scm:envtinstallhist' envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Historique des installations</div>
     </a>
-    <a  href="{% url 'scm:backup_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+    <a  href="{% url 'scm:backup_list' project %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Sauvegardes disponibles</div>
     </a>
-    <a  href="{% url 'scm:tag_list' %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+    <a  href="{% url 'scm:tag_list' project %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
     </a><br/><br/>
     <div class='t2'>Accès rapide</div>
