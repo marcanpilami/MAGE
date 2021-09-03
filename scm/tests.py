@@ -39,14 +39,14 @@ class SimpleTest(TestCase):
         self.assertEqual(self.ci_app1.version, 'v1.2')
 
     def test_ver_compare(self):
-        rdbms1_v1 = LogicalComponentVersion.objects.get(version='v1')
-        rdbms1_v2 = LogicalComponentVersion.objects.get(version='v1.2')
-        rdbms1_vr1 = LogicalComponentVersion.objects.get(version='v-1')
-        rdbms1_vr2 = LogicalComponentVersion.objects.get(version='v-2')
-        rdbms1_vr3 = LogicalComponentVersion.objects.get(version='v-3')
-        rdbms2_v1 = LogicalComponentVersion.objects.get(version='a')
-        rdbms2_v2 = LogicalComponentVersion.objects.get(version='b')
-        rdbms2_v3 = LogicalComponentVersion.objects.get(version='c')
+        rdbms1_v1 = LogicalComponentVersion.objects.get(version='v1', logical_component__application__alternate_name_1='SFT1')
+        rdbms1_v2 = LogicalComponentVersion.objects.get(version='v1.2', logical_component__application__alternate_name_1='SFT1')
+        rdbms1_vr1 = LogicalComponentVersion.objects.get(version='v-1', logical_component__application__alternate_name_1='SFT1')
+        rdbms1_vr2 = LogicalComponentVersion.objects.get(version='v-2', logical_component__application__alternate_name_1='SFT1')
+        rdbms1_vr3 = LogicalComponentVersion.objects.get(version='v-3', logical_component__application__alternate_name_1='SFT1')
+        rdbms2_v1 = LogicalComponentVersion.objects.get(version='a', logical_component__application__alternate_name_1='SFT2')
+        rdbms2_v2 = LogicalComponentVersion.objects.get(version='b', logical_component__application__alternate_name_1='SFT2')
+        rdbms2_v3 = LogicalComponentVersion.objects.get(version='c', logical_component__application__alternate_name_1='SFT2')
 
         self.assertEqual(rdbms2_v3.compare(rdbms1_v1), 1)
         self.assertEqual(rdbms1_v1.compare(rdbms2_v3), -1)
@@ -101,7 +101,7 @@ class SimpleTest(TestCase):
         self.assertEqual(self.ci_app2.version, 'a')
 
         installs = Installation.objects.all().count()
-        self.assertEqual(1, installs)
+        self.assertEqual(2, installs)
 
     def test_not_merge(self):
         setOrCreateParam(key=u'APPLY_MERGE_LIMIT', value=u'0') ## Disable merge
@@ -117,4 +117,4 @@ class SimpleTest(TestCase):
         self.assertEqual(self.ci_app2.version, 'a')
 
         installs = Installation.objects.all().count()
-        self.assertEqual(2, installs)
+        self.assertEqual(3, installs)

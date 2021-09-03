@@ -46,5 +46,5 @@ def tag_detail(request, tag_id):
     t = Tag.objects.get(pk=tag_id)
     return render(request, 'scm/tag_detail.html', {'tag': t})
 
-def tag_list(request):
-    return render(request, 'scm/tag_list.html', {'tags': Tag.objects.all()})
+def tag_list(request, project):
+    return render(request, 'scm/tag_list.html', {'tags': Tag.objects.filter(from_envt__project__name=project), 'project': project})

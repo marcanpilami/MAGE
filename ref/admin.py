@@ -58,7 +58,7 @@ class EnvironmentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
-    list_filter = ['template_only', 'managed', 'typology']
+    list_filter = ['template_only', 'managed', 'project', 'typology']
     search_fields = ('name',)
 
 
@@ -109,7 +109,7 @@ site.register(Link, LinkAdmin)
 
 class CICAdmin(ModelAdmin):
     list_display = ('name', 'implements', 'technical_description', 'description', 'active')
-    list_filter = ('active', 'implements__application', 'implements', 'description')
+    list_filter = ('active', 'implements__application__project', 'implements__application', 'implements', 'description')
 
 site.register(ComponentImplementationClass, CICAdmin)
 

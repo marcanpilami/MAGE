@@ -92,7 +92,7 @@ class MageClient(object):
         self.logger.info("Logout from MAGE")
 
 
-    def run_mql_query(self, query, unique=False):
+    def run_mql_query(self, query, project, unique=False):
         """Execute a query on mage. Return results as json like dict
         @:param unique: if True, assume that query return only one. It raises if strictly less or more that 1 response
          is returned. Default is False
@@ -100,7 +100,7 @@ class MageClient(object):
          object instead of a list of component instance description. """
         base_query = "ref/mql/json/"
         url = urljoin(self.base_url, base_query)
-        url = urljoin(url, query)
+        url = urljoin(url, project + '/' + query)
         if self._session is None:
             msg = "You must login before trying to run a query"
             self.logger.fatal(msg)

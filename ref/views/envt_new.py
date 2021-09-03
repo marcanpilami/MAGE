@@ -25,9 +25,9 @@ from django.forms.models import ModelChoiceIterator
     * second step allows to edit the same data, plus all fields
 '''
 
-def new_items(request):
+def new_items(request, project):
     """Hub for creating all sorts of items"""
-    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all()})
+    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all(), 'project': project})
 
 
 #####################################################################
