@@ -11,7 +11,7 @@ from ref import views
 app_name='ref'
 
 urlpatterns = [
-    url(r'^project/(?P<prj_name>.*)$', views.misc.project, name='project'),
+    url(r'^project/(?P<project>.*)$', views.misc.project, name='project'),
 
     url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
@@ -31,10 +31,11 @@ urlpatterns = [
     url(r'mql/(?P<output_format>.*)/(?P<query>.*)$', views.mql_query, name='mqlquery'),
 
     ## Graphs
-    url(r'gph/full$', views.carto_full, name='grfull'),
+    url(r'gph/full/$', views.carto_full, name='grfull'),
+    url(r'gph/full/(?P<project>.*)$', views.carto_full, name='grfull'),
     url(r'gph/marsupilamographe$', views.carto_form, name='cartoform'),
     url(r'gph/mplgdata$', views.carto_content_form, name='cartoformdata'),
-    url(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)$', views.carto_content_full, name='cartofulldata'),
+    url(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)/(?P<project>.*)$', views.carto_content_full, name='cartofulldata'),
     url(r'gph/mplgdatasimple/(?P<ci_id_list>[\d,]+)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
     url(r'gph/mplgdatadebug$', views.carto_debug, name='cartodebugdata'),
     url(r'gph/structuredata$', views.carto_description_content, name='cartostructuredata'),

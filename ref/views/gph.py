@@ -14,6 +14,7 @@ from ref.graph_mlg2 import getNetwork
 from ref.models.description import ImplementationRelationType
 from ref.models.instances import ComponentInstance
 from ref.graph_struct import getStructureTree
+from django.db.models import Q
 
 
 class CartoForm(forms.Form):
@@ -96,9 +97,12 @@ def carto_content(request, ci_id_list, collapse_threshold=3, select_related=2):
     json.dump(getNetwork(ComponentInstance.objects.filter(id__in=[int(i) for i in ci_id_list.split(',')]), select_related=dict((t.name, int(select_related)) for t in ImplementationRelationType.objects.all()), collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_content_full(request, collapse_threshold=3):
+def carto_content_full(request, collapse_threshold=3, project='all'):
     response = HttpResponse(content_type='text/json; charset=utf-8')
-    json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
+    if project == 'all':
+        json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
+    else:
+        json.dump(getNetwork(ComponentInstance.objects.filter(Q(deleted=False), Q(environments__project__name=project)).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
 def carto_description_content(request):
@@ -109,8 +113,8 @@ def carto_description_content(request):
 def carto_description(request):
     return render(request, 'ref/view_carto_struct.html')
 
-def carto_full(request):
-    return render(request, 'ref/view_carto_full.html')
+def carto_full(request, project='all'):
+    return render(request, 'ref/view_carto_full.html', {'project': project})
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')
