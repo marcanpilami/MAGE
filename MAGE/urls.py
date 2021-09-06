@@ -12,7 +12,7 @@ from django.contrib.auth import views as auth_views
 from ref.admin import site
 from django.conf import settings
 autodiscover()
-from ref.views.misc import projects
+from ref.views.misc import welcome
 from ref import views as ref_views
 
 urlpatterns = [
@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^admin/', site.urls),
     
     # Welcome screen (slash mapping)
-    url(r'^$', projects, name='projects'),
+    url(r'^$', welcome, name='welcome'),
 ]
 
 if settings.DEBUG:

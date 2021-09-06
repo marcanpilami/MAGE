@@ -24,12 +24,12 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
-def welcome(request, prj_name):
+def project(request, prj_name):
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('welcome', [prj_name])
+    ck = make_template_fragment_key('project', [prj_name])
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
@@ -40,7 +40,7 @@ def welcome(request, prj_name):
                 latest_setname[e.name] = cic.result_of.belongs_to_set.name
                 latest_date[e.name] = cic.created_on
 
-    return render(request, 'ref/welcome.html', {    'project_name': prj_name,
+    return render(request, 'ref/project.html', {    'project_name': prj_name,
                                                     'team_links_title': link_title,
                                                     'team_links': Link.objects.all(),
                                                     'latest_setname': latest_setname,
@@ -49,14 +49,14 @@ def welcome(request, prj_name):
                                                     'templates': Environment.objects.filter(template_only=True) })
 
 
-def projects(request):
+def welcome(request):
     projects = []
-    ck = make_template_fragment_key('projects')
+    ck = make_template_fragment_key('welcome')
     projects_cache = cache.get(ck)
     if projects_cache is None:
         projects = Project.objects.all()
 
-    return render(request, 'ref/projects.html', { 'templates': projects })
+    return render(request, 'ref/welcome.html', { 'templates': projects })
 
 
 ##############################################################################
