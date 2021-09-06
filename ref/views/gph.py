@@ -77,7 +77,7 @@ def carto_content_form(request):
                 rs = ComponentInstance.objects.filter(deleted=False)
 
             if len(form.cleaned_data['envts']) > 0:
-                rs = rs.filter(environments__pk_in=form.cleaned_data['envts'])
+                rs = rs.filter(environments__pk__in=form.cleaned_data['envts'])
 
             if len(form.cleaned_data['models']) > 0:
                 rs = rs.filter(description_id__in=form.cleaned_data['models'])
