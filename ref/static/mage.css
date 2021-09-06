@@ -331,12 +331,12 @@ a {
 	text-decoration: none;
 }
 
-a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus
+a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus,a.metSquareProject:hover,a.metSquareProject:focus
 	{
 	color: #C0BCB8;
 }
 
-a.metSquare {
+a.metSquare, a.metSquareProject {
 	text-decoration: inherit;
 }
 
