@@ -429,6 +429,17 @@ button.cancel,input.cancel[type='button'] {
 	background-color: rgb(200, 200, 200);
 }
 
+.navbar-project {
+	background-color: white;
+    border-top: 1px solid #094AB2;
+}
+
+.navbar-project>li>p>a.nav-link-project {
+	color: #094AB2;
+    text-decoration: none;
+	font-weight: bold;
+}
+
 #quickAccessButtons a {
 	display: inline-block;
 	padding: 3px;
