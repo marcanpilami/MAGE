@@ -46,17 +46,17 @@ def all_installs(request, envt_name, limit):
     return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit })
 
 
-def lc_versions_per_environment(request):
-    envts = Environment.objects_active.filter(managed=True, active=True).order_by('typology__chronological_order', 'name')
+def lc_versions_per_environment(request, project):
+    envts = Environment.objects_active.filter(managed=True, active=True, project__name=project).order_by('typology__chronological_order', 'name')
 
     cics = ComponentInstance.objects.annotate(latest_change_id=Max('configurations__id'))\
-            .filter(latest_change_id__isnull=False).values_list('latest_change_id', flat=True)
+            .filter(latest_change_id__isnull=False, environments__project__name=project).values_list('latest_change_id', flat=True)
     cics = ComponentInstanceConfiguration.objects.filter(pk__in=cics, component_instance__instanciates__implements__isnull=False)\
             .filter(component_instance__deleted=False)\
             .filter(component_instance__instanciates__active=True)\
             .filter(component_instance__instanciates__implements__active=True)\
             .select_related('component_instance__instanciates__implements__application', 'result_of__what_is_installed')\
-            .prefetch_related('component_instance__environments')
+            .prefetch_related(Prefetch('componentInstances', queryset=ComponentInstance.objects.filter(environments__project__name=project)))
 
     res = {}
     for cic in cics:
@@ -73,5 +73,5 @@ def lc_versions_per_environment(request):
             except KeyError:
                 pass  # happens for unmanaged, deleted... envts & the like
 
-    return render(request, 'scm/lc_installs_envt.html', {'res': OrderedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts})
+    return render(request, 'scm/lc_installs_envt.html', {'res': OrderedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts, 'project': project})
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block pagetitle %}Projet {{ project }}{% endblock %}
-{% block maintitle %}{{ project_name }}{% endblock %}
+{% block maintitle %} Tableau de bord {%  endblock %}
 {% load get_item from filter %}
 {% load cache %}
 
@@ -18,9 +18,9 @@
 	<div style='color: white;' class='row'>	
 		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' project %}">Carte interactive</a>
 		<a class='metSquare homeCoulour1' href="{% url 'ref:grfull' project %}">Carte générale</a>
-		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' %}">Créer un élément de référentiel</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' %}">Eléments sauvegardés</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' %}">Composants mutualisés</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' project %}">Créer un élément de référentiel</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project %}">Eléments sauvegardés</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' project %}">Composants mutualisés</a>
 		<div>
 		{% for envt in envts %}
 		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
@@ -33,12 +33,12 @@
 		<div class='t2' style='color: black;'>Gestion de configuration</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_installs_envts' %}">Synthèse des versions courantes</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:deliveries' %}">Livraisons disponibles à l'installation</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:delivery_create' %}">Référencer une livraison</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:tag_list' %}">Tags</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:backup_list' %}">Sauvegardes disponibles</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_list' %}">Versions disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_installs_envts' project %}">Synthèse des versions courantes</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:deliveries' project %}">Livraisons disponibles à l'installation</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:delivery_create' project %}">Référencer une livraison</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:tag_list' project %}">Tags</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:backup_list' project %}">Sauvegardes disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_list' project %}">Versions disponibles</a>
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}

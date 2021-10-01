@@ -14,11 +14,11 @@ urlpatterns = [
     url(r'envt/hist/(?P<envt_name>.*)/(?P<limit>\d+)', views.all_installs, name='envtinstallhistprm'),
     url(r'envt/hist/(?P<envt_name>.*)', views.all_installs, {'limit': 90}, name='envtinstallhist'),
 
-    url(r'delivery$', views.delivery_list, name='deliveries'),
+    url(r'delivery/(?P<project>.*)$', views.delivery_list, name='deliveries'),
     url(r'delivery/(?P<iset_id>\d*)$', views.delivery, name='delivery_detail'),
 
     # Delivery hand-off forms
-    url(r'delivery/edit$', views.delivery_edit, name='delivery_create'),
+    url(r'delivery/edit/(?P<project>.*)$', views.delivery_edit, name='delivery_create'),
     url(r'delivery/(?P<iset_id>\d*)/edit$', views.delivery_edit, name='delivery_edit'),
     url(r'delivery/(?P<iset_id>\d*)/editdep$', views.delivery_edit_dep, name='delivery_edit_dep'),
 
@@ -33,8 +33,8 @@ urlpatterns = [
     url(r'ii/(?P<ii_id>\d+)/installmethod/(?P<ci_id>\d+)$', views.ii_test_applicable_to_ci, name='ii_test_compat_ci'),
 
     # Retrieving current version of elements
-    url(r'version/summary$', views.lc_versions_per_environment, name='lc_installs_envts'),
-    url(r'version/lc$', views.lc_list, name='lc_list'),
+    url(r'version/summary/(?P<project>.*)$', views.lc_versions_per_environment, name='lc_installs_envts'),
+    url(r'version/lc/(?P<project>.*)$', views.lc_list, name='lc_list'),
     url(r'version/lc/(?P<lc_id>\d*)/json$', views.get_lc_versions, name='lc_versions_export'),
     url(r'version/lc/(?P<lc_id>\d*)$', views.lc_versions, name='lc_versions'),
 
@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'tag/create/(?P<envt_name>.*)/(?P<tag_name>.*)$', views.tag_create, name='tag_create'),
     url(r'tag/(?P<tag_id>.*)/remove$', views.tag_remove, name='tag_remove'),
     url(r'tag/(?P<tag_id>\d*)$', views.tag_detail, name='tag_detail'),
-    url(r'tag$', views.tag_list, name='tag_list'),
+    url(r'tag/(?P<project>.*)$', views.tag_list, name='tag_list'),
 
     # Backup specific
     url(r'bck/create/envtdefault/(?P<envt_name>.*)$', views.backup_envt, name='backup_envt'),
@@ -54,7 +54,7 @@ urlpatterns = [
     url(r'bck/latest/ci/(?P<ci_id>\d*)/id$', views.latest_ci_backupset_id, name='latest_ci_backupset_id'),
     url(r'bck/latest/envt/(?P<envt_name>.*)/id$', views.latest_envt_backupset_id, name='latest_envt_backupset_id'),
 
-    url(r'bck$', views.backup_list, name='backup_list'),
+    url(r'bck/(?P<project>.*)$', views.backup_list, name='backup_list'),
     url(r'bck/archive$', views.backup_list, {'archive': True}, name='backup_list_archive'),
     url(r'bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
 

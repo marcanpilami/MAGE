@@ -13,7 +13,7 @@ app_name='ref'
 urlpatterns = [
     url(r'^project/(?P<project>.*)$', views.misc.project, name='project'),
 
-    url(r'^envt/shared$', views.shared_ci, name='shared_ci'),
+    url(r'^envt/shared/(?P<project>.*)$', views.shared_ci, name='shared_ci'),
     url(r'^envt/(?P<envt_id>\d*)$', views.envt, name='envt'),
     url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
 
@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'types_details$', views.model_detail, name='types_details'),
 
     ## CI creation and edit forms
-    url(r'new$', views.new_items, name='new_item'),
+    url(r'new/(?P<project>.*)$', views.new_items, name='new_item'),
     url(r'new/ci/(?P<description_id>\d*)$', views.new_ci_step1, name='new_item_ci'),
     url(r'ci/(?P<instance_id>\d*)$', views.new_ci_step2, name='edit_ci'),
     url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
@@ -45,7 +45,7 @@ urlpatterns = [
 
     ## Misc
     url(r'urls', views.urls, name='urls'),
-    url(r'ci/backuped', views.backuped, name='backuped'),
+    url(r'ci/backuped/(?P<project>.*)$', views.backuped, name='backuped'),
     url(r'clearcache', views.clear_cache, name='clear_cache'),
 
     ## Referential debug/migration
