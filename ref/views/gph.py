@@ -52,24 +52,32 @@ class CartoForm(forms.Form):
                     initial=False,
                     required=False)
 
-    def __init__(self, *args, **kwargs):
-        super(CartoForm, self).__init__(*args, **kwargs)
-        self.fields['envts'].queryset = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
-        self.fields['envts'].initial = [] if Environment.objects_active.count() == 0 else [Environment.objects_active.order_by('typology__chronological_order', 'name')[0].pk, ]
+    def __init__(self, *args, project, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+        if project == 'all':
+            self.fields['envts'].queryset = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
+            self.fields['envts'].initial = [] if Environment.objects_active.count() == 0 else [Environment.objects_active.order_by('typology__chronological_order', 'name')[0].pk, ]
+        else:
+            self.fields['envts'].queryset = Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')
+            self.fields['envts'].initial = [] if Environment.objects_active.filter(project__name=project).count() == 0 else [Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')[0].pk, ]
+
         self.fields['models'].queryset = ImplementationDescription.objects.order_by('tag', 'name').all()
         self.fields['models'].initial = [m.pk for m in ImplementationDescription.objects.all()]
         self.fields['reltypes'].queryset = ImplementationRelationType.objects.all()
         self.fields['reltypes'].initial = [m.pk for m in ImplementationRelationType.objects.all()]
 
-
-def carto_form(request):
+def carto_form(request, project='all'):
     """Marsupilamographe"""
-    return render(request, 'ref/view_carto2.html', {'form': CartoForm()})
+    CartoFormsetSet = forms.formset_factory(CartoForm)
+    return render(request, 'ref/view_carto2.html', {'project': project, 'formset': CartoFormsetSet(form_kwargs={'project': project})})
 
-def carto_content_form(request):
+def carto_content_form(request, project='all'):
     form = None
     if request.method == 'POST':  # If the form has been submitted...
-        form = CartoForm(request.POST)  # A form bound to the POST data
+        CartoFormsetSet = forms.formset_factory(CartoForm)
+        form = CartoFormsetSet(data=request.POST, form_kwargs={'project': project})  # A form bound to the POST data
         if form.is_valid():  # All validation rules pass
             if form.cleaned_data['include_deleted']:
                 rs = ComponentInstance.objects.all()
