@@ -70,14 +70,12 @@ class CartoForm(forms.Form):
 
 def carto_form(request, project='all'):
     """Marsupilamographe"""
-    CartoFormsetSet = forms.formset_factory(CartoForm)
-    return render(request, 'ref/view_carto2.html', {'project': project, 'formset': CartoFormsetSet(form_kwargs={'project': project})})
+    return render(request, 'ref/view_carto2.html', {'project': project, 'formset': CartoForm(project=project)})
 
 def carto_content_form(request, project='all'):
     form = None
     if request.method == 'POST':  # If the form has been submitted...
-        CartoFormsetSet = forms.formset_factory(CartoForm)
-        form = CartoFormsetSet(data=request.POST, form_kwargs={'project': project})  # A form bound to the POST data
+        form = CartoForm(data=request.POST,project=project)
         if form.is_valid():  # All validation rules pass
             if form.cleaned_data['include_deleted']:
                 rs = ComponentInstance.objects.all()
