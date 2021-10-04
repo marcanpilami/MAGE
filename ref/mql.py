@@ -49,19 +49,19 @@ def __build_grammar():
 __grammar = __build_grammar()
 
 
-def run(query, return_sensitive_data=False):
+def run(query, project, return_sensitive_data=False):
     expr = __grammar.parseString(query)
-    return __run(expr, return_sensitive_data)
+    return __run(expr, return_sensitive_data, project)
     # return  __grammar.parseString(query)
 
 
-def __run(q, return_sensitive_data):
+def __run(q, return_sensitive_data, project):
     if q.select != None:
-        return __select_compo(q.select, return_sensitive_data)
+        return __select_compo(q.select, return_sensitive_data, project)
 
 
-def __select_compo(q, return_sensitive_data):
-    rs = ComponentInstance.objects.filter(deleted=False)
+def __select_compo(q, return_sensitive_data, project):
+    rs = ComponentInstance.objects.filter(deleted=False, environments__project__name=project)
 
     if q.lc:
         rs = rs.filter(instanciates__implements__name=q.lc)

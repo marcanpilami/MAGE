@@ -63,11 +63,11 @@
 		<div class='t2' style='color: black;'>Aides scripting</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour2' href="{% url 'ref:types' %}">Types de composants installés</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:types_details' %}">Détail des composants installés</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:cartostructure' %}">Graphe des types de composants</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types' project %}">Types de composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:mqltester' project %}">Requêteur MQL</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types_details' project %}">Détail des composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:urls' project %}">API web partielle pour scripts</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:cartostructure' project %}">Graphe des types de composants</a>
 	</div>
 	<div class='row'>
 	{% for envt in templates %}

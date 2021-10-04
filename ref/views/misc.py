@@ -91,17 +91,17 @@ def force_login(request):
     return redirect(next)
 
 
-def urls(request):
+def urls(request, project):
     '''List of all URLs inside the web API'''
-    return render(request, 'ref/urls.html')
+    return render(request, 'ref/urls.html', {'project': project})
 
-def model_types(request):
+def model_types(request, project):
     '''List of all installed component types'''
-    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.all()})
+    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(cic_set__implements__application__project__name =project).distinct(), 'project': project})
 
 
-def model_detail(request):
-    ids = ImplementationDescription.objects.order_by('tag', 'name').prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
+def model_detail(request, project):
+    ids = ImplementationDescription.objects.filter(cic_set__implements__application__project__name=project).order_by('tag', 'name').distinct().prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
                                                                                      'field_set',
                                                                                      'computed_field_set')
 
@@ -109,7 +109,7 @@ def model_detail(request):
 
 
     #return render(request, 'ref/model_details.html', {'res' : sorted(ids.iteritems(), key=lambda (k, v) :  v['id']['name']) })
-    return render(request, 'ref/model_details.html', {'res' : ids })
+    return render(request, 'ref/model_details.html', {'res' : ids, 'project': project })
 
 
 def shelllib_bash(request):
