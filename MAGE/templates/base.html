@@ -41,15 +41,15 @@
 				</div>
                 
                 <div class="collapse navbar-collapse">
-                    {%block projectblock%}
-                    <ul class="nav navbar-left navbar-project">
-                        <li>
-                            <p class="navbar-text caps">
-                                <a class="nav-link nav-link-project" href="{% url 'ref:project' project=project %}">{{ project }}</a>
-                            </p>
-                        </li>
-                    </ul>
-                    {%endblock%}
+                    {%  if project %}
+                        <ul class="nav navbar-left navbar-project">
+                            <li>
+                                <p class="navbar-text caps">
+                                    <a class="nav-link nav-link-project" href="{% url 'ref:project' project=project %}">{{ project }}</a>
+                                </p>
+                            </li>
+                        </ul>
+                    {% endif %}
 
                     <ul class="nav navbar-left">
                         <li><p class="navbar-text caps pageTitle">{%block maintitle%}{%endblock%}</p></li>
