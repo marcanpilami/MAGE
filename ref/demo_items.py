@@ -307,7 +307,7 @@ def utility_create_test_instances():
     ########################### Add Another Environment ###########################
     
     ## Environments
-    e2 = Environment(name='CRM_DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='CRM_DEV'),
+    e2 = Environment(name='CRM_DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'),
                      project=Project.objects.get(alternate_name_1='CRM'))
     e2.save()
 
@@ -325,7 +325,7 @@ def utility_create_test_instances():
     i2__4_1 = ImplementationDescription.class_for_name('oracleschema')(name='schema4', password='pass', instance=i2__3_1,
                                                                     _env=e2, _cic='soft2_database_main_oracle')
     i2__4_2 = ImplementationDescription.class_for_name('oracleschema')(name='schema5', password='pass', instance=i2__3_1,
-                                                                    _env=e2, _cic='int_database_main_oracle')
+                                                                    _env=e2, _cic='int2_database_main_oracle')
     i2__4_3 = ImplementationDescription.class_for_name('oracleschema')(name='schema6', password='pass', instance=i2__3_1,
                                                                     _env=e2)
     i2__4_1.save()
@@ -361,22 +361,22 @@ def utility_create_test_instances():
     i2__15_2_4 = ImplementationDescription.class_for_name('jbossas')(host=i2__13_2, group=i14_2, _env=e2)
     i2__15_2_5 = ImplementationDescription.class_for_name('jbossas')(host=i2__13_2, group=i14_2, _env=e2)
 
-    i2__16_1 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app1', group=i2__14_1,
+    i2__16_1 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app4', group=i2__14_1,
                                                                          _cic='soft2_webapp_ee6_jboss', schema=i4_1,
                                                                          _env=e2)
     i2__16_1.save()
-    i2__16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app2', group=i2__14_2,
+    i2__16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app5', group=i2__14_2,
                                                                          _cic='soft2_webapp_legacy_jboss', schema=i2__4_2,
                                                                          _env=e2)
     i2__16_2.save()
-    i2__16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app4', group=i2__14_1, schema=i2__4_1,
+    i2__16_2 = ImplementationDescription.class_for_name('jbossapplication')(context_root='/app6', group=i2__14_1, schema=i2__4_1,
                                                                          _env=e2)
     i2__16_2.save()
 
     ## JQM items
     i2__9_1 = ImplementationDescription.class_for_name('jqmcluster')(schema=i2__4_3, _env=e2)
     i2__10_1 = ImplementationDescription.class_for_name('jqmengine')(cluster=i2__9_1, server=i2__1_1, _env=e2)
-    i2__11_1 = ImplementationDescription.class_for_name('jqmbatch')(cluster=i2__9_1, _cic='int_batch_jqm', _env=e2)
+    i2__11_1 = ImplementationDescription.class_for_name('jqmbatch')(cluster=i2__9_1, _cic='int2_batch_jqm', _env=e2)
     i2__11_1.save()
 
 @atomic
@@ -483,37 +483,37 @@ def utility_create_logical():
     l16 = LogicalComponent(name='batch jobs', description="batch jobs from the interfaces", application=a4, ref1='int')
     l16.save()
 
-    et1 = EnvironmentType(name='development', description="for developers. No admin except for middlewares.", short_name='DEV', chronological_order=1, default_show_sensitive_data=True)
-    et2 = EnvironmentType(name='test', description="for developers. So that they can test their production.", short_name='TST', chronological_order=2, default_show_sensitive_data=True)
-    et3 = EnvironmentType(name='packaging', description="for developers. So that they can test their packaging.", short_name='PCK', chronological_order=3, default_show_sensitive_data=True)
-    et4 = EnvironmentType(name='qualification', description="for testers. Unit acceptance testing.", short_name='QUA', chronological_order=5)
-    et5 = EnvironmentType(name='recette', description="for testers. Integrated acceptance testing.", short_name='REC', chronological_order=6)
-    et6 = EnvironmentType(name='pre-production', description="for the production team.", short_name='PPD', chronological_order=7)
-    et7 = EnvironmentType(name='production', description="for the production team.", short_name='PRD', chronological_order=8)
-    et8 = EnvironmentType(name='formation', description="for school teachers ;-)", short_name='FOR', chronological_order=9)
-    et9 = EnvironmentType(name='référence', description="padua as it used to be", short_name='REF', chronological_order=0)
-    et10 = EnvironmentType(name='technique', description="technical testing grounds", short_name='TEC', chronological_order=4)
-    et1.save()
-    et2.save()
-    et3.save()
-    et4.save()
-    et5.save()
-    et6.save()
-    et7.save()
-    et8.save()
-    et9.save()
-    et10.save()
+    # et1 = EnvironmentType(name='development', description="for developers. No admin except for middlewares.", short_name='DEV', chronological_order=1, default_show_sensitive_data=True)
+    # et2 = EnvironmentType(name='test', description="for developers. So that they can test their production.", short_name='TST', chronological_order=2, default_show_sensitive_data=True)
+    # et3 = EnvironmentType(name='packaging', description="for developers. So that they can test their packaging.", short_name='PCK', chronological_order=3, default_show_sensitive_data=True)
+    # et4 = EnvironmentType(name='qualification', description="for testers. Unit acceptance testing.", short_name='QUA', chronological_order=5)
+    # et5 = EnvironmentType(name='recette', description="for testers. Integrated acceptance testing.", short_name='REC', chronological_order=6)
+    # et6 = EnvironmentType(name='pre-production', description="for the production team.", short_name='PPD', chronological_order=7)
+    # et7 = EnvironmentType(name='production', description="for the production team.", short_name='PRD', chronological_order=8)
+    # et8 = EnvironmentType(name='formation', description="for school teachers ;-)", short_name='FOR', chronological_order=9)
+    # et9 = EnvironmentType(name='référence', description="padua as it used to be", short_name='REF', chronological_order=0)
+    # et10 = EnvironmentType(name='technique', description="technical testing grounds", short_name='TEC', chronological_order=4)
+    # et1.save()
+    # et2.save()
+    # et3.save()
+    # et4.save()
+    # et5.save()
+    # et6.save()
+    # et7.save()
+    # et8.save()
+    # et9.save()
+    # et10.save()
 
-    impl_9_1 = ComponentImplementationClass(name='soft1_database_main_oracle', description='Oracle schema for SOFT1 core in a potentially shared instance', implements=l9, technical_description=ImplementationDescription.objects.get(name='oracleschema'))
-    impl_10_1 = ComponentImplementationClass(name='soft1_webapp_legacy_was', description='SOFT1 legacy web app in a WebSphere package', implements=l10, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
-    impl_10_2 = ComponentImplementationClass(name='soft1_webapp_legacy_jboss', description='SOFT1 legacy web app in a JBoss ear/war package', implements=l10, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
-    impl_11_1 = ComponentImplementationClass(name='soft1_webapp_ee6_was', description='SOFT1 EE6 web app in a WebSphere package', implements=l11, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
-    impl_11_2 = ComponentImplementationClass(name='soft1_webapp_ee6_jboss', description='SOFT1 EE6 web app in a JBoss ear/war package', implements=l11, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
-    impl_12_1 = ComponentImplementationClass(name='int_webapp_ee6_was', description='Interfaces EE6 app in a WebSphere package', implements=l14, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
-    impl_12_2 = ComponentImplementationClass(name='int_webapp_ee6_jboss', description='Interfaces EE6 app in a JBoss ear/war package', implements=l14, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
-    impl_13_1 = ComponentImplementationClass(name='int_database_main_oracle', description='Oracle schema for integration transit data store in potentially shared instance', implements=l15, technical_description=ImplementationDescription.objects.get(name='oracleschema'))
-    impl_13_2 = ComponentImplementationClass(name='int_database_main_mysql_dedicated', description='MySQL schema for integration transit data store in dedicated instance', implements=l15, technical_description=ImplementationDescription.objects.get(name='mysqluser'))
-    impl_14_1 = ComponentImplementationClass(name='int_batch_jqm', description='JQM batch jobs insid a single jar', implements=l16, technical_description=ImplementationDescription.objects.get(name='jqmbatch'))
+    impl_9_1 = ComponentImplementationClass(name='soft2_database_main_oracle', description='Oracle schema for SOFT1 core in a potentially shared instance', implements=l9, technical_description=ImplementationDescription.objects.get(name='oracleschema'))
+    impl_10_1 = ComponentImplementationClass(name='soft2_webapp_legacy_was', description='SOFT1 legacy web app in a WebSphere package', implements=l10, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
+    impl_10_2 = ComponentImplementationClass(name='soft2_webapp_legacy_jboss', description='SOFT1 legacy web app in a JBoss ear/war package', implements=l10, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
+    impl_11_1 = ComponentImplementationClass(name='soft2_webapp_ee6_was', description='SOFT1 EE6 web app in a WebSphere package', implements=l11, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
+    impl_11_2 = ComponentImplementationClass(name='soft2_webapp_ee6_jboss', description='SOFT1 EE6 web app in a JBoss ear/war package', implements=l11, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
+    impl_12_1 = ComponentImplementationClass(name='int2_webapp_ee6_was', description='Interfaces EE6 app in a WebSphere package', implements=l14, technical_description=ImplementationDescription.objects.get(name='wasapplication'))
+    impl_12_2 = ComponentImplementationClass(name='int2_webapp_ee6_jboss', description='Interfaces EE6 app in a JBoss ear/war package', implements=l14, technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
+    impl_13_1 = ComponentImplementationClass(name='int2_database_main_oracle', description='Oracle schema for integration transit data store in potentially shared instance', implements=l15, technical_description=ImplementationDescription.objects.get(name='oracleschema'))
+    impl_13_2 = ComponentImplementationClass(name='int2_database_main_mysql_dedicated', description='MySQL schema for integration transit data store in dedicated instance', implements=l15, technical_description=ImplementationDescription.objects.get(name='mysqluser'))
+    impl_14_1 = ComponentImplementationClass(name='int2_batch_jqm', description='JQM batch jobs insid a single jar', implements=l16, technical_description=ImplementationDescription.objects.get(name='jqmbatch'))
     impl_9_1.save()
     impl_10_1.save()
     impl_10_2.save()
