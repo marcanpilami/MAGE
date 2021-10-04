@@ -6,15 +6,17 @@ from django.shortcuts import render
 
 ## MAGE imports
 from ref.models import LogicalComponent, Environment
-from scm.models import Delivery, InstallableSet, InstallableItem
+from scm.models import Delivery, InstallableSet, InstallableItem, LogicalComponentVersion
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
 
 
 @cache_control(must_revalidate=True, max_age=600)
 def delivery_list(request, project):
-    deliveries = Delivery.objects.order_by('set_date').reverse().prefetch_related(Prefetch('set_content', InstallableItem.objects.select_related('what_is_installed__logical_component').prefetch_related('how_to_install')))[:40]
-    lis = LogicalComponent.objects.filter(scm_trackable=True, active=True).order_by('application__name', 'name').prefetch_related('versions', 'application')
+    deliveries = Delivery.objects.filter(set_content__what_is_installed__logical_component__application__project__name=project).order_by('-set_date').prefetch_related(Prefetch(
+        'set_content', InstallableItem.objects.select_related('what_is_installed__logical_component').prefetch_related('how_to_install'))
+    )[:40]
+    lis = LogicalComponent.objects.filter(scm_trackable=True, active=True, application__project__name=project).order_by('application__name', 'name').prefetch_related('versions', 'application')
     return render(request, 'scm/all_deliveries.html', {'deliveries': deliveries, 'lis': lis, 'project': project})
 
 @cache_control(no_cache=True)
