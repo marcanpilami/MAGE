@@ -56,7 +56,10 @@ def welcome(request):
     if projects_cache is None:
         projects = Project.objects.all()
 
-    return render(request, 'ref/welcome.html', { 'templates': projects })
+    if projects.count() == 1:
+        redirect('ref:project', projects[0])
+    else:
+        return render(request, 'ref/welcome.html', { 'templates': projects })
 
 
 ##############################################################################
