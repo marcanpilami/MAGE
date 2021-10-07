@@ -6,3 +6,4 @@ from .logical import *
 from .com import *
 from .classifier import *
 from .description import *
+from .project_user import *
