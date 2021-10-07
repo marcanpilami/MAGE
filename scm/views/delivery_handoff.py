@@ -13,9 +13,11 @@ from django.contrib.auth.decorators import permission_required, login_required
 from scm.models import InstallableSet, InstallableItem, ItemDependency, Delivery
 from scm.views.delivery_handoff_forms import IDForm, DeliveryForm, IIForm
 from ref.models import LogicalComponent, getParam
+from MAGE.decorators import project_permission_required
 
 
 @login_required
+@project_permission_required
 @permission_required('scm.add_delivery')
 @cache_control(no_cache=True)
 def delivery_edit(request, iset_id=None, project='all'):

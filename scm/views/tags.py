@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from ref.models import Environment
 from scm.models import Tag
 from django.http.response import HttpResponseNotFound
+from MAGE.decorators import project_permission_required
 
 
 @permission_required('scm.add_tag')
@@ -46,5 +47,6 @@ def tag_detail(request, tag_id):
     t = Tag.objects.get(pk=tag_id)
     return render(request, 'scm/tag_detail.html', {'tag': t})
 
+@project_permission_required
 def tag_list(request, project):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.filter(from_envt__project__name=project), 'project': project})

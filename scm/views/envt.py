@@ -14,7 +14,7 @@ from django.db.models import Max
 from ref.models import Environment, LogicalComponent
 from scm.models import Installation, ComponentInstanceConfiguration, \
     ComponentInstance
-
+from MAGE.decorators import project_permission_required
 
 def all_installs(request, envt_name, limit):
     '''All installs on a given environment'''
@@ -45,7 +45,7 @@ def all_installs(request, envt_name, limit):
 
     return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit })
 
-
+@project_permission_required
 def lc_versions_per_environment(request, project):
     envts = Environment.objects_active.filter(managed=True, active=True, project__name=project).order_by('typology__chronological_order', 'name')
 

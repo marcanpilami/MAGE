@@ -13,6 +13,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
+from MAGE.decorators import project_permission_required
 
 ## MAGE imports
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
@@ -24,6 +25,7 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
+@project_permission_required
 def project(request, project):
     latest_setname = {}
     latest_date = {}
@@ -56,7 +58,7 @@ def welcome(request):
     if projects_cache is None:
         projects = Project.objects.all()
 
-    if projects.count() == 1:
+    if len(projects) == 1:
         redirect('ref:project', projects[0])
     else:
         return render(request, 'ref/welcome.html', { 'templates': projects })
@@ -94,15 +96,18 @@ def force_login(request):
     return redirect(next)
 
 
+@project_permission_required
 def urls(request, project):
     '''List of all URLs inside the web API'''
     return render(request, 'ref/urls.html', {'project': project})
 
+@project_permission_required
 def model_types(request, project):
     '''List of all installed component types'''
     return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(cic_set__implements__application__project__name =project).distinct(), 'project': project})
 
 
+@project_permission_required
 def model_detail(request, project):
     ids = ImplementationDescription.objects.filter(cic_set__implements__application__project__name=project).order_by('tag', 'name').distinct().prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
                                                                                      'field_set',

@@ -10,6 +10,7 @@ from ref.models.instances import Environment, ComponentInstance, \
 from ref.models.description import ImplementationFieldDescription, \
     ImplementationComputedFieldDescription
 
+from MAGE.decorators import project_permission_required
 
 def envt(request, envt_id):
     envt = Environment.objects.\
@@ -36,6 +37,7 @@ def envt(request, envt_id):
 
     return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
 
+@project_permission_required
 def backuped(request, project):
     cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False).\
             select_related('instanciates__implements__application').\
@@ -43,7 +45,7 @@ def backuped(request, project):
             prefetch_related(Prefetch('environmments', queryset=Environment.objects.filter(project__name=project)))
     return render(request, 'ref/instance_backup.html', {'cis': cis, 'project': project})
 
-
+@project_permission_required
 def shared_ci(request, project):
     deleted = []
     if request.user.is_authenticated and request.user.has_perm('ref.change_component_instance'):
