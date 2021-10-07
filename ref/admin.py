@@ -6,10 +6,11 @@
 '''
 
 ## Django imports
+from django.contrib import admin
 from django.contrib.admin import ModelAdmin, TabularInline
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.admin import GroupAdmin
 
 ## MAGE imports
 from ref.models import Project, Environment, LogicalComponent, Application, SLA, \
@@ -17,7 +18,7 @@ from ref.models import Project, Environment, LogicalComponent, Application, SLA,
     EnvironmentType, ImplementationFieldDescription, ImplementationDescription, \
     ImplementationRelationDescription, ImplementationRelationType, \
     ImplementationComputedFieldDescription, ComponentInstanceField, \
-    ComponentInstanceRelation
+    ComponentInstanceRelation, ProjectUser
 from ref.models.parameters import MageParam
 from ref.models.com import Link
 
@@ -32,8 +33,15 @@ site.site_header = "Administration MAGE"
 site.site_title = 'MAGE'
 site.index_title = None
 site.register(Group, GroupAdmin)
-site.register(User, UserAdmin)
 
+class UserAdmin(ModelAdmin):
+    list_display = ['username', 'email', 'first_name', 'last_name', 'user_projects']
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'projectuser__projects__name')
+
+    def user_projects(self, obj):
+        return "\n".join([p.name for p in obj.projectuser.projects.all()])
+
+site.register(User, UserAdmin)
 
 ################################################################################
 ## Parameters
@@ -174,3 +182,15 @@ class ComponentInstanceAdmin(ModelAdmin):
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
 #site.register(ComponentInstance, ComponentInstanceAdmin)
+
+class ProjectUserInline(admin.TabularInline):
+    model = ProjectUser
+    # fields = ['user', 'project']
+    can_delete = False
+    verbose_name_plural = 'project_user'
+
+class ProjectUserAdmin(UserAdmin):
+    inlines = (ProjectUserInline, )
+
+site.unregister(User)
+site.register(User, ProjectUserAdmin)
