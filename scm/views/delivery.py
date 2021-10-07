@@ -9,8 +9,9 @@ from ref.models import LogicalComponent, Environment
 from scm.models import Delivery, InstallableSet, InstallableItem, LogicalComponentVersion
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
+from MAGE.decorators import project_permission_required
 
-
+@project_permission_required
 @cache_control(must_revalidate=True, max_age=600)
 def delivery_list(request):
     deliveries = Delivery.objects.filter(set_content__what_is_installed__logical_component__application__project=request.project).order_by('-set_date').prefetch_related(Prefetch(

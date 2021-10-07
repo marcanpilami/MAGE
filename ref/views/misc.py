@@ -14,6 +14,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
+from MAGE.decorators import project_permission_required
 
 ## MAGE imports
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
@@ -25,6 +26,7 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
+@project_permission_required
 def project(request):
     latest_setname = {}
     latest_date = {}
@@ -93,15 +95,18 @@ def urls(request):
     '''List of all URLs inside the web API'''
     return render(request, 'ref/urls.html')
 
-def model_types(request):
+@project_permission_required
+def model_types(request, project):
     '''List of all installed component types'''
     return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=request.project) | Q(cic_set__implements__isnull = True)).distinct()})
 
 
+@project_permission_required
 def model_detail(request):
     ids = ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=request.project) | Q(cic_set__implements__isnull = True)) \
         .order_by('tag', 'name').distinct() \
         .prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),'field_set', 'computed_field_set')
+
 
     #for idn in ids:
 

@@ -15,6 +15,7 @@ from ref.models.description import ImplementationRelationType
 from ref.models.instances import ComponentInstance
 from ref.graph_struct import getStructureTree
 from django.db.models import Q
+from MAGE.decorators import project_permission_required
 
 
 class CartoForm(forms.Form):
@@ -68,6 +69,7 @@ class CartoForm(forms.Form):
         self.fields['reltypes'].queryset = ImplementationRelationType.objects.all()
         self.fields['reltypes'].initial = [m.pk for m in ImplementationRelationType.objects.all()]
 
+@project_permission_required
 def carto_form(request, project='all'):
     """Marsupilamographe"""
     return render(request, 'ref/view_carto2.html', {'formset': CartoForm(project=project)})
@@ -116,11 +118,13 @@ def carto_description_content(request):
     json.dump(getStructureTree(), fp=response, ensure_ascii=False, indent=4)
     return response
 
+@project_permission_required
 def carto_description(request):
-    return render(request, 'ref/view_carto_struct.html')
+    return render(request, 'ref/view_carto_struct.html', {'project': request.project})
 
+@project_permission_required
 def carto_full(request):
-    return render(request, 'ref/view_carto_full.html')
+    return render(request, 'ref/view_carto_full.html', {'project': request.project})
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')

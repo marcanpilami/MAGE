@@ -6,7 +6,7 @@ from django import forms
 from ref import mql
 import unicodecsv as csv
 import json
-
+from MAGE.decorators import project_permission_required
 
 class MqlTesterForm(forms.Form):
     mql = forms.CharField(max_length=300, initial='SELECT INSTANCES', label='Requête MQL', widget=forms.TextInput(

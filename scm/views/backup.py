@@ -9,13 +9,15 @@ from django.utils.timezone import now
 from django.shortcuts import render, redirect
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from ref.views.misc import project
+from MAGE.decorators import project_permission_required
+
 
 ## MAGE imports
 from scm.backup import register_backup_envt_default_plan, register_backup
 from scm.models import BackupSet, Environment, ComponentInstance
 from django.db.models.aggregates import Count
 
-
+@project_permission_required
 def backup_list(request, archive=False):
     return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive, from_envt__project=request.project).annotate(item_count = Count('all_items')).order_by('from_envt', 'set_date').\
                                                     select_related('from_envt'), 'archive' : archive})
