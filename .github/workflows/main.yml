@@ -1,0 +1,161 @@
+name: MAGE_CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  release:
+    types: [ published, created, edited, prereleased ]
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  # workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  django_test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Add environment variable
+        run: export VIRTUAL_ENV=$GITHUB_WORKSPACE/mage-venv
+
+      - name: Install virtual environment
+        run: python -m venv ./mag-venv
+
+      - name: Activate virtual env
+        run: export PATH="$VIRTUAL_ENV:$PATH"
+
+      - name: Install python modules
+        run: pip install -r requirements.txt --upgrade
+
+      - name: test
+        run: |
+          python manage.py test
+
+  publish_docker:
+    needs: django_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Useful echo of the github obj
+        id: echo_github_object
+        env:
+          GITHUB_CONTEXT_TO_JSON: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT_TO_JSON"
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: enioka/mage
+
+      - name: Collect branch tag
+        id: docker_tag
+        run: |
+          if [ "${{github.event_name}}" == "release" ];
+          then
+            echo "::set-output name=value::$TAG";
+          else
+            echo "::set-output name=value::nightly";
+          fi
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+
+      - name: Build and push Docker image
+        if: ${{ steps.docker_tag.outputs.value == 'nightly' }}
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: ${{ steps.docker_tag.outputs.value }}
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+
+      # Make use of the cache if it's release
+      - name: Build and push Docker image
+        if: ${{ steps.docker_tag.outputs.value != 'nightly' }}
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: ${{ steps.docker_tag.outputs.value }}
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+      
+  update_release_with_asset:
+    if: ${{ github.event_name == 'release' }}
+    needs: [ django_test, publish_docker ]
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+      TAR_FILE_NAME: mage_${{ github.event.release.tag_name }}.tar
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+
+      - name: Install virtual environment
+        run: python -m venv ./mag-venv
+
+      - name: Activate virtual env
+        run: export PATH="$VIRTUAL_ENV:$PATH"
+
+      - name: Install python modules
+        run: pip install -r requirements.txt --upgrade
+
+      - name: Init data
+        run: |
+          python manage.py migrate
+          python manage.py shell << EOF
+          from scm.demo_items import create_test_is
+          create_test_is()
+          EOF
+
+      - name: Create tar and gzip it
+        run: |
+          tar -cvf ${{ env.TAR_FILE_NAME }} ../MAGE
+          gzip -k9 ${{ env.TAR_FILE_NAME }}
+
+
+      # action softprops/action-gh-release@v1 substitute to
+      # actions/upload-release-asset@v1 (which is currently archived)
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./${{ env.TAR_FILE_NAME }}.gz
+          tag_name: ${{ env.TAG_NAME }}
+          fail_on_unmatched_files: true
+
+
