@@ -6,7 +6,7 @@ django-crispy-forms>=1.11.0,<2
 uwsgi>=2.0.19
 
 ## Client (libmage) dependencies
-requests==2.7
+requests==2.20.0
 
 ## Cloud provider dependencies (can be removed if not used, no harm if left present but unused)
 azure-storage==0.20.0
