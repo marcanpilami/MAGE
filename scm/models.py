@@ -76,6 +76,8 @@ class InstallableSet(models.Model):
     class Meta:
         permissions = (('validate_installableset', 'can change the status of the set'),
                        ('install_installableset', 'can reference an installation'),)
+        verbose_name = u'élément à installer'
+        verbose_name_plural = u'éléments à installer'
 
 
 class Delivery(InstallableSet):

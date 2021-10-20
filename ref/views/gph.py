@@ -14,6 +14,8 @@ from ref.graph_mlg2 import getNetwork
 from ref.models.description import ImplementationRelationType
 from ref.models.instances import ComponentInstance
 from ref.graph_struct import getStructureTree
+from django.db.models import Q
+from MAGE.decorators import project_permission_required
 
 
 class CartoForm(forms.Form):
@@ -51,24 +53,31 @@ class CartoForm(forms.Form):
                     initial=False,
                     required=False)
 
-    def __init__(self, *args, **kwargs):
-        super(CartoForm, self).__init__(*args, **kwargs)
-        self.fields['envts'].queryset = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
-        self.fields['envts'].initial = [] if Environment.objects_active.count() == 0 else [Environment.objects_active.order_by('typology__chronological_order', 'name')[0].pk, ]
+    def __init__(self, *args, project, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+        if project == 'all':
+            self.fields['envts'].queryset = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
+            self.fields['envts'].initial = [] if Environment.objects_active.count() == 0 else [Environment.objects_active.order_by('typology__chronological_order', 'name')[0].pk, ]
+        else:
+            self.fields['envts'].queryset = Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')
+            self.fields['envts'].initial = [] if Environment.objects_active.filter(project__name=project).count() == 0 else [Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')[0].pk, ]
+
         self.fields['models'].queryset = ImplementationDescription.objects.order_by('tag', 'name').all()
         self.fields['models'].initial = [m.pk for m in ImplementationDescription.objects.all()]
         self.fields['reltypes'].queryset = ImplementationRelationType.objects.all()
         self.fields['reltypes'].initial = [m.pk for m in ImplementationRelationType.objects.all()]
 
-
-def carto_form(request):
+@project_permission_required
+def carto_form(request, project='all'):
     """Marsupilamographe"""
-    return render(request, 'ref/view_carto2.html', {'form': CartoForm()})
+    return render(request, 'ref/view_carto2.html', {'project': project, 'formset': CartoForm(project=project)})
 
-def carto_content_form(request):
+def carto_content_form(request, project='all'):
     form = None
     if request.method == 'POST':  # If the form has been submitted...
-        form = CartoForm(request.POST)  # A form bound to the POST data
+        form = CartoForm(data=request.POST,project=project)
         if form.is_valid():  # All validation rules pass
             if form.cleaned_data['include_deleted']:
                 rs = ComponentInstance.objects.all()
@@ -76,7 +85,7 @@ def carto_content_form(request):
                 rs = ComponentInstance.objects.filter(deleted=False)
 
             if len(form.cleaned_data['envts']) > 0:
-                rs = rs.filter(environments__pk_in=form.cleaned_data['envts'])
+                rs = rs.filter(environments__pk__in=form.cleaned_data['envts'])
 
             if len(form.cleaned_data['models']) > 0:
                 rs = rs.filter(description_id__in=form.cleaned_data['models'])
@@ -96,21 +105,26 @@ def carto_content(request, ci_id_list, collapse_threshold=3, select_related=2):
     json.dump(getNetwork(ComponentInstance.objects.filter(id__in=[int(i) for i in ci_id_list.split(',')]), select_related=dict((t.name, int(select_related)) for t in ImplementationRelationType.objects.all()), collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_content_full(request, collapse_threshold=3):
+def carto_content_full(request, collapse_threshold=3, project='all'):
     response = HttpResponse(content_type='text/json; charset=utf-8')
-    json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
+    if project == 'all':
+        json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
+    else:
+        json.dump(getNetwork(ComponentInstance.objects.filter(Q(deleted=False), Q(environments__project__name=project)).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_description_content(request):
+def carto_description_content(request, project):
     response = HttpResponse(content_type='text/json; charset=utf-8')
     json.dump(getStructureTree(), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_description(request):
-    return render(request, 'ref/view_carto_struct.html')
+@project_permission_required
+def carto_description(request, project):
+    return render(request, 'ref/view_carto_struct.html', {'project': project})
 
-def carto_full(request):
-    return render(request, 'ref/view_carto_full.html')
+@project_permission_required
+def carto_full(request, project='all'):
+    return render(request, 'ref/view_carto_full.html', {'project': project})
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')

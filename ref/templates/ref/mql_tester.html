@@ -5,7 +5,7 @@
 {% block content %}
 
 
-<form action="{% url 'ref:mqltester' %}" method="post">
+<form action="{% url 'ref:mqltester' project %}" method="post">
 	{{ form.as_ul }}
 	<input type="submit" value="Submit" />
 	{% if error %}

@@ -142,6 +142,18 @@ body>.container-fluid {
 	margin-right: 2px;
 }
 
+.metSquareProject {
+    display: inline-block;
+    overflow: hidden;
+    min-height: 100px;
+    min-width: 100px;
+    margin: 5px;
+    padding: 5px;
+    vertical-align: top;
+    position: relative;
+    background-color: #1B58B8;
+}
+
 .metSquare {
 	display: inline-block;
 	overflow: hidden;
@@ -319,12 +331,12 @@ a {
 	text-decoration: none;
 }
 
-a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus
+a.metSquare:hover,a.metSquare:focus,a.metRectList:hover,a.metRectList:focus,a.metSquareProject:hover,a.metSquareProject:focus
 	{
 	color: #C0BCB8;
 }
 
-a.metSquare {
+a.metSquare, a.metSquareProject {
 	text-decoration: inherit;
 }
 
@@ -415,6 +427,17 @@ button.cancel,input.cancel[type='button'] {
 .navbar-inverse .navbar-nav>li>a:hover,.navbar-inverse>div>.navbar-header>a.navbar-brand:hover,#quickAccessButtons>span>a:hover
 	{
 	background-color: rgb(200, 200, 200);
+}
+
+.navbar-project {
+	background-color: white;
+    border-top: 1px solid #094AB2;
+}
+
+.navbar-project>li>p>a.nav-link-project {
+	color: #094AB2;
+    text-decoration: none;
+	font-weight: bold;
 }
 
 #quickAccessButtons a {

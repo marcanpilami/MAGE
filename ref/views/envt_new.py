@@ -14,6 +14,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.db.models.query import Prefetch
 from django.forms.models import ModelChoiceIterator
+from MAGE.decorators import project_permission_required
 
 '''
     This file contains views and form for the standard component instance creation and update. (unitary forms)
@@ -25,9 +26,10 @@ from django.forms.models import ModelChoiceIterator
     * second step allows to edit the same data, plus all fields
 '''
 
-def new_items(request):
+@project_permission_required
+def new_items(request, project):
     """Hub for creating all sorts of items"""
-    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all()})
+    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all(), 'project': project})
 
 
 #####################################################################

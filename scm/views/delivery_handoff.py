@@ -13,12 +13,14 @@ from django.contrib.auth.decorators import permission_required, login_required
 from scm.models import InstallableSet, InstallableItem, ItemDependency, Delivery
 from scm.views.delivery_handoff_forms import IDForm, DeliveryForm, IIForm
 from ref.models import LogicalComponent, getParam
+from MAGE.decorators import project_permission_required
 
 
 @login_required
+@project_permission_required
 @permission_required('scm.add_delivery')
 @cache_control(no_cache=True)
-def delivery_edit(request, iset_id=None):
+def delivery_edit(request, iset_id=None, project='all'):
     if iset_id is None:
         extra = 4
     else:
@@ -73,7 +75,7 @@ def delivery_edit(request, iset_id=None):
                 iiformset.save()
 
                 ## Done
-                return redirect('scm:delivery_edit_dep', iset_id=instance.id)
+                return redirect('scm:delivery_edit_dep', project=project, iset_id=instance.id)
     else:
         form = DeliveryForm(instance=instance)
         iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
@@ -88,7 +90,8 @@ def delivery_edit(request, iset_id=None):
         'form': form,
         'iisf' : iiformset,
         'lc_im' : lc_im,
-        'display' : display
+        'display' : display,
+        'project': project
     })
 
 

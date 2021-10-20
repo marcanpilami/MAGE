@@ -95,7 +95,7 @@ def getNetwork(instances_to_draw, select_related={'dependsOn': 2}, collapse_thre
 
         if len(nodes_to_remove) >= collapse_threshold - 1:  # -1 because first node n1 is not in the list
             for tr in nodes_to_remove:
-                for key, value in edges.items():
+                for key, value in list(edges.items()):
                     # remove the now duplicate outgoing edges
                     if value['u'] == tr['id']:
                         edges.pop(key)

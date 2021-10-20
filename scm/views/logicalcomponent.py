@@ -8,6 +8,7 @@ import json
 from django.views.decorators.cache import cache_control
 from django.shortcuts import render
 from django.http.response import HttpResponse
+from MAGE.decorators import project_permission_required
 
 ## MAGE imports
 from ref.models import LogicalComponent
@@ -23,9 +24,10 @@ def get_lc_versions(request, lc_id):
 
     return HttpResponse(json.dumps(res))
 
-def lc_list(request):
-    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True).order_by('application', 'name').select_related('application')
-    return render(request, 'scm/lc_versions.html', {'lcs': lcs})
+@project_permission_required
+def lc_list(request, project):
+    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True, application__project__name=project).order_by('application', 'name').select_related('application')
+    return render(request, 'scm/lc_versions.html', {'lcs': lcs, 'project': project})
 
 @cache_control(must_revalidate=True)
 def lc_versions(request, lc_id):
