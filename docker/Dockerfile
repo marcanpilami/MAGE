@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.9
 
 ENV APP_NAME=MAGE \
     WORKDIR=/var/www/MAGE \
@@ -18,20 +18,35 @@ ENV APP_NAME=MAGE \
     AZURE_CONTAINER="" \
     MAGE_ALLOW_MIGRATIONS=True
 
-RUN apk update
-RUN apk add apache2 apache2-dev gcc libc-dev linux-headers apache2-mod-wsgi
+# Collect and install necessary packages
+RUN apt-get update
+RUN apt-get -y install apache2 apache2-dev gcc libc-dev make
+
+# Collect mod_wsgi last version and build it against installed python version
+WORKDIR /tmp
+RUN wget -q "https://github.com/GrahamDumpleton/mod_wsgi/archive/refs/tags/4.9.0.tar.gz"
+RUN tar -xzf '4.9.0.tar.gz'
+RUN cd ./mod_wsgi-4.9.0
+RUN ls -al
+WORKDIR /tmp/mod_wsgi-4.9.0
+RUN ./configure --with-python=/usr/local/bin/python3.9 --with-apxs=/usr/bin/apxs
+RUN make
+RUN make install
+# Enable mod_wsgi apache load
+RUN echo "LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so" > /etc/apache2/mods-enabled/wsgi_module.load
+# clean
+RUN rm /tmp/4.9.0.tar.gz && rm -R /tmp/mod_wsgi-4.9.0
 
 # Create working dir
 WORKDIR $WORKDIR
 
-RUN sed -i 's/Listen 80/# Listen 80/' /etc/apache2/httpd.conf
+# Port 80 can't be used as apache user
+RUN sed -i 's/Listen 80/# Listen 80/' /etc/apache2/ports.conf
 
-RUN chown apache:apache /var/www/*
-USER apache
-
-ENV VIRTUAL_ENV=$WORKDIR/mage-venv
-RUN python -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN chown -R www-data:www-data /var/www
+RUN chown -R www-data:www-data /var/log/apache2
+RUN mkdir /var/run/apache2
+RUN chown -R www-data:www-data /var/run/apache2
 
 # Collect and install requirements
 COPY requirements.txt $WORKDIR
@@ -40,16 +55,16 @@ RUN pip install -r requirements.txt --upgrade
 # db modules support
 RUN pip install psycopg2 mysqlclient cx_Oracle
 
-COPY --chown=apache docker/mage_httpd.conf /etc/apache2/conf.d/
+# Install mage apache conf
+COPY --chown=www-data docker/mage_httpd.conf /etc/apache2/conf-enabled/
 
-#COPY . .
-COPY --chown=apache . .
+# Copy mage
+COPY --chown=www-data . .
 
 VOLUME $WORKDIR/tmp/media
 
 EXPOSE 8000
-#USER root
+
+USER www-data
 RUN chmod 755 ./docker/launch.sh
 CMD ./docker/launch.sh
-#CMD python manage.py runmodwsgi --port=8000 --user apache --group apache --server-root=/etc/apache2/ --rewrite-rules /etc/apache2/mage_httpd.conf
-#CMD mod_wsgi-express start-server $WORKDIR/$APP_NAME/wsgi.py --port=8000 --user apache --group apache
