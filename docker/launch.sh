@@ -13,4 +13,4 @@ else
   exit 1;
 fi
 
-/usr/sbin/httpd -D FOREGROUND -e info
+/usr/sbin/apache2ctl -D FOREGROUND
