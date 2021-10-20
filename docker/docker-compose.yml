@@ -10,3 +10,20 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=mage
+      - POSTGRES_PASSWORD=mage_password
+      - POSTGRES_DB=mage
+
+volumes:
+  postgres_data:
