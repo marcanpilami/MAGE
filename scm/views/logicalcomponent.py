@@ -24,15 +24,15 @@ def get_lc_versions(request, lc_id):
     return HttpResponse(json.dumps(res))
 
 def lc_list(request, project):
-    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True, application__project__name=project).order_by('application', 'name').select_related('application')
+    lcs = LogicalComponent.objects.filter(active=True, scm_trackable=True, application__project=project).order_by('application', 'name').select_related('application')
     return render(request, 'scm/lc_versions.html', {'lcs': lcs, 'project': project})
 
 @cache_control(must_revalidate=True)
-def lc_versions(request, lc_id):
+def lc_versions(request, lc_id, project):
     lc = LogicalComponent.objects.select_related('application').prefetch_related(
                Prefetch('versions', queryset=LogicalComponentVersion.objects.prefetch_related(Prefetch('installed_by', queryset=InstallableItem.objects.all().select_related('belongs_to_set__backupset'))))
            ).get(pk=lc_id)
-    return render(request, 'scm/lc_versions_detail.html', {'lc': lc})
+    return render(request, 'scm/lc_versions_detail.html', {'lc': lc, 'project': project})
 
 
 

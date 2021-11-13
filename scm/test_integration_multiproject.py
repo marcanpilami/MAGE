@@ -51,7 +51,7 @@ class TestIntegrationMultiproject(TestCase):
 
     def test_view_scm_delivery_list(self):
         self.client.login(username=self.rootUsername, password=self.rootPassword)
-        response = self.client.get(reverse('scm:deliveries', args=[self.project]))
+        response = self.client.get(reverse('scm:deliveries', args=[self.project.pk]))
 
         # Trivial test
         self.assertEqual(response.context['project'], self.project)

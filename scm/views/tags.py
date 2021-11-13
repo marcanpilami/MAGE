@@ -7,11 +7,10 @@ from django.shortcuts import redirect, render
 ## MAGE imports
 from ref.models import Environment
 from scm.models import Tag
-from django.http.response import HttpResponseNotFound
+from django.http.response import HttpResponse, HttpResponseNotFound
 
 
-@permission_required('scm.add_tag')
-def tag_create(request, envt_name, tag_name):
+def __tag_create(envt_name, tag_name):
     e = Environment.objects.get(name=envt_name)
 
     tt = Tag.objects.filter(name__contains=tag_name).count()
@@ -25,11 +24,22 @@ def tag_create(request, envt_name, tag_name):
         v = instance.version_object_safe
         if v is not None:
             t.versions.add(v)
+    t.save()
 
-    return redirect('scm:tag_detail', tag_id=t.id)
+    return t
 
 @permission_required('scm.add_tag')
-def tag_remove(request, tag):
+def tag_create(request, envt_name, tag_name):
+    new_tag = __tag_create(envt_name, tag_name)
+    return redirect('scm:tag_detail', tag_id=new_tag.id)
+
+@permission_required('scm.add_tag')
+def tag_create_script(request, envt_name, tag_name):
+    new_tag = __tag_create(envt_name, tag_name)
+    return HttpResponse(new_tag.id, content_type='text/plain')
+
+@permission_required('scm.add_tag')
+def tag_remove(request, tag, redirect = True):
     try:
         t = Tag.objects.get(name=tag)
     except Tag.DoesNotExist:
@@ -39,12 +49,19 @@ def tag_remove(request, tag):
             return HttpResponseNotFound('no tag with such a name or ID')
 
     t.delete()
-    return redirect('scm:tag_list')
 
+    if redirect:
+        return redirect('scm:tag_list')
+    else:
+        return HttpResponse(t.id, content_type='text/plain')
 
-def tag_detail(request, tag_id):
+@permission_required('scm.add_tag')
+def tag_remove_script(request, tag):
+    tag_remove(request, tag, False)
+
+def tag_detail(request, tag_id, project):
     t = Tag.objects.get(pk=tag_id)
-    return render(request, 'scm/tag_detail.html', {'tag': t})
+    return render(request, 'scm/tag_detail.html', {'tag': t, 'project': project})
 
 def tag_list(request, project):
     return render(request, 'scm/tag_list.html', {'tags': Tag.objects.filter(from_envt__project__name=project), 'project': project})

@@ -9,7 +9,7 @@
 		<tr>
 			<th></th>
 			<th></th>
-			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt_name=envt.name project=project %}">{{envt.name}}</a></th>{% endfor %}
+			{% for envt in envts %}<th><a href="{% url 'scm:envtinstallhist' envt_name=envt.name project_id=project.pk %}">{{envt.name}}</a></th>{% endfor %}
 		</tr>
 	</thead>
 
@@ -17,7 +17,7 @@
 	{% for lc,envt_dic in res.items %}
 	<tr>
 		<td>{{lc.application.name}}</td>
-		<td><a href="{% url 'scm:lc_versions' lc.id %}">{{lc.name | capfirst}}</a></td>
+		<td><a href="{% url 'scm:lc_versions' project.pk lc.id %}">{{lc.name | capfirst}}</a></td>
 		{% for e, version_list in envt_dic.items %}
             <td>
 	           {% for lcv in version_list %}

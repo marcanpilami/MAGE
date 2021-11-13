@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.http.response import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
 from django.core.cache.utils import make_template_fragment_key
@@ -29,11 +30,11 @@ def project(request, project):
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('project', [project])
+    ck = make_template_fragment_key('project', [project.pk])
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.filter(project__name=project).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
+        envts = Environment.objects_active.filter(project__pk=project.pk).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
                 cic = ComponentInstanceConfiguration.objects.select_related('result_of__belongs_to_set').get(pk=e.latest_reconfiguration)
@@ -50,14 +51,9 @@ def project(request, project):
 
 
 def welcome(request):
-    projects = []
-    ck = make_template_fragment_key('welcome')
-    projects_cache = cache.get(ck)
-    if projects_cache is None:
-        projects = Project.objects.all()
-
+    projects = Project.objects.all()
     if projects.count() == 1:
-        return redirect('ref:project', project=projects[0].name)
+        return redirect('ref:project', project_id=projects[0].pk)
     else:
         return render(request, 'ref/welcome.html', { 'templates': projects })
 
@@ -94,19 +90,19 @@ def force_login(request):
     return redirect(next)
 
 
-def urls(request, project):
+def urls(request):
     '''List of all URLs inside the web API'''
-    return render(request, 'ref/urls.html', {'project': project})
+    return render(request, 'ref/urls.html')
 
 def model_types(request, project):
     '''List of all installed component types'''
-    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(cic_set__implements__application__project__name =project).distinct(), 'project': project})
+    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=project) | Q(cic_set__implements__isnull = True)).distinct(), 'project': project})
 
 
 def model_detail(request, project):
-    ids = ImplementationDescription.objects.filter(cic_set__implements__application__project__name=project).order_by('tag', 'name').distinct().prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),
-                                                                                     'field_set',
-                                                                                     'computed_field_set')
+    ids = ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=project) | Q(cic_set__implements__isnull = True)) \
+        .order_by('tag', 'name').distinct() \
+        .prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),'field_set', 'computed_field_set')
 
     #for idn in ids:
 

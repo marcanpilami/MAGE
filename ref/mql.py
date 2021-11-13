@@ -33,7 +33,8 @@ def __build_grammar():
     cic = Suppress(CaselessLiteral("offer")) + qs('cic')
     lc = Suppress(CaselessLiteral("lc")) + qs('lc')
     envt = Suppress(CaselessLiteral("environment")) + qs('envt')
-    pre_filter = Optional(envt) + Optional(lc) + Optional(cic) + Optional(impl) + FollowedBy(k_instances)
+    project = Suppress(CaselessLiteral("project")) + qs('prj')
+    pre_filter = Optional(project) + Optional(envt) + Optional(lc) + Optional(cic) + Optional(impl) + FollowedBy(k_instances)
 
     # Dict query (only select some elements and navigate)
     nl_expr = Group(navigation + ZeroOrMore(Suppress(',') + navigation) + FollowedBy(k_from))('selector')
@@ -50,19 +51,19 @@ def __build_grammar():
 __grammar = __build_grammar()
 
 
-def run(query, project, return_sensitive_data=False):
+def run(query, return_sensitive_data=False):
     expr = __grammar.parseString(query)
-    return __run(expr, return_sensitive_data, project)
+    return __run(expr, return_sensitive_data)
     # return  __grammar.parseString(query)
 
 
-def __run(q, return_sensitive_data, project):
+def __run(q, return_sensitive_data):
     if q.select != None:
-        return __select_compo(q.select, return_sensitive_data, project)
+        return __select_compo(q.select, return_sensitive_data)
 
 
-def __select_compo(q, return_sensitive_data, project):
-    rs = ComponentInstance.objects.filter(Q(deleted=False) & (Q(environments__project__name=project) | Q(environments__project__isnull=True)))
+def __select_compo(q, return_sensitive_data):
+    rs = ComponentInstance.objects.filter(deleted=False)
 
     if q.lc:
         rs = rs.filter(instanciates__implements__name=q.lc)
@@ -72,6 +73,8 @@ def __select_compo(q, return_sensitive_data, project):
         rs = rs.filter(description__name=q.impl)
     if q.envt:
         rs = rs.filter(environments__name=q.envt)
+    if q.prj:
+        rs = rs.filter(environments__project__name=q.prj)
 
     if q.where:
         for predicate in q.where:
@@ -101,7 +104,7 @@ def __select_compo(q, return_sensitive_data, project):
             if predicate.value:
                 val = predicate.value
             elif predicate.subquery:
-                tmp = __select_compo(predicate.subquery, return_sensitive_data, project)
+                tmp = __select_compo(predicate.subquery, return_sensitive_data)
                 if not type(tmp) == list:
                     raise Exception('subqueries must always return a single field')
                 if len(tmp) != 1:

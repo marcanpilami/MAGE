@@ -3,19 +3,19 @@
 {% block maintitle %}Livraison {{delivery.name}}{% endblock %}
 
 {%block frequentActionsButtons%}
-<a href="{% url 'scm:delivery_edit' delivery.id %}" title="Editer la liraison">E</a>
-<a href="{% url 'scm:delivery_edit_dep' delivery.id %}" title="Editer les dépendances">D</a>
+<a href="{% url 'scm:delivery_edit' project.pk delivery.id %}" title="Editer la liraison">E</a>
+<a href="{% url 'scm:delivery_edit_dep' project.pk delivery.id %}" title="Editer les dépendances">D</a>
 {% if delivery.status > 1 %}
-	<a href="{% url 'scm:iset_validate' delivery.id %}" title="Valider la livraison">V</a>
+	<a href="{% url 'scm:iset_validate' project.pk delivery.id %}" title="Valider la livraison">V</a>
 {% else %}
-    <a href="{% url 'scm:iset_invalidate' delivery.id %}" title="Invalider la livraison">U</a>
+    <a href="{% url 'scm:iset_invalidate' project.pk delivery.id %}" title="Invalider la livraison">U</a>
 {% endif %}
 
 <a href='{% url "scm:iset_export" delivery.id "csvc" %}' title="CSV du contenu">C</a>
 <a href='{% url "scm:iset_export" delivery.id "sh" %}' title="Script shell détaillant le contenu">S</a>
 {%endblock%}
 
-{%block navigationButtons%}<a href="{% url 'scm:deliveries' project %}" title="Liste des livraisons">↑</a>{%endblock%}
+{%block navigationButtons%}<a href="{% url 'scm:deliveries' project.pk %}" title="Liste des livraisons">↑</a>{%endblock%}
 
 {% block content %}
 
@@ -62,7 +62,7 @@
 <br/>
 {% if delivery.available %}
 	{% for envt in envts %}
-		<a class='metRectList defaultHighlightBackground' href="{% url 'scm:delivery_prereqs_test' delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
+		<a class='metRectList defaultHighlightBackground' href="{% url 'scm:delivery_prereqs_test' project.pk delivery.id envt.id %}">Peut-elle être installée sur {{envt.name}} ?</a>
 	{% endfor %}
 {% else %}
 	<div class='metRectList metErrorBackground'>Livraison non disponible - non installable</div>
@@ -78,7 +78,7 @@
     <tbody>
         {% for e in envts %}
             <tr>
-                <td><a href="{% url 'scm:envtinstallhist' envt_name=e.name project=project %}">{{e.name}}</a></td>
+                <td><a href="{% url 'scm:envtinstallhist' envt_name=e.name project_id=project.pk %}">{{e.name}}</a></td>
                 <td>
                 {% for ee in installs %}
                     {% if ee.id == e.id %}{{ee.dd}}{%endif%}

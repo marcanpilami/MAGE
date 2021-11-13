@@ -2,21 +2,18 @@
 {% block pagetitle %}Accueil{% endblock %}
 {% block maintitle %}Accueil{% endblock %}
 {% load get_item from filter %}
-{% load cache %}
 
 {%block navigationButtons%}
 <a href='{% url "admin:index" %}' title="Administration">A</a>
 {% endblock %}
 
 {% block content %}
-{% cache 60 welcome %}
 <div style='color: white;' class='row'>
 {% for prj in templates %}
-    <a class='metSquareProject' href="{% url 'ref:project' project=prj.name %}">Projet {{prj.name}}
-        <div class='project_description'>{{ prj.description }}</div>
-        <div class='metSquareLong annotation'>{{prj.alternate_name_1}} {{prj.alternate_name_2}} {{prj.alternate_name_3}}</div>
+    <a class='metSquareProject' href="{% url 'ref:project' prj.pk %}">Projet {{prj.name}}
+        <div class='project_description'>{{ prj.description|default:"pas de description" }}</div>
+        <div class='metSquareLong annotation'>{{prj.alternate_name_1|default:"-"}} {{prj.alternate_name_2|default:"-"}} {{prj.alternate_name_3|default:"-"}}</div>
     </a>
 {%endfor %}
 </div>
-{% endcache %}
 {% endblock content %}

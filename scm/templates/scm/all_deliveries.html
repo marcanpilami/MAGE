@@ -4,7 +4,7 @@
 {% block maintitle %}Livraisons disponibles à l'installation{% endblock %}
 
 {%block frequentActionsButtons%}
-<a class='frequentAction' href="{% url 'scm:delivery_create' project %}" title="Créer une livraison">+</a>
+<a class='frequentAction' href="{% url 'scm:delivery_create' project.pk %}" title="Créer une livraison">+</a>
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
            {% for li in lis %}
 	           {% if li.versions.count != 0 %}
 	               <th style="max-width: 9em;">
-                       <a href="{% url 'scm:lc_versions' li.id %}">{{li.application.name | capfirst }}<br/>{{li.name | capfirst}}</a>
+                       <a href="{% url 'scm:lc_versions' project.pk li.id %}">{{li.application.name | capfirst }}<br/>{{li.name | capfirst}}</a>
                    </th>
 	           {% endif %}
 	       {% endfor %}
@@ -29,7 +29,7 @@
 		{% for is in deliveries %}
 			<tr>
 				<td>
-					<a  href="{% url 'scm:delivery_detail' iset_id=is.id project=project %}">
+					<a  href="{% url 'scm:delivery_detail' iset_id=is.id project_id=project.pk %}">
 						{{ is.name }}
 					</a>
 				</td>

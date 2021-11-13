@@ -64,7 +64,7 @@ $(document).ready(function() {
                            <td>{{compo | apply_field_template:field | urlify}}</td>
                        {% endfor %}
                         
-                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" project.pk compo.pk %}'>éditer</a></td>{% endif %}
                    </tr>
                 {% endfor %}
                 </tbody>
@@ -79,7 +79,7 @@ $(document).ready(function() {
             <table class='table table-condensed table-bordered table-hover'>
                 <tr><th>ID</th><th>Type</th><th></th></tr>
                 {% for ci in deleted %}                  
-                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
+                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" project.pk ci.id %}'>éditer</a></td></tr>
                 {% endfor %}
             </table>
         </div>

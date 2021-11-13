@@ -45,7 +45,7 @@
                         <ul class="nav navbar-left navbar-project">
                             <li>
                                 <p class="navbar-text caps">
-                                    <a class="nav-link nav-link-project" href="{% url 'ref:project' project=project %}">{{ project }}</a>
+                                    <a class="nav-link nav-link-project" href="{% url 'ref:project' project.pk %}">{{ project.name }}</a>
                                 </p>
                             </li>
                         </ul>

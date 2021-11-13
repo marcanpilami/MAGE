@@ -14,7 +14,7 @@ from ref.models.description import ImplementationFieldDescription, \
 def envt(request, envt_id, project):
     envt = Environment.objects.\
                     select_related('typology').\
-                    get(pk=envt_id)   
+                    get(pk=envt_id)
     
     deleted = []
     if request.user.is_authenticated and request.user.has_perm('ref.change_component_instance'):
@@ -40,7 +40,7 @@ def backuped(request, project):
     cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False).\
             select_related('instanciates__implements__application').\
             select_related('description').\
-            prefetch_related(Prefetch('environmments', queryset=Environment.objects.filter(project__name=project)))
+            prefetch_related(Prefetch('environments', queryset=Environment.objects.filter(project=project)))
     return render(request, 'ref/instance_backup.html', {'cis': cis, 'project': project})
 
 

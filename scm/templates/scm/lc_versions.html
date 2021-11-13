@@ -12,7 +12,7 @@
 	</div>
 	<div class='col-md-11'>
 		{% for lc in application.list %}
-			<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:lc_versions' lc.id %}">
+			<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:lc_versions' project.pk lc.id %}">
 				{{ lc.name|capfirst }}
 			</a>
 		{% endfor %}

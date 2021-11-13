@@ -37,7 +37,7 @@ def new_items(request, project):
 ## Views
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
-def new_ci_step1(request, description_id):
+def new_ci_step1(request, description_id, project):
     descr = ImplementationDescription.objects.get(pk=description_id)
     cls = form_for_model_relations(descr)
 
@@ -47,7 +47,7 @@ def new_ci_step1(request, description_id):
             ## Do things & redirect
             ci = ImplementationDescription.class_for_name(descr.name)(**form.cleaned_data)
             ci.save()
-            return redirect('ref:edit_ci', instance_id=ci._instance.pk)
+            return redirect('ref:edit_ci', instance_id=ci._instance.pk, project_id=project.pk)
     else:
         form = cls()  # unbound form
 
@@ -96,7 +96,7 @@ def form_for_model_relations(descr):
 # Views
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
-def new_ci_step2(request, instance_id):  # always edit an existing CI - to create a CI use step 1.
+def new_ci_step2(request, instance_id, project):  # always edit an existing CI - to create a CI use step 1.
     instance = ComponentInstance.objects.select_related('description', 'instanciates')\
             .prefetch_related(
                   Prefetch('field_set', ComponentInstanceField.objects.order_by('field__widget_row', 'field__name').select_related('field')),
@@ -111,12 +111,12 @@ def new_ci_step2(request, instance_id):  # always edit an existing CI - to creat
             
             # To where should we redirect?
             if 'submit_stay' in request.POST:
-                return redirect('ref:edit_ci', instance_id=instance_id)
+                return redirect('ref:edit_ci', instance_id=instance_id, project_id=project.pk)
             if 'submit_toenvt' in request.POST:
                 if len(form.cleaned_data['environments']) >= 1:
-                    return redirect('ref:envt', envt_id=form.cleaned_data['environments'][0].id)
+                    return redirect('ref:envt', envt_id=form.cleaned_data['environments'][0].id, project_id=project.pk)
                 else:
-                    return redirect('ref:shared_ci')
+                    return redirect('ref:shared_ci', project_id=project.pk)
     else:
         form = cls(instance=instance)
 
