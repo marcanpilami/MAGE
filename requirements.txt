@@ -3,10 +3,12 @@ django>=3.2.5,<3.3
 pyparsing==2.0.2
 unicodecsv==0.14.1 # todo: remove.
 django-crispy-forms>=1.11.0,<2
-uwsgi>=2.0.19
+
+## For hosting with Apache under Linux, not actually used in MAGE code.
+uwsgi>=2.0.19; sys.platform != 'win32'
 
 ## Client (libmage) dependencies
-requests==2.7
+requests==2.26.0
 
 ## Cloud provider dependencies (can be removed if not used, no harm if left present but unused)
 azure-storage==0.20.0
