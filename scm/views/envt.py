@@ -16,7 +16,7 @@ from scm.models import Installation, ComponentInstanceConfiguration, \
     ComponentInstance
 
 
-def all_installs(request, envt_name, limit, project):
+def all_installs(request, envt_name, limit):
     '''All installs on a given environment'''
     if isinstance(limit, str):
         limit = int(limit)
@@ -43,14 +43,14 @@ def all_installs(request, envt_name, limit, project):
         else:
             versions[lc] = (compo.version,)
 
-    return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit, 'project': project })
+    return render(request, 'scm/envt_all_installs.html', {'installs': installs, 'envt':envt, 'logical_components':logical_components, 'versions': versions, 'limit': limit})
 
 
-def lc_versions_per_environment(request, project):
-    envts = Environment.objects_active.filter(managed=True, active=True, project=project).order_by('typology__chronological_order', 'name')
+def lc_versions_per_environment(request):
+    envts = Environment.objects_active.filter(managed=True, active=True, project=request.project).order_by('typology__chronological_order', 'name')
 
     cics = ComponentInstance.objects.annotate(latest_change_id=Max('configurations__id'))\
-            .filter(latest_change_id__isnull=False, environments__project=project).values_list('latest_change_id', flat=True)
+            .filter(latest_change_id__isnull=False, environments__project=request.project).values_list('latest_change_id', flat=True)
     cics = ComponentInstanceConfiguration.objects.filter(pk__in=cics, component_instance__instanciates__implements__isnull=False)\
             .filter(component_instance__deleted=False)\
             .filter(component_instance__instanciates__active=True)\
@@ -72,5 +72,5 @@ def lc_versions_per_environment(request, project):
             except KeyError:
                 pass  # happens for unmanaged, deleted... envts & the like
 
-    return render(request, 'scm/lc_installs_envt.html', {'res': OrderedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts, 'project': project})
+    return render(request, 'scm/lc_installs_envt.html', {'res': OrderedDict(sorted(res.items(), key=lambda t : t[0].application_id)), 'envts': envts})
 

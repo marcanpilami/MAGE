@@ -25,9 +25,9 @@ from django.forms.models import ModelChoiceIterator
     * second step allows to edit the same data, plus all fields
 '''
 
-def new_items(request, project):
+def new_items(request):
     """Hub for creating all sorts of items"""
-    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all(), 'project': project})
+    return render(request, 'ref/ref_new_items.html', {'impls': ImplementationDescription.objects.order_by('tag').all()})
 
 
 #####################################################################
@@ -37,7 +37,7 @@ def new_items(request, project):
 ## Views
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
-def new_ci_step1(request, description_id, project):
+def new_ci_step1(request, description_id):
     descr = ImplementationDescription.objects.get(pk=description_id)
     cls = form_for_model_relations(descr)
 
@@ -47,7 +47,7 @@ def new_ci_step1(request, description_id, project):
             ## Do things & redirect
             ci = ImplementationDescription.class_for_name(descr.name)(**form.cleaned_data)
             ci.save()
-            return redirect('ref:edit_ci', instance_id=ci._instance.pk, project_id=project.pk)
+            return redirect('ref:edit_ci', instance_id=ci._instance.pk, project_id=request.project.pk)
     else:
         form = cls()  # unbound form
 
@@ -96,7 +96,7 @@ def form_for_model_relations(descr):
 # Views
 @permission_required('ref.scm_addcomponentinstance')
 @atomic
-def new_ci_step2(request, instance_id, project):  # always edit an existing CI - to create a CI use step 1.
+def new_ci_step2(request, instance_id):  # always edit an existing CI - to create a CI use step 1.
     instance = ComponentInstance.objects.select_related('description', 'instanciates')\
             .prefetch_related(
                   Prefetch('field_set', ComponentInstanceField.objects.order_by('field__widget_row', 'field__name').select_related('field')),
@@ -111,12 +111,12 @@ def new_ci_step2(request, instance_id, project):  # always edit an existing CI -
             
             # To where should we redirect?
             if 'submit_stay' in request.POST:
-                return redirect('ref:edit_ci', instance_id=instance_id, project_id=project.pk)
+                return redirect('ref:edit_ci', instance_id=instance_id, project_id=request.project.pk)
             if 'submit_toenvt' in request.POST:
                 if len(form.cleaned_data['environments']) >= 1:
-                    return redirect('ref:envt', envt_id=form.cleaned_data['environments'][0].id, project_id=project.pk)
+                    return redirect('ref:envt', envt_id=form.cleaned_data['environments'][0].id, project_id=request.project.pk)
                 else:
-                    return redirect('ref:shared_ci', project_id=project.pk)
+                    return redirect('ref:shared_ci', project_id=request.project.pk)
     else:
         form = cls(instance=instance)
 

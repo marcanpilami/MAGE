@@ -25,24 +25,23 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
-def project(request, project):
+def project(request):
     latest_setname = {}
     latest_date = {}
     envts = []
     link_title = None
-    ck = make_template_fragment_key('project', [project.pk])
+    ck = make_template_fragment_key('project', [request.project.pk])
     p = cache.get(ck)
     if p is None:
         link_title = getParam('LINKS_TITLE')
-        envts = Environment.objects_active.filter(project__pk=project.pk).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
+        envts = Environment.objects_active.filter(project__pk=request.project.pk).annotate(latest_reconfiguration=Max('component_instances__configurations__id')).order_by('name')
         for e in envts:
             if e.latest_reconfiguration:
                 cic = ComponentInstanceConfiguration.objects.select_related('result_of__belongs_to_set').get(pk=e.latest_reconfiguration)
                 latest_setname[e.name] = cic.result_of.belongs_to_set.name
                 latest_date[e.name] = cic.created_on
 
-    return render(request, 'ref/project.html', {    'project': project,
-                                                    'team_links_title': link_title,
+    return render(request, 'ref/project.html', {    'team_links_title': link_title,
                                                     'team_links': Link.objects.all(),
                                                     'latest_setname': latest_setname,
                                                     'latest_date': latest_date,
@@ -94,13 +93,13 @@ def urls(request):
     '''List of all URLs inside the web API'''
     return render(request, 'ref/urls.html')
 
-def model_types(request, project):
+def model_types(request):
     '''List of all installed component types'''
-    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=project) | Q(cic_set__implements__isnull = True)).distinct(), 'project': project})
+    return render(request, 'ref/model_types.html', {'models' : ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=request.project) | Q(cic_set__implements__isnull = True)).distinct()})
 
 
-def model_detail(request, project):
-    ids = ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=project) | Q(cic_set__implements__isnull = True)) \
+def model_detail(request):
+    ids = ImplementationDescription.objects.filter(Q(cic_set__implements__application__project=request.project) | Q(cic_set__implements__isnull = True)) \
         .order_by('tag', 'name').distinct() \
         .prefetch_related(Prefetch('target_set', ImplementationRelationDescription.objects.order_by('name').select_related('target')),'field_set', 'computed_field_set')
 
@@ -108,7 +107,7 @@ def model_detail(request, project):
 
 
     #return render(request, 'ref/model_details.html', {'res' : sorted(ids.iteritems(), key=lambda (k, v) :  v['id']['name']) })
-    return render(request, 'ref/model_details.html', {'res' : ids, 'project': project })
+    return render(request, 'ref/model_details.html', {'res' : ids})
 
 
 def shelllib_bash(request):

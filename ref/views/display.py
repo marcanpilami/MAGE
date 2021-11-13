@@ -11,7 +11,7 @@ from ref.models.description import ImplementationFieldDescription, \
     ImplementationComputedFieldDescription
 
 
-def envt(request, envt_id, project):
+def envt(request, envt_id):
     envt = Environment.objects.\
                     select_related('typology').\
                     get(pk=envt_id)
@@ -34,20 +34,20 @@ def envt(request, envt_id, project):
                     prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
                     order_by('description__tag', 'description__name')
 
-    return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis, 'project': project})
+    return render(request, 'ref/envt.html', {'envt': envt, 'deleted': deleted, 'cis' : cis})
 
-def backuped(request, project):
+def backuped(request):
     cis = ComponentInstance.objects.filter(include_in_envt_backup=True, deleted=False).\
             select_related('instanciates__implements__application').\
             select_related('description').\
-            prefetch_related(Prefetch('environments', queryset=Environment.objects.filter(project=project)))
-    return render(request, 'ref/instance_backup.html', {'cis': cis, 'project': project})
+            prefetch_related(Prefetch('environments', queryset=Environment.objects.filter(project=request.project)))
+    return render(request, 'ref/instance_backup.html', {'cis': cis})
 
 
-def shared_ci(request, project):
+def shared_ci(request):
     deleted = []
     if request.user.is_authenticated and request.user.has_perm('ref.change_component_instance'):
-        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True, environments__project__name=project).\
+        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True, environments__project=request.project).\
                     select_related('description').\
                     order_by('description__name', 'id')
     
@@ -63,4 +63,4 @@ def shared_ci(request, project):
                     prefetch_related(Prefetch('description__computed_field_set', queryset=ImplementationComputedFieldDescription.objects.filter(widget_row__gte=0, sensitive__in=sec).order_by('widget_row', 'id'))).\
                     order_by('description__tag', 'description__name')
 
-    return render(request, 'ref/envt_shared.html', {'deleted': deleted, 'cis' : cis, 'project': project})
+    return render(request, 'ref/envt_shared.html', {'deleted': deleted, 'cis' : cis})
