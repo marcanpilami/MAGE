@@ -31,7 +31,7 @@ def __tag_create(envt_name, tag_name):
 @permission_required('scm.add_tag')
 def tag_create(request, envt_name, tag_name):
     new_tag = __tag_create(envt_name, tag_name)
-    return redirect('scm:tag_detail', tag_id=new_tag.id)
+    return redirect('scm:tag_detail', tag_id=new_tag.id, project_id=request.project.pk)
 
 @permission_required('scm.add_tag')
 def tag_create_script(request, envt_name, tag_name):
@@ -59,9 +59,9 @@ def tag_remove(request, tag, redirect = True):
 def tag_remove_script(request, tag):
     tag_remove(request, tag, False)
 
-def tag_detail(request, tag_id, project):
+def tag_detail(request, tag_id):
     t = Tag.objects.get(pk=tag_id)
-    return render(request, 'scm/tag_detail.html', {'tag': t, 'project': project})
+    return render(request, 'scm/tag_detail.html', {'tag': t})
 
-def tag_list(request, project):
-    return render(request, 'scm/tag_list.html', {'tags': Tag.objects.filter(from_envt__project__name=project), 'project': project})
+def tag_list(request):
+    return render(request, 'scm/tag_list.html', {'tags': Tag.objects.filter(from_envt__project=request.project)})

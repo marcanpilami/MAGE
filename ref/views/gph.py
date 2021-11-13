@@ -70,7 +70,7 @@ class CartoForm(forms.Form):
 
 def carto_form(request, project='all'):
     """Marsupilamographe"""
-    return render(request, 'ref/view_carto2.html', {'project': project, 'formset': CartoForm(project=project)})
+    return render(request, 'ref/view_carto2.html', {'formset': CartoForm(project=project)})
 
 def carto_content_form(request, project='all'):
     form = None
@@ -111,16 +111,16 @@ def carto_content_full(request, collapse_threshold=3, project=None):
         json.dump(getNetwork(ComponentInstance.objects.filter(Q(deleted=False), Q(environments__project__name=project)).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_description_content(request, project):
+def carto_description_content(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')
     json.dump(getStructureTree(), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_description(request, project):
-    return render(request, 'ref/view_carto_struct.html', {'project': project})
+def carto_description(request):
+    return render(request, 'ref/view_carto_struct.html')
 
-def carto_full(request, project='all'):
-    return render(request, 'ref/view_carto_full.html', {'project': project})
+def carto_full(request):
+    return render(request, 'ref/view_carto_full.html')
 
 def carto_debug(request):
     response = HttpResponse(content_type='text/json; charset=utf-8')

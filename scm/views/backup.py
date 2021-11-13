@@ -16,17 +16,17 @@ from scm.models import BackupSet, Environment, ComponentInstance
 from django.db.models.aggregates import Count
 
 
-def backup_list(request, project, archive=False):
-    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive, from_envt__project=project).annotate(item_count = Count('all_items')).order_by('from_envt', 'set_date').\
-                                                    select_related('from_envt'), 'archive' : archive, 'project': project})
+def backup_list(request, archive=False):
+    return render(request, 'scm/backup_list.html', {'backups': BackupSet.objects.filter(removed__isnull=not archive, from_envt__project=request.project).annotate(item_count = Count('all_items')).order_by('from_envt', 'set_date').\
+                                                    select_related('from_envt'), 'archive' : archive})
 
-def backup_detail(request, bck_id, project):
-    return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id), 'project': project})
+def backup_detail(request, bck_id):
+    return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
 
 @permission_required('scm.add_backupset')
-def backup_envt(request, envt_name, project):
+def backup_envt(request, envt_name):
     b = register_backup_envt_default_plan(envt_name, now())
-    return redirect('scm:backup_detail', bck_id=b.id, project=project)
+    return redirect('scm:backup_detail', bck_id=b.id, project=request.project)
 
 @permission_required('scm.add_backupset')
 def backup_envt_script(request, envt_name):
