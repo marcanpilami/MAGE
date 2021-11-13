@@ -47,16 +47,15 @@ def all_installs(request, envt_name, limit, project):
 
 
 def lc_versions_per_environment(request, project):
-    envts = Environment.objects_active.filter(managed=True, active=True, project__name=project).order_by('typology__chronological_order', 'name')
+    envts = Environment.objects_active.filter(managed=True, active=True, project=project).order_by('typology__chronological_order', 'name')
 
     cics = ComponentInstance.objects.annotate(latest_change_id=Max('configurations__id'))\
-            .filter(latest_change_id__isnull=False, environments__project__name=project).values_list('latest_change_id', flat=True)
+            .filter(latest_change_id__isnull=False, environments__project=project).values_list('latest_change_id', flat=True)
     cics = ComponentInstanceConfiguration.objects.filter(pk__in=cics, component_instance__instanciates__implements__isnull=False)\
             .filter(component_instance__deleted=False)\
             .filter(component_instance__instanciates__active=True)\
             .filter(component_instance__instanciates__implements__active=True)\
-            .select_related('component_instance__instanciates__implements__application', 'result_of__what_is_installed')\
-            .prefetch_related(Prefetch('componentInstances', queryset=ComponentInstance.objects.filter(environments__project__name=project)))
+            .select_related('component_instance__instanciates__implements__application', 'result_of__what_is_installed')
 
     res = {}
     for cic in cics:

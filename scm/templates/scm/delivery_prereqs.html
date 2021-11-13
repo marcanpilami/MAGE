@@ -9,7 +9,7 @@
 		{{error | linebreaks}}
 	</div>
 	<br/>
-	<a class='metContainer metErrorBackground' href="{% url 'scm:iset_apply_envt_force' delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;</a>
+	<a class='metContainer metErrorBackground' href="{% url 'scm:iset_apply_envt_force' project.pk delivery.id envt.id %}">&lt;!&gt; Forcer le référencement de l'installation comme une brute &lt;!&gt;</a>
 {% else %}
 	<div class='metContainer metOkBackground'>
 		L'environnement est prêt à accueillir la livraison

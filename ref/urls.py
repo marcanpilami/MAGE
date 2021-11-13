@@ -5,56 +5,73 @@
     @author: Marc-Antoine Gouillart
 '''
 
-from django.conf.urls import url
+from django.urls import include, path, re_path
 from ref import views
 
 app_name='ref'
 
-urlpatterns = [
-    url(r'^project/(?P<project>\w+-?\w*)$', views.misc.project, name='project'),
+urlpatterns_project = [
+    ###########################################################################
+    ## Interactive views
+    ###########################################################################
 
-    url(r'^envt/shared/(?P<project>\w+-?\w*)$', views.shared_ci, name='shared_ci'),
-    url(r'^envt/(?P<envt_id>\d+)$', views.envt, {'project': 'all'}, name='envt'),
-    url(r'^envt/(?P<project>\w+-?\w*)/(?P<envt_id>\d+)$', views.envt, name='envt'),
-    url(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
+    # Welcome pages
+    re_path(r'^$', views.misc.project, name='project'),
 
-    url(r'type/(?P<project>\w+-?\w*)$', views.model_types, name='types'),
-    url(r'types_details/(?P<project>\w+-?\w*)$', views.model_detail, name='types_details'),
+    # Environment referential consultation
+    re_path(r'^envt/shared/$', views.shared_ci, name='shared_ci'),
+    re_path(r'^envt/(?P<envt_id>\d+)$', views.envt, name='envt'),
+    re_path(r'^envt/(?P<envt_name>.*)/duplicate$', views.envt_duplicate_name, name='envt_duplicate'),
+
+    # Meta descriptions consultation (modification is inside admin)
+    re_path(r'type/$', views.model_types, name='types'),
+    re_path(r'types_details/$', views.model_detail, name='types_details'),
 
     ## CI creation and edit forms
-    url(r'new/(?P<project>\w+-?\w*)$', views.new_items, name='new_item'),
-    url(r'new/ci/(?P<description_id>\d*)$', views.new_ci_step1, name='new_item_ci'),
-    url(r'ci/(?P<instance_id>\d*)$', views.new_ci_step2, name='edit_ci'),
-    url(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
-
-    ## MQL
-    url(r'mqltester/(?P<project>\w+-?\w*)$', views.mql_tester, name='mqltester'),
-    url(r'mql/(?P<output_format>.*)/(?P<project>\w+-?\w*)/(?P<query>.*)$', views.mql_query, name='mqlquery'),
+    re_path(r'ci/new/$', views.new_items, name='new_item'),
+    re_path(r'ci/new/(?P<description_id>\d*)$', views.new_ci_step1, name='new_item_ci'),
+    re_path(r'ci/(?P<instance_id>\d*)$', views.new_ci_step2, name='edit_ci'),
+    re_path(r'^instance/envt/(?P<envt_id>\d+)$', views.envt_instances, name='instance_envt'),
 
     ## Graphs
-    url(r'gph/full/$', views.carto_full, name='grfull'),
-    url(r'gph/full/(?P<project>\w+-?\w*)$', views.carto_full, name='grfull'),
-    url(r'gph/marsupilamographe$', views.carto_form, name='cartoform'),
-    url(r'gph/marsupilamographe/(?P<project>\w+-?\w*)$', views.carto_form, name='cartoform'),
-    url(r'gph/mplgdata$', views.carto_content_form, name='cartoformdata'),
-    url(r'gph/mplgdata/(?P<project>\w+-?\w*)$', views.carto_content_form, name='cartoformdata'),
-    url(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)/(?P<project>\w+-?\w*)$', views.carto_content_full, name='cartofulldata'),
-    url(r'gph/mplgdatasimple/(?P<ci_id_list>[\d,]+)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
-    url(r'gph/mplgdatadebug$', views.carto_debug, name='cartodebugdata'),
-    url(r'gph/structuredata/(?P<project>\w+-?\w*)$$', views.carto_description_content, name='cartostructuredata'),
-    url(r'gph/structure/(?P<project>\w+-?\w*)$', views.carto_description, name='cartostructure'),
+    re_path(r'gph/full/$', views.carto_full, name='grfull'),
+    re_path(r'gph/marsupilamographe/$', views.carto_form, name='cartoform'),
+    re_path(r'gph/mplgdata/$', views.carto_content_form, name='cartoformdata'),
+    re_path(r'gph/mplgdatafull/(?P<collapse_threshold>\d+)/$', views.carto_content_full, name='cartofulldata'),
+    re_path(r'gph/mplgdatasimple/(?P<ci_id_list>[\d,]*)/(?P<collapse_threshold>\d+)/(?P<select_related>\d+)$', views.carto_content, name='cartosimpledata'),
+    re_path(r'gph/mplgdatadebug$', views.carto_debug, name='cartodebugdata'),
+    re_path(r'gph/structuredata/$', views.carto_description_content, name='cartostructuredata'),
+    re_path(r'gph/structure/$', views.carto_description, name='cartostructure'),
 
     ## Misc
-    url(r'urls/(?P<project>\w+-?\w*)$', views.urls, name='urls'),
-    url(r'ci/backuped/(?P<project>\w+-?\w*)$', views.backuped, name='backuped'),
-    url(r'clearcache', views.clear_cache, name='clear_cache'),
+    re_path(r'ci/backuped/$', views.backuped, name='backuped'),
 
     ## Referential debug/migration
-    url(r'^debug$', views.debug, name='debug'),
-    url(r'^instance/debug/all$', views.edit_all_comps_meta, name='instance_all'),
-    url(r'^instance/debug/descr/(?P<descr_id>\d+)$', views.descr_instances_reinit, name='instance_descr_reinit'),
-    url(r'^control$', views.control, name='control'),
+    re_path(r'^debug$', views.debug, name='debug'),
+    re_path(r'^instance/debug/all$', views.edit_all_comps_meta, name='instance_all'),
+    re_path(r'^instance/debug/descr/(?P<descr_id>\d+)$', views.descr_instances_reinit, name='instance_descr_reinit'),
+    re_path(r'^control$', views.control, name='control'),
+]
 
-    ## Script helpers
-    url(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash'),
+urlpatterns_nonproject = [
+    ## Misc (pages)
+    re_path(r'urls/$', views.urls, name='urls'),
+    re_path(r'clearcache', views.clear_cache, name='clear_cache'),
+
+    ## Script helpers (bash script download)
+    re_path(r'^helpers/lib/bash$', views.shelllib_bash, name='helper_bash'),
+
+
+    ###########################################################################
+    ## Script APIs
+    ###########################################################################
+
+    ## MQL (scripting API)
+    re_path(r'mqltester/$', views.mql_tester, name='mqltester'),
+    re_path(r'mql/(?P<output_format>.*)/(?P<query>.*)$', views.mql_query, name='mqlquery'),
+]
+
+urlpatterns = [
+    re_path(r'^project/(?P<project_id>\d+)/', include(urlpatterns_project)),
+    path('', include(urlpatterns_nonproject)),
 ]

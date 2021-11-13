@@ -60,8 +60,8 @@ class CartoForm(forms.Form):
             self.fields['envts'].queryset = Environment.objects_active.all().order_by('typology__chronological_order', 'name')
             self.fields['envts'].initial = [] if Environment.objects_active.count() == 0 else [Environment.objects_active.order_by('typology__chronological_order', 'name')[0].pk, ]
         else:
-            self.fields['envts'].queryset = Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')
-            self.fields['envts'].initial = [] if Environment.objects_active.filter(project__name=project).count() == 0 else [Environment.objects_active.filter(project__name=project).order_by('typology__chronological_order', 'name')[0].pk, ]
+            self.fields['envts'].queryset = Environment.objects_active.filter(project=project).order_by('typology__chronological_order', 'name')
+            self.fields['envts'].initial = [] if Environment.objects_active.filter(project=project).count() == 0 else [Environment.objects_active.filter(project=project).order_by('typology__chronological_order', 'name')[0].pk, ]
 
         self.fields['models'].queryset = ImplementationDescription.objects.order_by('tag', 'name').all()
         self.fields['models'].initial = [m.pk for m in ImplementationDescription.objects.all()]
@@ -103,9 +103,9 @@ def carto_content(request, ci_id_list, collapse_threshold=3, select_related=2):
     json.dump(getNetwork(ComponentInstance.objects.filter(id__in=[int(i) for i in ci_id_list.split(',')]), select_related=dict((t.name, int(select_related)) for t in ImplementationRelationType.objects.all()), collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     return response
 
-def carto_content_full(request, collapse_threshold=3, project='all'):
+def carto_content_full(request, collapse_threshold=3, project=None):
     response = HttpResponse(content_type='text/json; charset=utf-8')
-    if project == 'all':
+    if not project:
         json.dump(getNetwork(ComponentInstance.objects.filter(deleted=False).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)
     else:
         json.dump(getNetwork(ComponentInstance.objects.filter(Q(deleted=False), Q(environments__project__name=project)).all(), select_related={}, collapse_threshold=int(collapse_threshold)), fp=response, ensure_ascii=False, indent=4)

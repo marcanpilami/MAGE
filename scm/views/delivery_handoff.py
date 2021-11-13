@@ -96,7 +96,7 @@ def delivery_edit(request, iset_id=None, project='all'):
 @login_required
 @permission_required('scm.add_delivery')
 @cache_control(no_cache=True)
-def delivery_edit_dep(request, iset_id):
+def delivery_edit_dep(request, iset_id, project):
     iset = InstallableSet.objects.get(pk=iset_id)
     ItemDependencyFormSet = inlineformset_factory(InstallableItem, ItemDependency, form=IDForm, extra=1)
     fss = {}
@@ -115,7 +115,7 @@ def delivery_edit_dep(request, iset_id):
         if valid:
             for fs in fss.values():
                 fs.save()
-            return redirect('scm:delivery_detail', iset_id=iset_id)
+            return redirect('scm:delivery_detail', iset_id=iset_id, project_id=project.pk)
     else:
         for ii in iset.set_content.all():
             fss[ii] = ItemDependencyFormSet(instance=ii, prefix='ii%s' % ii.pk)
@@ -123,4 +123,5 @@ def delivery_edit_dep(request, iset_id):
     return render(request, 'scm/delivery_edit_dep.html', {
         'fss' : fss,
         'iset' : iset,
+        'project_id': project.pk
     })

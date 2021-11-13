@@ -3,7 +3,7 @@
 {% block maintitle %}Versions disponibles de {{lc.application.name}} {{lc}}{% endblock %}
 
 {%block navigationButtons%}
-<a href="{% url 'scm:lc_list' %}" title="Liste des composants logiques">↑</a>
+<a href="{% url 'scm:lc_list' project.pk %}" title="Liste des composants logiques">↑</a>
 {%endblock%}
 
 {% block content %}
@@ -16,7 +16,7 @@
 	<div class='col-md-11'>
     	{% for ii in v.installed_by.all %}
             {% if not ii.belongs_to_set.backupset %}
-        		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' ii.belongs_to_set_id %}">
+        		<a class='metRectList metDefaultBackground' href="{% url 'scm:delivery_detail' project.pk ii.belongs_to_set_id %}">
         			<div class='smallContent'>Livré dans</div>{{ ii.belongs_to_set.name }}
         		</a>
             {% endif %}

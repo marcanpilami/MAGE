@@ -16,14 +16,14 @@
 		<div class='t2' style='color: black;'>Les environnements</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' project %}">Carte interactive</a>
-		<a class='metSquare homeCoulour1' href="{% url 'ref:grfull' project %}">Carte générale</a>
-		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' project %}">Créer un élément de référentiel</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project %}">Eléments sauvegardés</a>
-        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' project %}">Composants mutualisés</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:cartoform' project.pk %}">Carte interactive</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:grfull' project.pk %}">Carte générale</a>
+		<a class='metSquare homeCoulour1' href="{% url 'ref:new_item' project.pk %}">Créer un élément de référentiel</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:backuped' project.pk %}">Eléments sauvegardés</a>
+        <a class='metSquare homeCoulour1' href="{% url 'ref:shared_ci' project.pk %}">Composants mutualisés</a>
 		<div>
 		{% for envt in envts %}
-		<a class='metSquare' href="{% url 'ref:envt' project=project envt_id=envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>
+		<a class='metSquare' href="{% url 'ref:envt' project_id=project.pk envt_id=envt.id %}">{{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>
 		{%endfor %}
 		</div>
 	</div>
@@ -33,16 +33,16 @@
 		<div class='t2' style='color: black;'>Gestion de configuration</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_installs_envts' project %}">Synthèse des versions courantes</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:deliveries' project %}">Livraisons disponibles à l'installation</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:delivery_create' project %}">Référencer une livraison</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:tag_list' project %}">Tags</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:backup_list' project %}">Sauvegardes disponibles</a>
-		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_list' project %}">Versions disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_installs_envts' project.pk %}">Synthèse des versions courantes</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:deliveries' project.pk %}">Livraisons disponibles à l'installation</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:delivery_create' project.pk %}">Référencer une livraison</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:tag_list' project.pk %}">Tags</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:backup_list' project.pk %}">Sauvegardes disponibles</a>
+		<a class='metSquare homeCoulour2' href="{% url 'scm:lc_list' project.pk %}">Versions disponibles</a>
 		<div>
 		{% for envt in envts %}
 			{% if envt.managed %}
-				<a class='metSquare' href="{% url 'scm:envtinstallhist' envt_name=envt.name project=project %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest_setname|get_item:envt.name}}<br/>{{latest_date|get_item:envt.name|date:"d/m H:i"}}</div></a>
+				<a class='metSquare' href="{% url 'scm:envtinstallhist' envt_name=envt.name project_id=project.pk %}">Historique {{envt.name}}<div class='metSquareLong annotation'>{{latest_setname|get_item:envt.name}}<br/>{{latest_date|get_item:envt.name|date:"d/m H:i"}}</div></a>
 			{% endif %}	
 		{%endfor %}
 		</div>
@@ -63,15 +63,15 @@
 		<div class='t2' style='color: black;'>Aides scripting</div>
 	</div>
 	<div style='color: white;' class='row'>	
-		<a class='metSquare homeCoulour2' href="{% url 'ref:types' project %}">Types de composants installés</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:mqltester' project %}">Requêteur MQL</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:types_details' project %}">Détail des composants installés</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:urls' project %}">API web partielle pour scripts</a>
-		<a class='metSquare homeCoulour2' href="{% url 'ref:cartostructure' project %}">Graphe des types de composants</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types' project.pk %}">Types de composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:mqltester' %}">Requêteur MQL</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:types_details' project.pk  %}">Détail des composants installés</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:urls' %}">API web partielle pour scripts</a>
+		<a class='metSquare homeCoulour2' href="{% url 'ref:cartostructure' project.pk %}">Graphe des types de composants</a>
 	</div>
 	<div class='row'>
 	{% for envt in templates %}
-		<a class='metSquare' href="{% url 'ref:envt' envt.id %}">Template {{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
+		<a class='metSquare' href="{% url 'ref:envt' project.pk envt.id %}">Template {{envt.name}}<div class='metSquareLong annotation'>{{envt.description}}</div></a>	
 	{%endfor %}
 	</div>
 </div>

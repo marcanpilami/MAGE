@@ -5,8 +5,8 @@
 {% block maintitle %}Environnement {{envt.name}}{% endblock %}
 
 {% block frequentActionsButtons %}
-{% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
-<a href="{% url 'ref:instance_envt' envt.id %}" title="Editer l'environnement">E</a>
+{% if perms.ref.scm_addenvironment %}<a href="{% url 'ref:envt_duplicate' project.pk envt.name %}" title="Dupliquer l'environnement">D</a>{% endif %}
+<a href="{% url 'ref:instance_envt' project.pk envt.id %}" title="Editer l'environnement">E</a>
 <a href="{% url 'admin:ref_environment_change' envt.id %}" title="Paramètres de l'environnement">P</a>
 {% endblock %}
 
@@ -48,13 +48,13 @@ $(document).ready(function() {
         </table>   
     </div><br/><br/>
     <div class='t2'>Liens GCL</div>
-    <a  href="{% url 'scm:envtinstallhist' envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+    <a  href="{% url 'scm:envtinstallhist' project.pk envt.name %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "history.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Historique des installations</div>
     </a>
-    <a  href="{% url 'scm:backup_list' project %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+    <a  href="{% url 'scm:backup_list' project.pk %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "backup.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: -1px;"><div style='z-index: 2; position: absolute; color: black;'>Sauvegardes disponibles</div>
     </a>
-    <a  href="{% url 'scm:tag_list' project %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
+    <a  href="{% url 'scm:tag_list' project.pk %}" class='metRectList defaultHighlightBackground' style='width:100%; color: white;'>
         <img src='{% static "tag.svg" %}' style="width:40px;height:40px;position:absolute; z-index: 0; right: 7px; top: 0px;"><div style='z-index: 2; position: absolute; color: black;'>Tags</div>
     </a><br/><br/>
     <div class='t2'>Accès rapide</div>
@@ -105,7 +105,7 @@ $(document).ready(function() {
                            <td>{{compo | apply_field_template:field | urlify}}</td>
                        {% endfor %}
                         
-                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" compo.pk %}'>éditer</a></td>{% endif %}
+                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" project.pk compo.pk %}'>éditer</a></td>{% endif %}
                    </tr>
                 {% endfor %}
                 </tbody>
@@ -120,7 +120,7 @@ $(document).ready(function() {
             <table class='table table-condensed table-bordered table-hover'>
                 <tr><th>ID</th><th>Type</th><th></th></tr>
                 {% for ci in deleted %}                  
-                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" ci.id %}'>éditer</a></td></tr>
+                    <tr><td>{{ci.id}}</td><td>{{ci.description.description}}</td><td><a href='{%url "ref:edit_ci" project.pk ci.id %}'>éditer</a></td></tr>
                 {% endfor %}
             </table>
         </div>
@@ -135,7 +135,7 @@ $(document).ready(function()
 {   
 	$.ajax(
     {
-        url : '{% url "ref:cartosimpledata" envt.ci_id_list "4" "3" %}',
+        url : '{% url "ref:cartosimpledata" project.pk envt.ci_id_list "4" "3" %}',
         type : "GET",
         dataType : "json",
     }).done(function(json)

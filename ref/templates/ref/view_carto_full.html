@@ -17,7 +17,7 @@ $(document).ready(function()
 {
 	$.ajax(
 	{
-		url : '{% url "ref:cartofulldata" "3" project %}',
+		url : '{% url "ref:cartofulldata" project.pk "3" %}',
 		type : "GET",
 		dataType : "json",
 	}).done(function(json)

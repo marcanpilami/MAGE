@@ -12,7 +12,7 @@ function refresh_graph()
 {
 	$.ajax(
 	{
-		url : '{% url "ref:cartoformdata" project %}',
+		url : '{% url "ref:cartoformdata" project.pk %}',
 		type : "POST",
 		dataType : "json",
 		data: $("#ff").serialize(),

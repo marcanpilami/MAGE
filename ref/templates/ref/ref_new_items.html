@@ -9,8 +9,8 @@
 
 {% block content %}
 {% regroup impls by tag as tag_list %}
-<!-- <a class='metSquare' href="{% url 'ref:new_item' project %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
-<a class='metSquare' href="{% url 'ref:new_item' project %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
+<!-- <a class='metSquare' href="{% url 'ref:new_item' project.pk %}">X Type d'environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
+<a class='metSquare' href="{% url 'ref:new_item' project.pk %}">X Environnement<div class='metSquareLong annotation'>Un environnement est un regroupement d'instances de composants</div></a>
 -->
 
 
@@ -54,7 +54,7 @@
 		</div>
 		<div class='col-md-10'>
 		{% for desc in tag.list|dictsort:"name" %}
-			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' desc.id %}">{{desc.description|capfirst}}<div class='metSquareLong annotation'>code {{desc.name}}</div></a>
+			<a class='metRectList metDefaultColors' href="{% url 'ref:new_item_ci' project_id=project.pk description_id=desc.id %}">{{desc.description|capfirst}}<div class='metSquareLong annotation'>code {{desc.name}}</div></a>
 		{% endfor %}
 		</div>
 	{% endfor %}

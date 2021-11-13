@@ -4,9 +4,9 @@
 
 {%block navigationButtons%}
 {% if not archive %}
-<a href="{% url 'scm:backup_list_archive' %}" title="Voir l'archive (backups non disponibles)">A</a>
+<a href="{% url 'scm:backup_list_archive' project.pk %}" title="Voir l'archive (backups non disponibles)">A</a>
 {%else%}
-<a href="{% url 'scm:backup_list' %}" title="Voir les backups disponibles">D</a>
+<a href="{% url 'scm:backup_list' project.pk %}" title="Voir les backups disponibles">D</a>
 {% endif %}
 {%endblock%}
 
@@ -22,7 +22,7 @@
 	</div>
 	<div class='col-md-11'>
 		{% for bckset in envt.list %}
-		<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' bckset.id %}">
+		<a class='metContainer metRectFixedwidth defaultHighlightBackground' href="{% url 'scm:backup_detail' project.pk bckset.id %}">
 			{{bckset.set_date}}
 			<div>
 				<div class='annotation'>{{ bckset.item_count }} éléments sauvegardés</div>

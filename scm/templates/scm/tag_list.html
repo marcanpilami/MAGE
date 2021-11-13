@@ -14,7 +14,7 @@
 	</div>
 	<div class='col-md-11'>
 		{% for tag in envt.list %}
-		<a class='metContainer metRectList defaultHighlightBackground' href="{% url 'scm:tag_detail' tag.id %}">
+		<a class='metContainer metRectList defaultHighlightBackground' href="{% url 'scm:tag_detail' project.pk tag.id %}">
 			{{tag.name}}
 		</a>
 		{% endfor %}

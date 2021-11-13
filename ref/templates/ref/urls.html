@@ -30,10 +30,10 @@ Also, MAGE is always case sensitive (both in URL and arguments). Finaly, all CSV
 		<tr><td>MQL query - results as a BASH4 file</td><td>{% url 'ref:mqlquery' "bash4" "MQL_QUERY" %}</td><td>text/plain</td><td>public</td><td></td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Environment referential misc.</td></tr>
-		<tr><td>Duplicate environment</td><td>{% url 'ref:envt_duplicate' "ENVIRONMENT_NAME" %}</td><td>none</td><td>ge</td><td></td></tr>
+		<tr><td>Duplicate environment</td><td>{% url 'ref:envt_duplicate' 123 "ENVIRONMENT_NAME" %}</td><td>none</td><td>ge</td><td>Replace 123 with the project technical ID</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Backups</td></tr>
-		<tr><td>Register new default backupset</td><td>{% url 'scm:backup_envt' "ENVIRONMENT_NAME" %}</td><td>text/plain</td><td>ge</td><td>a default backupset contains all component instances marked as 'include in default backup'</td></tr>
+		<tr><td>Register new default backupset</td><td>{% url 'scm:backup_script_envt' "ENVIRONMENT_NAME" %}</td><td>text/plain</td><td>ge</td><td>a default backupset contains all component instances marked as 'include in default backup'</td></tr>
 		<tr><td>Register a new backupset containing one component instance</td><td>{% url 'scm:backup_script_create' "ENVIRONMENT_NAME" 123 %}</td><td>text/plain</td><td>ge</td><td>Replace 123 with component instance ID. Returns, the ID of the new backupset.</td></tr>
 		<tr><td>Add a component instance to an existing new backupset</td><td>{% url 'scm:backup_script_add' "ENVIRONMENT_NAME" 123 123 %}</td><td>none</td><td>ge</td><td>First ID is component instance ID, second is backupset ID.</td></tr>
 		<tr><td>Get the age of the latest backup set registered for a given component instance</td><td>{% url 'scm:latest_ci_backupset_age_mn' 123 %}</td><td>text/plain</td><td>public</td><td>In minutes. -1 if no backup found.</td></tr>
@@ -59,14 +59,14 @@ Also, MAGE is always case sensitive (both in URL and arguments). Finaly, all CSV
 		<tr><td>Test if prerequisites are respected for an installable item from a set</td><td>{% url 'scm:delivery_test_ii_set' 123 "ENVT_NAME" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that the rest of the set is going to be applied if it's not already.</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Installable set modifications & life cycle</td></tr>
-		<tr><td>Validate</td><td>{% url 'scm:iset_validate' 123 %}</td><td>none</td><td>ge</td><td>default backup sets are created already validated, so this is mostly useful for deliveries</td></tr>
-		<tr><td>Invalidate</td><td>{% url 'scm:iset_invalidate' 123 %}</td><td>none</td><td>ge</td><td></td></tr>
-		<tr><td>Archive</td><td>{% url 'scm:iset_archive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID. Archived means the set files are not available anymore directly in MAGE.</td></tr>
-		<tr><td>Unarchive</td><td>{% url 'scm:iset_unarchive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID</td></tr>
+		<tr><td>Validate</td><td>{% url 'scm:iset_script_validate' 123 %}</td><td>none</td><td>ge</td><td>default backup sets are created already validated, so this is mostly useful for deliveries</td></tr>
+		<tr><td>Invalidate</td><td>{% url 'scm:iset_script_invalidate' 123 %}</td><td>none</td><td>ge</td><td></td></tr>
+		<tr><td>Archive</td><td>{% url 'scm:iset_script_archive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID. Archived means the set files are not available anymore directly in MAGE.</td></tr>
+		<tr><td>Unarchive</td><td>{% url 'scm:iset_script_unarchive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>SCM tags</td></tr>
-		<tr><td>Create new tag</td><td>{% url 'scm:tag_create' "ENVT_NAME" "NEW_TAG_NAME" %}</td><td>text/plain</td><td>ge</td><td></td></tr>
-		<tr><td>Remove tag</td><td>{% url 'scm:tag_remove' "TAG_NAME_OR_ID" %}</td><td>none</td><td>ge</td><td></td></tr>
+		<tr><td>Create new tag</td><td>{% url 'scm:tag_script_create' "ENVT_NAME" "NEW_TAG_NAME" %}</td><td>text/plain</td><td>ge</td><td></td></tr>
+		<tr><td>Remove tag</td><td>{% url 'scm:tag_script_remove' "TAG_NAME_OR_ID" %}</td><td>none</td><td>ge</td><td></td></tr>
 	</tbody>
 </table>
 
