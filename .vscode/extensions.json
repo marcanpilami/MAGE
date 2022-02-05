@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "batisteo.vscode-django",
+        "trond-snekvik.simple-rst",
+        "lextudio.restructuredtext",
+        "editorconfig.editorconfig",
+        "eamodio.gitlens",
+        "ban.spellright",
+    ]
+}
