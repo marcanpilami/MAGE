@@ -12,12 +12,12 @@ from django.shortcuts import render, redirect
 
 from django.db.models.query import Prefetch
 from django.db.transaction import atomic
-from django.contrib.auth.decorators import permission_required
 from django.core.cache import cache
 
 ## MAGE imports
 from ref.models import ComponentImplementationClass, ComponentInstanceRelation, ComponentInstanceField, ComponentInstance, Environment, ImplementationDescription
 from ref.conventions import value_instance_fields, value_instance_graph_fields
+from ref.permissions.perm_check import permission_required_project_aware
 
 
 '''
@@ -31,7 +31,7 @@ from ref.conventions import value_instance_fields, value_instance_graph_fields
 #####################################################################
 
 @atomic
-@permission_required('ref.scm_addcomponentinstance')
+@permission_required_project_aware('ref.modify_project')
 def envt_instances(request, envt_id=1):
     e = Environment.objects.get(pk=envt_id)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
@@ -185,7 +185,7 @@ class CIForm(ModelForm):
         widgets = {'environments' : HorizontalCheckboxSelectMultiple()}
 
 @atomic
-@permission_required('ref.scm_addcomponentinstance')
+@permission_required_project_aware('ref.modify_project')
 def edit_all_comps_meta(request):
     CIFormSet = modelformset_factory(ComponentInstance, form=CIForm, extra=0)
     CIFormSet.form = staticmethod(partial(CIForm, descriptions=ImplementationDescription.objects.all().order_by('name'),
@@ -270,7 +270,7 @@ def reinit_form_for_model(descr):
     return type(str("__" + descr.name.lower() + "_reinitform"), (ReinitModelForm,), attrs)
 
 @atomic
-@permission_required('ref.scm_addcomponentinstance')
+@permission_required_project_aware('ref.modify_project')
 def descr_instances_reinit(request, descr_id=4):
     descr = ImplementationDescription.objects.get(pk=descr_id)
     cics = ComponentImplementationClass.objects.filter(technical_description_id=descr_id)

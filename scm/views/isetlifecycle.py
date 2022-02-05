@@ -8,9 +8,11 @@ from django.http.response import HttpResponse, HttpResponseBadRequest, \
     HttpResponseNotFound
 from django.utils.timezone import now
 
+
 ## MAGE imports
-from scm.models import InstallableSet, InstallableItem, Installation
 from ref.models import Environment, ComponentInstance
+from ref.permissions.perm_check import permission_required_project_aware
+from scm.models import InstallableSet, InstallableItem, Installation
 from scm.exceptions import MageScmFailedEnvironmentDependencyCheck
 from scm.install import install_iset_envt, install_ii_single_target_envt
 
@@ -42,6 +44,7 @@ def iset_test_script(request, iset_id, envt_id_or_name):
     except MageScmFailedEnvironmentDependencyCheck as e:
         return HttpResponse("<html><body>%s</body></html>" % e, status=424)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.install_installableset')
 def iset_apply_envt(request, iset_id, envt_id_or_name, force_prereqs=False, project = None):
     delivery = InstallableSet.objects.get(pk=iset_id)
@@ -53,6 +56,7 @@ def iset_apply_envt(request, iset_id, envt_id_or_name, force_prereqs=False, proj
     install_iset_envt(delivery, envt, force_prereqs=force_prereqs)
     return redirect('scm:envtinstallhist', envt_name=envt.name, project_id=project.pk if project else None)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.install_installableset')
 def delivery_ii_apply_envt(request, ii_id, instance_id, envt_name, install_id=None):
     ii = InstallableItem.objects.get(pk=ii_id)
@@ -76,7 +80,7 @@ def delivery_ii_test_envt(request, ii_id, envt_name, full_delivery=False):
     except MageScmFailedEnvironmentDependencyCheck as e:
         return HttpResponse("<html><body>%s</body></html>" % e, status=424)
 
-
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.del_backupset')
 def iset_archive(request, is_id):
     """Removed does not mean delete - just means it's not available anymore"""
@@ -85,6 +89,7 @@ def iset_archive(request, is_id):
     i_s.save()
     return redirect('scm:backup_list', project_id=request.project.pk)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.del_backupset')
 def iset_archive_script(request, is_id):
     """Removed does not mean delete - just means it's not available anymore"""
@@ -93,6 +98,7 @@ def iset_archive_script(request, is_id):
     i_s.save()
     return HttpResponse(is_id)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.del_backupset')
 def iset_unarchive(request, is_id):
     """Removed does not mean delete - just means it's not available anymore"""
@@ -101,6 +107,7 @@ def iset_unarchive(request, is_id):
     i_s.save()
     return redirect('scm:backup_detail', project_id=request.project.pk, bck_id=is_id)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.del_backupset')
 def iset_unarchive_script(request, is_id):
     """Removed does not mean delete - just means it's not available anymore"""
@@ -109,6 +116,7 @@ def iset_unarchive_script(request, is_id):
     i_s.save()
     return HttpResponse(is_id)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.validate_installableset')
 def iset_validate(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
@@ -116,6 +124,7 @@ def iset_validate(request, iset_id):
     delivery.save()
     return redirect('scm:delivery_detail', iset_id=iset_id, project_id=request.project.pk)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.validate_installableset')
 def iset_validate_script(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
@@ -123,6 +132,7 @@ def iset_validate_script(request, iset_id):
     delivery.save()
     return HttpResponse(delivery.pk, content_type='text/plain')
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.validate_installableset')
 def iset_invalidate(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
@@ -130,6 +140,7 @@ def iset_invalidate(request, iset_id):
     delivery.save()
     return redirect('scm:delivery_detail', iset_id=iset_id, project_id=request.project.pk)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.validate_installableset')
 def iset_invalidate_script(request, iset_id):
     delivery = InstallableSet.objects.get(pk=iset_id)
@@ -137,6 +148,7 @@ def iset_invalidate_script(request, iset_id):
     delivery.save()
     return HttpResponse(delivery.pk, content_type='text/plain')
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.install_installableset')
 def ii_test_applicable_to_ci(request, ci_id, ii_id):
     ii = InstallableItem.objects.get(pk=ii_id)
