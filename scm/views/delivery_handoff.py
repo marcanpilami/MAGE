@@ -7,7 +7,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.forms.models import inlineformset_factory
 from django.views.decorators.cache import cache_control
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import login_required
+from ref.permissions.perm_check import permission_required_project_aware
 
 # MAGE imports
 from scm.models import InstallableSet, InstallableItem, ItemDependency, Delivery
@@ -16,7 +17,7 @@ from ref.models import LogicalComponent, getParam
 
 
 @login_required
-@permission_required('scm.add_delivery')
+@permission_required_project_aware('scm.modify_delivery')
 @cache_control(no_cache=True)
 def delivery_edit(request, iset_id=None, project='all'):
     if iset_id is None:
@@ -93,7 +94,7 @@ def delivery_edit(request, iset_id=None, project='all'):
 
 
 @login_required
-@permission_required('scm.add_delivery')
+@permission_required_project_aware('scm.modify_delivery')
 @cache_control(no_cache=True)
 def delivery_edit_dep(request, iset_id):
     iset = InstallableSet.objects.get(pk=iset_id)

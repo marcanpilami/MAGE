@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.timezone import now
 from django.shortcuts import render, redirect
 from django.http.response import HttpResponse, HttpResponseBadRequest
-from ref.views.misc import project
+from ref.permissions.perm_check import permission_required_project_aware
 
 ## MAGE imports
 from scm.backup import register_backup_envt_default_plan, register_backup
@@ -23,16 +23,19 @@ def backup_list(request, archive=False):
 def backup_detail(request, bck_id):
     return render(request, 'scm/backup_detail.html', {'bck': BackupSet.objects.get(pk=bck_id)})
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.add_backupset')
 def backup_envt(request, envt_name):
     b = register_backup_envt_default_plan(envt_name, now())
     return redirect('scm:backup_detail', bck_id=b.id, project=request.project)
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.add_backupset')
 def backup_envt_script(request, envt_name):
     b = register_backup_envt_default_plan(envt_name, now())
     return HttpResponse(b.id, content_type='text/plain')
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.add_backupset')
 def backup_envt_manual(request, envt_name):
     e = Environment.objects.get(name=envt_name)
@@ -49,6 +52,7 @@ def backup_envt_manual(request, envt_name):
 
     return render(request, 'scm/backup_create_manual.html', {'form': f, 'envt': e})
 
+@permission_required_project_aware('ref.modify_project')
 @permission_required('scm.add_backupset')
 def backup_script(request, envt_name, ci_id, bck_id=None):
     try:

@@ -4,10 +4,10 @@
 from django import forms
 from django.shortcuts import render, redirect
 from django.db.transaction import atomic
-from django.contrib.auth.decorators import permission_required
 
 ## MAGE imports
 from ref.models import ComponentImplementationClass, ImplementationDescription, Environment, ComponentInstance, ComponentInstanceField, ComponentInstanceRelation
+from ref.permissions.perm_check import permission_required_project_aware
 
 ## Other libs imports
 from crispy_forms.helper import FormHelper
@@ -35,7 +35,7 @@ def new_items(request):
 #####################################################################
 
 ## Views
-@permission_required('ref.scm_addcomponentinstance')
+@permission_required_project_aware('ref.modify_project')
 @atomic
 def new_ci_step1(request, description_id):
     descr = ImplementationDescription.objects.get(pk=description_id)
@@ -94,7 +94,7 @@ def form_for_model_relations(descr):
 #####################################################################
 
 # Views
-@permission_required('ref.scm_addcomponentinstance')
+@permission_required_project_aware('ref.modify_project')
 @atomic
 def new_ci_step2(request, instance_id):  # always edit an existing CI - to create a CI use step 1.
     instance = ComponentInstance.objects.select_related('description', 'instanciates')\

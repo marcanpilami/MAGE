@@ -12,12 +12,13 @@ from django.db.models.query import Prefetch
 from django.db.models.aggregates import Max
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
-from django.contrib.auth.decorators import permission_required, login_required
-from django.core.cache import cache
+from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 
 ## MAGE imports
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
 from ref.models.parameters import getParam
+from ref.permissions.perm_check import permission_required_project_aware, login_required_unless_anonymous_mode
+from ref.permissions.perm_check import anonymous_mode
 from scm.models import ComponentInstanceConfiguration
 
 
@@ -25,7 +26,9 @@ from scm.models import ComponentInstanceConfiguration
 ## Home screen
 ##############################################################################
 
+@permission_required_project_aware('ref.view_project', no_check_in_anonymous_mode=True)
 def project(request):
+    """Home page for a specific project (not the MAGE home)"""
     latest_setname = {}
     latest_date = {}
     envts = []
@@ -48,13 +51,18 @@ def project(request):
                                                     'envts': envts,
                                                     'templates': Environment.objects.filter(template_only=True) })
 
-
+@login_required_unless_anonymous_mode
 def welcome(request):
+    """MAGE home - basically a project list. Redirects if only one project available"""
     projects = Project.objects.all()
-    if projects.count() == 1:
+
+    if not anonymous_mode:
+        projects = [ project for project in projects if request.user.has_perm(f'ref.view_project_{project.id}')]
+
+    if len(projects) == 1:
         return redirect('ref:project', project_id=projects[0].pk)
-    else:
-        return render(request, 'ref/welcome.html', { 'templates': projects })
+
+    return render(request, 'ref/welcome.html', { 'templates': projects })
 
 
 ##############################################################################
@@ -113,11 +121,11 @@ def model_detail(request):
 def shelllib_bash(request):
     return render(request, 'ref/helper_bash.sh', content_type='text/plain')
 
-@permission_required('ref.scm_addcomponentinstance')
+@user_passes_test(lambda u: u.is_superuser)
 def debug(request):
     return render(request, 'ref/debug.html', {'envts': Environment.objects.all(), 'descrs' : ImplementationDescription.objects.all().order_by('tag', 'name')})
 
-@permission_required('ref.scm_addcomponentinstance')
+@user_passes_test(lambda u: u.is_superuser)
 def control(request):
     descrs = ImplementationDescription.objects.all().prefetch_related(
           Prefetch('instance_set', queryset=ComponentInstance.objects.all().prefetch_related('rel_target_set', 'field_set', 'environments').select_related('instanciates')), \
@@ -168,7 +176,7 @@ def control(request):
             
     return render(request, 'ref/control.html', {'many_envts': many_envts, 'missing_field': missing_field, 'missing_rel': missing_rel})
 
-@permission_required('ref.scm_addcomponentinstance')
+@user_passes_test(lambda u: u.is_superuser)
 def clear_cache(request):
     try:
         cache.clear()
