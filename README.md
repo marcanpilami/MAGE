@@ -1,10 +1,6 @@
 MAGE - Module d'Assistance à la Gestion d'Environnement
 ============================================================
 
-Note that MAGE is created using the excellent IDE [PyCharm](https://www.jetbrains.com/pycharm), provided freely by [JetBrains](https://www.jetbrains.com) to this open source project. Huge thanks to them.
-
-Notez que MAGE est créé avec l'IDE [PyCharm](https://www.jetbrains.com/pycharm), fourni gratuitement par [JetBrains](https://www.jetbrains.com) à ce projet open source. Grand merci à eux.
-
 (in French - MAGE is not localized in other languages yet)
 
 MAGE est un framework permettant de facilement mettre en place un outillage de gestion d'environnements sur un projet informatique. 
@@ -18,10 +14,10 @@ Ce framework couvre donc les aspects suivants :
     * Gestion fine des normes de nommage pour faciliter la création des composants et le respect des normes
 	* API d'interrogation web (en général de simples GET) pour les scripts (qui par exemple iront chercher une chaîne de connexion dans le référentiel)
 	* Publication du référentiel sur un portail (avec plusieurs niveaux de sécurité intégrés)
-    * Outil très paramètrable de cartographie des environnements 
-    * Puissant language de requête
+    * Outil très paramétrable de cartographie des environnements 
+    * Puissant langage de requête
     * Possibilités d'export JSON, CSV (Excel) et sous forme de scripts shell
-* Gestion de configuration Logicelle (GCL)
+* Gestion de configuration Logicielle (GCL)
 	* Référencement des packages et sauvegardes, avec gestion des dépendances en version
     * DSL: centralisation de la gestion des livraisons, qui deviennent facilement accessibles en HTTP. La DSL est doté d'un workflow de validation simple
     * Vérification automatique du format et contenu des packages
@@ -31,4 +27,4 @@ Ce framework couvre donc les aspects suivants :
     * Gestion d'ensembles de version de référence ("tags")
 * Transverse
     * Gestion simple des habilitations, avec de base seulement trois rôles clairs (toute cette gestion pouvant être finement adaptée à tous les besoins si nécessaire)
-    * L'authentification peut être déleguée à un serveur LDAP
+    * L'authentification peut être déléguée à un serveur LDAP

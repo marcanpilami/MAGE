@@ -1,0 +1,14 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": ["--load-plugins=pylint_django", "--django-settings-module=MAGE.settings",],
+    "python.languageServer": "Pylance",
+    "files.associations": {
+        "**/*.html": "html",
+        "**/templates/**/*.html": "django-html",
+        "**/templates/**/*": "django-txt",
+        "**/requirements{/**,*}.{txt,in}": "pip-requirements"
+    },
+    "snooty.sourceFolder": "${workspaceFolder}/doc",
+    "restructuredtext.confPath": "${workspaceFolder}/doc",
+}

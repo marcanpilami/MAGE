@@ -1,5 +1,5 @@
 ## Core dependencies
-django>=3.2.5,<3.3
+django>=3.2.12,<3.3
 pyparsing==2.0.2
 unicodecsv==0.14.1 # todo: remove.
 django-crispy-forms>=1.11.0,<2
@@ -13,10 +13,15 @@ requests==2.26.0
 ## Cloud provider dependencies (can be removed if not used, no harm if left present but unused)
 azure-storage==0.20.0
 
-## Following libraries are not used in normal operations, the are just present for debugging in case of problem.
+## Following libraries are not used in normal operations, they are just present for debugging in case of problem.
 ipython
 django_debug_toolbar==3.2.1
 
-# Lint
+# IDE linting, language server helpers & co. Not needed by MAGE itself.
 pylint
 pylint-django
+snooty-lextudio
+debugpy
+sphinx
+sphinx-autobuild
+rstcheck
