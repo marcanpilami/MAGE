@@ -12,7 +12,7 @@ def permission_required_project_aware(perm, login_url=None, raise_exception=Fals
     """A decorator that has the same signature as permission_required and which uses the project context inside the query to use instance-level permissions instead of model-level."""
     def wrap_view(view_function):
         def wrapped_view(request, *args, **kwargs):
-            if not request.project:
+            if not hasattr(request, "project") or not request.project:
                 # cannot have a view protected on project level without a project in the query.
                 raise PermissionDenied
 

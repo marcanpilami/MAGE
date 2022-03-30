@@ -32,6 +32,7 @@ urlpatterns = [
     # Applying installable sets/items - forms
     re_path(r'project/(?P<project_id>\d+)/is/(?P<iset_id>\d*)/testonenvtform/(?P<envt_id_or_name>.+)$', views.iset_test, name='delivery_prereqs_test'),
     re_path(r'project/(?P<project_id>\d+)/is/(?P<iset_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)/force$', views.iset_apply_envt, {'force_prereqs' : True}, name='iset_apply_envt_force'),
+    re_path(r'project/(?P<project_id>\d+)/is/(?P<iset_id>\d*)/applytoenvt/(?P<envt_id_or_name>.+)$', views.iset_apply_envt, {'force_prereqs' : False}, name='iset_apply_envt_force'),
     re_path(r'project/(?P<project_id>\d+)/bck/$', views.backup_list, name='backup_list'),
     re_path(r'project/(?P<project_id>\d+)/bck/archive$', views.backup_list, {'archive': True}, name='backup_list_archive'),
     re_path(r'project/(?P<project_id>\d+)/bck/(?P<bck_id>\d*)$', views.backup_detail, name='backup_detail'),
