@@ -104,8 +104,6 @@ MIDDLEWARE = [
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-MIDDLEWARE_CLASSES = []
-LOCAL_MIDDLEWARE_CLASSES = []
 
 ROOT_URLCONF = 'MAGE.urls'
 
@@ -212,4 +210,3 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += LOCAL_APPS
 MIDDLEWARE += LOCAL_MIDDLEWARE
-MIDDLEWARE_CLASSES += LOCAL_MIDDLEWARE_CLASSES
