@@ -24,7 +24,7 @@ class Project(models.Model):
         return self.name
 
 class Application(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
@@ -33,6 +33,10 @@ class Application(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'project'), name='application_uniqueness')
+        ]
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""

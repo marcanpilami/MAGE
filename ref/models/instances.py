@@ -12,6 +12,7 @@ from typing import MutableMapping
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
+from django.db.models.constraints import UniqueConstraint
 
 
 ################################################################################
@@ -26,7 +27,7 @@ class Environment(models.Model):
     """ 
         A set of component instances forms an environment
     """
-    name = models.CharField(max_length=100, verbose_name='Nom', unique=True)
+    name = models.CharField(max_length=100, verbose_name='Nom')
     buildDate = models.DateField(verbose_name=u'Date de création', auto_now_add=True)
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
@@ -59,6 +60,9 @@ class Environment(models.Model):
     class Meta:
         verbose_name = 'environnement'
         verbose_name_plural = 'environnements'
+        constraints = [
+            UniqueConstraint(fields=('name', 'project'), name='environment_uniqueness')
+        ]
 
 @receiver(pre_save, sender=Environment)
 def disable_cis(sender, instance, raw, using, update_fields, **kwargs):

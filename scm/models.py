@@ -37,8 +37,8 @@ def __isetdatafilename__(iset, filename):
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
-    name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
-    description = models.CharField(max_length=1000, verbose_name=u'résumé du contenu', unique=False, blank=True, null=True)
+    name = models.CharField(max_length=40, verbose_name=u'référence')
+    description = models.CharField(max_length=1000, verbose_name=u'résumé du contenu', blank=True, null=True)
     project = models.ForeignKey(Project, blank = False, null = False, on_delete=models.CASCADE)
     set_date = models.DateTimeField(verbose_name=u'date de réception', auto_now_add=True)
     ticket_list = models.CharField(max_length=100, verbose_name='ticket(s) lié(s) séparés par une virgule', null=True , blank=True)
@@ -80,6 +80,9 @@ class InstallableSet(models.Model):
                        ('install_installableset', 'can reference an installation'),)
         verbose_name = u'élément à installer'
         verbose_name_plural = u'éléments à installer'
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'project'), name='is_%(class)s_uniqueness')
+        ]
 
 
 class Delivery(InstallableSet):
