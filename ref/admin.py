@@ -84,7 +84,7 @@ site.register(EnvironmentType, EnvironmentTypeAdmin)
 class LogicalComponentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'application', 'ref1', 'ref2', 'ref3')
     ordering = ('application', 'name')
-    list_filter = ('application', 'active', 'scm_trackable')
+    list_filter = ('application__project', 'application', 'active', 'scm_trackable')
 site.register(LogicalComponent, LogicalComponentAdmin)
 
 class ApplicationAdmin(ModelAdmin):

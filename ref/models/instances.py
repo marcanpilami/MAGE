@@ -31,7 +31,7 @@ class Environment(models.Model):
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
-    project = models.ForeignKey('Project', null=True, blank=True, on_delete=models.CASCADE)
+    project = models.ForeignKey('Project', null=False, blank=False, on_delete=models.CASCADE)
     typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie', on_delete=models.CASCADE)
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')

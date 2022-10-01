@@ -1,7 +1,8 @@
 from ref.models import Project
 
-"""A very simple middleware which adds a 'project' argument to the view call and template context if the argument 'project_id' was given. Factorizes stupid code, including global cache."""
+
 class ProjectFromProjectIdMiddleware:
+    """A very simple middleware which adds a 'project' argument to the view call and template context if the argument 'project_id' was given. Factorizes stupid code, including global cache."""
     def __init__(self, get_response):
         self.get_response = get_response
 

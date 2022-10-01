@@ -16,7 +16,7 @@
 	</div>
 
 	<a class='metRectList defaultHighlightBackground' style='height:auto;'
-		href="{% url 'scm:iset_apply_envt' delivery.id envt.id %}">
+		href="{% url 'scm:iset_apply_envt' project.pk delivery.id envt.id %}">
 		Cliquez ici pour enregistrer l'application de l'ensemble de cette livraison sur tous les composants éligibles de cet environnement.
 	</a>
 {% endif %}

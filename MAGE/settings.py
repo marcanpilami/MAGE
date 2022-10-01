@@ -187,6 +187,7 @@ CACHES = {
     }
 }
 
+DEFAULT_PROJECT_ID = None
 LOCAL_APPS = []
 try:
     from MAGE.local_settings import *

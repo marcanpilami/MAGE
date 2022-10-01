@@ -42,20 +42,24 @@ def new_ci_step1(request, description_id):
     cls = form_for_model_relations(descr)
 
     if request.POST:
-        form = cls(request.POST)
+        form = cls(request, request.POST)
         if form.is_valid():
             ## Do things & redirect
             ci = ImplementationDescription.class_for_name(descr.name)(**form.cleaned_data)
             ci.save()
             return redirect('ref:edit_ci', instance_id=ci._instance.pk, project_id=request.project.pk)
     else:
-        form = cls()  # unbound form
+        form = cls(request)  # unbound form
 
     return render(request, "ref/instance_edit_step1.html", {'form': form, 'descr' : descr})
 
 ## Forms
 class NewCiStep1Form(forms.Form):
-    _env = forms.ModelChoiceField(queryset=Environment.objects.order_by('name').filter(template_only=False, active=True), label='Environnement', required=False)
+    def __init__(self, query, *args, **kwargs):
+        super(NewCiStep1Form, self).__init__(*args, **kwargs)
+        self.fields['_env'].queryset = Environment.objects.order_by('name').filter(template_only=False, active=True,project=query.project)
+
+    _env = forms.ModelChoiceField(queryset=Environment.objects.all(), label='Environnement', required=False)
 
     helper = FormHelper()
     helper.form_class = 'form-horizontal'

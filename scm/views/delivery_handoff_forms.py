@@ -11,18 +11,18 @@ import re
 ## Django imports
 from django import forms
 from django.forms import ModelForm
+from django.db.models import Count
+from django.forms.models import ModelChoiceField
 
 ## MAGE imports
 from scm.models import Delivery, LogicalComponentVersion, InstallableItem, ItemDependency, InstallationMethod
 from ref.models import LogicalComponent
 from ref.widgets import ClearableFileInputPretty
-from django.forms.models import ModelChoiceField
-
 
 class DeliveryForm(ModelForm):
     def clean_ticket_list(self):
         data = self.cleaned_data['ticket_list']
-        if len(data) == 0:
+        if not data:
             return data
         p = re.compile('([\da-zA-Z_-]+,?)+$')
         if p.match(data) is None:
@@ -39,9 +39,7 @@ class LcChoiceField(ModelChoiceField):
         return "%s - %s" % (obj.application.name, obj.name)
 
 class IIForm(ModelForm):
-    #target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
-    target = LcChoiceField(queryset=LogicalComponent.objects.all())
-    # TODO: make query right
+    target = LcChoiceField(queryset=LogicalComponent.objects.filter(implemented_by__installation_methods__restoration_only = False, implemented_by__installation_methods__available = True).annotate(num_methods=Count('implemented_by__installation_methods')).filter(scm_trackable=True).filter(num_methods__gt = 0).order_by('application__name', 'name'), label='Composant livré')
     version = forms.CharField(label='Version livrée')
 
     def save(self, commit=True):

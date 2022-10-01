@@ -4,8 +4,8 @@
 
 {%block frequentActionsButtons%}
 <a href="{% url 'scm:tag_create' project.pk envt.name envt.potential_tag %}" title="Créer un tag">T</a>
-<a href="{% url 'scm:backup_envt' envt.name %}" title="Enregistrer manuellement un backup par défaut">B</a>
-<a href="{% url 'scm:backup_envt_manual' envt.name %}" title="Enregistrer manuellement un backup de certains éléments">M</a>
+<a href="{% url 'scm:backup_envt' project.pk envt.name %}" title="Enregistrer manuellement un backup par défaut">B</a>
+<a href="{% url 'scm:backup_envt_manual' project.pk envt.name %}" title="Enregistrer manuellement un backup de certains éléments">M</a>
 {%endblock%}
 
 {% block content %}

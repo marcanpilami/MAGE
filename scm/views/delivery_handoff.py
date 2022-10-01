@@ -19,7 +19,7 @@ from ref.models import LogicalComponent, getParam
 @login_required
 @permission_required_project_aware('scm.modify_delivery')
 @cache_control(no_cache=True)
-def delivery_edit(request, iset_id=None, project='all'):
+def delivery_edit(request, iset_id=None):
     if iset_id is None:
         extra = 4
     else:
@@ -67,6 +67,7 @@ def delivery_edit(request, iset_id=None, project='all'):
         iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
 
         if form.is_valid() and iiformset.is_valid():  # All validation rules pass
+            form.instance.project = request.project # security important.
             instance = form.save()
 
             iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
@@ -74,9 +75,9 @@ def delivery_edit(request, iset_id=None, project='all'):
                 iiformset.save()
 
                 ## Done
-                return redirect('scm:delivery_edit_dep', project=project, iset_id=instance.id)
+                return redirect('scm:delivery_edit_dep', project_id=request.project.pk, iset_id=instance.id)
     else:
-        form = DeliveryForm(instance=instance)
+        form = DeliveryForm(instance=instance, initial={"project": request.project})
         iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
 
     ## Remove partially completed removed forms

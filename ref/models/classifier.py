@@ -29,7 +29,7 @@ class Application(models.Model):
     alternate_name_2 = models.CharField(max_length=100, null=True, blank=True)
     alternate_name_3 = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=500)
-    project = models.ForeignKey(Project, null=True, blank=True, related_name='applications', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, null=False, blank=False, related_name='applications', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
