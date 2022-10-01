@@ -104,7 +104,7 @@ urlpatterns_script = [
 ]
 
 urlpatterns = [
-    re_path(r'^project/(?P<project_id>\d+)/', include(urlpatterns_script)),
+    re_path(r'^project/(?P<project_id>[\w\-_]+)/', include(urlpatterns_script)),
     re_path(r'^', include((urlpatterns_script, 'scm'), namespace='default_project'), kwargs={'project_id': settings.DEFAULT_PROJECT_ID}),
-    re_path(r'^project/(?P<project_id>\d+)/', include(urlpatterns_interactive)),
+    re_path(r'^project/(?P<project_id>[\w\-_]+)/', include(urlpatterns_interactive)),
 ]

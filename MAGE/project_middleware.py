@@ -11,7 +11,10 @@ class ProjectFromProjectIdMiddleware:
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if not 'project' in view_kwargs and 'project_id' in view_kwargs and view_kwargs['project_id']:
-            request.project = Project.objects.get(pk = view_kwargs['project_id'])
+            try:
+                request.project = Project.objects.get(pk = view_kwargs['project_id'])
+            except (Project.DoesNotExist,ValueError):
+                request.project = Project.objects.get(name = view_kwargs['project_id'])
 
         if 'project_id' in view_kwargs:
             del view_kwargs['project_id']
