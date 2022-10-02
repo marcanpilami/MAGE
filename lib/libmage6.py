@@ -47,7 +47,7 @@ class MageClient(object):
 
         # Sanity checks
         if not login.startswith("http"):
-            msg = "Bad MAGE_BASE_URL. It should starts with http://... or (better) https://..."
+            msg = f"Bad MAGE_BASE_URL. It should starts with http://... or (better) https://... (instead of {login})"
             self.logger.fatal(msg)
             raise LibMageException(msg)
         if not login.startswith("https://"):
@@ -100,7 +100,7 @@ class MageClient(object):
          object instead of a list of component instance description. """
         base_query = "ref/mql/json/"
         url = urljoin(self.base_url, base_query)
-        url = urljoin(url, project + '/' + query)
+        url = urljoin(url, query)
         if self._session is None:
             msg = "You must login before trying to run a query"
             self.logger.fatal(msg)

@@ -10,16 +10,16 @@ class NLTestCase(TestCase):
 
         p1 = Project(name='SUPER-PROJECT', description='New ERP for FIRM1. A Big Program project.', alternate_name_1='ERP', alternate_name_2='PROJECTCODE')
         p1.save()
-        a1 = Application(name='Soft1', description='Super New ERP')
+        a1 = Application(name='Soft1', description='Super New ERP', project=p1)
         a1.save()
-        a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems')
+        a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems', project=p1)
         a2.save()
         p1.applications.add(a1, a2)
 
         et1 = EnvironmentType(name='development', description="for developers. No admin except for middlewares.", short_name='DEV', chronological_order=1, default_show_sensitive_data=True)
         et1.save()
 
-        e1 = Environment(name='DEV1', description='DEV1', typology=et1)
+        e1 = Environment(project=p1, name='DEV1', description='DEV1', typology=et1)
         e1.save()
         p1.environment_set.add(e1)
 
@@ -29,12 +29,12 @@ class NLTestCase(TestCase):
                                                 technical_description=ImplementationDescription.objects.get(name='jbossapplication'))
         impl_3_2.save()
 
-        i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin')
+        i1_1 = ImplementationDescription.class_for_name('osserver')(_project=p1, dns='server1.marsu.net', admin_login='test admin')
 
         i12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain1', admin_user='admin', admin_password='pass', \
                 base_http_port=8080, base_https_port=8081, web_admin_port=9990, native_admin_port=9999, _env=e1)
 
-        i13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1)
+        i13_1 = ImplementationDescription.class_for_name('jbosshost')(_project=p1, name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1)
 
         i14_1 = ImplementationDescription.class_for_name('jbossgroup')(name=u'GEP_DEV1_01', dns_to_use='marsu.pl', \
                    dedicated_admin_login='dev1', dedicated_admin_password='dev1', domain=i12_1, _env=e1)

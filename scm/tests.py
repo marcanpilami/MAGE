@@ -101,7 +101,7 @@ class SimpleTest(TestCase):
         self.assertEqual(self.ci_app2.version, 'a')
 
         installs = Installation.objects.all().count()
-        self.assertEqual(2, installs)
+        self.assertEqual(1, installs)
 
     def test_not_merge(self):
         setOrCreateParam(key=u'APPLY_MERGE_LIMIT', value=u'0') ## Disable merge
@@ -117,4 +117,4 @@ class SimpleTest(TestCase):
         self.assertEqual(self.ci_app2.version, 'a')
 
         installs = Installation.objects.all().count()
-        self.assertEqual(3, installs)
+        self.assertEqual(2, installs)
