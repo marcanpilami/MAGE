@@ -125,6 +125,8 @@ actually) between the CIC and the LC is very important.
 	.. py:attribute:: ComponentImplementationClass.name
 	
 	.. py:attribute:: ComponentImplementationClass.description
+
+		The description object that will be used to actually instantiate the CIC. See above.
 	
 	.. py:attribute:: ComponentImplementationClass.implements
 	
@@ -134,9 +136,6 @@ actually) between the CIC and the LC is very important.
 	
 		An optional :py:class:`SLA` object
 		
-	.. py:attribute:: ComponentImplementationClass.description
-	
-		The description object that will be used to actually instantiate the CIC. See above.
 
 Environments
 ***********************

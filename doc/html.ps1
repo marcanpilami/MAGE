@@ -1,6 +1,5 @@
-if (! (Test-Path .\html ))
+if (! (Test-Path $PSScriptRoot/html ))
 {
-    mkdir .\html
+    mkdir $PSScriptRoot/html
 }
-C:\Python27\Scripts\sphinx-build.exe -a -b html . html
-Read-Host # allows to read errors
+& sphinx-build.exe -a -b html $PSScriptRoot $PSScriptRoot/html

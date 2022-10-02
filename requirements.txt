@@ -25,3 +25,8 @@ debugpy
 sphinx
 sphinx-autobuild
 rstcheck
+
+# Doc only
+esbonio
+sphinx_rtd_theme
+rstcheck==5.0.0
