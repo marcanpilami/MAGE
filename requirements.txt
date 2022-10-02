@@ -25,6 +25,8 @@ debugpy
 sphinx
 sphinx-autobuild
 rstcheck
+django-extensions
+pydotplus
 
 # Doc only
 esbonio

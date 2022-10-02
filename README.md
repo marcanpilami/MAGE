@@ -28,3 +28,5 @@ Ce framework couvre donc les aspects suivants :
 * Transverse
     * Gestion simple des habilitations, avec de base seulement trois rôles clairs (toute cette gestion pouvant être finement adaptée à tous les besoins si nécessaire)
     * L'authentification peut être déléguée à un serveur LDAP
+
+Un début de documentation est disponible [ici](https://mage.readthedocs.io/)

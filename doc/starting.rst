@@ -226,7 +226,7 @@ The component instance is described by the :py:attr:`ComponentImplementationClas
 		
 	.. py:attribute:: instantiates
 	
-		The :py:class:`ComponentImplementationClass` implemented.
+		The :py:class:`ComponentImplementationClass` implemented. It is optional - not all component instances need to be version tracked.
 		
 	.. py:attribute:: deleted
 	
