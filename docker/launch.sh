@@ -5,7 +5,6 @@ needMigration="$(python manage.py makemigrations)"
 hasMigration="$(python manage.py showmigrations | awk -e '/\[ \]/ { print $0 }')"
 if [[ $MAGE_ALLOW_MIGRATIONS = True || ($needMigration = "No changes detected" && $hasMigration = "") ]]; then
   python manage.py migrate;
-  python manage.py collectstatic --noinput;
   python manage.py synccheckers;
 else
   echo "Database migration can't be done";
@@ -22,4 +21,16 @@ if not User.objects.filter(username="root").exists():
 EOF
 fi
 
-gunicorn --workers=2 --bind=0.0.0.0:8000 --access-logfile=- --error-logfile=- --log-level=INFO --forwarded-allow-ips=* MAGE.wsgi
+if [[ "$MAGE_CREATE_DEMO_DATA" = "True" ]]; then
+  python3 manage.py shell <<EOF
+from scm.demo_items import create_test_is
+from scm.models import LogicalComponentVersion
+if not LogicalComponentVersion.objects.exists():
+  print("Creating demo data")
+  create_test_is()
+EOF
+fi
+
+
+
+exec gunicorn --workers=2 --bind=0.0.0.0:8000 --access-logfile=- --error-logfile=- --log-level=INFO --forwarded-allow-ips=* MAGE.wsgi

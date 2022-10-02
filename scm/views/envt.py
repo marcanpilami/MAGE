@@ -20,7 +20,7 @@ def all_installs(request, envt_name, limit):
     '''All installs on a given environment'''
     if isinstance(limit, str):
         limit = int(limit)
-    envt = Environment.objects.get(name=envt_name)
+    envt = Environment.objects.get(name=envt_name, project=request.project)
     envt.potential_tag = now().strftime('%Y%M%d') + "_" + envt_name
     dlimit = now() - timedelta(days=limit)
 

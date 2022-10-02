@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1, \
     PYTHONUNBUFFERED=1 \
     APP_NAME=MAGE \
     DATABASE_ENGINE= \
-    DATABASE_NAME= \
+    DATABASE_NAME=/code/deployment/db/db.sqlite \
     DATABASE_HOST= \
     DATABASE_PORT= \
     DATABASE_USER= \
@@ -21,6 +21,7 @@ ENV PYTHONDONTWRITEBYTECODE=1, \
     AZURE_ACCOUNT_KEY= \
     AZURE_CONTAINER= \
     MAGE_ALLOW_MIGRATIONS=True \
+    MAGE_CREATE_DEMO_DATA=False \
     DJANGO_ALLOWED_HOSTS=* \
     DJANGO_INTERNAL_IPS="" \
     DJANGO_SECRET_KEY="your_own_here" \
@@ -38,13 +39,14 @@ COPY ./MAGE/local_settings.docker.py /code/MAGE/local_settings.py
 
 RUN addgroup -g 500 -S django && adduser --system --no-create-home --uid 500 -G django django
 RUN python manage.py collectstatic --no-input ;
-RUN mkdir -p /code/deployment/media /code/tmp && chown -R django:django /code && chmod -R 400 . && find -type d -exec  chmod 500 {} \; && chmod -R 700 deployment tmp /code/docker/launch.sh
+RUN mkdir -p /code/deployment/media /code/deployment/db && chown -R django:django /code && chmod -R 400 . && find -type d -exec  chmod 500 {} \; && chmod -R 700 deployment /code/docker/launch.sh
 
 USER django
 
 STOPSIGNAL SIGINT
 EXPOSE 8000
 VOLUME /code/deployment/media
+VOLUME /code/deployment/db
 
 #RUN ls -alrt /code/docker; false
 CMD /code/docker/launch.sh

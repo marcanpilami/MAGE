@@ -281,7 +281,7 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
         self._instance = base_instance
         self._id = self._instance.pk
     elif not self.__class__._related_impl is None:
-        self._instance = ComponentInstance(description=self.__class__._related_impl, project=_project)
+        self._instance = ComponentInstance(description=self.__class__._related_impl, project=_project if _project else (_env.project if _env else None))
         self._instance.save()
 
     if not self.__class__._related_impl is None:
