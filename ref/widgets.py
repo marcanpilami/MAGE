@@ -11,6 +11,13 @@ from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 
 class ClearableFileInputPretty(ClearableFileInput):
+    # TODO: go back to standard templates. (these are from version 1.8)
+    template_with_initial = (
+        '%(initial_text)s: <a href="%(initial_url)s">%(initial)s</a> '
+        '%(clear_template)s<br />%(input_text)s: %(input)s'
+    )
+    template_with_clear = '%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>'
+
     def render(self, name, value, attrs=None, renderer=None):
         substitutions = {
             'initial_text': self.initial_text,

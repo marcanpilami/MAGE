@@ -95,13 +95,14 @@ class IIForm(ModelForm):
         ## Done
         return cleaned_data
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super(IIForm, self).__init__(*args, **kwargs)
         self.fields['how_to_install'].queryset = InstallationMethod.objects.filter(restoration_only=False)
 
         if 'application' in kwargs:
-            self.field['target'].queryset = self.field['target'].queryset.filter(application=kwargs['application'])
+            self.fields['target'].queryset = self.fields['target'].queryset.filter(application=kwargs['application'])
             kwargs.remove('application')
+        self.fields['target'].queryset = self.fields['target'].queryset.filter(application__project=project)
 
         if self.instance != None and self.instance.pk is not None:
             self.initial['target'] = self.instance.what_is_installed.logical_component.pk
@@ -123,4 +124,7 @@ class IDForm(ModelForm):
         model = ItemDependency
         fields = ('target', 'depends_on_version', 'operator',)
 
-
+    def __init__(self, project, *args, **kwargs):
+        super(IDForm, self).__init__(*args, **kwargs)
+        
+        self.fields['target'].queryset = self.fields['target'].queryset.filter(application__project=project)
