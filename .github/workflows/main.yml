@@ -94,7 +94,7 @@ jobs:
 
       - name: Build and push Docker image
         if: ${{ steps.docker_tag.outputs.value == 'nightly' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
           tags: enioka/mage:${{ steps.docker_tag.outputs.value }}
@@ -105,10 +105,10 @@ jobs:
       # Make use of the cache if it's release
       - name: Build and push Docker image
         if: ${{ steps.docker_tag.outputs.value != 'nightly' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ steps.docker_tag.outputs.value }}
+          tags: enioka/mage:${{ steps.docker_tag.outputs.value }}
           context: .
           file: ./docker/Dockerfile
           push: true
