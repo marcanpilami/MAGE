@@ -1,12 +1,11 @@
-Installation
-############
+Installation with Git
+######################
 
 Prerequisites
 *************
 
-* OS: every OS with a supported Python 2.7 distribution. (Windows, most Linux distributions, Solaris, ...)
-* The latest Python 2.7.x (not Python 3.x)
-* Python easy install (may be included in your Python distribution, otherwise download https://bootstrap.pypa.io/get-pip.py and run python get-pip.py)
+* OS: every OS with a supported Python 3.10 distribution. (Windows, most Linux distributions, Solaris, ...)
+* The latest Python 3.10.x (not Python 2.x)
 * A git client (on Windows, the recommended distribution is GitHub's http://msysgit.github.io/)
 * Optionally, a database (Oracle >= 10g, PostgresQL, mysql). Default is sqlite 3 - it is bundled with Python, so nothing special is required. In other databases, you will
   need an account with the permission to create tables, sequences and indexes (or their equivalent in your database).
@@ -27,13 +26,9 @@ Libraries
 
 These are installed with PIP::
 
-    ## Linux (sh, bash & similar)
+    ## Linux (sh, bash & similar) or Windows (pwsh)
     cd $MAGE_INSTALL_ROOT
     pip install -r requirements.txt --upgrade
-    
-    ## Windows (posh)
-    cd $MAGE_INSTALL_ROOT
-    C:\Python27\Scripts\pip.exe install -r requirements.txt --upgrade
     
 Settings
 ========
@@ -83,6 +78,6 @@ Otherwise, the database is yours to populate through the GUI and scripts. For wr
 WSGI/OSGI/FastCGI/SCGI/AJP integration
 ======================================
 
-For deploying MAGE inside a full-fledged web server, please follow the instructions at https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/.
+For deploying MAGE inside a full-fledged web server, please follow the instructions at https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/.
 
 Please note that all new deployments should use WSGI and NOT FastCGI which is deprecated in the Apache world.

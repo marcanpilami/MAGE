@@ -34,6 +34,7 @@ Contents
 	:maxdepth: 2
 	
 	install
+	install_docker
 	starting
 	mql
 	conventions
