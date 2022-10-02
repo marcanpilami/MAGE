@@ -5,7 +5,7 @@ from django.db import migrations
 
 def forward(apps, schema_editor):
     Project = apps.get_model('ref', 'Project')
-    default_project = Project.objects.first() or Project.objects.get_or_create(name='MIGRATED_PROJECT', defaults={'description': "Created by database upgrade. Rename it as you wish"})[0]
+    default_project = Project.objects.first() or Project.objects.get_or_create(name='NEW_PROJECT', defaults={'description': "Created by database upgrade. Rename it as you wish"})[0]
     default_project.save()
 
     ComponentInstance = apps.get_model('ref', 'ComponentInstance')

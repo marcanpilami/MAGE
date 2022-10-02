@@ -1,1 +1,11 @@
 doc
+.env/
+.venv/
+env/
+venv/
+.github/
+doc/
+tmp/
+MAGE/local_settings.py
+*.pyc
+**/Dockerfile*
