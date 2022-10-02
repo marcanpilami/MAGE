@@ -5,7 +5,8 @@ from django.db import migrations
 
 def forward(apps, schema_editor):
     Project = apps.get_model('ref', 'Project')
-    default_project = Project.objects.first() or Project.objects.get_or_create(name='MIGRATED_PROJECT')
+    default_project = Project.objects.first() or Project.objects.get_or_create(name='MIGRATED_PROJECT', defaults={'description': "Created by database upgrade. Rename it as you wish"})[0]
+    default_project.save()
 
     Environment = apps.get_model('ref', 'Environment')
     for envt in Environment.objects.all():

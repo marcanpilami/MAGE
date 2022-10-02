@@ -273,7 +273,7 @@ class ProxyRelSequence:
         ComponentInstanceRelation.objects.filter(source=self.proxy._instance, target=target_instance if isinstance(target_instance, ComponentInstance) else target_instance._instance, field=self.rel_descr).delete()
 
 
-def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, **kwargs):
+def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=False, _project=None, **kwargs):
     self._descr_id = None
     self._id = None
 
@@ -281,7 +281,7 @@ def _proxyinit(self, base_instance=None, _cic=None, _env=None, _noconventions=Fa
         self._instance = base_instance
         self._id = self._instance.pk
     elif not self.__class__._related_impl is None:
-        self._instance = ComponentInstance(description=self.__class__._related_impl)
+        self._instance = ComponentInstance(description=self.__class__._related_impl, project=_project)
         self._instance.save()
 
     if not self.__class__._related_impl is None:

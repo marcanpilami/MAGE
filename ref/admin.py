@@ -58,7 +58,7 @@ class EnvironmentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
-    list_filter = ['template_only', 'managed', 'project', 'typology']
+    list_filter = ['project', 'template_only', 'managed', 'typology']
     search_fields = ('name',)
 
 
@@ -169,8 +169,8 @@ class ComponentInstanceRelationAdmin(TabularInline):
 
 class ComponentInstanceAdmin(ModelAdmin):
     list_display = ['__str__', 'description', 'instanciates', 'active' ]
-    list_filter = ('deleted', 'description', 'environments', 'description__tag', 'instanciates')
+    list_filter = ('project', 'deleted', 'description', 'environments', 'description__tag', 'instanciates')
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
-#site.register(ComponentInstance, ComponentInstanceAdmin)
+#site.register(ComponentInstance, ComponentInstanceAdmin) 

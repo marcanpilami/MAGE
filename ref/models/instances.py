@@ -14,6 +14,8 @@ from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
 from django.db.models.constraints import UniqueConstraint
 
+from ref.models.classifier import Project
+
 
 ################################################################################
 ## Main notion: the environment
@@ -120,6 +122,7 @@ class ComponentInstance(models.Model):
     ## Base data for all components
     instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances', on_delete=models.CASCADE)
     description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='component_instances', verbose_name='project', on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
 

@@ -33,7 +33,7 @@ from ref.permissions.perm_check import permission_required_project_aware
 @atomic
 @permission_required_project_aware('ref.modify_project')
 def envt_instances(request, envt_id=1):
-    e = Environment.objects.get(pk=envt_id)
+    e = Environment.objects.get(pk=envt_id, project=request.project)
     # ModelChoiceIterator optim - https://code.djangoproject.com/ticket/22841
 
     ffs = {}
@@ -61,9 +61,9 @@ def envt_instances(request, envt_id=1):
             typ_items[instance.description] = [di, ]
 
     for typ, listi in typ_items.items():
-        cls = form_for_model(typ)
+        cls = form_for_model(typ, request.project)
         InstanceFormSet = formset_factory(wraps(cls)(partial(cls,
-                 cics=ComponentImplementationClass.objects.filter(technical_description_id=typ.id).order_by('name'))) , extra=0)
+                 cics=ComponentImplementationClass.objects.filter(technical_description_id=typ.id, implements__application__project=request.project).order_by('name'))) , extra=0)
         ffs[typ] = InstanceFormSet(request.POST or None, initial=listi, prefix=typ.name)
 
     if request.POST:
@@ -124,7 +124,7 @@ class MiniModelForm(forms.Form):
     _instanciates = forms.ModelChoiceField(queryset=ComponentImplementationClass.objects, required=False, label='composant logique')
 
 descr_terseform_cache = {}
-def form_for_model(descr):
+def form_for_model(descr, project):
     attrs = {}
     key = 'descr_terseformset_%s' % descr.id
     if cache.get(key) and key in descr_terseform_cache:
@@ -142,7 +142,7 @@ def form_for_model(descr):
 
     # Relations
     for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
-        f = forms.ModelChoiceField(queryset=field.target.instance_set, label=field.label, required=field.min_cardinality == 1)
+        f = forms.ModelChoiceField(queryset=field.target.instance_set.filter(project=project), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
     # deleted checkbox is last

@@ -39,13 +39,13 @@ def new_items(request):
 @atomic
 def new_ci_step1(request, description_id):
     descr = ImplementationDescription.objects.get(pk=description_id)
-    cls = form_for_model_relations(descr)
+    cls = form_for_model_relations(descr, request)
 
     if request.POST:
         form = cls(request, request.POST)
         if form.is_valid():
             ## Do things & redirect
-            ci = ImplementationDescription.class_for_name(descr.name)(**form.cleaned_data)
+            ci = ImplementationDescription.class_for_name(descr.name)(_project=request.project, **form.cleaned_data)
             ci.save()
             return redirect('ref:edit_ci', instance_id=ci._instance.pk, project_id=request.project.pk)
     else:
@@ -75,18 +75,18 @@ class CiChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return ' %s %s %s' % (obj.environments_str + " -" if obj.environments_str else '', obj.name, "(" + obj.instanciates.name + ")" if obj.instanciates_id else '')
 
-def form_for_model_relations(descr):
+def form_for_model_relations(descr, request):
     attrs = {}
 
     # CIC
     if descr.cic_set.count() > 0:
-        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.order_by('implements__application__name', 'implements__name', 'name').\
+        attrs['_cic'] = CicChoiceField(queryset=descr.cic_set.filter(implements__application__project=request.project).order_by('implements__application__name', 'implements__name', 'name').\
                                        select_related('implements__application').filter(active=True, implements__active=True),
                                        label='Offre technique implémentée', required=False)
 
     # Relations
     for field in descr.target_set.filter(max_cardinality__lte=1).prefetch_related('target__instance_set'):
-        f = CiChoiceField(queryset=field.target.instance_set.order_by('environments__name').select_related('instanciates').prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
+        f = CiChoiceField(queryset=field.target.instance_set.filter(project=request.project).order_by('environments__name').select_related('instanciates').prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
     cls = type(str("__" + descr.name.lower() + "_form"), (NewCiStep1Form,), attrs)
@@ -101,15 +101,15 @@ def form_for_model_relations(descr):
 @permission_required_project_aware('ref.modify_project')
 @atomic
 def new_ci_step2(request, instance_id):  # always edit an existing CI - to create a CI use step 1.
-    instance = ComponentInstance.objects.select_related('description', 'instanciates')\
+    instance = ComponentInstance.objects.filter(project=request.project).select_related('description', 'instanciates')\
             .prefetch_related(
                   Prefetch('field_set', ComponentInstanceField.objects.order_by('field__widget_row', 'field__name').select_related('field')),
                   Prefetch('rel_target_set', ComponentInstanceRelation.objects.order_by('field__name').select_related('field')))\
             .prefetch_related('environments', 'description__field_set', 'description__target_set').get(pk=instance_id)
-    cls = form_for_model(instance.description)
+    cls = form_for_model(instance.description, request.project)
 
     if request.POST:
-        form = cls(request.POST, instance=instance)
+        form = cls(data = request.POST, instance=instance, project=request.project)
         if form.is_valid():
             form.save()
             
@@ -122,7 +122,7 @@ def new_ci_step2(request, instance_id):  # always edit an existing CI - to creat
                 else:
                     return redirect('ref:shared_ci', project_id=request.project.pk)
     else:
-        form = cls(instance=instance)
+        form = cls(instance=instance, project=request.project)
 
     return render(request, "ref/instance_edit_step2.html", {'form': form, 'descr' : instance.description, 'instance': instance})
 
@@ -156,12 +156,12 @@ class FullCIEditFormBase(forms.ModelForm):
         model = ComponentInstance
         fields = ['deleted', 'include_in_envt_backup', 'instanciates', 'environments', ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super(FullCIEditFormBase, self).__init__(*args, **kwargs)
 
         ## Restrict some choices
-        self.fields["environments"].queryset = Environment.objects.order_by('name').filter(template_only=False, active=True)
-        self.fields["instanciates"].queryset = ComponentImplementationClass.objects.order_by('implements__application__name', 'name').filter(active=True, implements__active=True)
+        self.fields["environments"].queryset = Environment.objects.order_by('name').filter(template_only=False, active=True, project=project)
+        self.fields["instanciates"].queryset = ComponentImplementationClass.objects.order_by('implements__application__name', 'name').filter(active=True, implements__active=True, implements__application__project=project)
 
         ## Stupid: self.instance can be overridden by a field named instance... So we store it inside another field (with a forbidden name)
         self.mage_instance = self.instance
@@ -213,7 +213,7 @@ class FullCIEditFormBase(forms.ModelForm):
     helper.add_input(Submit('submit_stay', 'Enregistrer et continuer à éditer'))
     helper.add_input(Submit('submit_toenvt', 'Enregistrer et revenir à l\'environnement'))
 
-def form_for_model(descr):
+def form_for_model(descr, project):
     attrs = {}
 
     # Simple fields
@@ -229,9 +229,9 @@ def form_for_model(descr):
     # Relations
     for field in descr.target_set.all():
         if field.max_cardinality > 1:
-            f = ModelMultipleChoiceFieldWithTitle(queryset=field.target.instance_set.prefetch_related('environments'), required=field.min_cardinality == 1, label=field.label)
+            f = ModelMultipleChoiceFieldWithTitle(queryset=field.target.instance_set.filter(project=project).prefetch_related('environments'), required=field.min_cardinality == 1, label=field.label)
         else:
-            f = ModelChoiceFieldWithTitle(queryset=field.target.instance_set.prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
+            f = ModelChoiceFieldWithTitle(queryset=field.target.instance_set.filter(project=project).prefetch_related('environments'), label=field.label, required=field.min_cardinality == 1)
         attrs[field.name] = f
 
     return type(str("__" + descr.name.lower() + "_form"), (FullCIEditFormBase,), attrs)

@@ -5,7 +5,8 @@ from django.db import migrations
 def forward(apps, schema_editor):
     """Tries to set the right project, otherwise default - in all cases there should only be zero to one projects when using this migration"""
     Project = apps.get_model('ref', 'Project')
-    default_project = Project.objects.first() or Project.objects.get_or_create(name='MIGRATED_PROJECT')
+    default_project = Project.objects.first() or Project.objects.get_or_create(name='MIGRATED_PROJECT', defaults={'description': "Created by database upgrade. Rename it as you wish"})[0]
+    default_project.save()
 
     Delivery = apps.get_model('scm', 'Delivery')
     for iset in Delivery.objects.all():
