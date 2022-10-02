@@ -19,7 +19,7 @@ from ref.models import LogicalComponent, getParam
 @login_required
 @permission_required_project_aware('scm.modify_delivery')
 @cache_control(no_cache=True)
-def delivery_edit(request, iset_id=None, project='all'):
+def delivery_edit(request, iset_id=None):
     if iset_id is None:
         extra = 4
     else:
@@ -64,20 +64,21 @@ def delivery_edit(request, iset_id=None, project='all'):
     ## Bind form
     if request.method == 'POST':
         form = DeliveryForm(request.POST, request.FILES, instance=instance)  # A form bound to the POST data
-        iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance)
+        iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=form.instance, form_kwargs={'project':request.project})
 
         if form.is_valid() and iiformset.is_valid():  # All validation rules pass
+            form.instance.project = request.project # security important.
             instance = form.save()
 
-            iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance)
+            iiformset = InstallableItemFormSet(request.POST, request.FILES, prefix='iis', instance=instance, form_kwargs={'project':request.project})
             if iiformset.is_valid():
                 iiformset.save()
 
                 ## Done
-                return redirect('scm:delivery_edit_dep', project=project, iset_id=instance.id)
+                return redirect('scm:delivery_edit_dep', project_id=request.project.pk, iset_id=instance.id)
     else:
-        form = DeliveryForm(instance=instance)
-        iiformset = InstallableItemFormSet(prefix='iis', instance=instance)
+        form = DeliveryForm(instance=instance, initial={"project": request.project})
+        iiformset = InstallableItemFormSet(prefix='iis', instance=instance, form_kwargs={'project':request.project})
 
     ## Remove partially completed removed forms
     for ff in iiformset.forms:
@@ -109,7 +110,7 @@ def delivery_edit_dep(request, iset_id):
         # Bound formsets to POST data
         valid = True
         for ii in iset.set_content.all():
-            fss[ii] = ItemDependencyFormSet(request.POST, request.FILES, instance=ii, prefix='ii%s' % ii.pk)
+            fss[ii] = ItemDependencyFormSet(request.POST, request.FILES, instance=ii, prefix='ii%s' % ii.pk, form_kwargs={'project':request.project})
             valid = valid and fss[ii].is_valid()
 
         if valid:
@@ -118,7 +119,7 @@ def delivery_edit_dep(request, iset_id):
             return redirect('scm:delivery_detail', iset_id=iset_id, project_id=request.project.pk)
     else:
         for ii in iset.set_content.all():
-            fss[ii] = ItemDependencyFormSet(instance=ii, prefix='ii%s' % ii.pk)
+            fss[ii] = ItemDependencyFormSet(instance=ii, prefix='ii%s' % ii.pk, form_kwargs={'project':request.project})
 
     return render(request, 'scm/delivery_edit_dep.html', {
         'fss' : fss,

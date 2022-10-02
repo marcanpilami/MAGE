@@ -247,17 +247,17 @@ def utility_create_test_instances():
     ## Environments
     e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'), project=Project.objects.get(alternate_name_1='ERP'))
     e1.save()
-
+    p1 = e1.project
 
     ## OS instances
-    i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin')
-    i1_2 = ImplementationDescription.class_for_name('osserver')(dns='server2.marsu.net', admin_login='test admin')
+    i1_1 = ImplementationDescription.class_for_name('osserver')(_project=p1, dns='server1.marsu.net', admin_login='test admin')
+    i1_2 = ImplementationDescription.class_for_name('osserver')(_project=p1, dns='server2.marsu.net', admin_login='test admin')
 
-    i2_1 = ImplementationDescription.class_for_name('osaccount')(login='user', password='test', server=i1_1)
+    i2_1 = ImplementationDescription.class_for_name('osaccount')(_project=p1, login='user', password='test', server=i1_1)
     i2_1.save()
 
     ## Oracle items
-    i3_1 = ImplementationDescription.class_for_name('oracleinstance')(sid='ORAINST1', server=i1_1, admin_login='login', admin_password='toto')
+    i3_1 = ImplementationDescription.class_for_name('oracleinstance')(_project=p1, sid='ORAINST1', server=i1_1, admin_login='login', admin_password='toto')
 
     i4_1 = ImplementationDescription.class_for_name('oracleschema')(name='schema1', password='pass', instance=i3_1, _env=e1, _cic='soft1_database_main_oracle')
     i4_2 = ImplementationDescription.class_for_name('oracleschema')(name='schema2', password='pass', instance=i3_1, _env=e1, _cic='int_database_main_oracle')
@@ -270,11 +270,11 @@ def utility_create_test_instances():
     i6_1 = ImplementationDescription.class_for_name('mqseriesmanager')(name='QM.DEV1', _env=e1)
 
     ## JBoss environment
-    i12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain études', admin_user='admin', admin_password='pass', \
+    i12_1 = ImplementationDescription.class_for_name('jbossdomain')(_project=p1, name=u'domain études', admin_user='admin', admin_password='pass', \
                 base_http_port=8080, base_https_port=8081, web_admin_port=9990, native_admin_port=9999)
 
-    i13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1)
-    i13_2 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost2.marsu.net', domain=i12_1, server=i1_2)
+    i13_1 = ImplementationDescription.class_for_name('jbosshost')(_project=p1, name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1)
+    i13_2 = ImplementationDescription.class_for_name('jbosshost')(_project=p1, name=u'jbosshost2.marsu.net', domain=i12_1, server=i1_2)
 
     i14_1 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)
     i14_2 = ImplementationDescription.class_for_name('jbossgroup')(domain=i12_1, _env=e1)
@@ -310,16 +310,17 @@ def utility_create_test_instances():
     e2 = Environment(name='CRM_DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'),
                      project=Project.objects.get(alternate_name_1='CRM'))
     e2.save()
+    p2 = e2.project
 
     ## OS instances
-    i2__1_1 = ImplementationDescription.class_for_name('osserver')(dns='server3.marsu.net', admin_login='test admin')
-    i2__1_2 = ImplementationDescription.class_for_name('osserver')(dns='server4.marsu.net', admin_login='test admin')
+    i2__1_1 = ImplementationDescription.class_for_name('osserver')(_project=p2, dns='server3.marsu.net', admin_login='test admin')
+    i2__1_2 = ImplementationDescription.class_for_name('osserver')(_project=p2, dns='server4.marsu.net', admin_login='test admin')
 
-    i2__2_1 = ImplementationDescription.class_for_name('osaccount')(login='user2', password='test', server=i2__1_1)
+    i2__2_1 = ImplementationDescription.class_for_name('osaccount')(_project=p2, login='user2', password='test', server=i2__1_1)
     i2__2_1.save()
 
     ## Oracle items
-    i2__3_1 = ImplementationDescription.class_for_name('oracleinstance')(sid='ORAINST2', server=i2__1_1, admin_login='login',
+    i2__3_1 = ImplementationDescription.class_for_name('oracleinstance')(_project=p2, sid='ORAINST2', server=i2__1_1, admin_login='login',
                                                                       admin_password='toto')
 
     i2__4_1 = ImplementationDescription.class_for_name('oracleschema')(name='schema4', password='pass', instance=i2__3_1,
@@ -336,14 +337,14 @@ def utility_create_test_instances():
     i2__6_1 = ImplementationDescription.class_for_name('mqseriesmanager')(name='QM.DEV1', _env=e2)
 
     ## JBoss environment
-    i2__12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain études', admin_user='admin',
+    i2__12_1 = ImplementationDescription.class_for_name('jbossdomain')(_project=p2, name=u'domain études', admin_user='admin',
                                                                     admin_password='pass', \
                                                                     base_http_port=8080, base_https_port=8081,
                                                                     web_admin_port=9990, native_admin_port=9999)
 
-    i2__13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost3.marsu.net', domain=i2__12_1,
+    i2__13_1 = ImplementationDescription.class_for_name('jbosshost')(_project=p2, name=u'jbosshost3.marsu.net', domain=i2__12_1,
                                                                   server=i2__1_1)
-    i2__13_2 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost4.marsu.net', domain=i2__12_1,
+    i2__13_2 = ImplementationDescription.class_for_name('jbosshost')(_project=p2, name=u'jbosshost4.marsu.net', domain=i2__12_1,
                                                                   server=i2__1_2)
 
     i2__14_1 = ImplementationDescription.class_for_name('jbossgroup')(domain=i2__12_1, _env=e2)
@@ -383,9 +384,9 @@ def utility_create_test_instances():
 def utility_create_logical():
     p1 = Project(name='SUPER-PROJECT', description='New ERP for FIRM1. A Big Program project.', alternate_name_1='ERP', alternate_name_2='PROJECTCODE')
     p1.save()
-    a1 = Application(name='Soft1', description='Super New ERP', alternate_name_1="SFT1")
+    a1 = Application(name='Soft1', description='Super New ERP', alternate_name_1="SFT1", project=p1)
     a1.save()
-    a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems', alternate_name_1="SFT2")
+    a2 = Application(name='Interfaces', description='developments to interface Soft1 with the rest of the FIRM1 systems', alternate_name_1="SFT2", project=p1)
     a2.save()
     p1.applications.add(a1, a2)
 
@@ -458,11 +459,11 @@ def utility_create_logical():
     p2 = Project(name='ANOTHER-PROJECT', description='New CRM. Revolution client and prospect acquisition project.',
                  alternate_name_1='CRM', alternate_name_2='CRMPROJECTCODE')
     p2.save()
-    a3 = Application(name='Soft2', description='Super New CRM', alternate_name_1="SFT3")
+    a3 = Application(name='Soft2', description='Super New CRM', alternate_name_1="SFT3", project=p2)
     a3.save()
     a4 = Application(name='Interfaces2',
                      description='developments to interface Soft2 with the rest of the FIRM2 systems',
-                     alternate_name_1="SFT4")
+                     alternate_name_1="SFT4", project=p2)
     a4.save()
     p2.applications.add(a3, a4)
     

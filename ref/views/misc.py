@@ -13,6 +13,7 @@ from django.db.models.aggregates import Max
 from django.core.cache.utils import make_template_fragment_key
 from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
+from django.conf import settings
 
 ## MAGE imports
 from ref.models import ComponentInstance, ImplementationDescription, ImplementationRelationDescription, Environment, Link, Project
@@ -99,7 +100,7 @@ def force_login(request):
 
 def urls(request):
     '''List of all URLs inside the web API'''
-    return render(request, 'ref/urls.html')
+    return render(request, 'ref/urls.html', {'default_project_id': settings.DEFAULT_PROJECT_ID})
 
 def model_types(request):
     '''List of all installed component types'''

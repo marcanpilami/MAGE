@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
     @license: Apache License, Version 2.0
-    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @copyright: 2007-2022 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
 '''
 
@@ -58,7 +58,7 @@ class EnvironmentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'template_only', 'managed', 'active', 'show_sensitive_data')
     ordering = ('name',)
     readonly_fields = ('buildDate',)
-    list_filter = ['template_only', 'managed', 'project', 'typology']
+    list_filter = ['project', 'template_only', 'managed', 'typology']
     search_fields = ('name',)
 
 
@@ -84,7 +84,7 @@ site.register(EnvironmentType, EnvironmentTypeAdmin)
 class LogicalComponentAdmin(ModelAdmin):
     list_display = ('name', 'description', 'application', 'ref1', 'ref2', 'ref3')
     ordering = ('application', 'name')
-    list_filter = ('application', 'active', 'scm_trackable')
+    list_filter = ('application__project', 'application', 'active', 'scm_trackable')
 site.register(LogicalComponent, LogicalComponentAdmin)
 
 class ApplicationAdmin(ModelAdmin):
@@ -169,8 +169,8 @@ class ComponentInstanceRelationAdmin(TabularInline):
 
 class ComponentInstanceAdmin(ModelAdmin):
     list_display = ['__str__', 'description', 'instanciates', 'active' ]
-    list_filter = ('deleted', 'description', 'environments', 'description__tag', 'instanciates')
+    list_filter = ('project', 'deleted', 'description', 'environments', 'description__tag', 'instanciates')
     filter_horizontal = ('environments',)
     inlines = [ComponentInstanceFieldAdmin, ComponentInstanceRelationAdmin, ExtendedParameterInline, ]
 
-#site.register(ComponentInstance, ComponentInstanceAdmin)
+#site.register(ComponentInstance, ComponentInstanceAdmin) 

@@ -38,5 +38,4 @@ Contents
 	mql
 	conventions
 	security
-
-	
+	diagrams

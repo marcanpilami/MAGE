@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
     @license: Apache License, Version 2.0
-    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @copyright: 2007-2022 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
 '''
 
@@ -12,6 +12,9 @@ from typing import MutableMapping
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
+from django.db.models.constraints import UniqueConstraint
+
+from ref.models.classifier import Project
 
 
 ################################################################################
@@ -26,12 +29,12 @@ class Environment(models.Model):
     """ 
         A set of component instances forms an environment
     """
-    name = models.CharField(max_length=100, verbose_name='Nom', unique=True)
+    name = models.CharField(max_length=100, verbose_name='Nom')
     buildDate = models.DateField(verbose_name=u'Date de création', auto_now_add=True)
     destructionDate = models.DateField(verbose_name=u'Date de suppression prévue', null=True, blank=True)
     description = models.CharField(max_length=500)
     manager = models.CharField(max_length=100, verbose_name='responsable', null=True, blank=True)
-    project = models.ForeignKey('Project', null=True, blank=True, on_delete=models.CASCADE)
+    project = models.ForeignKey('Project', null=False, blank=False, on_delete=models.CASCADE)
     typology = models.ForeignKey('EnvironmentType', verbose_name=u'typologie', on_delete=models.CASCADE)
     template_only = models.BooleanField(default=False)
     active = models.BooleanField(default=True, verbose_name=u'utilisé')
@@ -59,6 +62,9 @@ class Environment(models.Model):
     class Meta:
         verbose_name = 'environnement'
         verbose_name_plural = 'environnements'
+        constraints = [
+            UniqueConstraint(fields=('name', 'project'), name='environment_uniqueness')
+        ]
 
 @receiver(pre_save, sender=Environment)
 def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
@@ -116,6 +122,7 @@ class ComponentInstance(models.Model):
     ## Base data for all components
     instanciates = models.ForeignKey('ComponentImplementationClass', null=True, blank=True, verbose_name=u'implémentation de ', related_name='instances', on_delete=models.CASCADE)
     description = models.ForeignKey('ImplementationDescription', related_name='instance_set', verbose_name=u'décrit par l\'implémentation', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='component_instances', verbose_name='project', on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
 

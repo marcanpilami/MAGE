@@ -33,42 +33,46 @@ Also, MAGE is always case sensitive (both in URL and arguments). Finaly, all CSV
 		<tr><td>Duplicate environment</td><td>{% url 'ref:envt_duplicate' 123 "ENVIRONMENT_NAME" %}</td><td>none</td><td>ge</td><td>Replace 123 with the project technical ID</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Backups</td></tr>
-		<tr><td>Register new default backupset</td><td>{% url 'scm:backup_script_envt' "ENVIRONMENT_NAME" %}</td><td>text/plain</td><td>ge</td><td>a default backupset contains all component instances marked as 'include in default backup'</td></tr>
-		<tr><td>Register a new backupset containing one component instance</td><td>{% url 'scm:backup_script_create' "ENVIRONMENT_NAME" 123 %}</td><td>text/plain</td><td>ge</td><td>Replace 123 with component instance ID. Returns, the ID of the new backupset.</td></tr>
-		<tr><td>Add a component instance to an existing new backupset</td><td>{% url 'scm:backup_script_add' "ENVIRONMENT_NAME" 123 123 %}</td><td>none</td><td>ge</td><td>First ID is component instance ID, second is backupset ID.</td></tr>
-		<tr><td>Get the age of the latest backup set registered for a given component instance</td><td>{% url 'scm:latest_ci_backupset_age_mn' 123 %}</td><td>text/plain</td><td>public</td><td>In minutes. -1 if no backup found.</td></tr>
-		<tr><td>Get the ID of the latest backup set registered for a given component instance</td><td>{% url 'scm:latest_ci_backupset_id' 123 %}</td><td>text/plain</td><td>public</td><td>-1 if no backup found.</td></tr>
-		<tr><td>Get the ID of the latest backup set registered for a given environment</td><td>{% url 'scm:latest_envt_backupset_id' "ENVT_NAME" %}</td><td>text/plain</td><td>public</td><td>-1 if no backup found. Beware, the backup set may be partial and not contain a backup of every component instance.</td></tr>
+		<tr><td>Register new default backupset</td><td>{% url 'scm:backup_script_envt' "PROJECT_NAME_OR_ID" "ENVIRONMENT_NAME" %}</td><td>text/plain</td><td>ge</td><td>a default backupset contains all component instances marked as 'include in default backup'</td></tr>
+		<tr><td>Register a new backupset containing one component instance</td><td>{% url 'scm:backup_script_create' "PROJECT_NAME_OR_ID" "ENVIRONMENT_NAME" 123 %}</td><td>text/plain</td><td>ge</td><td>Replace 123 with component instance ID. Returns, the ID of the new backupset.</td></tr>
+		<tr><td>Add a component instance to an existing new backupset</td><td>{% url 'scm:backup_script_add' "PROJECT_NAME_OR_ID" "ENVIRONMENT_NAME" 123 123 %}</td><td>none</td><td>ge</td><td>First ID is component instance ID, second is backupset ID.</td></tr>
+		<tr><td>Get the age of the latest backup set registered for a given component instance</td><td>{% url 'scm:latest_ci_backupset_age_mn' "PROJECT_NAME_OR_ID" 123 %}</td><td>text/plain</td><td>public</td><td>In minutes. -1 if no backup found.</td></tr>
+		<tr><td>Get the ID of the latest backup set registered for a given component instance</td><td>{% url 'scm:latest_ci_backupset_id' "PROJECT_NAME_OR_ID" 123 %}</td><td>text/plain</td><td>public</td><td>-1 if no backup found.</td></tr>
+		<tr><td>Get the ID of the latest backup set registered for a given environment</td><td>{% url 'scm:latest_envt_backupset_id' "PROJECT_NAME_OR_ID" "ENVT_NAME" %}</td><td>text/plain</td><td>public</td><td>-1 if no backup found. Beware, the backup set may be partial and not contain a backup of every component instance.</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>SCM queries</td></tr>
-		<tr><td>Installable set (delivery, backupset) description as a JSON file</td><td>{% url 'scm:iset_export' "SET_NAME_OR_ID" "json" %}</td><td>text/json</td><td>public</td><td></td></tr>
-		<tr><td>Installable set (delivery, backupset) description as a CSV file</td><td>{% url 'scm:iset_export' "SET_NAME_OR_ID" "csv" %}</td><td>text/csv</td><td>public</td><td>AS CSV files have no hierarchy, the file only contains the description of the set itself, not of its content</td></tr>
-		<tr><td>Installable set (delivery, backupset) description as a CSV file</td><td>{% url 'scm:iset_export' "SET_NAME_OR_ID" "csvc" %}</td><td>text/csv</td><td>public</td><td>AS CSV files have no hierarchy, the file only contains the content of the set, not the the description of the set itself</td></tr>
-		<tr><td>Installable set (delivery, backupset) description as a SH script</td><td>{% url 'scm:iset_export' "SET_NAME_OR_ID" "sh" %}</td><td>text/plain</td><td>public</td><td></td></tr>
-		<tr><td>List of ID of installable items that can be applied to a given component instance</td><td>{% url 'scm:iset_ii_ii_compat' "SET_NAME_OR_ID" "123" %}</td><td>text/plain</td><td>public</td><td>Simple list of ID (one per line, Unix ^n CR). No lines (empty) if nothing inside the set is compatible with the instance</td></tr>
-		<tr><td>Installable set ID from its name (faster than methods above)</td><td>{% url 'scm:iset_id' "SET_NAME" %}</td><td>text/plain</td><td>public</td><td></td></tr>		
-		<tr><td>List of available versions for a given logical component - as JSON</td><td>{% url 'scm:lc_versions_export' 123 %}</td><td>text/json</td><td>public</td><td>123 is the ID of the logical component.</td></tr>
-		<tr><td>List of methods available to apply an item on a component instance</td><td>{% url 'scm:ii_test_compat_ci' "123" "123" %}</td><td>text/csv</td><td>public</td><td>Code 424 if not compatible. First 123: installable item ID. Second: component instance ID.</td></tr>
-		<tr><td>Installable item (element of installable set) description as a CSV file</td><td>{% url 'scm:ii_export' "123" %}</td><td>text/csv</td><td>public</td><td>Equivalent of {% url 'scm:iset_export' "SET_NAME_OR_ID" "sh" %} but with only one sub item described.</td></tr>
+		<tr><td>Installable set (delivery, backupset) description as a JSON file</td><td>{% url 'scm:iset_export' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "json" %}</td><td>text/json</td><td>public</td><td></td></tr>
+		<tr><td>Installable set (delivery, backupset) description as a CSV file</td><td>{% url 'scm:iset_export' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "csv" %}</td><td>text/csv</td><td>public</td><td>AS CSV files have no hierarchy, the file only contains the description of the set itself, not of its content</td></tr>
+		<tr><td>Installable set (delivery, backupset) description as a CSV file</td><td>{% url 'scm:iset_export' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "csvc" %}</td><td>text/csv</td><td>public</td><td>AS CSV files have no hierarchy, the file only contains the content of the set, not the the description of the set itself</td></tr>
+		<tr><td>Installable set (delivery, backupset) description as a SH script</td><td>{% url 'scm:iset_export' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "sh" %}</td><td>text/plain</td><td>public</td><td></td></tr>
+		<tr><td>List of ID of installable items that can be applied to a given component instance</td><td>{% url 'scm:iset_ii_ii_compat' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "123" %}</td><td>text/plain</td><td>public</td><td>Simple list of ID (one per line, Unix ^n CR). No lines (empty) if nothing inside the set is compatible with the instance</td></tr>
+		<tr><td>Installable set ID from its name (faster than methods above)</td><td>{% url 'scm:iset_id' "PROJECT_NAME_OR_ID" "SET_NAME" %}</td><td>text/plain</td><td>public</td><td></td></tr>		
+		<tr><td>List of available versions for a given logical component - as JSON</td><td>{% url 'scm:lc_versions_export' "PROJECT_NAME_OR_ID" 123 %}</td><td>text/json</td><td>public</td><td>123 is the ID of the logical component.</td></tr>
+		<tr><td>List of methods available to apply an item on a component instance</td><td>{% url 'scm:ii_test_compat_ci' "PROJECT_NAME_OR_ID" "123" "123" %}</td><td>text/csv</td><td>public</td><td>Code 424 if not compatible. First 123: installable item ID. Second: component instance ID.</td></tr>
+		<tr><td>Installable item (element of installable set) description as a CSV file</td><td>{% url 'scm:ii_export' "PROJECT_NAME_OR_ID" "123" %}</td><td>text/csv</td><td>public</td><td>Equivalent of {% url 'scm:iset_export' 123 "SET_NAME_OR_ID" "sh" %} but with only one sub item described.</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Installable set application</td></tr>
-		<tr><td>Fully apply a delivery to an environment</td><td>{% url 'scm:iset_apply_envt' "123" "ENVT_NAME_OR_ID" %}</td><td>text/plain</td><td>ge</td><td>All compatible items from the set will be able to all suitable component instances inside the environment</td></tr>
-		<tr><td>Apply only one item from a delivery to a specific component instance</td><td>{% url 'scm:delivery_apply_ii_single' 123 "ENVT_NAME" 123 %}</td><td>text/plain</td><td>ge</td><td>Signification of IDs: item_id, envt_name, instance_id</td></tr>
-		<tr><td>Test if prerequisites are respected for a whole installable set</td><td>{% url 'scm:delivery_prereqs_test_script' 123 "ENVT_NAME_OR_ID" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that the whole set is going to be applied. If KO, return is HTTP 424, 200 if OK.</td></tr>		
-		<tr><td>Test if prerequisites are respected for a lone installable item from a set</td><td>{% url 'scm:delivery_test_ii_single' 123 "ENVT_NAME" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that only this item from the set is going to be applied, not the rest of the set.</td></tr>
-		<tr><td>Test if prerequisites are respected for an installable item from a set</td><td>{% url 'scm:delivery_test_ii_set' 123 "ENVT_NAME" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that the rest of the set is going to be applied if it's not already.</td></tr>
+		<tr><td>Fully apply a delivery to an environment</td><td>{% url 'scm:iset_apply_envt' "PROJECT_NAME_OR_ID" "123" "ENVT_NAME_OR_ID" %}</td><td>text/plain</td><td>ge</td><td>All compatible items from the set will be able to all suitable component instances inside the environment</td></tr>
+		<tr><td>Apply only one item from a delivery to a specific component instance</td><td>{% url 'scm:delivery_apply_ii_single' "PROJECT_NAME_OR_ID" 123 "ENVT_NAME" 123 %}</td><td>text/plain</td><td>ge</td><td>Signification of IDs: item_id, envt_name, instance_id</td></tr>
+		<tr><td>Test if prerequisites are respected for a whole installable set</td><td>{% url 'scm:delivery_prereqs_test_script' "PROJECT_NAME_OR_ID" 123 "ENVT_NAME_OR_ID" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that the whole set is going to be applied. If KO, return is HTTP 424, 200 if OK.</td></tr>		
+		<tr><td>Test if prerequisites are respected for a lone installable item from a set</td><td>{% url 'scm:delivery_test_ii_single' "PROJECT_NAME_OR_ID" 123 "ENVT_NAME" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that only this item from the set is going to be applied, not the rest of the set.</td></tr>
+		<tr><td>Test if prerequisites are respected for an installable item from a set</td><td>{% url 'scm:delivery_test_ii_set' "PROJECT_NAME_OR_ID" 123 "ENVT_NAME" %}</td><td>text/plain</td><td>ge</td><td>This test is under the hypothesis that the rest of the set is going to be applied if it's not already.</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>Installable set modifications & life cycle</td></tr>
-		<tr><td>Validate</td><td>{% url 'scm:iset_script_validate' 123 %}</td><td>none</td><td>ge</td><td>default backup sets are created already validated, so this is mostly useful for deliveries</td></tr>
-		<tr><td>Invalidate</td><td>{% url 'scm:iset_script_invalidate' 123 %}</td><td>none</td><td>ge</td><td></td></tr>
-		<tr><td>Archive</td><td>{% url 'scm:iset_script_archive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID. Archived means the set files are not available anymore directly in MAGE.</td></tr>
-		<tr><td>Unarchive</td><td>{% url 'scm:iset_script_unarchive' "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID</td></tr>
+		<tr><td>Validate</td><td>{% url 'scm:iset_script_validate' "PROJECT_NAME_OR_ID" 123 %}</td><td>none</td><td>ge</td><td>default backup sets are created already validated, so this is mostly useful for deliveries</td></tr>
+		<tr><td>Invalidate</td><td>{% url 'scm:iset_script_invalidate' "PROJECT_NAME_OR_ID" 123 %}</td><td>none</td><td>ge</td><td></td></tr>
+		<tr><td>Archive</td><td>{% url 'scm:iset_script_archive' "PROJECT_NAME_OR_ID" "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID. Archived means the set files are not available anymore directly in MAGE.</td></tr>
+		<tr><td>Unarchive</td><td>{% url 'scm:iset_script_unarchive' "PROJECT_NAME_OR_ID" "123" %}</td><td>none</td><td>ge</td><td>replace 123 with desired backup set ID</td></tr>
 		
 		<tr><td colspan="5" class='t3 metFormSection'>SCM tags</td></tr>
-		<tr><td>Create new tag</td><td>{% url 'scm:tag_script_create' "ENVT_NAME" "NEW_TAG_NAME" %}</td><td>text/plain</td><td>ge</td><td></td></tr>
-		<tr><td>Remove tag</td><td>{% url 'scm:tag_script_remove' "TAG_NAME_OR_ID" %}</td><td>none</td><td>ge</td><td></td></tr>
+		<tr><td>Create new tag</td><td>{% url 'scm:tag_script_create' "PROJECT_NAME_OR_ID" "ENVT_NAME" "NEW_TAG_NAME" %}</td><td>text/plain</td><td>ge</td><td></td></tr>
+		<tr><td>Remove tag</td><td>{% url 'scm:tag_script_remove' "PROJECT_NAME_OR_ID" "TAG_NAME_OR_ID" %}</td><td>none</td><td>ge</td><td></td></tr>
 	</tbody>
 </table>
+
+<br><br>
+For ascending compatibility reasons, all SCM APIs are also available without the project prefix. In that case, the default project (set in global project configuration) is used. The default project is currently {{default_project_id|default:"not set"}}.
+For example, the JSON description of an installable set becomes <pre>{% url 'scm:default_project:iset_export' "SET_NAME_OR_ID" "json" %}</pre> instead of <pre>{% url 'scm:iset_export' "PROJECT_NAME_OR_ID" "SET_NAME_OR_ID" "json" %}</pre>Do not use these APIs in new projects.
 
 {% endblock content %}
 

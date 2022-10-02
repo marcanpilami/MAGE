@@ -12,7 +12,7 @@ def getenv(environment_variable, default=''):
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = getenv('DEBUG', False)
+DEBUG = getenv('DJANGO_DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
@@ -21,7 +21,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': getenv('DATABASE_ENGINE', 'django.db.backends.sqlite3'),  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': getenv('DATABASE_NAME', os.path.join(BASE_DIR, r'tmp\db.sqlite')),  # Or path to database file if using sqlite3.
+        'NAME': getenv('DATABASE_NAME', os.path.join(BASE_DIR, 'tmp/db.sqlite')),  # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': getenv('DATABASE_USER', ''),
         'PASSWORD': getenv('DATABASE_PASSWORD', ''),
@@ -36,9 +36,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [getenv('ALLOWED_HOSTS', '*')]
+ALLOWED_HOSTS = getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-INTERNAL_IPS = [ getenv('INTERNAL_IPS', '127.0.0.1'), ]
+INTERNAL_IPS = [ getenv('DJANGO_INTERNAL_IPS', '127.0.0.1'), ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -90,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody. (overloaded in local settings)
-SECRET_KEY = getenv('SECRET_KEY', 'your_own_here')
+SECRET_KEY = getenv('DJANGO_SECRET_KEY', 'your_own_here')
 
 LOCAL_MIDDLEWARE = []
 MIDDLEWARE = [
@@ -104,8 +104,6 @@ MIDDLEWARE = [
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-MIDDLEWARE_CLASSES = []
-LOCAL_MIDDLEWARE_CLASSES = []
 
 ROOT_URLCONF = 'MAGE.urls'
 
@@ -187,6 +185,7 @@ CACHES = {
     }
 }
 
+DEFAULT_PROJECT_ID = None
 LOCAL_APPS = []
 try:
     from MAGE.local_settings import *
@@ -211,4 +210,3 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += LOCAL_APPS
 MIDDLEWARE += LOCAL_MIDDLEWARE
-MIDDLEWARE_CLASSES += LOCAL_MIDDLEWARE_CLASSES

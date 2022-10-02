@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
     @license: Apache License, Version 2.0
-    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @copyright: 2007-2022 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
 '''
 
@@ -50,7 +50,7 @@ def duplicate_envt(envt_name, new_name, remaps={}, *components_to_duplicate):
         ###############################
         ## First pass: basic fields.
 
-        new_instance = ComponentInstance(instanciates=old.instanciates, description=old.description, include_in_envt_backup=old.include_in_envt_backup)
+        new_instance = ComponentInstance(instanciates=old.instanciates, description=old.description, include_in_envt_backup=old.include_in_envt_backup, project=old.project)
         new_instance.save()
         new_instance.environments.add(envt)
         already_migrated[old.pk] = new_instance

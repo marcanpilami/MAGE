@@ -1,12 +1,12 @@
 # coding: utf-8
 '''
     @license: Apache License, Version 2.0
-    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @copyright: 2007-2022 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
 '''
 
 from ref import admin
-from scm.models import BackupRestoreMethod, InstallationMethod, BackupSet, \
+from scm.models import BackupRestoreMethod, Delivery, InstallationMethod, BackupSet, \
     PackageChecker,InstallableSet, InstallableItem
 
 
@@ -61,15 +61,15 @@ class PackageCheckerAdmin(admin.ModelAdmin):
 
 admin.site.register(PackageChecker, PackageCheckerAdmin)
 
-class InstallableSetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'logical_component_name', 'ticket_list', 'set_date')
-    list_filter = ['status', 'set_content__what_is_installed__logical_component__application__project']
+class DeliveryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'project', 'description', 'logical_component_name', 'ticket_list', 'set_date')
+    list_filter = ['status', 'project', ]
 
     def logical_component_name(self, obj):
-        return obj.set_content.all()[0].what_is_installed.logical_component.name
+        return obj.set_content.all()[0].what_is_installed.logical_component.name if obj.set_content.all() else 'empty IS'
 
-admin.site.register(InstallableSet, InstallableSetAdmin)
+admin.site.register(Delivery, DeliveryAdmin)
 
 #admin.site.register(InstallableItem, InstallableItemAdmin)
 #admin.site.register(BackupItem)
-
+admin.site.register(BackupSet)

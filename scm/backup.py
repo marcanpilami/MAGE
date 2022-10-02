@@ -24,7 +24,7 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
             raise MageCallerError('instance does not belong to the specified environment')
     
     bck_name = "BACKUP_%s_%s" % (envt.name, backup_date.strftime('%Y%m%d%H%M'))
-    i = BackupSet.objects.filter(name__startswith=bck_name).count()
+    i = BackupSet.objects.filter(name__startswith=bck_name, project=envt.project).count()
     if i > 0:
         bck_name = "%s_%s" % (bck_name, i)
     
@@ -34,7 +34,7 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
         limit = int(getParam('BACKUP_MERGE_LIMIT'))
         tlimit1 = backup_date - timedelta(minutes=limit)
         tlimit2 = backup_date + timedelta(minutes=limit)
-        backups = BackupSet.objects.filter(from_envt = envt, set_date__lte = tlimit2, set_date__gte = tlimit1)
+        backups = BackupSet.objects.filter(project=envt.project, from_envt = envt, set_date__lte = tlimit2, set_date__gte = tlimit1)
         if limit != 0 and backups.count() > 0:
             ## If here, there are backups made on the same environment recently. Check the instances are not already backuped.
             for bck in backups:
@@ -50,10 +50,10 @@ def register_backup(envt, backup_date, bck_id, *component_instances, **kwargs):
         if bs is None:
             if not 'description' in kwargs:
                 kwargs['description']='backup taken from environment %s on %s' % (envt.name, backup_date)
-            bs = BackupSet(name=bck_name, status=1, from_envt=envt, **kwargs)
+            bs = BackupSet(name=bck_name, status=1, from_envt=envt, project=envt.project, **kwargs)
             bs.save()
     else:
-        bs = BackupSet.objects.get(pk = bck_id)
+        bs = BackupSet.objects.get(pk = bck_id, project=envt.project)
     
     for ci in component_instances:
         c = ci.cic_at_safe(backup_date)

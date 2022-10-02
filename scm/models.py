@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
     @license: Apache License, Version 2.0
-    @copyright: 2007-2013 Marc-Antoine Gouillart
+    @copyright: 2007-2022 Marc-Antoine Gouillart
     @author: Marc-Antoine Gouillart
 '''
 
@@ -19,6 +19,7 @@ from MAGE.settings import MEDIA_ROOT
 
 ## MAGE imports
 from ref.models import ComponentInstance, LogicalComponent, ComponentImplementationClass, Environment
+from ref.models.classifier import Project
 from scm.exceptions import MageScmUnrelatedItemsError, MageScmFailedInstanceDependencyCheck, MageScmFailedEnvironmentDependencyCheck, MageScmUndefinedVersionError
 from MAGE.exceptions import MageError
 from django.db.models.query import Prefetch
@@ -36,8 +37,9 @@ def __isetdatafilename__(iset, filename):
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
-    name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
-    description = models.CharField(max_length=1000, verbose_name=u'résumé du contenu', unique=False, blank=True, null=True)
+    name = models.CharField(max_length=40, verbose_name=u'référence')
+    description = models.CharField(max_length=1000, verbose_name=u'résumé du contenu', blank=True, null=True)
+    project = models.ForeignKey(Project, blank = False, null = False, on_delete=models.CASCADE)
     set_date = models.DateTimeField(verbose_name=u'date de réception', auto_now_add=True)
     ticket_list = models.CharField(max_length=100, verbose_name='ticket(s) lié(s) séparés par une virgule', null=True , blank=True)
     STATUS_CHOICES = ((1, 'VALIDATED'), (2, 'TESTED'), (3, 'HANDEDOFF'))
@@ -78,13 +80,22 @@ class InstallableSet(models.Model):
                        ('install_installableset', 'can reference an installation'),)
         verbose_name = u'élément à installer'
         verbose_name_plural = u'éléments à installer'
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'project'), name='is_%(class)s_uniqueness')
+        ]
 
 
 class Delivery(InstallableSet):
-    pass
+    class Meta:
+        verbose_name=u'package d\'installation'
+        verbose_name_plural=u'packages d\'installation'
 
 class BackupSet(InstallableSet):
     from_envt = models.ForeignKey(Environment, blank=True, null=True, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name=u'sauvegarde'
+        verbose_name_plural=u'sauvegarde'
 
 
 ################################################################################

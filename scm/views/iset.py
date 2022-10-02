@@ -15,12 +15,12 @@ from django.forms.models import model_to_dict
 
 def iset_export(request, iset, output_format='json'):
     try:
-        iset = InstallableSet.objects.get(name=iset)
+        iset = InstallableSet.objects.get(name=iset, project=request.project)
     except InstallableSet.DoesNotExist:
         try:
-            iset = InstallableSet.objects.get(pk=iset)
+            iset = InstallableSet.objects.get(pk=iset, project=request.project)
         except InstallableSet.DoesNotExist:
-            return HttpResponseNotFound('there is no installable set by this name or ID')
+            return HttpResponseNotFound(f'there is no installable set by name or ID {iset} inside project {request.project.name}')
 
     if output_format == 'csv':
         response = HttpResponse(content_type='text/csv; charset=utf-8')

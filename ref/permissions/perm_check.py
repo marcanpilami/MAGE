@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import resolve_url
 from django.conf import settings
 
-anonymous_mode = not 'MAGE.force_login_middleware.ForceLoginMiddleware' in settings.LOCAL_MIDDLEWARE_CLASSES
+anonymous_mode = not 'MAGE.force_login_middleware.ForceLoginMiddleware' in settings.MIDDLEWARE
 
 
 def permission_required_project_aware(perm, login_url=None, raise_exception=False, no_check_in_anonymous_mode=False):

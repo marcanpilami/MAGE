@@ -51,10 +51,10 @@ class TestIntegrationMultiproject(TestCase):
 
     def test_view_scm_delivery_list(self):
         self.client.login(username=self.rootUsername, password=self.rootPassword)
-        response = self.client.get(reverse('scm:deliveries', args=[self.project.pk]))
+        response = self.client.get(reverse('scm:deliveries', args=[self.project]))
 
         # Trivial test
-        self.assertEqual(response.context['project'], self.project)
+        self.assertEqual(response.context['project'].name, self.project)
 
         if response.context['deliveries'] is not None:
             for prj in Project.objects.filter(applications__logicalcomponent__versions__installed_by__belongs_to_set__id__in=(delivery.id for delivery in response.context['deliveries'])):
@@ -66,10 +66,10 @@ class TestIntegrationMultiproject(TestCase):
 
     def test_view_scm_delivery_detail(self):
         self.client.login(username=self.rootUsername, password=self.rootPassword)
-        response = self.client.get(reverse('scm:delivery_detail', kwargs={'project':self.project, 'iset_id':self.installableSets[0].id}))
+        response = self.client.get(reverse('scm:delivery_detail', kwargs={'project_id':self.project, 'iset_id':self.installableSets[0].id}))
 
         # Trivial test
-        self.assertEqual(response.context['project'], self.project)
+        self.assertEqual(response.context['project'].name, self.project)
 
         if response.context['installs']:
             for prj in Project.objects.filter(name=self.project, environment__id__in=(env.id for env in response.context['installs'])):

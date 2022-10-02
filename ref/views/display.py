@@ -47,7 +47,7 @@ def backuped(request):
 def shared_ci(request):
     deleted = []
     if request.user.is_authenticated and request.user.has_perm('ref.change_component_instance'):
-        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True, environments__project=request.project).\
+        deleted = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=True, project=request.project).\
                     select_related('description').\
                     order_by('description__name', 'id')
     
@@ -55,7 +55,7 @@ def shared_ci(request):
     if request.user.is_authenticated and request.user.has_perm('ref.allfields_componentinstance'):
         sec = (True, False)
         
-    cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=False).\
+    cis = ComponentInstance.objects.annotate(num_envt=Count('environments')).filter(~Q(num_envt=1), deleted=False, project=request.project).\
                     select_related('description').\
                     prefetch_related('environments').\
                     prefetch_related(Prefetch('field_set', queryset=ComponentInstanceField.objects.filter(field__widget_row__gte=0, field__sensitive__in=sec).order_by('field__widget_row', 'field__id'))).\

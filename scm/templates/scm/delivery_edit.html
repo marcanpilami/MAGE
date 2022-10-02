@@ -31,6 +31,8 @@
 			{% if display.d4 %}<tr><td>{{form.location_data_4.label}} :</td><td>{{form.location_data_4}}</td></tr>{% endif %}
 			
 			{% if display.globalfile %}<tr><td>{{form.datafile.label}} :</td><td><div>{{form.datafile}}</div></td></tr>{% endif %}
+
+			{{form.project.as_hidden}}{% if form.project.errors %}<tr><td></td><td>Project: {{form.project.errors}}</td></tr>{%endif%}
 			
 			<tr id='tr_commonversion' style="display: none;"><td>Version commune des contenus livrés :</td><td><input id='commonversion' maxlength="30" type="text" style="width:50em;"/><input type='button' id='bt_percompo' value='Une version par composant'/></td></tr>
 		</table>

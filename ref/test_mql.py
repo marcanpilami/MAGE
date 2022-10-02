@@ -13,27 +13,28 @@ class MQLTestCase(TestCase):
 
         e1 = Environment(name='DEV1', description='DEV1', typology=EnvironmentType.objects.get(short_name='DEV'), project=Project.objects.get(name='SUPER-PROJECT'))
         e1.save()
+        p1 = e1.project
 
-        i1_1 = ImplementationDescription.class_for_name('osserver')(dns='server1.marsu.net', admin_login='test admin', _noconventions=True)
-        i1_2 = ImplementationDescription.class_for_name('osserver')(dns='server2.marsu.net', admin_login='test admin', _noconventions=True)
+        i1_1 = ImplementationDescription.class_for_name('osserver')(_project=p1, dns='server1.marsu.net', admin_login='test admin', _noconventions=True)
+        i1_2 = ImplementationDescription.class_for_name('osserver')(_project=p1, dns='server2.marsu.net', admin_login='test admin', _noconventions=True)
 
-        i12_1 = ImplementationDescription.class_for_name('jbossdomain')(name=u'domain1', admin_user='admin', admin_password='pass', \
+        i12_1 = ImplementationDescription.class_for_name('jbossdomain')(_project=p1, name=u'domain1', admin_user='admin', admin_password='pass', \
                 base_http_port=8080, base_https_port=8081, web_admin_port=9990, native_admin_port=9999, _noconventions=True)
 
-        i13_1 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1, _noconventions=True)
-        i13_2 = ImplementationDescription.class_for_name('jbosshost')(name=u'jbosshost2.marsu.net', domain=i12_1, server=i1_2, _noconventions=True)
+        i13_1 = ImplementationDescription.class_for_name('jbosshost')(_project=p1, name=u'jbosshost1.marsu.net', domain=i12_1, server=i1_1, _noconventions=True)
+        i13_2 = ImplementationDescription.class_for_name('jbosshost')(_project=p1, name=u'jbosshost2.marsu.net', domain=i12_1, server=i1_2, _noconventions=True)
 
-        self.i14_1 = ImplementationDescription.class_for_name('jbossgroup')(name=u'GEP_DEV1_01', dns_to_use='marsu.pl', \
+        self.i14_1 = ImplementationDescription.class_for_name('jbossgroup')(_project=p1, name=u'GEP_DEV1_01', dns_to_use='marsu.pl', \
                    dedicated_admin_login='dev1', dedicated_admin_password='dev1', domain=i12_1, _noconventions=True)
-        self.i14_2 = ImplementationDescription.class_for_name('jbossgroup')(name=u'GEP_DEV1_02', dns_to_use='marsu2.pl', \
+        self.i14_2 = ImplementationDescription.class_for_name('jbossgroup')(_project=p1, name=u'GEP_DEV1_02', dns_to_use='marsu2.pl', \
                    dedicated_admin_login='dev1', dedicated_admin_password='dev1', domain=i12_1, _noconventions=True)
 
-        self.i15_1_1 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_01', port_shift=00, host=i13_1, group=self.i14_1, _noconventions=True)
-        self.i15_1_2 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_02', port_shift=00, host=i13_1, group=self.i14_1, _noconventions=True)
-        self.i15_1_3 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_01_03', port_shift=00, host=i13_2, group=self.i14_1, _env=e1, _noconventions=True)
-        self.i15_2_1 = ImplementationDescription.class_for_name('jbossas')(name=u'GEP_DEV1_02_01', port_shift=00, host=i13_1, group=self.i14_2, _noconventions=True)
+        self.i15_1_1 = ImplementationDescription.class_for_name('jbossas')(_project=p1, name=u'GEP_DEV1_01_01', port_shift=00, host=i13_1, group=self.i14_1, _noconventions=True)
+        self.i15_1_2 = ImplementationDescription.class_for_name('jbossas')(_project=p1, name=u'GEP_DEV1_01_02', port_shift=00, host=i13_1, group=self.i14_1, _noconventions=True)
+        self.i15_1_3 = ImplementationDescription.class_for_name('jbossas')(_project=p1, name=u'GEP_DEV1_01_03', port_shift=00, host=i13_2, group=self.i14_1, _env=e1, _noconventions=True)
+        self.i15_2_1 = ImplementationDescription.class_for_name('jbossas')(_project=p1, name=u'GEP_DEV1_02_01', port_shift=00, host=i13_1, group=self.i14_2, _noconventions=True)
 
-        self.i16_1 = ImplementationDescription.class_for_name('jbossapplication')(name=u'GEP_DEV1_APP1', context_root='/app1', group=self.i14_1, _cic='soft1_webapp_ee6_jboss', _noconventions=True)
+        self.i16_1 = ImplementationDescription.class_for_name('jbossapplication')(_project=p1, name=u'GEP_DEV1_APP1', context_root='/app1', group=self.i14_1, _cic='soft1_webapp_ee6_jboss', _noconventions=True)
         self.i16_1.save()
 
     def test_all_query(self):

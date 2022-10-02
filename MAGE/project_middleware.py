@@ -1,7 +1,9 @@
+from django.core.cache import cache
+
 from ref.models import Project
 
-"""A very simple middleware which adds a 'project' argument to the view call and template context if the argument 'project_id' was given. Factorizes stupid code, including global cache."""
 class ProjectFromProjectIdMiddleware:
+    """A very simple middleware which adds a 'project' argument to the view call and template context if the argument 'project_id' was given. Factorizes stupid code, including global cache."""
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -10,7 +12,15 @@ class ProjectFromProjectIdMiddleware:
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if not 'project' in view_kwargs and 'project_id' in view_kwargs and view_kwargs['project_id']:
-            request.project = Project.objects.get(pk = view_kwargs['project_id'])
+            id = view_kwargs['project_id']
+            request.project = cache.get(f'project_{id}')
+
+            if not request.project:
+                try:
+                    request.project = Project.objects.get(pk = id)
+                except (Project.DoesNotExist,ValueError):
+                    request.project = Project.objects.get(name = id)
+                cache.set(f'project_{id}', request.project, 3600)
 
         if 'project_id' in view_kwargs:
             del view_kwargs['project_id']

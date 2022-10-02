@@ -46,7 +46,7 @@ def iset_test_script(request, iset_id, envt_id_or_name):
 
 @permission_required_project_aware('ref.modify_project')
 @permission_required('scm.install_installableset')
-def iset_apply_envt(request, iset_id, envt_id_or_name, force_prereqs=False, project = None):
+def iset_apply_envt(request, iset_id, envt_id_or_name, force_prereqs=False):
     delivery = InstallableSet.objects.get(pk=iset_id)
     try:
         envt = Environment.objects.get(name=envt_id_or_name)
@@ -54,7 +54,7 @@ def iset_apply_envt(request, iset_id, envt_id_or_name, force_prereqs=False, proj
         envt = Environment.objects.get(pk=int(envt_id_or_name))
 
     install_iset_envt(delivery, envt, force_prereqs=force_prereqs)
-    return redirect('scm:envtinstallhist', envt_name=envt.name, project_id=project.pk if project else None)
+    return redirect('scm:envtinstallhist', envt_name=envt.name, project_id=request.project.pk)
 
 @permission_required_project_aware('ref.modify_project')
 @permission_required('scm.install_installableset')

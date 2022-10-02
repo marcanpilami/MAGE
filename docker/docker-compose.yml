@@ -9,4 +9,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
+      - DJANGO_DEBUG=False
+      - DJANGO_ROOT_INITIAL_PASSWORD=a
+      - MAGE_CREATE_DEMO_DATA=True
+    volumes:
+      - sqlitedata:/code/deployment/db:rw
+
+volumes:
+  sqlitedata:

@@ -17,12 +17,12 @@ def envt_duplicate(request, envt_name):
 @permission_required('ref.scm_addenvironment')
 @atomic
 def envt_duplicate_name(request, envt_name):
-    e = Environment.objects.get(name=envt_name)
+    e = Environment.objects.get(name=envt_name, project=request.project)
     FS = formset_factory(DuplicateFormRelInline, extra=0)
 
     if request.method == 'POST': # If the form has been submitted...
         form = DuplicateForm(request.POST, envt=e) # A form bound to the POST data
-        fs = FS(request.POST)
+        fs = FS(request.POST, form_kwargs={'project':request.project})
 
         if form.is_valid() and fs.is_valid(): # All validation rules pass
             remaps = {}
@@ -44,7 +44,7 @@ def envt_duplicate_name(request, envt_name):
                     ext[rel] = None
         for rel in ext.keys():
             initial_rel .append({'old_target':rel, 'new_target': None})
-        fs = FS(initial=initial_rel)
+        fs = FS(initial=initial_rel, form_kwargs={'project':request.project})
 
     return render(request, 'ref/envt_duplicate.html', {'form': form, 'envt': e, 'fs': fs})
 
@@ -57,12 +57,12 @@ class DuplicateFormRelInline(forms.Form):
     old_target = forms.ModelChoiceField(queryset=ComponentInstance.objects.all())
     new_target = forms.ModelChoiceField(queryset=ComponentInstance.objects.none(), empty_label='-- Don\'t remap --', required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super(DuplicateFormRelInline, self).__init__(*args, **kwargs)
         if self.is_bound:
-            self.fields['new_target'].queryset = ComponentInstance.objects.get(pk=self.data[self.prefix + '-old_target']).description.instance_set.all()
+            self.fields['new_target'].queryset = ComponentInstance.objects.get(pk=self.data[self.prefix + '-old_target']).description.instance_set.filter(project=project)
         if 'old_target' in self.initial and self.initial['old_target']:
-            self.fields['new_target'].queryset = self.initial['old_target'].description.instance_set.all()
+            self.fields['new_target'].queryset = self.initial['old_target'].description.instance_set.filter(project=project)
 
 class DuplicateForm(forms.Form):
     new_name = forms.CharField(max_length=20)
