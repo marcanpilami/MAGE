@@ -223,7 +223,7 @@ def form_for_model(descr, project):
         elif field.datatype == 'int':
             f = forms.IntegerField(label=field.short_label, required=field.compulsory)
         else:
-            f = forms.CharField(label=field.short_label, required=field.compulsory, max_length=255)
+            f = forms.CharField(label=field.short_label, required=field.compulsory, max_length=512)
         attrs[field.name] = f
 
     # Relations
