@@ -11,7 +11,7 @@ def forward(apps, schema_editor):
     Delivery = apps.get_model('scm', 'Delivery')
     for iset in Delivery.objects.all():
         if not iset.project:
-            if iset.set_content:
+            if iset.set_content.exists():
                 iset.project = iset.set_content.all()[0].what_is_installed.logical_component.application.project
             else:
                 iset.project = default_project

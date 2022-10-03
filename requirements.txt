@@ -14,6 +14,10 @@ requests>=2.26.0,<3
 ## Cloud provider dependencies (can be removed if not used, no harm if left present but unused)
 # azure-storage==0.20.0
 
+# deployment helpers
+wheel # some Python distributions do not include this package
+pipdeptree # for debugging depency hell
+
 #####################
 ## Not for production
 #####################
