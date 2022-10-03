@@ -29,7 +29,7 @@ ENV PYTHONDONTWRITEBYTECODE=1, \
     DJANGO_ROOT_INITIAL_PASSWORD=
 
 COPY ./requirements.txt /code/
-RUN python -m pip install --upgrade pip && pip install psycopg2-binary mysqlclient && pip install gunicorn && pip install whitenoise[brotli] ;
+RUN python -m pip install --upgrade pip && pip install --no-cache-dir wheel psycopg2-binary mysqlclient && pip --no-cache-dir install gunicorn && pip install --no-cache-dir whitenoise[brotli] ;
 RUN sed -i "/## Following/q;p" requirements.txt && pip install --no-cache-dir --upgrade -r requirements.txt
 
 
