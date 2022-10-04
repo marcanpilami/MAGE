@@ -83,7 +83,7 @@ $(document).ready(function() {
                             <th>{{field.short_label|capfirst}}</th>
                         {% endfor %}
                     
-                        {% if perms.ref.change_component_instance %}<th></th>{% endif %}
+                        {% if project.perm_change in perms %}<th></th>{% endif %}
                     </tr>
 	           </thead>
 
@@ -105,7 +105,7 @@ $(document).ready(function() {
                            <td>{{compo | apply_field_template:field | urlify}}</td>
                        {% endfor %}
                         
-                       {% if perms.ref.change_component_instance %}<td><a href='{%url "ref:edit_ci" project.pk compo.pk %}'>éditer</a></td>{% endif %}
+                       {% if project.perm_change in perms %}<td><a href='{%url "ref:edit_ci" project.pk compo.pk %}'>éditer</a></td>{% endif %}
                    </tr>
                 {% endfor %}
                 </tbody>
@@ -113,7 +113,7 @@ $(document).ready(function() {
         </div>
     {% endfor %}
    
-    {% if perms.ref.change_component_instance %}
+    {% if project.perm_change in perms %}
     <div>
         <div class='t4'>Composants supprimés</div>
             <div class='table-responsive'>

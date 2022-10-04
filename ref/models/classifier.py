@@ -23,6 +23,17 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    # Helpers for templates.
+    @property
+    def perm_view(self):
+        return f'ref.view_project_{self.id}'
+    @property
+    def perm_change(self):
+        return f'ref.modify_project_{self.id}'
+    @property
+    def perm_see_allfields(self):
+        return f'ref.allfields_componentinstance_{self.id}'
+
 class Application(models.Model):
     name = models.CharField(max_length=100)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
