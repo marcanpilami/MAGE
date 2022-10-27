@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.dispatch.dispatcher import receiver
 
 from ref.models.instances import ComponentInstance
-from scm.models import Delivery
+from scm.models import Delivery, InstallableSet
 from django.db.models.signals import post_save, post_delete
 
 @receiver(post_delete, sender=Project)
@@ -20,7 +20,9 @@ def sync_project_perms(**kwargs):
     permissions = Permission.objects.filter(Q(codename__startswith='allfields_componentinstance_', content_type__app_label='ref') |
                                             Q(codename__startswith='modify_delivery_', content_type__app_label='scm') |
                                             Q(codename__startswith='view_project_', content_type__app_label='ref') |
-                                            Q(codename__startswith='modify_project_', content_type__app_label='ref'))
+                                            Q(codename__startswith='modify_project_', content_type__app_label='ref') |
+                                            Q(codename__startswith='install_installableset_', content_type__app_label='scm') |
+                                            Q(codename__startswith='validate_installableset_', content_type__app_label='scm'))
     permissions = list(permissions)
 
     # Create or update permissions for the existing projects
@@ -46,6 +48,12 @@ def upsert_project_perm(permissions, project):
     moddel_perm = None
     moddel_perm_code = f'modify_delivery_{project.id}'
     moddel_perm_label = f'Can modify project {project.name} - {project.id} deliveries'
+    install_perm = None
+    install_perm_code = f'install_installableset_{project.id}'
+    install_perm_label = f'Can install deliveries inside project {project.name} - {project.id}'
+    validate_delivery_perm = None
+    validate_delivery_perm_code = f'validate_installableset_{project.id}'
+    validate_delivery_perm_label = f'Can validate deliveries inside project {project.name} - {project.id}'
 
     for perm in permissions:
         if perm.codename == view_perm_code:
@@ -56,6 +64,10 @@ def upsert_project_perm(permissions, project):
             allfields_perm = perm
         if perm.codename == moddel_perm_code:
             moddel_perm = perm
+        if perm.codename == install_perm_code:
+            install_perm = perm
+        if perm.codename == validate_delivery_perm_code:
+            validate_delivery_perm = perm
 
     if view_perm:
         view_perm.name = view_perm_label
@@ -88,3 +100,19 @@ def upsert_project_perm(permissions, project):
         Permission.objects.create(codename=moddel_perm_code,
                                   name=moddel_perm_label,
                                   content_type=ContentType.objects.get_for_model(Delivery))
+
+    if install_perm:
+        install_perm.name = install_perm_label
+        install_perm.save()
+    else:
+        Permission.objects.create(codename=install_perm_code,
+                                  name=install_perm_label,
+                                  content_type=ContentType.objects.get_for_model(InstallableSet))
+
+    if validate_delivery_perm:
+        validate_delivery_perm.name = validate_delivery_perm_label
+        validate_delivery_perm.save()
+    else:
+        Permission.objects.create(codename=validate_delivery_perm_code,
+                                  name=validate_delivery_perm_label,
+                                  content_type=ContentType.objects.get_for_model(InstallableSet))
