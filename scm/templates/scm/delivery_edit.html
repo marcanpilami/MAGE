@@ -18,6 +18,7 @@
 	<div id='main' class='metContainer metSection wideInputs metFormSection'>
 		<label class='t2' for='main'>Informations de base</label>
 		<table id='basics'>
+			{% if form.non_field_errors %}<tr class='formerror'><td></td><td>{{form.non_field_errors.as_text}}</td></tr>{% endif %}
 			<tr {% if form.name.errors %} class='formerror'{%endif%}><td>{{form.name.label}} :</td><td>{{form.name}}</td></tr>
 			{% if form.name.errors %}<tr><td></td><td>{{form.name.errors}}</td></tr>{%endif%}
 			<tr {% if form.description.errors %} class='formerror'{%endif%}><td>{{form.description.label}} :</td><td>{{form.description}}</td></tr>
