@@ -4,6 +4,9 @@
 ## Django imports
 from django.db import models
 
+class ProjectManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 class Project(models.Model):
     """ 
@@ -22,6 +25,11 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def natural_key(self):
+        return (self.name,)
+
+    objects = ProjectManager()
 
     # Helpers for templates.
     @property
@@ -34,6 +42,10 @@ class Project(models.Model):
     def perm_see_allfields(self):
         return f'ref.allfields_componentinstance_{self.id}'
 
+class ApplicationManager(models.Manager):
+    def get_by_natural_key(self, project, name):
+        return self.get(name=name, project__name=project)
+
 class Application(models.Model):
     name = models.CharField(max_length=100)
     alternate_name_1 = models.CharField(max_length=100, null=True, blank=True)
@@ -44,10 +56,21 @@ class Application(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return self.project.natural_key() + (self.name,)
+
+    objects = ApplicationManager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=('name', 'project'), name='application_uniqueness')
         ]
+
+
+class EnvironmentTypeManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 class EnvironmentType(models.Model):
     """ The way logical components are instanciated"""
@@ -65,6 +88,11 @@ class EnvironmentType(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return (self.name,)
+
+    objects = EnvironmentTypeManager()
 
     class Meta:
         verbose_name = u'classification des environnements'

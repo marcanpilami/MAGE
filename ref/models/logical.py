@@ -26,6 +26,10 @@ class SLA(models.Model):
 ## Constraints on environment instantiation
 ################################################################################
 
+class LogicalComponentManager(models.Manager):
+    def get_by_natural_key(self, project_name, app_name, name):
+        return self.get(name=name, application__name=app_name, application__project__name=project_name)
+
 class LogicalComponent(models.Model):
     name = models.CharField(max_length=100, verbose_name='nom')
     description = models.CharField(max_length=500)
@@ -39,9 +43,18 @@ class LogicalComponent(models.Model):
     def __str__(self):
         return u'%s' % (self.name)
 
+    def natural_key(self):
+        return self.application.natural_key() +  (self.name,)
+
+    objects = LogicalComponentManager()
+
     class Meta:
         verbose_name = u'composant logique'
         verbose_name_plural = u'composants logiques'
+
+class ComponentImplementationClassManager(models.Manager):
+    def get_by_natural_key(self, project_name, app_name, lc_name, cic_name):
+        return self.get(name=cic_name, implements__name=lc_name, implements__application__name=app_name, implements__application__project__name=project_name)
 
 class ComponentImplementationClass(models.Model):
     """ An implementation offer for a given service. """
@@ -58,6 +71,11 @@ class ComponentImplementationClass(models.Model):
 
     def __str__(self):
         return u'%s' % self.name
+
+    def natural_key(self):
+        return self.implements.natural_key() +  (self.name,)
+
+    objects = ComponentImplementationClassManager()
 
     class Meta:
         verbose_name = u'offre implémentant un composant logique'

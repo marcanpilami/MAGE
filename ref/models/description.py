@@ -30,12 +30,21 @@ class ConventionCounter(models.Model):
 ## Description classes
 ################################################################################
 
+class ImplementationRelationTypeManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 class ImplementationRelationType(models.Model):
-    name = models.CharField(max_length=20, verbose_name='type relation')
+    name = models.CharField(max_length=20, verbose_name='type relation', unique=True)
     label = models.CharField(max_length=100, verbose_name='label')
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return (self.name,)
+
+    objects = ImplementationRelationTypeManager()
 
     class Meta:
         verbose_name = 'classification des relations'
@@ -55,6 +64,10 @@ class ImplementationFieldBase(models.Model):
     class Meta:
         abstract = True
 
+class ImplementationSimpleFieldDescriptionMaager(models.Manager):
+    def get_by_natural_key(self, description_name, field_name):
+        return self.get(description__name=description_name, name=field_name)
+
 class ImplementationFieldDescription(ImplementationFieldBase):
     """ The description of a standard (i.e. that must be completed by the user) field inside a technical implementation """
     compulsory = models.BooleanField(default=True)
@@ -66,6 +79,11 @@ class ImplementationFieldDescription(ImplementationFieldBase):
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.description.name)
+
+    def natural_key(self):
+        return self.description.natural_key() + (self.name,)
+
+    objects = ImplementationSimpleFieldDescriptionMaager()
 
     class Meta:
         verbose_name = u'champ simple'
@@ -82,6 +100,11 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
     def __str__(self):
         return '%s' % (self.name)
 
+    def natural_key(self):
+        return self.description.natural_key() + (self.name,)
+
+    objects = ImplementationSimpleFieldDescriptionMaager()
+
     def resolve(self, instance):
         return naming_language.resolve(self.pattern, instance, self.pk)
 
@@ -89,6 +112,10 @@ class ImplementationComputedFieldDescription(ImplementationFieldBase):
         verbose_name = u'champ calculé'
         verbose_name_plural = u'champs calculés'
         unique_together = (('name', 'description'),)
+
+class ImplementationRelationDescriptionManager(models.Manager):
+    def get_by_natural_key(self, source_id_name, target_id_name, field_name):
+        return self.get(source__name=source_id_name, target__name=target_id_name, name=field_name)
 
 class ImplementationRelationDescription(ImplementationFieldBase):
     source = models.ForeignKey('ImplementationDescription', related_name='target_set', verbose_name='type source', on_delete=models.CASCADE)
@@ -100,15 +127,24 @@ class ImplementationRelationDescription(ImplementationFieldBase):
     def __str__(self):
         return '%s (%s)' % (self.name, self.source.name)
 
+    def natural_key(self):
+        return self.source.natural_key() + self.target.natural_key() + (self.name,)
+
+    objects = ImplementationRelationDescriptionManager()
+
     class Meta:
         verbose_name = u'relation'
         verbose_name_plural = u'relations'
         unique_together = (('name', 'source'),)
 
+class ImplementationDescriptionManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 _classes = {}
 class ImplementationDescription(models.Model):
     """ The description of a technical implementation """
-    name = models.CharField(max_length=100, verbose_name='nom', db_index=True)
+    name = models.CharField(max_length=100, verbose_name='nom', db_index=True, unique=True)
     description = models.CharField(max_length=500, verbose_name='description')
     tag = models.CharField(max_length=100, verbose_name=u'catégorie', null=True, blank=True, db_index=True)
     relationships = models.ManyToManyField('ImplementationDescription', through=ImplementationRelationDescription)
@@ -117,6 +153,11 @@ class ImplementationDescription(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return (self.name,)
+
+    objects = ImplementationDescriptionManager()
 
     def resolve_self_description(self, instance):
         return naming_language.resolve(self.self_description_pattern, instance, 'id_%s' % self.pk)

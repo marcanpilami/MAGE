@@ -34,6 +34,10 @@ def __isetdatafilename__(iset, filename):
         d = now().strftime("%Y%m%d_%H%M%S")
         return 'installablesets/' + slugify(d + '_' + iset.name) + ext
 
+class InstallableSetManager(models.Manager):
+    def get_by_natural_key(self, project_name, iset_name):
+        return self.get(name=iset_name, project__name=project_name)
+
 class InstallableSet(models.Model):
     """Référentiel GCL : ensemble pouvant être installé 
     Destiné à servir de clase de base. (par ex pour : patch, sauvegarde...)"""
@@ -59,6 +63,11 @@ class InstallableSet(models.Model):
 
     def __str__(self):
         return u'%s' % (self.name)
+
+    def natural_key(self):
+        return self.project.natural_key() + (self.name,)
+
+    objects = InstallableSetManager()
 
     def check_prerequisites(self, envt_name, ii_selection=()):
         failures = []
@@ -102,12 +111,21 @@ class BackupSet(InstallableSet):
 ## The version object
 ################################################################################
 
+class LogicalComponentVersionManager(models.Manager):
+    def get_by_natural_key(self, project_name, app_name, lc_name, version):
+        return self.get(version=version, logical_component__name=lc_name, logical_component__application__name=app_name, logical_component__application__project__name=project_name)
+
 class LogicalComponentVersion(models.Model):
     version = models.CharField(max_length=50)
     logical_component = models.ForeignKey(LogicalComponent, related_name='versions', on_delete=models.CASCADE)
 
     def __str__(self):
         return u'%s in version [%s]' % (self.logical_component.name, self.version)
+
+    def natural_key(self):
+        return self.logical_component.natural_key() + (self.version,)
+
+    objects = LogicalComponentVersionManager()
 
     def compare(self, lcv2, strict=False):
         """
@@ -200,8 +218,12 @@ class LogicalComponentVersion(models.Model):
 ## Set contents
 ################################################################################
 
+class InstallationMethodManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 class InstallationMethod(models.Model):
-    name = models.CharField(max_length=254, verbose_name=u'nom')
+    name = models.CharField(max_length=254, verbose_name=u'nom', unique=True)
     halts_service = models.BooleanField(default=True, verbose_name=u'arrêt de service')
     method_compatible_with = models.ManyToManyField(ComponentImplementationClass, related_name='installation_methods', verbose_name=u'permet d\'installer')
     available = models.BooleanField(default=True, verbose_name=u'disponible')
@@ -214,6 +236,11 @@ class InstallationMethod(models.Model):
             a = "OBSOLETE - "
         return u'%s%s' % (a, self.name)  #, ",".join([ i.name for i in self.method_compatible_with.all()]))
 
+    def natural_key(self):
+        return (self.name,)
+
+    objects = InstallationMethodManager()
+
     def check_package(self, package_file, logical_component):
         for checker in self.checkers.all():
             checker.check_package(package_file, logical_component, self)
@@ -221,6 +248,10 @@ class InstallationMethod(models.Model):
     class Meta:
         verbose_name = u'méthode d\'installation'
         verbose_name_plural = u'méthodes d\'installation'
+
+class BackupItemManager(models.Manager):
+    def get_by_natural_key(self, project_name, backupset_name, ci_stable_key):
+        return self.get(backupset__project__name=project_name, backupset__name=backupset_name, instance__stable_key=ci_stable_key, instance__project__name=project_name)
 
 class BackupItem(models.Model):
     """ Backup can contain component instances that are NOT SCM tracked.
@@ -230,10 +261,20 @@ class BackupItem(models.Model):
     related_scm_install = models.ForeignKey('InstallableItem', blank=True, null=True, on_delete=models.CASCADE)  # null if not SCM-tracked
     instance_configuration = models.ForeignKey('ComponentInstanceConfiguration', blank=True, null=True, on_delete=models.CASCADE)
 
+    def natural_key(self):
+        return self.backupset.natural_key() + (self.instance.natural_key()[1],)
+
+    objects = BackupItemManager()
+
 def __iidatafilename__(ii, filename):
         ext = os.path.splitext(filename)[1]
         d = ii.belongs_to_set.set_date.strftime("%Y%m%d_%H%M%S")
         return 'installablesets/' + slugify(d + '_' + ii.belongs_to_set.name) + '/' + slugify(ii.what_is_installed.logical_component.name) + ext
+
+class InstallableItemManager(models.Manager):
+    def get_by_natural_key(self, project_name, iset_name, app_name, lc_name, version):
+        return self.get(belongs_to_set__project__name=project_name, belongs_to_set__name=iset_name, 
+        what_is_installed__version=version, what_is_installed__logical_component__name=lc_name, what_is_installed__logical_component__application__name=app_name, what_is_installed__logical_component__application__project__name=project_name)
 
 class InstallableItem(models.Model):
     what_is_installed = models.ForeignKey(LogicalComponentVersion, related_name='installed_by', on_delete=models.CASCADE)
@@ -248,6 +289,11 @@ class InstallableItem(models.Model):
             return u'Installation of [%s] in version [%s] (%s dependencies with other components'' versions)' % (self.what_is_installed.logical_component.name, self.what_is_installed.version, self.dependencies.count())
         else:
             return u'installable item'
+
+    def natural_key(self):
+        return self.belongs_to_set.natural_key() + self.what_is_installed.natural_key()[1:]
+
+    objects = InstallableItemManager()
 
     def __find_existing_file(self):
         if MEDIA_ROOT is None or MEDIA_ROOT == "":
@@ -318,6 +364,11 @@ class InstallableItem(models.Model):
         else:
             raise MageScmFailedEnvironmentDependencyCheck(envt_name, self, failures)
 
+class ItemDependencyManager(models.Manager):
+    def get_by_natural_key(self, project_name, iset_name, installable_app_name, installable_lc_name, installable_version, depends_on_app_name, depends_on_lc_name, depends_on_version, operator):
+        ii = InstallableItem.objects.get_by_natural_key(project_name, iset_name, installable_app_name, installable_lc_name, installable_version)
+        lcv = LogicalComponentVersion.objects.get_by_natural_key(project_name, depends_on_app_name, depends_on_lc_name, depends_on_version)
+        return self.get(installable_item=ii, depends_on_version=lcv, operator=operator)
 
 class ItemDependency(models.Model):
     OPERATOR_CHOICES = (('>=', '>='),
@@ -331,6 +382,12 @@ class ItemDependency(models.Model):
         return u'dépendance de [%s] envers [%s en version %s %s]' % (self.installable_item.what_is_installed.logical_component.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
+    def natural_key(self):
+        return self.installable_item.natural_key() + self.depends_on_version.natural_key()[1:] + (self.operator,)
+    natural_key.dependencies = ['scm.InstallableItem', 'scm.LogicalComponentVersion']
+
+    objects = ItemDependencyManager()
+
 class SetDependency(models.Model):
     OPERATOR_CHOICES = (('>=', '>='),
                         ('<=', '<='),
@@ -343,6 +400,10 @@ class SetDependency(models.Model):
         return u'IS [%s] requires [%s in version %s %s]' % (self.installable_set.name, self.depends_on_version.logical_component.name,
                                                                  self.operator, self.depends_on_version.version)
 
+class InstallationManager(models.Manager):
+    def get_by_natural_key(self, project_name, iset_name, install_date):
+        return self.get(installed_set__name=iset_name, installed_set__project__name=project_name, install_date=install_date)
+
 class Installation(models.Model):
     installed_set = models.ForeignKey(InstallableSet, verbose_name='livraison appliquée ', on_delete=models.CASCADE)
     asked_in_ticket = models.CharField(max_length=10, verbose_name='ticket lié ', blank=True, null=True)
@@ -351,6 +412,11 @@ class Installation(models.Model):
     def __str__(self):
         return '%s sur %s  le %s' % (self.installed_set.name, [i.component_instance.environments.all() for i in self.modified_components.all()], self.install_date)
 
+    def natural_key(self):
+        return self.installed_set.natural_key() + (self.install_date,)
+
+    objects = InstallationManager()
+
 @receiver(post_save, sender=Installation)
 def check_validation_on_install(sender, instance, raw, **kwargs):
     if raw:
@@ -358,6 +424,11 @@ def check_validation_on_install(sender, instance, raw, **kwargs):
     if instance.installed_set.status == 3:
         instance.installed_set.status = 1
         instance.installed_set.save()
+
+class ComponentInstanceConfigurationManager(models.Manager):
+    def get_by_natural_key(self, project, ci_stable_key, iset_name, app_name, lc_name, version, created_on):
+        ii = InstallableItem.objects.get_by_natural_key(project, iset_name, app_name, lc_name, version)
+        return self.get(component_instance__project__name=project, component_instance__stable_key=ci_stable_key, result_of=ii, created_on=created_on)
 
 class ComponentInstanceConfiguration(models.Model):
     component_instance = models.ForeignKey(ComponentInstance, related_name='configurations', on_delete=models.CASCADE)
@@ -369,6 +440,15 @@ class ComponentInstanceConfiguration(models.Model):
     def __str__(self):
         return u'At %s, component %s was at version %s' % (self.created_on, self.component_instance.name, self.result_of.what_is_installed.version)
 
+    def natural_key(self):
+        return self.component_instance.natural_key() + self.result_of.natural_key()[1:] + (self.created_on,)
+
+    objects = ComponentInstanceConfigurationManager()
+
+class TagManager(models.Manager):
+    def get_by_natural_key(self, project_name, name):
+        return self.get(from_envt__project__name=project_name, name=name)
+
 class Tag(models.Model):
     name = models.CharField(max_length=40, verbose_name=u'référence', unique=True)
     versions = models.ManyToManyField(LogicalComponentVersion, verbose_name=u'version des composants')
@@ -378,10 +458,20 @@ class Tag(models.Model):
     def __str__(self):
         return u'Tag n°%s - %s (concerne %s composants)' % (self.pk, self.name, self.versions.count())
 
+    def natural_key(self):
+        return (self.from_envt.project.name, self.name,)
+
+    objects = TagManager()
+
 
 #######################################################################################
 ## Backup parameters
 #######################################################################################
+
+class BackupRestoreMethodManager(models.Manager):
+    def get_by_natural_key(self, project_name, app_name, lc_name, cic_name, installation_method_name):
+        cic = ComponentImplementationClass.objects.get_by_natural_key(project_name, app_name, lc_name, cic_name)
+        return self.get(target=cic, method__name=installation_method_name)
 
 class BackupRestoreMethod(models.Model):
     """
@@ -395,6 +485,11 @@ class BackupRestoreMethod(models.Model):
     class Meta:
         verbose_name = u'méthode de restauration par défaut'
         verbose_name_plural = 'méthodes de restauration par défaut'
+
+    def natural_key(self):
+        return self.target.natural_key() + self.method.natural_key()
+
+    objects = BackupRestoreMethodManager()
 
 @receiver(post_save, sender=ComponentImplementationClass)
 def create_brm(sender, instance, raw, **kwargs):
@@ -415,9 +510,13 @@ def create_brm(sender, instance, raw, **kwargs):
 ## DSL elements
 #######################################################################################
 
+class PackageCheckerManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 class PackageChecker(models.Model):
     module = models.CharField(max_length=200, verbose_name='Python module containing the checker class')
-    name = models.CharField(max_length=200, verbose_name='Python checker class name')
+    name = models.CharField(max_length=200, verbose_name='Python checker class name', unique=True)
     description = models.CharField(max_length=200, verbose_name='description')
 
     def check_package(self, package_file, logical_component, installation_method):
@@ -426,6 +525,11 @@ class PackageChecker(models.Model):
 
     def __str__(self):
         return self.description
+
+    def natural_key(self):
+        return (self.name,)
+
+    objects = PackageCheckerManager()
 
 
 class PackageCheckerBaseImpl(object):

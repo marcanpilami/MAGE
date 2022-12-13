@@ -25,6 +25,10 @@ class EnvironmentManagerStd(models.Manager):
     def get_queryset(self):
         return super(EnvironmentManagerStd, self).get_queryset().filter(template_only=False, active=True)
 
+class EnvironmentManager(models.Manager):
+    def get_by_natural_key(self, project, name):
+        return self.get(name=name, project__name=project)
+
 class Environment(models.Model):
     """ 
         A set of component instances forms an environment
@@ -56,8 +60,11 @@ class Environment(models.Model):
     def ci_id_list(self):
         return ','.join([str(ci.id) for ci in self.component_instances.filter(deleted=False)])
 
-    objects = models.Manager()
+    objects = EnvironmentManager()
     objects_active = EnvironmentManagerStd()
+
+    def natural_key(self):
+        return self.project.natural_key() + (self.name,)
 
     class Meta:
         verbose_name = 'environnement'
@@ -82,13 +89,10 @@ def disable_cis(sender, instance, raw, using, update_fields, **kwargs):
 ## Environment components (actual instances of technical items)
 ################################################################################
 
-class RichManager(models.Manager):
-    """ Standard manager with a few helper methods"""
-    def get_or_none(self, *args, **kwargs):
-        try:
-            return self.get(*args, **kwargs)
-        except self.model.DoesNotExist:
-            return None
+class ComponentInstanceRelationManager(models.Manager):
+    def get_by_natural_key(self, project, source_ci_stable_key, target_ci_stable_key, relation_source_id_name, relation_target_id_name, relation_field_name):
+        return self.get(source__project__name=project, target__project__name=project, source__stable_key=source_ci_stable_key, target__stable_key=target_ci_stable_key, 
+                        field__source__name=relation_source_id_name, field__target__name=relation_target_id_name, field__name=relation_field_name)
 
 class ComponentInstanceRelation(models.Model):
     source = models.ForeignKey('ComponentInstance', related_name='rel_target_set', verbose_name='instance source', on_delete=models.CASCADE)
@@ -102,9 +106,24 @@ class ComponentInstanceRelation(models.Model):
     def __str__(self):
         return 'valeur de %s' % self.field.name
 
-class ComponentInstanceField(models.Model):
-    objects = RichManager()
+    def natural_key(self):
+        return self.source.natural_key() + (self.target.natural_key()[1],) + self.field.natural_key()
 
+    objects = ComponentInstanceRelationManager()
+
+class ComponentInstanceFieldManager(models.Manager):
+    """ Standard manager with a few helper methods"""
+    def get_or_none(self, *args, **kwargs):
+        try:
+            return self.get(*args, **kwargs)
+        except self.model.DoesNotExist:
+            return None
+
+    def get_by_natural_key(self, project, ci_stable_key, field_id_name, field_name):
+        return self.get(instance__project__name=project, instance__stable_key=ci_stable_key,
+                        field__description__name=field_id_name, field__name=field_name)
+
+class ComponentInstanceField(models.Model):
     value = models.CharField(max_length=512, verbose_name='valeur', db_index=True)
     field = models.ForeignKey('ImplementationFieldDescription', verbose_name=u'champ implémenté', on_delete=models.CASCADE)
     instance = models.ForeignKey('ComponentInstance', verbose_name=u'instance de composant', related_name='field_set', on_delete=models.CASCADE)
@@ -116,6 +135,16 @@ class ComponentInstanceField(models.Model):
     def __str__(self):
         return 'valeur de %s' % self.field.name
 
+    def natural_key(self):
+        return self.instance.natural_key() + self.field.natural_key()
+
+    objects = ComponentInstanceFieldManager()
+
+
+class ComponentInstanceManager(models.Manager):
+    def get_by_natural_key(self, project, stable_key):
+        return self.get(stable_key=stable_key, project__name=project)
+
 class ComponentInstance(models.Model):
     """Instances! Usually used through its proxy object"""
 
@@ -125,6 +154,7 @@ class ComponentInstance(models.Model):
     project = models.ForeignKey(Project, related_name='component_instances', verbose_name='project', on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
     include_in_envt_backup = models.BooleanField(default=False)
+    stable_key = models.IntegerField(verbose_name="only used in specific serialization scenarii", null=True)
 
     ## Environments
     environments = models.ManyToManyField(Environment, blank=True, verbose_name='environnements ', related_name='component_instances')
@@ -156,6 +186,12 @@ class ComponentInstance(models.Model):
             return ""
         return ','.join([e.name for e in self.environments.all()])
     environments_str = property(_environments_str)
+
+    ## Natural keys
+    def natural_key(self):
+        return self.project.natural_key() + (self.stable_key or self.pk,)
+
+    objects = ComponentInstanceManager()
 
     ## Pretty print
     def __str__(self):

@@ -59,6 +59,10 @@ def choice_list():
         if app_name in ('django', 'crispy_forms', 'debug_toolbar', 'django_extensions'): continue
         yield (app_name, app_name)
 
+class MageParamManager(models.Manager):
+    def get_by_natural_key(self, key, app, model_app_label, model, axis1):
+        return self.get(key=key, app=app, model__app_label=model_app_label, model__model=model, axis1=axis1)
+
 class MageParam(models.Model):
     key = models.CharField(max_length=30, verbose_name=u'clé')
     app = models.CharField(max_length=5, verbose_name=u'application', choices=choice_list())
@@ -73,6 +77,11 @@ class MageParam(models.Model):
 
     def __str__(self):
         return u'[%s] %s : %s' % (self.app, self.key, self.value)
+
+    def natural_key(self):
+        return (self.key, self.app) +  (self.model.natural_key() if self.model else (None, None)) + (self.axis1,)
+
+    objects = MageParamManager()
 
     class Meta:
         verbose_name = u'paramètre global'
