@@ -56,7 +56,7 @@ class DuplicateParam(Exception):
 def choice_list():
     for application in settings.INSTALLED_APPS:
         app_name = application.split('.')[0]
-        if app_name in ('django', 'crispy_forms', 'debug_toolbar', 'django_extensions'): continue
+        if app_name in ('django', 'crispy_forms', 'debug_toolbar', 'django_extensions', 'mozilla_django_oidc'): continue
         yield (app_name, app_name)
 
 class MageParamManager(models.Manager):
