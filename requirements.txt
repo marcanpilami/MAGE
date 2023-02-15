@@ -38,3 +38,6 @@ sphinx
 sphinx_rtd_theme
 rstcheck==5.0.0
 pydotplus
+
+# Authentication and access management library for integration with OpenID Connect.
+mozilla-django-oidc

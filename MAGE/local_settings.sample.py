@@ -108,11 +108,43 @@ LANGUAGE_CODE = 'fr-fr'
 
 # Add your applications here (comma separated list)
 # Example: LOCAL_APPS = ['debug_toolbar.apps.DebugToolbarConfig', ]
-LOCAL_APPS=[]
+LOCAL_APPS=[
+    # Uncomment to use mozilla_django_oidc
+    # 'mozilla_django_oidc', # Load after auth
+]
 
 # Add your own middleware here.
     # Example: LOCAL_MIDDLEWARE = ['MAGE.profiler.ProfileMiddleware', 'debug_toolbar.middleware.DebugToolbarMiddleware',]
-LOCAL_MIDDLEWARE = []
+LOCAL_MIDDLEWARE = [
+    # Middleware involving session and authentication must come first
+    # Uncomment to check if the user’s id token has expired and if so,
+    # redirect to the OIDC provider’s authentication endpoint for a silent re-auth.
+    # 'mozilla_django_oidc.middleware.SessionRefresh'
+]
+
+AUTHENTICATION_BACKENDS = [
+    # Uncomment to use mozilla_django_oidc authentication backend
+    # 'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+]
+
+# The default signing algorithm is HS256.
+# For RS256 algorithm to work, you need to set either the OP signing key or the OP JWKS Endpoint.
+# OIDC_RP_SIGN_ALGO = 'RS256'
+# OIDC_RP_IDP_SIGN_KEY = "<OP signing key in PEM or DER format>"
+# OIDC_OP_JWKS_ENDPOINT = "<URL of the OIDC OP jwks endpoint>"
+
+# From the OpenID Connect provider (OP)
+# OIDC_RP_CLIENT_ID = "<A client id>"
+# OIDC_RP_CLIENT_SECRET = "<A client secret>"
+
+# Specific to your OpenID Connect provider (OP)
+# OIDC_OP_AUTHORIZATION_ENDPOINT = "<URL of the OIDC OP authorization endpoint>"
+# OIDC_OP_TOKEN_ENDPOINT = "<URL of the OIDC OP token endpoint>"
+# OIDC_OP_USER_ENDPOINT = "<URL of the OIDC OP userinfo endpoint>"
+
+# Optional, values relate to your site.
+# LOGIN_REDIRECT_URL = "<URL path to redirect to after login>"
+# LOGOUT_REDIRECT_URL = "<URL path to redirect to after logout>"
 
 
 ###############################################################################
@@ -140,4 +172,3 @@ DEBUG = False
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
-
