@@ -103,7 +103,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'mozilla_django_oidc.middleware.SessionRefresh',
 ]
 
 ROOT_URLCONF = 'MAGE.urls'
@@ -195,7 +194,6 @@ except ImportError as e:
 
 INSTALLED_APPS = [
     'django.contrib.auth',
-    'mozilla_django_oidc', # Load after auth
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -212,19 +210,3 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += LOCAL_APPS
 MIDDLEWARE += LOCAL_MIDDLEWARE
-
-AUTHENTICATION_BACKENDS = [
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
-]
-
-OIDC_RP_SIGN_ALGO = 'RS256'
-OIDC_OP_JWKS_ENDPOINT = "https://login.microsoftonline.com/f229acc0-5400-42d3-9d32-ae7c2c2c43ce/discovery/v2.0/keys"
-
-# From Open id provider (Azure Ad)
-OIDC_RP_CLIENT_ID = '71c4b90c-ebff-4b05-a4a9-700ba0315e86'
-OIDC_RP_CLIENT_SECRET = '2vF8Q~7NJMfTS59UdToIXMz6ACtOSRLnU3uSIc94'
-
-# Specific to your OpenID Connect provider
-OIDC_OP_AUTHORIZATION_ENDPOINT = "https://login.microsoftonline.com/f229acc0-5400-42d3-9d32-ae7c2c2c43ce/oauth2/v2.0/authorize"
-OIDC_OP_TOKEN_ENDPOINT = "https://login.microsoftonline.com/f229acc0-5400-42d3-9d32-ae7c2c2c43ce/oauth2/v2.0/token"
-OIDC_OP_USER_ENDPOINT = "https://graph.microsoft.com/oidc/userinfo"
