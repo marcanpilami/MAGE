@@ -111,7 +111,7 @@ One can add fields from related instances at the beginning of the query. ::
 
     SELECT name, server.dns FROM INSTANCES WHERE ...
     
-This will only give two attributes: the name of the compoennt instance, and the dns of the server the instance runs on.
+This will only give two attributes: the name of the component instance, and the dns of the server the instance runs on.
 
 .. warning:: this is not efficient. Using computed fields is far better.
 
