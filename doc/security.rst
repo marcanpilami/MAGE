@@ -10,7 +10,7 @@ A middleware can be enabled inside MAGE settings (a line to uncomment) in order 
 
 The following permissions are defined at project level and are always applied (even to anonymous users):
 
-* sensitive data (fields marked as such in the compoennt description, usually password-like fields) are only available to accounts with the `allfields_componentinstance` permission.
+* sensitive data (fields marked as such in the component description, usually password-like fields) are only available to accounts with the `allfields_componentinstance` permission.
 * uploading a new delivery requires the `modify_delivery` permission
 * modifying an environment requires the `modify_project` permission
 
